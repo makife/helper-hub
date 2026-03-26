@@ -16,6 +16,10 @@ type TaskPin = typeof demoTasks[number];
 
 const Home = () => {
   const [selectedTask, setSelectedTask] = useState<TaskPin | null>(null);
+  const handleTaskClick = (task: { id: string; title: string; price: number; lat: number; lng: number; emoji: string; urgent?: boolean; distance?: string; estimatedMinutes?: number }) => {
+    const matched = demoTasks.find(t => t.id === task.id);
+    if (matched) setSelectedTask(matched);
+  };
   const navigate = useNavigate();
   const { signOut } = useAuth();
 
