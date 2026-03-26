@@ -6,9 +6,6 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const GATEWAY_URL = "https://connector-gateway.lovable.dev/twilio";
-const TWILIO_FROM = "+14786063646";
-
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -23,11 +20,14 @@ Deno.serve(async (req) => {
       );
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+    const TWILIO_ACCOUNT_SID = Deno.env.get("TWILIO_ACCOUNT_SID");
+    if (!TWILIO_ACCOUNT_SID) throw new Error("TWILIO_ACCOUNT_SID is not configured");
 
-    const TWILIO_API_KEY = Deno.env.get("TWILIO_API_KEY");
-    if (!TWILIO_API_KEY) throw new Error("TWILIO_API_KEY is not configured");
+    const TWILIO_AUTH_TOKEN = Deno.env.get("TWILIO_AUTH_TOKEN");
+    if (!TWILIO_AUTH_TOKEN) throw new Error("TWILIO_AUTH_TOKEN is not configured");
+
+    const TWILIO_PHONE_NUMBER = Deno.env.get("TWILIO_PHONE_NUMBER");
+    if (!TWILIO_PHONE_NUMBER) throw new Error("TWILIO_PHONE_NUMBER is not configured");
 
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -35,7 +35,7 @@ Deno.serve(async (req) => {
 
     // Generate 6-digit code
     const code = String(Math.floor(100000 + Math.random() * 900000));
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString(); // 5 min
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
 
     // Invalidate old codes
     await supabase
@@ -54,17 +54,19 @@ Deno.serve(async (req) => {
       throw new Error("OTP kaydedilemedi");
     }
 
-    // Send SMS via Twilio gateway
-    const smsResponse = await fetch(`${GATEWAY_URL}/Messages.json`, {
+    // Send SMS via Twilio REST API directly
+    const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`;
+    const credentials = btoa(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`);
+
+    const smsResponse = await fetch(twilioUrl, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "X-Connection-Api-Key": TWILIO_API_KEY,
+        Authorization: `Basic ${credentials}`,
         "Content-Type": "application/x-www-form-urlencoded",
       },
       body: new URLSearchParams({
         To: phone,
-        From: TWILIO_FROM,
+        From: TWILIO_PHONE_NUMBER,
         Body: `Bi' El At doğrulama kodunuz: ${code}`,
       }),
     });
@@ -74,6 +76,8 @@ Deno.serve(async (req) => {
       console.error("Twilio error:", smsData);
       throw new Error(`SMS gönderilemedi [${smsResponse.status}]: ${JSON.stringify(smsData)}`);
     }
+
+    console.log("SMS sent successfully:", smsData.sid);
 
     return new Response(
       JSON.stringify({ success: true }),
