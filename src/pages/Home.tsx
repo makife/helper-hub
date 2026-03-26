@@ -34,6 +34,7 @@ const Home = () => {
   const [locationName, setLocationName] = useState("Konum alınıyor...");
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { role } = useRole();
 
   useEffect(() => {
     if (!("geolocation" in navigator)) {
