@@ -5,14 +5,14 @@ import { Briefcase, Wrench } from "lucide-react";
 
 const roles = [
   {
-    id: "owner",
+    id: "owner" as const,
     icon: Briefcase,
     title: "İş Sahibi",
     desc: "Evindeki işler için yardım ara, hızlıca birini bul.",
     emoji: "🏠",
   },
   {
-    id: "tasker",
+    id: "tasker" as const,
     icon: Wrench,
     title: "Tasker",
     desc: "Yakınındaki işleri kabul et, para kazan.",
@@ -21,7 +21,7 @@ const roles = [
 ];
 
 const RoleSelect = () => {
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<"owner" | "tasker" | null>(null);
   const navigate = useNavigate();
 
   return (
@@ -52,9 +52,7 @@ const RoleSelect = () => {
           >
             <div
               className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-xl text-2xl ${
-                selected === role.id
-                  ? "gradient-warm text-primary-foreground"
-                  : "bg-muted"
+                selected === role.id ? "gradient-warm" : "bg-muted"
               }`}
             >
               {role.emoji}
