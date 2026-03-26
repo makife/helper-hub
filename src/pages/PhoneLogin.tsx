@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Phone } from "lucide-react";
+import { AlertTriangle, Phone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import logo from "@/assets/logo.png";
@@ -9,6 +9,7 @@ import logo from "@/assets/logo.png";
 const PhoneLogin = () => {
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
+  const [providerIssue, setProviderIssue] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const formatPhone = (value: string) => {
@@ -20,6 +21,7 @@ const PhoneLogin = () => {
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPhone(formatPhone(e.target.value));
+    if (providerIssue) setProviderIssue(null);
   };
 
   const rawDigits = phone.replace(/\s/g, "");
@@ -28,9 +30,9 @@ const PhoneLogin = () => {
   const handleSubmit = async () => {
     if (!isValid) return;
     setLoading(true);
-    
+    setProviderIssue(null);
+
     const fullPhone = `+90${rawDigits}`;
-    
     const { error } = await supabase.auth.signInWithOtp({
       phone: fullPhone,
     });
@@ -38,6 +40,19 @@ const PhoneLogin = () => {
     setLoading(false);
 
     if (error) {
+      const errorCode = (error as { code?: string }).code;
+      const providerDisabled =
+        errorCode === "phone_provider_disabled" ||
+        error.message.toLowerCase().includes("unsupported phone provider");
+
+      if (providerDisabled) {
+        setProviderIssue(
+          "Telefon ile giriş henüz aktif değil. Lovable Cloud içinde Users → Auth settings bölümünden bir SMS provider bağlanması gerekiyor."
+        );
+        toast.error("Telefon OTP henüz aktif değil.");
+        return;
+      }
+
       toast.error("SMS gönderilemedi. Lütfen tekrar deneyin.");
       console.error("OTP error:", error);
       return;
@@ -95,6 +110,18 @@ const PhoneLogin = () => {
         <p className="mt-3 text-xs text-muted-foreground">
           SMS ile 6 haneli bir doğrulama kodu göndereceğiz.
         </p>
+
+        {providerIssue && (
+          <div className="mt-4 rounded-2xl border border-destructive/20 bg-destructive/5 p-4">
+            <div className="mb-1 flex items-start gap-2">
+              <AlertTriangle size={18} className="mt-0.5 text-destructive" />
+              <div>
+                <p className="text-sm font-bold text-foreground">Telefon OTP kapalı</p>
+                <p className="text-sm text-muted-foreground">{providerIssue}</p>
+              </div>
+            </div>
+          </div>
+        )}
       </motion.div>
 
       <motion.button

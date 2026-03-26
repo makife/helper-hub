@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { AlertTriangle, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -11,6 +11,7 @@ const OTPVerify = () => {
   const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(""));
   const [timer, setTimer] = useState(60);
   const [loading, setLoading] = useState(false);
+  const [providerIssue, setProviderIssue] = useState<string | null>(null);
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
   const navigate = useNavigate();
   const location = useLocation();
@@ -30,6 +31,8 @@ const OTPVerify = () => {
 
   const verifyOtp = async (code: string) => {
     setLoading(true);
+    setProviderIssue(null);
+
     const { error } = await supabase.auth.verifyOtp({
       phone: fullPhone,
       token: code,
@@ -45,9 +48,11 @@ const OTPVerify = () => {
     }
 
     toast.success("Giriş başarılı!");
-    
-    // Check if user has profile set up
-    const { data: { user } } = await supabase.auth.getUser();
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     if (user) {
       const { data: profile } = await supabase
         .from("profiles")
@@ -85,8 +90,23 @@ const OTPVerify = () => {
   };
 
   const resendOtp = async () => {
+    setProviderIssue(null);
     const { error } = await supabase.auth.signInWithOtp({ phone: fullPhone });
+
     if (error) {
+      const errorCode = (error as { code?: string }).code;
+      const providerDisabled =
+        errorCode === "phone_provider_disabled" ||
+        error.message.toLowerCase().includes("unsupported phone provider");
+
+      if (providerDisabled) {
+        setProviderIssue(
+          "Telefon ile giriş henüz aktif değil. Lovable Cloud içinde Users → Auth settings bölümünden bir SMS provider bağlanması gerekiyor."
+        );
+        toast.error("Telefon OTP henüz aktif değil.");
+        return;
+      }
+
       toast.error("Kod gönderilemedi.");
     } else {
       toast.success("Yeni kod gönderildi!");
@@ -128,7 +148,9 @@ const OTPVerify = () => {
         {otp.map((digit, i) => (
           <input
             key={i}
-            ref={(el) => { inputsRef.current[i] = el; }}
+            ref={(el) => {
+              inputsRef.current[i] = el;
+            }}
             type="text"
             inputMode="numeric"
             maxLength={1}
@@ -141,6 +163,18 @@ const OTPVerify = () => {
           />
         ))}
       </motion.div>
+
+      {providerIssue && (
+        <div className="mb-4 rounded-2xl border border-destructive/20 bg-destructive/5 p-4">
+          <div className="mb-1 flex items-start gap-2">
+            <AlertTriangle size={18} className="mt-0.5 text-destructive" />
+            <div>
+              <p className="text-sm font-bold text-foreground">Telefon OTP kapalı</p>
+              <p className="text-sm text-muted-foreground">{providerIssue}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <motion.div
         initial={{ opacity: 0 }}
