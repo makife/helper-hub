@@ -44,7 +44,7 @@ const Home = () => {
 
       {/* Map */}
       <div className="relative mx-5 mb-4 overflow-hidden rounded-2xl border border-border shadow-card" style={{ height: 260 }}>
-        <TaskMap tasks={demoTasks} onTaskClick={setSelectedTask} />
+        <TaskMap tasks={demoTasks} onTaskClick={handleTaskClick} />
       </div>
 
       {/* Stats */}
