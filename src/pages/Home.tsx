@@ -169,11 +169,11 @@ const Home = () => {
 
       {/* Bottom Nav */}
       <div className="fixed bottom-0 left-0 right-0 z-30 flex items-center justify-around border-t border-border bg-card px-4 pb-2 pt-3 safe-bottom">
-        <button className="flex flex-col items-center gap-0.5">
+        <button onClick={() => navigate("/home")} className="flex flex-col items-center gap-0.5">
           <MapPin size={20} className="text-primary" />
           <span className="text-[10px] font-bold text-primary">Keşfet</span>
         </button>
-        <button className="flex flex-col items-center gap-0.5">
+        <button onClick={() => navigate("/my-tasks")} className="flex flex-col items-center gap-0.5">
           <Search size={20} className="text-muted-foreground" />
           <span className="text-[10px] font-semibold text-muted-foreground">İşlerim</span>
         </button>
@@ -183,11 +183,11 @@ const Home = () => {
         >
           <Plus size={24} className="text-primary-foreground" />
         </button>
-        <button className="flex flex-col items-center gap-0.5">
+        <button onClick={() => navigate("/notifications")} className="flex flex-col items-center gap-0.5">
           <Bell size={20} className="text-muted-foreground" />
           <span className="text-[10px] font-semibold text-muted-foreground">Bildirim</span>
         </button>
-        <button onClick={signOut} className="flex flex-col items-center gap-0.5">
+        <button onClick={() => navigate("/profile")} className="flex flex-col items-center gap-0.5">
           <User size={20} className="text-muted-foreground" />
           <span className="text-[10px] font-semibold text-muted-foreground">Profil</span>
         </button>
