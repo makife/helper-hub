@@ -142,10 +142,10 @@ const Home = () => {
         <div>
           <p className="text-xs font-semibold text-muted-foreground">📍 {locationName}</p>
           <h1 className="text-xl font-black text-foreground">
-            {role === "tasker" ? "İş Bul 🔧" : "Merhaba! 👋"}
+            {role === "tasker" ? "İş Al 🔧" : "İş Ver 👋"}
           </h1>
           {role === "tasker" && (
-            <p className="text-xs text-primary font-semibold">Tasker modundasın</p>
+            <p className="text-xs text-primary font-semibold">İş Al modundasın</p>
           )}
         </div>
         <div className="flex gap-2">

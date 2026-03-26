@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { X, Clock, MapPin, Star, User, Navigation } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -20,6 +21,7 @@ type Props = {
 
 const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [owner, setOwner] = useState<Tables<"profiles"> | null>(null);
   const [accepting, setAccepting] = useState(false);
 
@@ -93,7 +95,10 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
 
         {/* Owner Profile */}
         {owner && (
-          <div className="mb-4 flex items-center gap-3 rounded-xl bg-muted/50 p-3">
+          <button
+            onClick={() => { onClose(); navigate(`/profile/${owner.user_id}`); }}
+            className="mb-4 flex w-full items-center gap-3 rounded-xl bg-muted/50 p-3 text-left transition-all active:scale-[0.98]"
+          >
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
               {owner.avatar_url ? (
                 <img src={owner.avatar_url} alt="" className="h-full w-full rounded-full object-cover" />
@@ -110,7 +115,8 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
                 <span>{owner.total_completed || 0} iş</span>
               </div>
             </div>
-          </div>
+            <span className="text-xs text-primary font-semibold">Profili Gör →</span>
+          </button>
         )}
 
         <div className="mb-4 rounded-xl bg-muted/50 p-3">
