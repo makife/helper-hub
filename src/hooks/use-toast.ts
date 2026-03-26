@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, ReactNode } from "react";
 
 import type { ToastActionElement, ToastProps } from "@/components/ui/toast";
 
