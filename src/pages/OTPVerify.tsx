@@ -1,0 +1,130 @@
+import { useState, useRef, useEffect } from "react";
+import { motion } from "framer-motion";
+import { useNavigate, useLocation } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
+
+const OTP_LENGTH = 6;
+
+const OTPVerify = () => {
+  const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(""));
+  const [timer, setTimer] = useState(60);
+  const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const phone = (location.state as any)?.phone || "5XXXXXXXXX";
+
+  useEffect(() => {
+    inputsRef.current[0]?.focus();
+  }, []);
+
+  useEffect(() => {
+    if (timer <= 0) return;
+    const interval = setInterval(() => setTimer((t) => t - 1), 1000);
+    return () => clearInterval(interval);
+  }, [timer]);
+
+  const handleChange = (index: number, value: string) => {
+    if (!/^\d*$/.test(value)) return;
+    const newOtp = [...otp];
+    newOtp[index] = value.slice(-1);
+    setOtp(newOtp);
+
+    if (value && index < OTP_LENGTH - 1) {
+      inputsRef.current[index + 1]?.focus();
+    }
+
+    if (newOtp.every((d) => d !== "")) {
+      // Auto-submit when all filled
+      setTimeout(() => navigate("/role-select"), 300);
+    }
+  };
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      inputsRef.current[index - 1]?.focus();
+    }
+  };
+
+  const maskedPhone = `+90 ${phone.slice(0, 3)} *** ** ${phone.slice(-2)}`;
+
+  return (
+    <div className="flex min-h-screen flex-col bg-background px-6 pb-8 pt-12 safe-top safe-bottom">
+      <motion.button
+        initial={{ x: -20, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        onClick={() => navigate(-1)}
+        className="mb-8 flex items-center gap-2 text-sm font-semibold text-muted-foreground"
+      >
+        <ArrowLeft size={20} />
+        Geri
+      </motion.button>
+
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.1 }}
+      >
+        <h1 className="mb-2 text-3xl font-black text-foreground">Doğrulama Kodu</h1>
+        <p className="mb-8 text-base text-muted-foreground">
+          <span className="font-bold text-foreground">{maskedPhone}</span> numarasına gönderilen 6 haneli kodu gir.
+        </p>
+      </motion.div>
+
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="mb-6 flex justify-center gap-3"
+      >
+        {otp.map((digit, i) => (
+          <input
+            key={i}
+            ref={(el) => { inputsRef.current[i] = el; }}
+            type="text"
+            inputMode="numeric"
+            maxLength={1}
+            value={digit}
+            onChange={(e) => handleChange(i, e.target.value)}
+            onKeyDown={(e) => handleKeyDown(i, e)}
+            className={`h-14 w-12 rounded-xl border-2 bg-card text-center text-2xl font-black text-foreground outline-none transition-colors ${
+              digit ? "border-primary" : "border-border"
+            } focus:border-primary`}
+          />
+        ))}
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3 }}
+        className="mb-auto text-center"
+      >
+        {timer > 0 ? (
+          <p className="text-sm text-muted-foreground">
+            Tekrar gönder <span className="font-bold text-foreground">{timer}s</span>
+          </p>
+        ) : (
+          <button
+            onClick={() => setTimer(60)}
+            className="text-sm font-bold text-primary"
+          >
+            Kodu tekrar gönder
+          </button>
+        )}
+      </motion.div>
+
+      <motion.button
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.4 }}
+        onClick={() => navigate("/role-select")}
+        disabled={otp.some((d) => d === "")}
+        className="gradient-warm w-full rounded-2xl px-6 py-4 text-lg font-bold text-primary-foreground shadow-soft transition-all active:scale-[0.98] disabled:opacity-40"
+      >
+        Doğrula
+      </motion.button>
+    </div>
+  );
+};
+
+export default OTPVerify;
