@@ -1,38 +1,20 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { MapPin, Search, Plus, Bell, User, Wrench } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useState } from "react";
+import { MapPin, Search, Plus, Bell, Wrench, User } from "lucide-react";
+import { useRole } from "@/contexts/RoleContext";
+import { toast } from "sonner";
 
 const BottomNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuth();
-  const [role, setRole] = useState<"owner" | "tasker">("owner");
-
-  useEffect(() => {
-    if (!user) return;
-    supabase
-      .from("profiles")
-      .select("role")
-      .eq("user_id", user.id)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (data?.role) setRole(data.role);
-      });
-  }, [user]);
-
-  const toggleRole = async () => {
-    if (!user) return;
-    const newRole = role === "owner" ? "tasker" : "owner";
-    const { error } = await supabase
-      .from("profiles")
-      .update({ role: newRole })
-      .eq("user_id", user.id);
-    if (!error) setRole(newRole);
-  };
+  const { role, toggleRole } = useRole();
 
   const isActive = (path: string) => location.pathname === path;
+
+  const handleToggle = async () => {
+    await toggleRole();
+    const newRole = role === "owner" ? "tasker" : "owner";
+    toast.success(newRole === "tasker" ? "Tasker moduna geçildi 🔧" : "İş Veren moduna geçildi 👤");
+  };
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-30 flex items-center justify-around border-t border-border bg-card px-4 pb-2 pt-3 safe-bottom">
@@ -54,7 +36,7 @@ const BottomNav = () => {
         <Bell size={20} className={isActive("/notifications") ? "text-primary" : "text-muted-foreground"} />
         <span className={`text-[10px] font-semibold ${isActive("/notifications") ? "text-primary" : "text-muted-foreground"}`}>Bildirim</span>
       </button>
-      <button onClick={toggleRole} className="flex flex-col items-center gap-0.5">
+      <button onClick={handleToggle} className="flex flex-col items-center gap-0.5">
         {role === "owner" ? (
           <>
             <Wrench size={20} className="text-muted-foreground" />
