@@ -275,6 +275,11 @@ const CreateTask = () => {
 
       {/* Submit Button */}
       <div className="fixed bottom-0 left-0 right-0 z-30 bg-background px-5 pb-4 pt-2 safe-bottom">
+        {!isValid && (
+          <p className="mb-2 text-center text-xs text-muted-foreground">
+            {!category ? "⬆️ Önce bir kategori seç" : description.length < 20 ? `⬆️ Açıklama en az 20 karakter olmalı (${description.length}/20)` : ""}
+          </p>
+        )}
         <button
           onClick={handleSubmit}
           disabled={!isValid || loading}
