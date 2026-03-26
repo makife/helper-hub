@@ -45,7 +45,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    await supabase.from("otp_codes").update({ verified: true }).eq("id", otpRecord.id);
+    // NOTE: We mark the OTP as verified AFTER successful user creation/sign-in below
 
     const tempPassword = `otp_verified_${normalizedPhone}`;
 
@@ -127,6 +127,9 @@ Deno.serve(async (req) => {
       console.error("Sign in error:", signInError);
       throw new Error("Giriş yapılamadı");
     }
+
+    // Mark OTP as used only after successful sign-in
+    await supabase.from("otp_codes").update({ verified: true }).eq("id", otpRecord.id);
 
     const { data: profile } = await supabase
       .from("profiles")
