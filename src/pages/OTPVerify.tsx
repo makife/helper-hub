@@ -2,16 +2,21 @@ import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const OTP_LENGTH = 6;
 
 const OTPVerify = () => {
   const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(""));
   const [timer, setTimer] = useState(60);
+  const [loading, setLoading] = useState(false);
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
   const navigate = useNavigate();
   const location = useLocation();
-  const phone = (location.state as any)?.phone || "5XXXXXXXXX";
+  const state = location.state as { phone?: string; fullPhone?: string } | null;
+  const phone = state?.phone || "5XXXXXXXXX";
+  const fullPhone = state?.fullPhone || `+90${phone}`;
 
   useEffect(() => {
     inputsRef.current[0]?.focus();
@@ -22,6 +27,41 @@ const OTPVerify = () => {
     const interval = setInterval(() => setTimer((t) => t - 1), 1000);
     return () => clearInterval(interval);
   }, [timer]);
+
+  const verifyOtp = async (code: string) => {
+    setLoading(true);
+    const { error } = await supabase.auth.verifyOtp({
+      phone: fullPhone,
+      token: code,
+      type: "sms",
+    });
+    setLoading(false);
+
+    if (error) {
+      toast.error("Kod hatalı. Lütfen tekrar deneyin.");
+      setOtp(Array(OTP_LENGTH).fill(""));
+      inputsRef.current[0]?.focus();
+      return;
+    }
+
+    toast.success("Giriş başarılı!");
+    
+    // Check if user has profile set up
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name, role")
+        .eq("user_id", user.id)
+        .single();
+
+      if (!profile || !profile.full_name) {
+        navigate("/role-select");
+      } else {
+        navigate("/home");
+      }
+    }
+  };
 
   const handleChange = (index: number, value: string) => {
     if (!/^\d*$/.test(value)) return;
@@ -34,14 +74,23 @@ const OTPVerify = () => {
     }
 
     if (newOtp.every((d) => d !== "")) {
-      // Auto-submit when all filled
-      setTimeout(() => navigate("/role-select"), 300);
+      setTimeout(() => verifyOtp(newOtp.join("")), 200);
     }
   };
 
   const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
       inputsRef.current[index - 1]?.focus();
+    }
+  };
+
+  const resendOtp = async () => {
+    const { error } = await supabase.auth.signInWithOtp({ phone: fullPhone });
+    if (error) {
+      toast.error("Kod gönderilemedi.");
+    } else {
+      toast.success("Yeni kod gönderildi!");
+      setTimer(60);
     }
   };
 
@@ -104,10 +153,7 @@ const OTPVerify = () => {
             Tekrar gönder <span className="font-bold text-foreground">{timer}s</span>
           </p>
         ) : (
-          <button
-            onClick={() => setTimer(60)}
-            className="text-sm font-bold text-primary"
-          >
+          <button onClick={resendOtp} className="text-sm font-bold text-primary">
             Kodu tekrar gönder
           </button>
         )}
@@ -117,11 +163,11 @@ const OTPVerify = () => {
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.4 }}
-        onClick={() => navigate("/role-select")}
-        disabled={otp.some((d) => d === "")}
+        onClick={() => verifyOtp(otp.join(""))}
+        disabled={otp.some((d) => d === "") || loading}
         className="gradient-warm w-full rounded-2xl px-6 py-4 text-lg font-bold text-primary-foreground shadow-soft transition-all active:scale-[0.98] disabled:opacity-40"
       >
-        Doğrula
+        {loading ? "Doğrulanıyor..." : "Doğrula"}
       </motion.button>
     </div>
   );

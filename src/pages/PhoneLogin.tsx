@@ -2,10 +2,13 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Phone } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import logo from "@/assets/logo.png";
 
 const PhoneLogin = () => {
   const [phone, setPhone] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const formatPhone = (value: string) => {
@@ -22,9 +25,26 @@ const PhoneLogin = () => {
   const rawDigits = phone.replace(/\s/g, "");
   const isValid = rawDigits.length === 10;
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!isValid) return;
-    navigate("/otp", { state: { phone: rawDigits } });
+    setLoading(true);
+    
+    const fullPhone = `+90${rawDigits}`;
+    
+    const { error } = await supabase.auth.signInWithOtp({
+      phone: fullPhone,
+    });
+
+    setLoading(false);
+
+    if (error) {
+      toast.error("SMS gönderilemedi. Lütfen tekrar deneyin.");
+      console.error("OTP error:", error);
+      return;
+    }
+
+    toast.success("Doğrulama kodu gönderildi!");
+    navigate("/otp", { state: { phone: rawDigits, fullPhone } });
   };
 
   return (
@@ -82,10 +102,10 @@ const PhoneLogin = () => {
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.3 }}
         onClick={handleSubmit}
-        disabled={!isValid}
+        disabled={!isValid || loading}
         className="gradient-warm w-full rounded-2xl px-6 py-4 text-lg font-bold text-primary-foreground shadow-soft transition-all active:scale-[0.98] disabled:opacity-40 disabled:active:scale-100"
       >
-        Kod Gönder
+        {loading ? "Gönderiliyor..." : "Kod Gönder"}
       </motion.button>
     </div>
   );
