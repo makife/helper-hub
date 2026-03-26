@@ -32,10 +32,10 @@ const Home = () => {
           <h1 className="text-xl font-black text-foreground">Merhaba! 👋</h1>
         </div>
         <div className="flex gap-2">
-          <button className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card">
+          <button onClick={() => navigate("/search")} className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card">
             <Search size={18} className="text-muted-foreground" />
           </button>
-          <button className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card">
+          <button onClick={() => navigate("/notifications")} className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card">
             <Bell size={18} className="text-muted-foreground" />
             <div className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-destructive" />
           </button>
@@ -169,11 +169,11 @@ const Home = () => {
 
       {/* Bottom Nav */}
       <div className="fixed bottom-0 left-0 right-0 z-30 flex items-center justify-around border-t border-border bg-card px-4 pb-2 pt-3 safe-bottom">
-        <button className="flex flex-col items-center gap-0.5">
+        <button onClick={() => navigate("/home")} className="flex flex-col items-center gap-0.5">
           <MapPin size={20} className="text-primary" />
           <span className="text-[10px] font-bold text-primary">Keşfet</span>
         </button>
-        <button className="flex flex-col items-center gap-0.5">
+        <button onClick={() => navigate("/my-tasks")} className="flex flex-col items-center gap-0.5">
           <Search size={20} className="text-muted-foreground" />
           <span className="text-[10px] font-semibold text-muted-foreground">İşlerim</span>
         </button>
@@ -183,11 +183,11 @@ const Home = () => {
         >
           <Plus size={24} className="text-primary-foreground" />
         </button>
-        <button className="flex flex-col items-center gap-0.5">
+        <button onClick={() => navigate("/notifications")} className="flex flex-col items-center gap-0.5">
           <Bell size={20} className="text-muted-foreground" />
           <span className="text-[10px] font-semibold text-muted-foreground">Bildirim</span>
         </button>
-        <button onClick={signOut} className="flex flex-col items-center gap-0.5">
+        <button onClick={() => navigate("/profile")} className="flex flex-col items-center gap-0.5">
           <User size={20} className="text-muted-foreground" />
           <span className="text-[10px] font-semibold text-muted-foreground">Profil</span>
         </button>

@@ -12,6 +12,10 @@ import RoleSelect from "./pages/RoleSelect";
 import ProfileSetup from "./pages/ProfileSetup";
 import Home from "./pages/Home";
 import CreateTask from "./pages/CreateTask";
+import Search from "./pages/Search";
+import Notifications from "./pages/Notifications";
+import MyTasks from "./pages/MyTasks";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +36,10 @@ const App = () => (
             <Route path="/profile-setup" element={<ProfileSetup />} />
             <Route path="/home" element={<Home />} />
             <Route path="/create-task" element={<CreateTask />} />
+            <Route path="/search" element={<Search />} />
+            <Route path="/notifications" element={<Notifications />} />
+            <Route path="/my-tasks" element={<MyTasks />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
