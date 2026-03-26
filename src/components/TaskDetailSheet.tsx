@@ -21,6 +21,7 @@ type Props = {
 
 const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [owner, setOwner] = useState<Tables<"profiles"> | null>(null);
   const [accepting, setAccepting] = useState(false);
 
