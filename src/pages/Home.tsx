@@ -26,8 +26,32 @@ const Home = () => {
   const [tasks, setTasks] = useState<TaskWithUI[]>([]);
   const [selectedTask, setSelectedTask] = useState<TaskWithUI | null>(null);
   const [loading, setLoading] = useState(true);
+  const [locationName, setLocationName] = useState("Konum alınıyor...");
   const navigate = useNavigate();
   const { user } = useAuth();
+
+  useEffect(() => {
+    if (!("geolocation" in navigator)) {
+      setLocationName("Konum bulunamadı");
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json&accept-language=tr`
+          );
+          const data = await res.json();
+          const district = data.address?.suburb || data.address?.district || data.address?.town || data.address?.county || "";
+          const city = data.address?.city || data.address?.province || data.address?.state || "";
+          setLocationName(district && city ? `${district}, ${city}` : city || district || "Konum bulundu");
+        } catch {
+          setLocationName("Konum bulundu");
+        }
+      },
+      () => setLocationName("Konum izni verilmedi")
+    );
+  }, []);
 
   const mapTask = (t: Tables<"tasks">): TaskWithUI => ({
     ...t,
@@ -100,7 +124,7 @@ const Home = () => {
       {/* Header */}
       <div className="flex items-center justify-between px-5 pb-3 pt-4">
         <div>
-          <p className="text-xs font-semibold text-muted-foreground">📍 Kadıköy, İstanbul</p>
+          <p className="text-xs font-semibold text-muted-foreground">📍 {locationName}</p>
           <h1 className="text-xl font-black text-foreground">Merhaba! 👋</h1>
         </div>
         <div className="flex gap-2">
