@@ -40,12 +40,12 @@ const BottomNav = () => {
         {role === "owner" ? (
           <>
             <Wrench size={20} className="text-muted-foreground" />
-            <span className="text-[10px] font-semibold text-muted-foreground">Tasker ol</span>
+            <span className="text-[10px] font-semibold text-muted-foreground">İş Al</span>
           </>
         ) : (
           <>
             <User size={20} className="text-primary" />
-            <span className="text-[10px] font-bold text-primary">Tasker ✓</span>
+            <span className="text-[10px] font-bold text-primary">İş Ver</span>
           </>
         )}
       </button>
