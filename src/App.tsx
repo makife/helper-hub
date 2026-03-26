@@ -12,6 +12,10 @@ import RoleSelect from "./pages/RoleSelect";
 import ProfileSetup from "./pages/ProfileSetup";
 import Home from "./pages/Home";
 import CreateTask from "./pages/CreateTask";
+import Search from "./pages/Search";
+import Notifications from "./pages/Notifications";
+import MyTasks from "./pages/MyTasks";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
