@@ -42,9 +42,15 @@ const Home = () => {
             `https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json&accept-language=tr`
           );
           const data = await res.json();
-          const district = data.address?.suburb || data.address?.district || data.address?.town || data.address?.county || "";
-          const city = data.address?.city || data.address?.province || data.address?.state || "";
-          setLocationName(district && city ? `${district}, ${city}` : city || district || "Konum bulundu");
+          const addr = data.address || {};
+          // Prefer town (ilçe) over district which often returns "Merkez"
+          const town = addr.town || addr.county || "";
+          const district = addr.suburb || addr.neighbourhood || "";
+          const city = addr.city || addr.province || addr.state || "";
+          const locationParts = [district || town, district ? town : "", city].filter(Boolean);
+          // Remove duplicates (e.g. "Merkez, Merkez, Amasya")
+          const unique = [...new Set(locationParts)];
+          setLocationName(unique.length > 0 ? unique.join(", ") : "Konum bulundu");
         } catch {
           setLocationName("Konum bulundu");
         }
