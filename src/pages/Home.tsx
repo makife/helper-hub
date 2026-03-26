@@ -141,7 +141,12 @@ const Home = () => {
       <div className="flex items-center justify-between px-5 pb-3 pt-4">
         <div>
           <p className="text-xs font-semibold text-muted-foreground">📍 {locationName}</p>
-          <h1 className="text-xl font-black text-foreground">Merhaba! 👋</h1>
+          <h1 className="text-xl font-black text-foreground">
+            {role === "tasker" ? "İş Bul 🔧" : "Merhaba! 👋"}
+          </h1>
+          {role === "tasker" && (
+            <p className="text-xs text-primary font-semibold">Tasker modundasın</p>
+          )}
         </div>
         <div className="flex gap-2">
           <button onClick={() => navigate("/search")} className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card">
