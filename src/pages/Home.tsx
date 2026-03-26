@@ -1,27 +1,99 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { MapPin, Bell, Search, Plus, User, Zap, X, Star, Clock, ChevronRight } from "lucide-react";
 import TaskMap from "@/components/TaskMap";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
 
-const demoTasks = [
-  { id: "1", title: "Ampul Takma", price: 150, lat: 40.9920, lng: 29.0280, urgent: true, emoji: "💡", distance: "0.8 km", estimatedMinutes: 15 },
-  { id: "2", title: "Perde Asma", price: 200, lat: 40.9880, lng: 29.0320, urgent: false, emoji: "🪟", distance: "1.2 km", estimatedMinutes: 30 },
-  { id: "3", title: "Mobilya Monte", price: 350, lat: 40.9860, lng: 29.0250, urgent: false, emoji: "🪑", distance: "2.1 km", estimatedMinutes: 45 },
-  { id: "4", title: "Duvar Tamiri", price: 280, lat: 40.9940, lng: 29.0350, urgent: false, emoji: "🔨", distance: "0.5 km", estimatedMinutes: 30 },
-];
+const categoryEmoji: Record<string, string> = {
+  ampul_takma: "💡",
+  perde_asma: "🪟",
+  mobilya_monte: "🪑",
+  duvar_tamir: "🔨",
+  kucuk_tamir: "🔧",
+  tasima_yardimi: "📦",
+};
 
-type TaskPin = typeof demoTasks[number];
+type TaskWithUI = Tables<"tasks"> & {
+  emoji: string;
+  lat: number;
+  lng: number;
+};
 
 const Home = () => {
-  const [selectedTask, setSelectedTask] = useState<TaskPin | null>(null);
-  const handleTaskClick = (task: { id: string; title: string; price: number; lat: number; lng: number; emoji: string; urgent?: boolean; distance?: string; estimatedMinutes?: number }) => {
-    const matched = demoTasks.find(t => t.id === task.id);
+  const [tasks, setTasks] = useState<TaskWithUI[]>([]);
+  const [selectedTask, setSelectedTask] = useState<TaskWithUI | null>(null);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const mapTask = (t: Tables<"tasks">): TaskWithUI => ({
+    ...t,
+    emoji: categoryEmoji[t.category] || "📋",
+    lat: t.latitude,
+    lng: t.longitude,
+  });
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      const { data } = await supabase
+        .from("tasks")
+        .select("*")
+        .eq("status", "open")
+        .order("created_at", { ascending: false });
+      setTasks((data || []).map(mapTask));
+      setLoading(false);
+    };
+    fetchTasks();
+
+    const channel = supabase
+      .channel("home-tasks")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "tasks" },
+        (payload) => {
+          if (payload.eventType === "INSERT") {
+            const newTask = mapTask(payload.new as Tables<"tasks">);
+            if (newTask.status === "open") {
+              setTasks((prev) => [newTask, ...prev]);
+            }
+          } else if (payload.eventType === "UPDATE") {
+            const updated = mapTask(payload.new as Tables<"tasks">);
+            setTasks((prev) => {
+              if (updated.status !== "open") {
+                return prev.filter((t) => t.id !== updated.id);
+              }
+              return prev.map((t) => (t.id === updated.id ? updated : t));
+            });
+          } else if (payload.eventType === "DELETE") {
+            const old = payload.old as { id: string };
+            setTasks((prev) => prev.filter((t) => t.id !== old.id));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const handleTaskClick = (task: { id: string }) => {
+    const matched = tasks.find((t) => t.id === task.id);
     if (matched) setSelectedTask(matched);
   };
-  const navigate = useNavigate();
-  const { signOut } = useAuth();
+
+  const mapPins = tasks.map((t) => ({
+    id: t.id,
+    title: t.title,
+    price: t.current_price || t.price,
+    lat: t.lat,
+    lng: t.lng,
+    emoji: t.emoji,
+    urgent: t.urgency === "urgent",
+  }));
 
   return (
     <div className="flex min-h-screen flex-col bg-background safe-top safe-bottom">
@@ -44,7 +116,7 @@ const Home = () => {
 
       {/* Map */}
       <div className="relative mx-5 mb-4 overflow-hidden rounded-2xl border border-border shadow-card" style={{ height: 260 }}>
-        <TaskMap tasks={demoTasks} onTaskClick={handleTaskClick} />
+        <TaskMap tasks={mapPins} onTaskClick={handleTaskClick} />
       </div>
 
       {/* Stats */}
@@ -52,15 +124,15 @@ const Home = () => {
         <div className="flex flex-1 items-center gap-2 rounded-xl bg-primary/5 px-3 py-2.5">
           <Zap size={16} className="text-primary" />
           <div>
-            <p className="text-xs text-muted-foreground">Bugün</p>
-            <p className="text-sm font-black text-foreground">{demoTasks.length} iş var</p>
+            <p className="text-xs text-muted-foreground">Açık İşler</p>
+            <p className="text-sm font-black text-foreground">{tasks.length} iş var</p>
           </div>
         </div>
         <div className="flex flex-1 items-center gap-2 rounded-xl bg-accent/30 px-3 py-2.5">
           <MapPin size={16} className="text-primary" />
           <div>
             <p className="text-xs text-muted-foreground">Yakınında</p>
-            <p className="text-sm font-black text-foreground">1 km içi</p>
+            <p className="text-sm font-black text-foreground">{tasks.length} iş</p>
           </div>
         </div>
       </div>
@@ -69,41 +141,48 @@ const Home = () => {
       <div className="flex-1 px-5">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-base font-black text-foreground">Yakındaki İşler</h2>
-          <button className="text-xs font-bold text-primary">Tümünü Gör</button>
         </div>
-        <div className="space-y-3 pb-24">
-          {demoTasks.map((task, i) => (
-            <motion.button
-              key={task.id}
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: i * 0.08 }}
-              onClick={() => setSelectedTask(task)}
-              className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card p-4 text-left shadow-card transition-all active:scale-[0.98]"
-            >
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted text-xl">
-                {task.emoji}
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-bold text-foreground">{task.title}</h3>
-                  {task.urgent && (
-                    <span className="rounded-md bg-destructive/10 px-1.5 py-0.5 text-[10px] font-bold text-destructive">🔥 ACİL</span>
-                  )}
+        {loading ? (
+          <div className="flex items-center justify-center py-10">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          </div>
+        ) : tasks.length === 0 ? (
+          <div className="flex flex-col items-center py-10">
+            <p className="text-sm text-muted-foreground">Henüz açık iş yok</p>
+          </div>
+        ) : (
+          <div className="space-y-3 pb-24">
+            {tasks.map((task, i) => (
+              <motion.button
+                key={task.id}
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: i * 0.08 }}
+                onClick={() => setSelectedTask(task)}
+                className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card p-4 text-left shadow-card transition-all active:scale-[0.98]"
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted text-xl">
+                  {task.emoji}
                 </div>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <span>{task.distance}</span>
-                  <span>·</span>
-                  <span>{task.estimatedMinutes} dk</span>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-foreground">{task.title}</h3>
+                    {task.urgency === "urgent" && (
+                      <span className="rounded-md bg-destructive/10 px-1.5 py-0.5 text-[10px] font-bold text-destructive">🔥 ACİL</span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span>~{task.estimated_minutes} dk</span>
+                  </div>
                 </div>
-              </div>
-              <div className="text-right">
-                <p className="text-base font-black text-primary">{task.price} ₺</p>
-                <ChevronRight size={14} className="ml-auto text-muted-foreground" />
-              </div>
-            </motion.button>
-          ))}
-        </div>
+                <div className="text-right">
+                  <p className="text-base font-black text-primary">{task.current_price || task.price} ₺</p>
+                  <ChevronRight size={14} className="ml-auto text-muted-foreground" />
+                </div>
+              </motion.button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Task Detail Sheet */}
@@ -132,10 +211,8 @@ const Home = () => {
                   <div>
                     <h3 className="text-lg font-black text-foreground">{selectedTask.title}</h3>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <MapPin size={12} />
-                      <span>{selectedTask.distance}</span>
                       <Clock size={12} />
-                      <span>~{selectedTask.estimatedMinutes} dk</span>
+                      <span>~{selectedTask.estimated_minutes} dk</span>
                     </div>
                   </div>
                 </div>
@@ -144,20 +221,24 @@ const Home = () => {
                 </button>
               </div>
 
+              <p className="mb-4 text-sm text-muted-foreground">{selectedTask.description}</p>
+
               <div className="mb-4 rounded-xl bg-muted/50 p-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Ücret</span>
-                  <span className="text-2xl font-black text-primary">{selectedTask.price} ₺</span>
+                  <span className="text-2xl font-black text-primary">{selectedTask.current_price || selectedTask.price} ₺</span>
                 </div>
-                {selectedTask.urgent && (
+                {selectedTask.urgency === "urgent" && (
                   <p className="mt-1 text-xs font-semibold text-destructive">🔥 Acil iş — hemen başlaman bekleniyor</p>
                 )}
               </div>
 
-              <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
-                <Star size={14} className="text-accent" />
-                <span>İş Sahibi: <span className="font-bold text-foreground">4.8</span> (12 iş)</span>
-              </div>
+              {selectedTask.address_note && (
+                <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
+                  <MapPin size={14} className="text-primary" />
+                  <span>{selectedTask.address_note}</span>
+                </div>
+              )}
 
               <button className="gradient-warm w-full rounded-2xl px-6 py-4 text-lg font-bold text-primary-foreground shadow-soft transition-transform active:scale-[0.98]">
                 Kabul Et ✋
