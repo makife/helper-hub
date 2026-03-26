@@ -13,7 +13,7 @@ const BottomNav = () => {
   const handleToggle = async () => {
     await toggleRole();
     const newRole = role === "owner" ? "tasker" : "owner";
-    toast.success(newRole === "tasker" ? "Tasker moduna geçildi 🔧" : "İş Veren moduna geçildi 👤");
+    toast.success(newRole === "tasker" ? "İş Al moduna geçildi 🔧" : "İş Ver moduna geçildi 👤");
   };
 
   return (
