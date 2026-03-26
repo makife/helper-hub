@@ -96,26 +96,21 @@ const OTPVerify = () => {
 
   const resendOtp = async () => {
     setProviderIssue(null);
-    const { error } = await supabase.auth.signInWithOtp({ phone: fullPhone });
+    try {
+      const response = await supabase.functions.invoke("send-otp", {
+        body: { phone: fullPhone },
+      });
 
-    if (error) {
-      const errorCode = (error as { code?: string }).code;
-      const providerDisabled =
-        errorCode === "phone_provider_disabled" ||
-        error.message.toLowerCase().includes("unsupported phone provider");
-
-      if (providerDisabled) {
-        setProviderIssue(
-          "Telefon ile giriş henüz aktif değil. Lovable Cloud içinde Users → Auth settings bölümünden bir SMS provider bağlanması gerekiyor."
-        );
-        toast.error("Telefon OTP henüz aktif değil.");
+      if (response.error || response.data?.error) {
+        toast.error(response.data?.error || "Kod gönderilemedi.");
         return;
       }
 
-      toast.error("Kod gönderilemedi.");
-    } else {
       toast.success("Yeni kod gönderildi!");
       setTimer(60);
+    } catch (err) {
+      toast.error("Kod gönderilemedi.");
+      console.error("Resend error:", err);
     }
   };
 
