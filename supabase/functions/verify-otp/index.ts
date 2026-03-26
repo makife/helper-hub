@@ -45,7 +45,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    await supabase.from("otp_codes").update({ verified: true }).eq("id", otpRecord.id);
+    // NOTE: We mark the OTP as verified AFTER successful user creation/sign-in below
 
     const tempPassword = `otp_verified_${normalizedPhone}`;
 
