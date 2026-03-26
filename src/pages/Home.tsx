@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { MapPin, Bell, Search, Plus, User, Zap, X, Star, Clock, ChevronRight } from "lucide-react";
+import { Bell, Search, Zap, MapPin, ChevronRight } from "lucide-react";
 import TaskMap from "@/components/TaskMap";
+import TaskDetailSheet from "@/components/TaskDetailSheet";
+import BottomNav from "@/components/BottomNav";
+import RouteMap from "@/components/RouteMap";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
@@ -25,6 +28,7 @@ type TaskWithUI = Tables<"tasks"> & {
 const Home = () => {
   const [tasks, setTasks] = useState<TaskWithUI[]>([]);
   const [selectedTask, setSelectedTask] = useState<TaskWithUI | null>(null);
+  const [routeTask, setRouteTask] = useState<TaskWithUI | null>(null);
   const [loading, setLoading] = useState(true);
   const [locationName, setLocationName] = useState("Konum alınıyor...");
   const navigate = useNavigate();
@@ -43,12 +47,10 @@ const Home = () => {
           );
           const data = await res.json();
           const addr = data.address || {};
-          // Prefer town (ilçe) over district which often returns "Merkez"
           const town = addr.town || addr.county || "";
           const district = addr.suburb || addr.neighbourhood || "";
           const city = addr.city || addr.province || addr.state || "";
           const locationParts = [district || town, district ? town : "", city].filter(Boolean);
-          // Remove duplicates (e.g. "Merkez, Merkez, Amasya")
           const unique = [...new Set(locationParts)];
           setLocationName(unique.length > 0 ? unique.join(", ") : "Konum bulundu");
         } catch {
@@ -86,15 +88,11 @@ const Home = () => {
         (payload) => {
           if (payload.eventType === "INSERT") {
             const newTask = mapTask(payload.new as Tables<"tasks">);
-            if (newTask.status === "open") {
-              setTasks((prev) => [newTask, ...prev]);
-            }
+            if (newTask.status === "open") setTasks((prev) => [newTask, ...prev]);
           } else if (payload.eventType === "UPDATE") {
             const updated = mapTask(payload.new as Tables<"tasks">);
             setTasks((prev) => {
-              if (updated.status !== "open") {
-                return prev.filter((t) => t.id !== updated.id);
-              }
+              if (updated.status !== "open") return prev.filter((t) => t.id !== updated.id);
               return prev.map((t) => (t.id === updated.id ? updated : t));
             });
           } else if (payload.eventType === "DELETE") {
@@ -105,9 +103,7 @@ const Home = () => {
       )
       .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
   const handleTaskClick = (task: { id: string }) => {
@@ -124,6 +120,18 @@ const Home = () => {
     emoji: t.emoji,
     urgent: t.urgency === "urgent",
   }));
+
+  // Show route map full-screen
+  if (routeTask) {
+    return (
+      <RouteMap
+        taskLat={routeTask.lat}
+        taskLng={routeTask.lng}
+        taskTitle={routeTask.title}
+        onClose={() => setRouteTask(null)}
+      />
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-background safe-top safe-bottom">
@@ -218,91 +226,15 @@ const Home = () => {
       {/* Task Detail Sheet */}
       <AnimatePresence>
         {selectedTask && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSelectedTask(null)}
-              className="fixed inset-0 z-40 bg-foreground/20"
-            />
-            <motion.div
-              initial={{ y: "100%" }}
-              animate={{ y: 0 }}
-              exit={{ y: "100%" }}
-              transition={{ type: "spring", damping: 25 }}
-              className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl bg-card p-6 shadow-lg"
-            >
-              <div className="mb-4 flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-muted text-2xl">
-                    {selectedTask.emoji}
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-black text-foreground">{selectedTask.title}</h3>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Clock size={12} />
-                      <span>~{selectedTask.estimated_minutes} dk</span>
-                    </div>
-                  </div>
-                </div>
-                <button onClick={() => setSelectedTask(null)} className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
-                  <X size={16} className="text-muted-foreground" />
-                </button>
-              </div>
-
-              <p className="mb-4 text-sm text-muted-foreground">{selectedTask.description}</p>
-
-              <div className="mb-4 rounded-xl bg-muted/50 p-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Ücret</span>
-                  <span className="text-2xl font-black text-primary">{selectedTask.current_price || selectedTask.price} ₺</span>
-                </div>
-                {selectedTask.urgency === "urgent" && (
-                  <p className="mt-1 text-xs font-semibold text-destructive">🔥 Acil iş — hemen başlaman bekleniyor</p>
-                )}
-              </div>
-
-              {selectedTask.address_note && (
-                <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
-                  <MapPin size={14} className="text-primary" />
-                  <span>{selectedTask.address_note}</span>
-                </div>
-              )}
-
-              <button className="gradient-warm w-full rounded-2xl px-6 py-4 text-lg font-bold text-primary-foreground shadow-soft transition-transform active:scale-[0.98]">
-                Kabul Et ✋
-              </button>
-            </motion.div>
-          </>
+          <TaskDetailSheet
+            task={selectedTask}
+            onClose={() => setSelectedTask(null)}
+            onAccepted={(task) => setRouteTask(task)}
+          />
         )}
       </AnimatePresence>
 
-      {/* Bottom Nav */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 flex items-center justify-around border-t border-border bg-card px-4 pb-2 pt-3 safe-bottom">
-        <button onClick={() => navigate("/home")} className="flex flex-col items-center gap-0.5">
-          <MapPin size={20} className="text-primary" />
-          <span className="text-[10px] font-bold text-primary">Keşfet</span>
-        </button>
-        <button onClick={() => navigate("/my-tasks")} className="flex flex-col items-center gap-0.5">
-          <Search size={20} className="text-muted-foreground" />
-          <span className="text-[10px] font-semibold text-muted-foreground">İşlerim</span>
-        </button>
-        <button
-          onClick={() => navigate("/create-task")}
-          className="gradient-warm -mt-5 flex h-14 w-14 items-center justify-center rounded-full shadow-soft"
-        >
-          <Plus size={24} className="text-primary-foreground" />
-        </button>
-        <button onClick={() => navigate("/notifications")} className="flex flex-col items-center gap-0.5">
-          <Bell size={20} className="text-muted-foreground" />
-          <span className="text-[10px] font-semibold text-muted-foreground">Bildirim</span>
-        </button>
-        <button onClick={() => navigate("/profile")} className="flex flex-col items-center gap-0.5">
-          <User size={20} className="text-muted-foreground" />
-          <span className="text-[10px] font-semibold text-muted-foreground">Profil</span>
-        </button>
-      </div>
+      <BottomNav />
     </div>
   );
 };
