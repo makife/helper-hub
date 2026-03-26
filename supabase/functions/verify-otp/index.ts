@@ -6,8 +6,6 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const normalizePhone = (value: string) => value.replace(/\s+/g, "").trim();
-
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -22,15 +20,15 @@ Deno.serve(async (req) => {
       );
     }
 
-    const normalizedPhone = normalizePhone(phone);
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
+    // Verify OTP code
     const { data: otpRecord, error: fetchError } = await supabase
       .from("otp_codes")
       .select("id")
-      .eq("phone", normalizedPhone)
+      .eq("phone", phone)
       .eq("code", code)
       .eq("verified", false)
       .gte("expires_at", new Date().toISOString())
@@ -45,102 +43,117 @@ Deno.serve(async (req) => {
       );
     }
 
-    // NOTE: We mark the OTP as verified AFTER successful user creation/sign-in below
+    const tempPassword = `otp_verified_${phone}`;
 
-    const tempPassword = `otp_verified_${normalizedPhone}`;
+    // Strategy: Try to create user. If phone_exists, find and update existing.
+    let userId: string;
 
-    const { data: listedUsers, error: listError } = await supabase.auth.admin.listUsers({
-      page: 1,
-      perPage: 1000,
-    });
-
-    if (listError) {
-      console.error("List users error:", listError);
-      throw new Error("Kullanıcı listesi alınamadı");
-    }
-
-    let authUser = listedUsers.users.find(
-      (user) => normalizePhone(user.phone ?? "") === normalizedPhone
-    );
-
-    if (!authUser) {
-      const { data: createData, error: createError } = await supabase.auth.admin.createUser({
-        phone: normalizedPhone,
-        phone_confirm: true,
-        password: tempPassword,
-        user_metadata: { phone_verified: true },
-      });
-
-      if (createError) {
-        if ((createError as { code?: string }).code === "phone_exists") {
-          const { data: retryUsers, error: retryListError } = await supabase.auth.admin.listUsers({
-            page: 1,
-            perPage: 1000,
-          });
-
-          if (retryListError) {
-            console.error("Retry list users error:", retryListError);
-            throw new Error("Mevcut kullanıcı bulunamadı");
-          }
-
-          authUser = retryUsers.users.find(
-            (user) => normalizePhone(user.phone ?? "") === normalizedPhone
-          );
-
-          if (!authUser) {
-            console.error("Phone exists but user could not be found:", normalizedPhone);
-            throw new Error("Mevcut kullanıcı bulunamadı");
-          }
-        } else {
-          console.error("Create user error:", createError);
-          throw new Error("Kullanıcı oluşturulamadı");
-        }
-      } else {
-        authUser = createData.user;
-      }
-    }
-
-    if (!authUser) {
-      throw new Error("Kullanıcı bulunamadı");
-    }
-
-    const { error: updateError } = await supabase.auth.admin.updateUserById(authUser.id, {
-      password: tempPassword,
+    const { data: createData, error: createError } = await supabase.auth.admin.createUser({
+      phone,
       phone_confirm: true,
-      user_metadata: {
-        ...(authUser.user_metadata ?? {}),
-        phone_verified: true,
-      },
+      password: tempPassword,
+      user_metadata: { phone_verified: true },
     });
 
-    if (updateError) {
-      console.error("Update user error:", updateError);
-      throw new Error("Kullanıcı güncellenemedi");
+    if (createError) {
+      const errorCode = (createError as { code?: string }).code;
+      
+      if (errorCode === "phone_exists") {
+        // User exists - find them by listing all users and matching phone
+        // Phone could be stored with or without + prefix
+        const { data: listedUsers, error: listError } = await supabase.auth.admin.listUsers({
+          page: 1,
+          perPage: 1000,
+        });
+
+        if (listError) {
+          console.error("List users error:", listError);
+          throw new Error("Kullanıcı listesi alınamadı");
+        }
+
+        // Normalize: strip all non-digit chars for comparison
+        const phoneDigits = phone.replace(/\D/g, "");
+        const foundUser = listedUsers.users.find((u) => {
+          const userDigits = (u.phone ?? "").replace(/\D/g, "");
+          return userDigits === phoneDigits;
+        });
+
+        if (!foundUser) {
+          console.error("Phone exists but user not found. Phone:", phone, "phoneDigits:", phoneDigits);
+          console.error("All user phones:", listedUsers.users.map(u => u.phone));
+          throw new Error("Mevcut kullanıcı bulunamadı");
+        }
+
+        userId = foundUser.id;
+
+        // Update password for sign-in
+        await supabase.auth.admin.updateUserById(userId, {
+          password: tempPassword,
+          phone_confirm: true,
+        });
+      } else {
+        console.error("Create user error:", createError);
+        throw new Error("Kullanıcı oluşturulamadı");
+      }
+    } else {
+      userId = createData.user.id;
     }
 
+    // Sign in
     const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-      phone: normalizedPhone,
+      phone,
       password: tempPassword,
     });
 
     if (signInError || !signInData.session) {
-      console.error("Sign in error:", signInError);
-      throw new Error("Giriş yapılamadı");
+      console.error("Sign in error:", signInError, "phone used:", phone);
+      
+      // Try sign-in with phone without + prefix
+      const phoneWithout = phone.startsWith("+") ? phone.slice(1) : phone;
+      const { data: retryData, error: retryError } = await supabase.auth.signInWithPassword({
+        phone: phoneWithout,
+        password: tempPassword,
+      });
+
+      if (retryError || !retryData.session) {
+        console.error("Retry sign in error:", retryError, "phone used:", phoneWithout);
+        throw new Error("Giriş yapılamadı");
+      }
+
+      // Mark OTP as used
+      await supabase.from("otp_codes").update({ verified: true }).eq("id", otpRecord.id);
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name, role")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          session: retryData.session,
+          needsProfile: !profile || !profile.full_name?.trim(),
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
-    // Mark OTP as used only after successful sign-in
+    // Mark OTP as used
     await supabase.from("otp_codes").update({ verified: true }).eq("id", otpRecord.id);
 
     const { data: profile } = await supabase
       .from("profiles")
       .select("full_name, role")
-      .eq("user_id", authUser.id)
+      .eq("user_id", userId)
       .maybeSingle();
 
-    const needsProfile = !profile || !profile.full_name?.trim();
-
     return new Response(
-      JSON.stringify({ success: true, session: signInData.session, needsProfile }),
+      JSON.stringify({
+        success: true,
+        session: signInData.session,
+        needsProfile: !profile || !profile.full_name?.trim(),
+      }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
