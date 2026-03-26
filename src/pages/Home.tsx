@@ -124,7 +124,7 @@ const Home = () => {
       {/* Header */}
       <div className="flex items-center justify-between px-5 pb-3 pt-4">
         <div>
-          <p className="text-xs font-semibold text-muted-foreground">📍 Kadıköy, İstanbul</p>
+          <p className="text-xs font-semibold text-muted-foreground">📍 {locationName}</p>
           <h1 className="text-xl font-black text-foreground">Merhaba! 👋</h1>
         </div>
         <div className="flex gap-2">
