@@ -33,38 +33,43 @@ const OTPVerify = () => {
     setLoading(true);
     setProviderIssue(null);
 
-    const { error } = await supabase.auth.verifyOtp({
-      phone: fullPhone,
-      token: code,
-      type: "sms",
-    });
-    setLoading(false);
+    try {
+      const response = await supabase.functions.invoke("verify-otp", {
+        body: { phone: fullPhone, code },
+      });
 
-    if (error) {
-      toast.error("Kod hatalı. Lütfen tekrar deneyin.");
-      setOtp(Array(OTP_LENGTH).fill(""));
-      inputsRef.current[0]?.focus();
-      return;
-    }
+      setLoading(false);
 
-    toast.success("Giriş başarılı!");
+      if (response.error || response.data?.error) {
+        toast.error(response.data?.error || "Kod hatalı. Lütfen tekrar deneyin.");
+        setOtp(Array(OTP_LENGTH).fill(""));
+        inputsRef.current[0]?.focus();
+        return;
+      }
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+      const { session, needsProfile } = response.data;
 
-    if (user) {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("full_name, role")
-        .eq("user_id", user.id)
-        .single();
+      // Set session in Supabase client
+      if (session) {
+        await supabase.auth.setSession({
+          access_token: session.access_token,
+          refresh_token: session.refresh_token,
+        });
+      }
 
-      if (!profile || !profile.full_name) {
+      toast.success("Giriş başarılı!");
+
+      if (needsProfile) {
         navigate("/role-select");
       } else {
         navigate("/home");
       }
+    } catch (err) {
+      setLoading(false);
+      toast.error("Doğrulama başarısız. Lütfen tekrar deneyin.");
+      console.error("Verify error:", err);
+      setOtp(Array(OTP_LENGTH).fill(""));
+      inputsRef.current[0]?.focus();
     }
   };
 
@@ -91,26 +96,21 @@ const OTPVerify = () => {
 
   const resendOtp = async () => {
     setProviderIssue(null);
-    const { error } = await supabase.auth.signInWithOtp({ phone: fullPhone });
+    try {
+      const response = await supabase.functions.invoke("send-otp", {
+        body: { phone: fullPhone },
+      });
 
-    if (error) {
-      const errorCode = (error as { code?: string }).code;
-      const providerDisabled =
-        errorCode === "phone_provider_disabled" ||
-        error.message.toLowerCase().includes("unsupported phone provider");
-
-      if (providerDisabled) {
-        setProviderIssue(
-          "Telefon ile giriş henüz aktif değil. Lovable Cloud içinde Users → Auth settings bölümünden bir SMS provider bağlanması gerekiyor."
-        );
-        toast.error("Telefon OTP henüz aktif değil.");
+      if (response.error || response.data?.error) {
+        toast.error(response.data?.error || "Kod gönderilemedi.");
         return;
       }
 
-      toast.error("Kod gönderilemedi.");
-    } else {
       toast.success("Yeni kod gönderildi!");
       setTimer(60);
+    } catch (err) {
+      toast.error("Kod gönderilemedi.");
+      console.error("Resend error:", err);
     }
   };
 
