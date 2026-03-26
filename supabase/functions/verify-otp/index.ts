@@ -128,6 +128,9 @@ Deno.serve(async (req) => {
       throw new Error("Giriş yapılamadı");
     }
 
+    // Mark OTP as used only after successful sign-in
+    await supabase.from("otp_codes").update({ verified: true }).eq("id", otpRecord.id);
+
     const { data: profile } = await supabase
       .from("profiles")
       .select("full_name, role")
