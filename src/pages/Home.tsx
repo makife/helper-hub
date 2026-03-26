@@ -32,7 +32,7 @@ const Home = () => {
           <h1 className="text-xl font-black text-foreground">Merhaba! 👋</h1>
         </div>
         <div className="flex gap-2">
-          <button className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card">
+          <button onClick={() => navigate("/search")} className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card">
             <Search size={18} className="text-muted-foreground" />
           </button>
           <button className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card">
