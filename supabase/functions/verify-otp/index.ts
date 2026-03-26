@@ -53,85 +53,44 @@ Deno.serve(async (req) => {
     const { data: existingUsers } = await supabase.auth.admin.listUsers();
     const existingUser = existingUsers?.users?.find((u) => u.phone === phone);
 
-    let session = null;
+    const tempPassword = `otp_verified_${phone}`;
+    let userId: string;
 
     if (existingUser) {
-      // Generate a magic link / session for existing user
-      const { data, error } = await supabase.auth.admin.generateLink({
-        type: "magiclink",
-        email: `${phone.replace("+", "")}@phone.bielat.app`,
+      userId = existingUser.id;
+      // Update password for sign-in
+      await supabase.auth.admin.updateUserById(userId, {
+        password: tempPassword,
+        phone_confirm: true,
       });
-
-      if (error) {
-        console.error("Generate link error:", error);
-        // Fallback: sign in with password
-      }
-
-      // Create a session directly
-      const { data: sessionData, error: sessionError } =
-        await supabase.auth.admin.createUser({
-          phone,
-          phone_confirm: true,
-          user_metadata: { phone_verified: true },
-        });
-
-      // Since user exists, let's just update and get token
-      const { data: signInData, error: signInError } =
-        await supabase.auth.signInWithPassword({
-          phone,
-          password: `otp_verified_${phone}`,
-        });
-
-      if (signInError) {
-        // Update user password and retry
-        await supabase.auth.admin.updateUserById(existingUser.id, {
-          password: `otp_verified_${phone}`,
-        });
-
-        const { data: retryData, error: retryError } =
-          await supabase.auth.signInWithPassword({
-            phone,
-            password: `otp_verified_${phone}`,
-          });
-
-        if (retryError) {
-          console.error("Sign in retry error:", retryError);
-          throw new Error("Giriş yapılamadı");
-        }
-        session = retryData.session;
-      } else {
-        session = signInData.session;
-      }
     } else {
       // Create new user
-      const tempPassword = `otp_verified_${phone}`;
-      const { data: newUser, error: createError } =
-        await supabase.auth.admin.createUser({
-          phone,
-          phone_confirm: true,
-          password: tempPassword,
-          user_metadata: { phone_verified: true },
-        });
+      const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
+        phone,
+        phone_confirm: true,
+        password: tempPassword,
+        user_metadata: { phone_verified: true },
+      });
 
       if (createError) {
         console.error("Create user error:", createError);
         throw new Error("Kullanıcı oluşturulamadı");
       }
-
-      // Sign in to get session
-      const { data: signInData, error: signInError } =
-        await supabase.auth.signInWithPassword({
-          phone,
-          password: tempPassword,
-        });
-
-      if (signInError) {
-        console.error("Sign in error:", signInError);
-        throw new Error("Giriş yapılamadı");
-      }
-      session = signInData.session;
+      userId = newUser.user.id;
     }
 
+    // Sign in to get session
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+      phone,
+      password: tempPassword,
+    });
+
+    if (signInError) {
+      console.error("Sign in error:", signInError);
+      throw new Error("Giriş yapılamadı");
+    }
+
+    const session = signInData.session;
     if (!session) {
       throw new Error("Oturum oluşturulamadı");
     }
@@ -140,17 +99,13 @@ Deno.serve(async (req) => {
     const { data: profile } = await supabase
       .from("profiles")
       .select("full_name, role")
-      .eq("user_id", session.user.id)
+      .eq("user_id", userId)
       .single();
 
     const needsProfile = !profile || !profile.full_name;
 
     return new Response(
-      JSON.stringify({
-        success: true,
-        session,
-        needsProfile,
-      }),
+      JSON.stringify({ success: true, session, needsProfile }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
