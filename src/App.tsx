@@ -43,6 +43,7 @@ const App = () => (
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/my-tasks" element={<MyTasks />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/profile/:userId" element={<UserProfile />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
