@@ -230,7 +230,6 @@ const Home = () => {
           <TaskDetailSheet
             task={selectedTask}
             onClose={() => setSelectedTask(null)}
-            onAccepted={(task) => setRouteTask(task)}
           />
         )}
       </AnimatePresence>
