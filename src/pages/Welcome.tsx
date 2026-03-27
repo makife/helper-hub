@@ -31,7 +31,7 @@ const Welcome = () => {
         transition={{ delay: 0.5, duration: 0.5 }}
         className="mb-12 text-center text-lg text-muted-foreground"
       >
-        Komşundan yardım al, komşuna yardım et.
+        Yardım al, Yardım et.
       </motion.p>
 
       <motion.div
@@ -61,8 +61,7 @@ const Welcome = () => {
         transition={{ delay: 1, duration: 0.5 }}
         className="mt-8 text-center text-xs text-muted-foreground"
       >
-        Devam ederek{" "}
-        <span className="font-semibold text-primary">Kullanım Şartları</span> ve{" "}
+        Devam ederek <span className="font-semibold text-primary">Kullanım Şartları</span> ve{" "}
         <span className="font-semibold text-primary">Gizlilik Politikası</span>'nı kabul etmiş olursunuz.
       </motion.p>
     </div>
