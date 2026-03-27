@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { MapPin, Search, Plus, Bell, Wrench, User } from "lucide-react";
+import { MapPin, Briefcase, Plus, Bell, Wrench, User } from "lucide-react";
 import { useRole } from "@/contexts/RoleContext";
 import { toast } from "sonner";
 
