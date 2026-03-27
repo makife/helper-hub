@@ -110,7 +110,7 @@ const Home = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [role, user]);
 
   const handleTaskClick = (task: { id: string }) => {
     const matched = tasks.find((t) => t.id === task.id);
