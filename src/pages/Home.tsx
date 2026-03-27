@@ -29,7 +29,6 @@ type TaskWithUI = Tables<"tasks"> & {
 const Home = () => {
   const [tasks, setTasks] = useState<TaskWithUI[]>([]);
   const [selectedTask, setSelectedTask] = useState<TaskWithUI | null>(null);
-  const [routeTask, setRouteTask] = useState<TaskWithUI | null>(null);
   const [loading, setLoading] = useState(true);
   const [locationName, setLocationName] = useState("Konum alınıyor...");
   const navigate = useNavigate();
