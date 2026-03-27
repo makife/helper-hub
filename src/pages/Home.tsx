@@ -71,11 +71,18 @@ const Home = () => {
 
   useEffect(() => {
     const fetchTasks = async () => {
-      const { data } = await supabase
+      let query = supabase
         .from("tasks")
         .select("*")
         .eq("status", "open")
         .order("created_at", { ascending: false });
+
+      // Owner mode: show only own tasks
+      if (role === "owner" && user) {
+        query = query.eq("owner_id", user.id);
+      }
+
+      const { data } = await query;
       setTasks((data || []).map(mapTask));
       setLoading(false);
     };
