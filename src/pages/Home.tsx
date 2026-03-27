@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { User, MessageCircle, Zap, MapPin, ChevronRight } from "lucide-react";
+import { User, MessageCircle, Zap, MapPin, ChevronRight, Plus, Briefcase } from "lucide-react";
 import TaskMap from "@/components/TaskMap";
 import TaskDetailSheet from "@/components/TaskDetailSheet";
 import BottomNav from "@/components/BottomNav";
@@ -71,11 +71,18 @@ const Home = () => {
 
   useEffect(() => {
     const fetchTasks = async () => {
-      const { data } = await supabase
+      let query = supabase
         .from("tasks")
         .select("*")
         .eq("status", "open")
         .order("created_at", { ascending: false });
+
+      // Owner mode: show only own tasks
+      if (role === "owner" && user) {
+        query = query.eq("owner_id", user.id);
+      }
+
+      const { data } = await query;
       setTasks((data || []).map(mapTask));
       setLoading(false);
     };
@@ -103,7 +110,7 @@ const Home = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [role, user]);
 
   const handleTaskClick = (task: { id: string }) => {
     const matched = tasks.find((t) => t.id === task.id);
@@ -158,26 +165,52 @@ const Home = () => {
 
       {/* Stats */}
       <div className="mx-5 mb-4 flex gap-3">
-        <div className="flex flex-1 items-center gap-2 rounded-xl bg-primary/5 px-3 py-2.5">
-          <Zap size={16} className="text-primary" />
-          <div>
-            <p className="text-xs text-muted-foreground">Açık İşler</p>
-            <p className="text-sm font-black text-foreground">{tasks.length} iş var</p>
-          </div>
-        </div>
-        <div className="flex flex-1 items-center gap-2 rounded-xl bg-accent/30 px-3 py-2.5">
-          <MapPin size={16} className="text-primary" />
-          <div>
-            <p className="text-xs text-muted-foreground">Yakınında</p>
-            <p className="text-sm font-black text-foreground">{tasks.length} iş</p>
-          </div>
-        </div>
+        {role === "tasker" ? (
+          <>
+            <div className="flex flex-1 items-center gap-2 rounded-xl bg-primary/5 px-3 py-2.5">
+              <Zap size={16} className="text-primary" />
+              <div>
+                <p className="text-xs text-muted-foreground">Açık İşler</p>
+                <p className="text-sm font-black text-foreground">{tasks.length} iş var</p>
+              </div>
+            </div>
+            <div className="flex flex-1 items-center gap-2 rounded-xl bg-accent/30 px-3 py-2.5">
+              <MapPin size={16} className="text-primary" />
+              <div>
+                <p className="text-xs text-muted-foreground">Yakınında</p>
+                <p className="text-sm font-black text-foreground">{tasks.length} iş</p>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="flex flex-1 items-center gap-2 rounded-xl bg-primary/5 px-3 py-2.5">
+              <Briefcase size={16} className="text-primary" />
+              <div>
+                <p className="text-xs text-muted-foreground">Oluşturduğun İşler</p>
+                <p className="text-sm font-black text-foreground">{tasks.length} iş</p>
+              </div>
+            </div>
+            <button
+              onClick={() => navigate("/create-task")}
+              className="flex flex-1 items-center gap-2 rounded-xl bg-primary/10 px-3 py-2.5 active:scale-[0.98]"
+            >
+              <Plus size={16} className="text-primary" />
+              <div>
+                <p className="text-xs text-muted-foreground">Yeni</p>
+                <p className="text-sm font-black text-primary">İş Oluştur</p>
+              </div>
+            </button>
+          </>
+        )}
       </div>
 
       {/* Task List */}
       <div className="flex-1 px-5">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-base font-black text-foreground">Yakındaki İşler</h2>
+          <h2 className="text-base font-black text-foreground">
+            {role === "tasker" ? "Yakındaki İşler" : "Oluşturduğun İşler"}
+          </h2>
         </div>
         {loading ? (
           <div className="flex items-center justify-center py-10">

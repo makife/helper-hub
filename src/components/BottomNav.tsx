@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { MapPin, Search, Plus, Bell, Wrench, User } from "lucide-react";
+import { MapPin, Briefcase, Plus, Bell, Wrench, User } from "lucide-react";
 import { useRole } from "@/contexts/RoleContext";
 import { toast } from "sonner";
 
@@ -23,15 +23,21 @@ const BottomNav = () => {
         <span className={`text-[10px] font-bold ${isActive("/home") ? "text-primary" : "text-muted-foreground"}`}>Keşfet</span>
       </button>
       <button onClick={() => navigate("/my-tasks")} className="flex flex-col items-center gap-0.5">
-        <Search size={20} className={isActive("/my-tasks") ? "text-primary" : "text-muted-foreground"} />
+        <Briefcase size={20} className={isActive("/my-tasks") ? "text-primary" : "text-muted-foreground"} />
         <span className={`text-[10px] font-semibold ${isActive("/my-tasks") ? "text-primary" : "text-muted-foreground"}`}>İşlerim</span>
       </button>
-      <button
-        onClick={() => navigate("/create-task")}
-        className="gradient-warm -mt-5 flex h-14 w-14 items-center justify-center rounded-full shadow-soft"
-      >
-        <Plus size={24} className="text-primary-foreground" />
-      </button>
+
+      {role === "owner" ? (
+        <button
+          onClick={() => navigate("/create-task")}
+          className="gradient-warm -mt-5 flex h-14 w-14 items-center justify-center rounded-full shadow-soft"
+        >
+          <Plus size={24} className="text-primary-foreground" />
+        </button>
+      ) : (
+        <div className="w-14" /> 
+      )}
+
       <button onClick={() => navigate("/notifications")} className="flex flex-col items-center gap-0.5">
         <Bell size={20} className={isActive("/notifications") ? "text-primary" : "text-muted-foreground"} />
         <span className={`text-[10px] font-semibold ${isActive("/notifications") ? "text-primary" : "text-muted-foreground"}`}>Bildirim</span>
