@@ -18,6 +18,8 @@ import Notifications from "./pages/Notifications";
 import MyTasks from "./pages/MyTasks";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
+import Messages from "./pages/Messages";
+import ActiveTask from "./pages/ActiveTask";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
