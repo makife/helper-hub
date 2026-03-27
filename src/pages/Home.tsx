@@ -139,11 +139,8 @@ const Home = () => {
       <div className="flex items-center justify-between px-5 pb-3 pt-4">
         <div>
           <p className="text-xs font-semibold text-muted-foreground">📍 {locationName}</p>
-          <h1 className="text-xl font-black text-foreground">
-            {role === "tasker" ? "İş Al 🔧" : "İş Ver 👋"}
-            <p className="text-xs text-primary font-semibold">-İş Ver- Modundasın</p>
-          </h1>
-          {role === "tasker" && <p className="text-xs text-primary font-semibold">-İş Al- Modundasın</p>}
+          <h1 className="text-xl font-black text-foreground">{role === "tasker" ? "İş Al 🔧" : "İş Ver 👋"}</h1>
+          {role === "tasker" && <p className="text-xs text-primary font-semibold">İş Al Modundasın</p>}
         </div>
         <div className="flex gap-2">
           <button
