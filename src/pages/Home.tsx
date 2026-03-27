@@ -45,7 +45,7 @@ const Home = () => {
       async (pos) => {
         try {
           const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json&accept-language=tr`
+            `https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json&accept-language=tr`,
           );
           const data = await res.json();
           const addr = data.address || {};
@@ -59,7 +59,7 @@ const Home = () => {
           setLocationName("Konum bulundu");
         }
       },
-      () => setLocationName("Konum izni verilmedi")
+      () => setLocationName("Konum izni verilmedi"),
     );
   }, []);
 
@@ -84,28 +84,26 @@ const Home = () => {
 
     const channel = supabase
       .channel("home-tasks")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "tasks" },
-        (payload) => {
-          if (payload.eventType === "INSERT") {
-            const newTask = mapTask(payload.new as Tables<"tasks">);
-            if (newTask.status === "open") setTasks((prev) => [newTask, ...prev]);
-          } else if (payload.eventType === "UPDATE") {
-            const updated = mapTask(payload.new as Tables<"tasks">);
-            setTasks((prev) => {
-              if (updated.status !== "open") return prev.filter((t) => t.id !== updated.id);
-              return prev.map((t) => (t.id === updated.id ? updated : t));
-            });
-          } else if (payload.eventType === "DELETE") {
-            const old = payload.old as { id: string };
-            setTasks((prev) => prev.filter((t) => t.id !== old.id));
-          }
+      .on("postgres_changes", { event: "*", schema: "public", table: "tasks" }, (payload) => {
+        if (payload.eventType === "INSERT") {
+          const newTask = mapTask(payload.new as Tables<"tasks">);
+          if (newTask.status === "open") setTasks((prev) => [newTask, ...prev]);
+        } else if (payload.eventType === "UPDATE") {
+          const updated = mapTask(payload.new as Tables<"tasks">);
+          setTasks((prev) => {
+            if (updated.status !== "open") return prev.filter((t) => t.id !== updated.id);
+            return prev.map((t) => (t.id === updated.id ? updated : t));
+          });
+        } else if (payload.eventType === "DELETE") {
+          const old = payload.old as { id: string };
+          setTasks((prev) => prev.filter((t) => t.id !== old.id));
         }
-      )
+      })
       .subscribe();
 
-    return () => { supabase.removeChannel(channel); };
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const handleTaskClick = (task: { id: string }) => {
@@ -143,16 +141,21 @@ const Home = () => {
           <p className="text-xs font-semibold text-muted-foreground">📍 {locationName}</p>
           <h1 className="text-xl font-black text-foreground">
             {role === "tasker" ? "İş Al 🔧" : "İş Ver 👋"}
-          </h1>
-          {role === "tasker" && (
             <p className="text-xs text-primary font-semibold">İş Al modundasın</p>
-          )}
+          </h1>
+          {role === "tasker" && <p className="text-xs text-primary font-semibold">İş Al modundasın</p>}
         </div>
         <div className="flex gap-2">
-          <button onClick={() => navigate("/search")} className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card">
+          <button
+            onClick={() => navigate("/search")}
+            className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card"
+          >
             <Search size={18} className="text-muted-foreground" />
           </button>
-          <button onClick={() => navigate("/notifications")} className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card">
+          <button
+            onClick={() => navigate("/notifications")}
+            className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card"
+          >
             <Bell size={18} className="text-muted-foreground" />
             <div className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-destructive" />
           </button>
@@ -160,7 +163,10 @@ const Home = () => {
       </div>
 
       {/* Map */}
-      <div className="relative mx-5 mb-4 overflow-hidden rounded-2xl border border-border shadow-card" style={{ height: 260 }}>
+      <div
+        className="relative mx-5 mb-4 overflow-hidden rounded-2xl border border-border shadow-card"
+        style={{ height: 260 }}
+      >
         <TaskMap tasks={mapPins} onTaskClick={handleTaskClick} />
       </div>
 
@@ -213,7 +219,9 @@ const Home = () => {
                   <div className="flex items-center gap-2">
                     <h3 className="text-sm font-bold text-foreground">{task.title}</h3>
                     {task.urgency === "urgent" && (
-                      <span className="rounded-md bg-destructive/10 px-1.5 py-0.5 text-[10px] font-bold text-destructive">🔥 ACİL</span>
+                      <span className="rounded-md bg-destructive/10 px-1.5 py-0.5 text-[10px] font-bold text-destructive">
+                        🔥 ACİL
+                      </span>
                     )}
                   </div>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
