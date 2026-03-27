@@ -30,7 +30,7 @@ const Welcome = () => {
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="mb-6"
       >
-        <img src={logo} alt="Bi' El At" width={120} height={120} className="animate-float" />
+        <img src={logo} alt="Bi' El At" width={120} height={120} />
       </motion.div>
 
       <motion.h1
