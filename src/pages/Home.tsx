@@ -208,7 +208,9 @@ const Home = () => {
       {/* Task List */}
       <div className="flex-1 px-5">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-base font-black text-foreground">Yakındaki İşler</h2>
+          <h2 className="text-base font-black text-foreground">
+            {role === "tasker" ? "Yakındaki İşler" : "Oluşturduğun İşler"}
+          </h2>
         </div>
         {loading ? (
           <div className="flex items-center justify-center py-10">

@@ -138,7 +138,7 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
           </div>
         )}
 
-        {user?.id !== task.owner_id && (
+        {role === "tasker" && user?.id !== task.owner_id && (
           <button
             onClick={handleAccept}
             disabled={accepting}
