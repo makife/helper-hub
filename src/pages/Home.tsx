@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { User, MessageCircle, Zap, MapPin, ChevronRight } from "lucide-react";
+import { User, MessageCircle, Zap, MapPin, ChevronRight, Plus, Briefcase } from "lucide-react";
 import TaskMap from "@/components/TaskMap";
 import TaskDetailSheet from "@/components/TaskDetailSheet";
 import BottomNav from "@/components/BottomNav";
