@@ -120,17 +120,8 @@ const Home = () => {
     urgent: t.urgency === "urgent",
   }));
 
-  // Show route map full-screen
-  if (routeTask) {
-    return (
-      <RouteMap
-        taskLat={routeTask.lat}
-        taskLng={routeTask.lng}
-        taskTitle={routeTask.title}
-        onClose={() => setRouteTask(null)}
-      />
-    );
-  }
+
+
 
   return (
     <div className="flex min-h-screen flex-col bg-background safe-top safe-bottom">
