@@ -4,6 +4,7 @@ import { X, Clock, MapPin, Star, User, Navigation } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useRole } from "@/contexts/RoleContext";
 import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
 
