@@ -165,20 +165,44 @@ const Home = () => {
 
       {/* Stats */}
       <div className="mx-5 mb-4 flex gap-3">
-        <div className="flex flex-1 items-center gap-2 rounded-xl bg-primary/5 px-3 py-2.5">
-          <Zap size={16} className="text-primary" />
-          <div>
-            <p className="text-xs text-muted-foreground">Açık İşler</p>
-            <p className="text-sm font-black text-foreground">{tasks.length} iş var</p>
-          </div>
-        </div>
-        <div className="flex flex-1 items-center gap-2 rounded-xl bg-accent/30 px-3 py-2.5">
-          <MapPin size={16} className="text-primary" />
-          <div>
-            <p className="text-xs text-muted-foreground">Yakınında</p>
-            <p className="text-sm font-black text-foreground">{tasks.length} iş</p>
-          </div>
-        </div>
+        {role === "tasker" ? (
+          <>
+            <div className="flex flex-1 items-center gap-2 rounded-xl bg-primary/5 px-3 py-2.5">
+              <Zap size={16} className="text-primary" />
+              <div>
+                <p className="text-xs text-muted-foreground">Açık İşler</p>
+                <p className="text-sm font-black text-foreground">{tasks.length} iş var</p>
+              </div>
+            </div>
+            <div className="flex flex-1 items-center gap-2 rounded-xl bg-accent/30 px-3 py-2.5">
+              <MapPin size={16} className="text-primary" />
+              <div>
+                <p className="text-xs text-muted-foreground">Yakınında</p>
+                <p className="text-sm font-black text-foreground">{tasks.length} iş</p>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="flex flex-1 items-center gap-2 rounded-xl bg-primary/5 px-3 py-2.5">
+              <Briefcase size={16} className="text-primary" />
+              <div>
+                <p className="text-xs text-muted-foreground">Oluşturduğun İşler</p>
+                <p className="text-sm font-black text-foreground">{tasks.length} iş</p>
+              </div>
+            </div>
+            <button
+              onClick={() => navigate("/create-task")}
+              className="flex flex-1 items-center gap-2 rounded-xl bg-primary/10 px-3 py-2.5 active:scale-[0.98]"
+            >
+              <Plus size={16} className="text-primary" />
+              <div>
+                <p className="text-xs text-muted-foreground">Yeni</p>
+                <p className="text-sm font-black text-primary">İş Oluştur</p>
+              </div>
+            </button>
+          </>
+        )}
       </div>
 
       {/* Task List */}
