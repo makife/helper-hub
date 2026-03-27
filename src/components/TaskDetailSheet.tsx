@@ -52,9 +52,9 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
       toast.error("İş kabul edilemedi. Başkası almış olabilir.");
       return;
     }
-    toast.success("İş kabul edildi! Rota gösteriliyor 🗺️");
-    onAccepted?.(task);
+    toast.success("İş kabul edildi! 🎉");
     onClose();
+    navigate(`/task/${task.id}`);
   };
 
   return (

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Bell, Search, Zap, MapPin, ChevronRight } from "lucide-react";
+import { User, MessageCircle, Zap, MapPin, ChevronRight } from "lucide-react";
 import TaskMap from "@/components/TaskMap";
 import TaskDetailSheet from "@/components/TaskDetailSheet";
 import BottomNav from "@/components/BottomNav";
@@ -29,7 +29,6 @@ type TaskWithUI = Tables<"tasks"> & {
 const Home = () => {
   const [tasks, setTasks] = useState<TaskWithUI[]>([]);
   const [selectedTask, setSelectedTask] = useState<TaskWithUI | null>(null);
-  const [routeTask, setRouteTask] = useState<TaskWithUI | null>(null);
   const [loading, setLoading] = useState(true);
   const [locationName, setLocationName] = useState("Konum alınıyor...");
   const navigate = useNavigate();
@@ -121,17 +120,8 @@ const Home = () => {
     urgent: t.urgency === "urgent",
   }));
 
-  // Show route map full-screen
-  if (routeTask) {
-    return (
-      <RouteMap
-        taskLat={routeTask.lat}
-        taskLng={routeTask.lng}
-        taskTitle={routeTask.title}
-        onClose={() => setRouteTask(null)}
-      />
-    );
-  }
+
+
 
   return (
     <div className="flex min-h-screen flex-col bg-background safe-top safe-bottom">
@@ -144,17 +134,16 @@ const Home = () => {
         </div>
         <div className="flex gap-2">
           <button
-            onClick={() => navigate("/search")}
+            onClick={() => navigate("/messages")}
             className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card"
           >
-            <Search size={18} className="text-muted-foreground" />
+            <MessageCircle size={18} className="text-muted-foreground" />
           </button>
           <button
-            onClick={() => navigate("/notifications")}
-            className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card"
+            onClick={() => navigate("/profile")}
+            className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card"
           >
-            <Bell size={18} className="text-muted-foreground" />
-            <div className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-destructive" />
+            <User size={18} className="text-muted-foreground" />
           </button>
         </div>
       </div>
@@ -241,7 +230,6 @@ const Home = () => {
           <TaskDetailSheet
             task={selectedTask}
             onClose={() => setSelectedTask(null)}
-            onAccepted={(task) => setRouteTask(task)}
           />
         )}
       </AnimatePresence>

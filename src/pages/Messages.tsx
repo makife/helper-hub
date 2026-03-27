@@ -1,0 +1,173 @@
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft, MessageCircle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+
+type Conversation = {
+  task_id: string;
+  task_title: string;
+  other_user_id: string;
+  other_user_name: string;
+  other_user_avatar: string | null;
+  last_message: string;
+  last_message_at: string;
+  unread_count: number;
+};
+
+const Messages = () => {
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchConversations = async () => {
+      // Get all messages where user is sender or receiver
+      const { data: messages } = await supabase
+        .from("messages")
+        .select("*")
+        .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+        .order("created_at", { ascending: false });
+
+      if (!messages || messages.length === 0) {
+        setLoading(false);
+        return;
+      }
+
+      // Group by task_id
+      const taskMap = new Map<string, typeof messages>();
+      for (const msg of messages) {
+        if (!taskMap.has(msg.task_id)) taskMap.set(msg.task_id, []);
+        taskMap.get(msg.task_id)!.push(msg);
+      }
+
+      const convos: Conversation[] = [];
+      for (const [taskId, msgs] of taskMap) {
+        const lastMsg = msgs[0];
+        const otherId = lastMsg.sender_id === user.id ? lastMsg.receiver_id : lastMsg.sender_id;
+        const unread = msgs.filter((m) => m.receiver_id === user.id && !m.is_read).length;
+
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("full_name, avatar_url")
+          .eq("user_id", otherId)
+          .maybeSingle();
+
+        const { data: task } = await supabase
+          .from("tasks")
+          .select("title")
+          .eq("id", taskId)
+          .maybeSingle();
+
+        convos.push({
+          task_id: taskId,
+          task_title: task?.title || "İş",
+          other_user_id: otherId,
+          other_user_name: profile?.full_name || "Kullanıcı",
+          other_user_avatar: profile?.avatar_url || null,
+          last_message: lastMsg.content,
+          last_message_at: lastMsg.created_at,
+          unread_count: unread,
+        });
+      }
+
+      setConversations(convos);
+      setLoading(false);
+    };
+
+    fetchConversations();
+
+    // Realtime
+    const channel = supabase
+      .channel("messages-list")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, () => {
+        fetchConversations();
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [user]);
+
+  const timeAgo = (date: string) => {
+    const diff = Date.now() - new Date(date).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return "şimdi";
+    if (mins < 60) return `${mins} dk`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours} sa`;
+    return `${Math.floor(hours / 24)} gün`;
+  };
+
+  return (
+    <div className="flex min-h-screen flex-col bg-background safe-top safe-bottom">
+      <div className="flex items-center gap-3 px-5 pb-3 pt-4">
+        <button onClick={() => navigate(-1)} className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card">
+          <ArrowLeft size={20} className="text-foreground" />
+        </button>
+        <h1 className="text-xl font-black text-foreground">Mesajlar</h1>
+      </div>
+
+      <div className="flex-1 px-5 pb-24">
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          </div>
+        ) : conversations.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted">
+              <MessageCircle size={32} className="text-muted-foreground" />
+            </div>
+            <p className="mt-3 text-lg font-bold text-foreground">Henüz mesaj yok</p>
+            <p className="mt-1 text-center text-sm text-muted-foreground">
+              Bir iş kabul ettiğinizde mesajlaşma başlayacak.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {conversations.map((conv, i) => (
+              <motion.button
+                key={conv.task_id}
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: i * 0.06 }}
+                onClick={() => navigate(`/task/${conv.task_id}`)}
+                className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card p-4 text-left shadow-card transition-all active:scale-[0.98]"
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+                  {conv.other_user_avatar ? (
+                    <img src={conv.other_user_avatar} alt="" className="h-full w-full rounded-full object-cover" />
+                  ) : (
+                    <span className="text-lg font-bold text-muted-foreground">
+                      {conv.other_user_name.charAt(0)}
+                    </span>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-bold text-foreground truncate">{conv.other_user_name}</h3>
+                    <span className="text-[10px] text-muted-foreground ml-2 flex-shrink-0">
+                      {timeAgo(conv.last_message_at)}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground truncate">{conv.task_title}</p>
+                  <p className="text-xs text-muted-foreground truncate mt-0.5">{conv.last_message}</p>
+                </div>
+                {conv.unread_count > 0 && (
+                  <div className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary px-1.5">
+                    <span className="text-[10px] font-bold text-primary-foreground">{conv.unread_count}</span>
+                  </div>
+                )}
+              </motion.button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Messages;

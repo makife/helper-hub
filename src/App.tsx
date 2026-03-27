@@ -18,6 +18,8 @@ import Notifications from "./pages/Notifications";
 import MyTasks from "./pages/MyTasks";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
+import Messages from "./pages/Messages";
+import ActiveTask from "./pages/ActiveTask";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +46,8 @@ const App = () => (
             <Route path="/my-tasks" element={<MyTasks />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/profile/:userId" element={<UserProfile />} />
+            <Route path="/messages" element={<Messages />} />
+            <Route path="/task/:taskId" element={<ActiveTask />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
