@@ -46,6 +46,8 @@ const App = () => (
             <Route path="/my-tasks" element={<MyTasks />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/profile/:userId" element={<UserProfile />} />
+            <Route path="/messages" element={<Messages />} />
+            <Route path="/task/:taskId" element={<ActiveTask />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
