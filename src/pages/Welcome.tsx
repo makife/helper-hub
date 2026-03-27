@@ -17,7 +17,7 @@ const Welcome = () => {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
-        <img src={logo} alt="Bi' El At" width={80} height={80} className="animate-float" />
+        <img src={logo} alt="Bi' El At" width={80} height={80} />
       </div>
     );
   }
