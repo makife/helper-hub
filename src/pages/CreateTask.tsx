@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Camera, MapPin, Flame, Clock, X, Edit3, Grid, Users } from "lucide-react";
+import { ArrowLeft, Camera, MapPin, Flame, Clock, X, Edit3, Grid, Users, Image as ImageIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -78,11 +78,12 @@ const CreateTask = () => {
     loadTaskData();
   }, [editTaskId]);
 
-  const addPhoto = () => {
+  const addPhoto = (source: "camera" | "gallery") => {
     if (photoPreviews.length >= 2) return;
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";
+    if (source === "camera") input.setAttribute("capture", "environment");
     input.onchange = (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (file) {
@@ -92,6 +93,7 @@ const CreateTask = () => {
     };
     input.click();
   };
+
 
   const removePhoto = (index: number) => {
     setPhotoPreviews((prev) => prev.filter((_, i) => i !== index));
@@ -361,15 +363,26 @@ const CreateTask = () => {
               </div>
             ))}
             {photoPreviews.length < 2 && (
-              <button
-                type="button"
-                onClick={addPhoto}
-                className="flex h-20 w-20 flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-muted/50 transition-colors active:bg-muted"
-              >
-                <Camera size={20} className="text-muted-foreground" />
-                <span className="text-[10px] text-muted-foreground">Ekle</span>
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={() => addPhoto("camera")}
+                  className="flex h-20 w-20 flex-col items-center justify-center gap-0.5 rounded-xl border-2 border-dashed border-primary/60 bg-primary/5 transition-colors active:bg-primary/10"
+                >
+                  <Camera size={20} className="text-primary" />
+                  <span className="text-[10px] font-bold text-primary">Çek</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => addPhoto("gallery")}
+                  className="flex h-20 w-20 flex-col items-center justify-center gap-0.5 rounded-xl border-2 border-dashed border-border bg-muted/50 transition-colors active:bg-muted"
+                >
+                  <ImageIcon size={20} className="text-muted-foreground" />
+                  <span className="text-[10px] text-muted-foreground">Galeri</span>
+                </button>
+              </>
             )}
+
           </div>
         </motion.div>
 
