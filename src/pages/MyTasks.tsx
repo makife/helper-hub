@@ -189,6 +189,13 @@ const MyTasks = () => {
   const [loading, setLoading] = useState(true);
   const [selectedTask, setSelectedTask] = useState<Tables<"tasks"> | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [, setPriceTick] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => setPriceTick((t) => t + 1), 1000);
+    return () => clearInterval(id);
+  }, []);
+
   
   const navigate = useNavigate();
   const { user } = useAuth();
