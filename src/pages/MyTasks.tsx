@@ -16,6 +16,7 @@ import { computePrice, formatCountdown } from "@/lib/dynamicPricing";
 import { getTaskEmoji } from "@/lib/taskCategories";
 import { leaveTask } from "@/lib/assignments";
 import { toast } from "sonner";
+import ConfirmDialog from "@/components/ConfirmDialog";
 
 
 const statusLabels: Record<string, { label: string; color: string }> = {
@@ -696,6 +697,6 @@ const MyTasks = () => {
       />
     </div>
   );
-
+};
 
 export default MyTasks;
