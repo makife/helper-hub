@@ -172,7 +172,15 @@ const ActiveTask = () => {
     );
   }
 
-  const isTasker = task.tasker_id === user?.id;
+  const isTasker = !isOwner;
+  const needed = task.person_count ?? 1;
+  const visibleMessages = messages.filter(
+    (m) =>
+      !partnerId ||
+      (m.sender_id === user?.id && m.receiver_id === partnerId) ||
+      (m.sender_id === partnerId && m.receiver_id === user?.id)
+  );
+
 
   return (
     <div className="flex min-h-screen flex-col bg-background safe-top safe-bottom">
