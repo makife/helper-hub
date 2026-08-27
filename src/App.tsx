@@ -15,6 +15,7 @@ import Notifications from "./pages/Notifications";
 import MyTasks from "./pages/MyTasks";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
+import Market from "./pages/Market";
 import Messages from "./pages/Messages";
 import ActiveTask from "./pages/ActiveTask";
 import NotFound from "./pages/NotFound";
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="/my-tasks" element={<MyTasks />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/profile/:userId" element={<UserProfile />} />
+            <Route path="/market" element={<Market />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="/task/:taskId" element={<ActiveTask />} />
             <Route path="*" element={<NotFound />} />

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Coins, Sparkles, Check } from "lucide-react";
+import { ArrowLeft, Coins, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Tables } from "@/integrations/supabase/types";
@@ -170,8 +170,6 @@ const Market = () => {
         onConfirm={purchase}
         onCancel={() => setSelected(null)}
       />
-
-      {false && <Check />}
     </div>
   );
 };
