@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Zap, MapPin, Bell } from "lucide-react";
+import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import TaskMap from "@/components/TaskMap";
 import TaskDetailSheet from "@/components/TaskDetailSheet";
 import BottomNav from "@/components/BottomNav";
@@ -178,8 +179,13 @@ const Home = () => {
         </div>
         <button
           onClick={() => navigate("/notifications")}
-          className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card"
+          className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card"
         >
+          {unreadMessages > 0 && (
+            <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[9px] font-black text-destructive-foreground">
+              {unreadMessages > 9 ? "9+" : unreadMessages}
+            </span>
+          )}
           <Bell size={18} className="text-muted-foreground" />
         </button>
       </div>
