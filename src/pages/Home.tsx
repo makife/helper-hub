@@ -12,6 +12,8 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { getTaskEmoji } from "@/lib/taskCategories";
 import { computePrice } from "@/lib/dynamicPricing";
+import { fetchAssignmentCounts } from "@/lib/assignments";
+
 
 type TaskWithUI = Tables<"tasks"> & {
   emoji: string;
@@ -23,9 +25,11 @@ const Home = () => {
   const [tasks, setTasks] = useState<TaskWithUI[]>([]);
   const [selectedTask, setSelectedTask] = useState<TaskWithUI | null>(null);
   const [ownerNames, setOwnerNames] = useState<Record<string, string>>({});
+  const [fillCounts, setFillCounts] = useState<Record<string, number>>({});
   const navigate = useNavigate();
   const { user } = useAuth();
   const { role } = useRole();
+
 
   const mapTask = (t: Tables<"tasks">): TaskWithUI => ({
     ...t,
@@ -50,6 +54,10 @@ const Home = () => {
       const { data } = await query;
       const mapped = (data || []).map(mapTask);
       setTasks(mapped);
+
+      setFillCounts(await fetchAssignmentCounts(mapped.map((t) => t.id)));
+
+
 
       // Fetch owner names for map pin popups
       const ownerIds = [...new Set(mapped.map((t) => t.owner_id))];
@@ -103,10 +111,22 @@ const Home = () => {
       })
       .subscribe();
 
+    const assignmentChannel = supabase
+      .channel("home-assignments")
+      .on("postgres_changes", { event: "*", schema: "public", table: "task_assignments" }, async () => {
+        setTasks((prev) => {
+          fetchAssignmentCounts(prev.map((t) => t.id)).then(setFillCounts);
+          return prev;
+        });
+      })
+      .subscribe();
+
     return () => {
       supabase.removeChannel(channel);
+      supabase.removeChannel(assignmentChannel);
     };
   }, [role, user]);
+
 
   // Canlı fiyat düşüşü: her 15 sn'de bir yeniden hesapla, değişince DB'ye yaz (sadece iş sahibi)
   const [priceTick, setPriceTick] = useState(0);
@@ -142,7 +162,10 @@ const Home = () => {
     urgent: t.urgency === "urgent",
     estimatedMinutes: t.estimated_minutes ?? undefined,
     ownerName: ownerNames[t.owner_id],
+    filled: fillCounts[t.id] ?? 0,
+    personCount: t.person_count ?? 1,
   }));
+
 
 
 

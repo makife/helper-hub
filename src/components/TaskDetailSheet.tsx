@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { X, Clock, MapPin, Star, User, Navigation, TrendingDown } from "lucide-react";
+import { X, Clock, MapPin, Star, User, Users, TrendingDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { useLivePrice, formatCountdown } from "@/lib/dynamicPricing";
+import { acceptTask, leaveTask } from "@/lib/assignments";
 import type { Tables } from "@/integrations/supabase/types";
 
 
@@ -26,7 +27,10 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
   const navigate = useNavigate();
   const [owner, setOwner] = useState<Tables<"profiles"> | null>(null);
   const [accepting, setAccepting] = useState(false);
+  const [acceptedCount, setAcceptedCount] = useState(0);
+  const [iAccepted, setIAccepted] = useState(false);
   const livePrice = useLivePrice(task);
+  const needed = task.person_count ?? 1;
 
   useEffect(() => {
     supabase
@@ -37,31 +41,66 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
       .then(({ data }) => setOwner(data));
   }, [task.owner_id]);
 
+  const loadAssignments = async () => {
+    const { data } = await supabase
+      .from("task_assignments")
+      .select("tasker_id")
+      .eq("task_id", task.id)
+      .eq("status", "accepted");
+    setAcceptedCount(data?.length ?? 0);
+    setIAccepted(!!user && (data || []).some((a) => a.tasker_id === user.id));
+  };
+
+  useEffect(() => {
+    loadAssignments();
+    const channel = supabase
+      .channel(`task-assignments-${task.id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "task_assignments", filter: `task_id=eq.${task.id}` },
+        () => loadAssignments()
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [task.id, user?.id]);
+
   const handleAccept = async () => {
     if (!user) return;
     setAccepting(true);
-    const { error } = await supabase
-      .from("tasks")
-      .update({
-        tasker_id: user.id,
-        status: "matched" as const,
-        matched_at: new Date().toISOString(),
-        // Kabul anındaki canlı fiyatı kilitle
-        current_price: livePrice ? livePrice.price : task.current_price ?? task.price,
-      })
-      .eq("id", task.id)
-      .eq("status", "open");
-
-
+    const price = livePrice ? livePrice.price : task.current_price ?? task.price;
+    const result = await acceptTask(task.id, user.id, price);
     setAccepting(false);
-    if (error) {
-      toast.error("İş kabul edilemedi. Başkası almış olabilir.");
+
+    if (result.ok !== true) {
+      toast.error(result.message);
+      if (result.reason === "already") {
+        onClose();
+        navigate(`/task/${task.id}`);
+      }
       return;
     }
-    toast.success("İş kabul edildi! 🎉");
+
+    toast.success(
+      needed > 1
+        ? `İş kabul edildi! (${acceptedCount + 1}/${needed} kişi) 🎉`
+        : "İş kabul edildi! 🎉"
+    );
+    onAccepted?.(task);
     onClose();
     navigate(`/task/${task.id}`);
   };
+
+  const handleLeave = async () => {
+    if (!user) return;
+    setAccepting(true);
+    const ok = await leaveTask(task.id, user.id);
+    setAccepting(false);
+    if (!ok) { toast.error("İşten ayrılamadın, tekrar dene."); return; }
+    toast.success("İşten ayrıldın.");
+    loadAssignments();
+  };
+
 
   return (
     <>
@@ -155,7 +194,16 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
             <p className="mt-1 text-xs font-semibold text-destructive">🔥 Acil iş — hemen başlaman bekleniyor</p>
           )}
         </div>
-
+        {/* Kişi kontenjanı */}
+        <div className="mb-4 flex items-center justify-between rounded-xl bg-muted/50 p-3">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Users size={14} className="text-primary" />
+            <span>Kişi kontenjanı</span>
+          </div>
+          <span className="text-sm font-black text-foreground">
+            {acceptedCount}/{needed} dolu
+          </span>
+        </div>
 
         {task.address_note && (
           <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
@@ -165,14 +213,41 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
         )}
 
         {user?.id !== task.owner_id && (
-          <button
-            onClick={handleAccept}
-            disabled={accepting}
-            className="gradient-warm w-full rounded-2xl px-6 py-4 text-lg font-bold text-primary-foreground shadow-soft transition-transform active:scale-[0.98] disabled:opacity-50"
-          >
-            {accepting ? "Kabul ediliyor..." : "Kabul Et ✋"}
-          </button>
+          iAccepted ? (
+            <div className="space-y-2">
+              <button
+                onClick={() => { onClose(); navigate(`/task/${task.id}`); }}
+                className="gradient-warm w-full rounded-2xl px-6 py-4 text-lg font-bold text-primary-foreground shadow-soft transition-transform active:scale-[0.98]"
+              >
+                İşi Aç 💬
+              </button>
+              <button
+                onClick={handleLeave}
+                disabled={accepting}
+                className="w-full rounded-2xl border border-border px-6 py-3 text-sm font-bold text-muted-foreground disabled:opacity-50"
+              >
+                İşten Ayrıl
+              </button>
+            </div>
+          ) : acceptedCount >= needed ? (
+            <div className="w-full rounded-2xl bg-muted px-6 py-4 text-center text-sm font-bold text-muted-foreground">
+              Kontenjan doldu ({needed}/{needed})
+            </div>
+          ) : (
+            <button
+              onClick={handleAccept}
+              disabled={accepting}
+              className="gradient-warm w-full rounded-2xl px-6 py-4 text-lg font-bold text-primary-foreground shadow-soft transition-transform active:scale-[0.98] disabled:opacity-50"
+            >
+              {accepting
+                ? "Kabul ediliyor..."
+                : needed > 1
+                  ? `Kabul Et ✋ (${acceptedCount}/${needed})`
+                  : "Kabul Et ✋"}
+            </button>
+          )
         )}
+
       </motion.div>
     </>
   );

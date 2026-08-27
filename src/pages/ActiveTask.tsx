@@ -8,18 +8,27 @@ import RouteMap from "@/components/RouteMap";
 import type { Tables } from "@/integrations/supabase/types";
 import { getTaskEmoji } from "@/lib/taskCategories";
 
+type TaskerEntry = { tasker_id: string; profile: Tables<"profiles"> | null };
+
 const ActiveTask = () => {
   const { taskId } = useParams<{ taskId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [task, setTask] = useState<Tables<"tasks"> | null>(null);
-  const [otherProfile, setOtherProfile] = useState<Tables<"profiles"> | null>(null);
+  const [taskers, setTaskers] = useState<TaskerEntry[]>([]);
+  const [ownerProfile, setOwnerProfile] = useState<Tables<"profiles"> | null>(null);
+  const [partnerId, setPartnerId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Tables<"messages">[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [showRoute, setShowRoute] = useState(false);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const isOwner = !!user && task?.owner_id === user.id;
+  const otherProfile = isOwner
+    ? taskers.find((t) => t.tasker_id === partnerId)?.profile ?? null
+    : ownerProfile;
 
   useEffect(() => {
     if (!taskId || !user) return;
@@ -29,11 +38,33 @@ const ActiveTask = () => {
       if (!data) { navigate("/home"); return; }
       setTask(data);
 
-      // Fetch other user's profile
-      const otherId = data.owner_id === user.id ? data.tasker_id : data.owner_id;
-      if (otherId) {
-        const { data: profile } = await supabase.from("profiles").select("*").eq("user_id", otherId).maybeSingle();
-        setOtherProfile(profile);
+      const { data: owner } = await supabase
+        .from("profiles").select("*").eq("user_id", data.owner_id).maybeSingle();
+      setOwnerProfile(owner);
+
+      const { data: assignments } = await supabase
+        .from("task_assignments")
+        .select("tasker_id")
+        .eq("task_id", taskId)
+        .eq("status", "accepted")
+        .order("created_at", { ascending: true });
+
+      const ids = (assignments || []).map((a) => a.tasker_id);
+      let profiles: Tables<"profiles">[] = [];
+      if (ids.length > 0) {
+        const { data: p } = await supabase.from("profiles").select("*").in("user_id", ids);
+        profiles = p || [];
+      }
+      const entries = ids.map((id) => ({
+        tasker_id: id,
+        profile: profiles.find((p) => p.user_id === id) || null,
+      }));
+      setTaskers(entries);
+
+      if (data.owner_id === user.id) {
+        setPartnerId((prev) => prev ?? entries[0]?.tasker_id ?? null);
+      } else {
+        setPartnerId(data.owner_id);
       }
     };
 
@@ -82,8 +113,19 @@ const ActiveTask = () => {
       })
       .subscribe();
 
-    return () => { supabase.removeChannel(channel); };
+    const assignmentChannel = supabase
+      .channel(`task-assignments-page-${taskId}`)
+      .on("postgres_changes", {
+        event: "*", schema: "public", table: "task_assignments", filter: `task_id=eq.${taskId}`,
+      }, () => fetchTask())
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+      supabase.removeChannel(assignmentChannel);
+    };
   }, [taskId, user]);
+
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -91,8 +133,9 @@ const ActiveTask = () => {
 
   const handleSend = async () => {
     if (!newMessage.trim() || !user || !task) return;
-    const receiverId = task.owner_id === user.id ? task.tasker_id : task.owner_id;
-    if (!receiverId) return;
+    const receiverId = partnerId;
+    if (!receiverId) { toast.error("Henüz konuşulacak kişi yok."); return; }
+
 
     setSending(true);
     const { error } = await supabase.from("messages").insert({
@@ -129,7 +172,15 @@ const ActiveTask = () => {
     );
   }
 
-  const isTasker = task.tasker_id === user?.id;
+  const isTasker = !isOwner;
+  const needed = task.person_count ?? 1;
+  const visibleMessages = messages.filter(
+    (m) =>
+      !partnerId ||
+      (m.sender_id === user?.id && m.receiver_id === partnerId) ||
+      (m.sender_id === partnerId && m.receiver_id === user?.id)
+  );
+
 
   return (
     <div className="flex min-h-screen flex-col bg-background safe-top safe-bottom">
@@ -142,7 +193,9 @@ const ActiveTask = () => {
           <h1 className="text-base font-black text-foreground truncate">{task.title}</h1>
           <p className="text-xs text-muted-foreground">
             {task.status === "matched" ? "Eşleşti" : task.status === "in_progress" ? "Devam Ediyor" : task.status}
+            {needed > 1 && ` · 👥 ${taskers.length}/${needed} kişi`}
           </p>
+
         </div>
         <span className="text-lg font-black text-primary">{task.current_price || task.price} ₺</span>
       </div>
@@ -158,8 +211,34 @@ const ActiveTask = () => {
           </div>
         </div>
 
+        {/* Owner: birden fazla tasker varsa sohbet seçici */}
+        {isOwner && taskers.length > 1 && (
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {taskers.map((t) => (
+              <button
+                key={t.tasker_id}
+                onClick={() => setPartnerId(t.tasker_id)}
+                className={`whitespace-nowrap rounded-xl px-3 py-2 text-xs font-bold transition-colors ${
+                  partnerId === t.tasker_id
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground"
+                }`}
+              >
+                {t.profile?.full_name || "Tasker"}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {isOwner && taskers.length === 0 && (
+          <p className="rounded-xl bg-muted/50 p-3 text-xs text-muted-foreground">
+            Henüz kimse bu işi kabul etmedi. Kabul eden olduğunda burada sohbet açılacak.
+          </p>
+        )}
+
         {/* Other user profile */}
         {otherProfile && (
+
           <button
             onClick={() => navigate(`/profile/${otherProfile.user_id}`)}
             className="flex w-full items-center gap-3 rounded-xl bg-muted/50 p-3 text-left active:scale-[0.98]"
@@ -213,13 +292,13 @@ const ActiveTask = () => {
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-5 py-3 space-y-2">
-        {messages.length === 0 && (
+        {visibleMessages.length === 0 && (
           <div className="flex flex-col items-center py-10">
             <MessageCircle size={32} className="text-muted-foreground mb-2" />
             <p className="text-sm text-muted-foreground">Henüz mesaj yok. İlk mesajı gönder!</p>
           </div>
         )}
-        {messages.map((msg) => {
+        {visibleMessages.map((msg) => {
           const isMine = msg.sender_id === user?.id;
           return (
             <div key={msg.id} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
