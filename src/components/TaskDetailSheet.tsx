@@ -4,7 +4,6 @@ import { X, Clock, MapPin, Star, User, Navigation } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { useRole } from "@/contexts/RoleContext";
 import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -22,7 +21,6 @@ type Props = {
 
 const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
   const { user } = useAuth();
-  const { role } = useRole();
   const navigate = useNavigate();
   const [owner, setOwner] = useState<Tables<"profiles"> | null>(null);
   const [accepting, setAccepting] = useState(false);
@@ -138,7 +136,7 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
           </div>
         )}
 
-        {role === "tasker" && user?.id !== task.owner_id && (
+        {user?.id !== task.owner_id && (
           <button
             onClick={handleAccept}
             disabled={accepting}
