@@ -159,15 +159,15 @@ const Home = () => {
 
       {/* Map */}
       <div
-        className="relative mx-5 mb-4 overflow-hidden rounded-2xl border border-border shadow-card"
-        style={{ height: "calc(100vh - 230px)" }}
+        className="relative mx-5 overflow-hidden rounded-2xl border border-border shadow-card"
+        style={{ height: "calc(100vh - 170px)" }}
       >
         <TaskMap tasks={mapPins} onTaskClick={handleTaskClick} />
       </div>
 
       {/* Stats */}
       {role === "tasker" && (
-        <div className="mx-5 mb-4 flex gap-3">
+        <div className="mx-5 mt-4 mb-4 flex gap-3">
           <div className="flex flex-1 items-center gap-2 rounded-xl bg-primary/5 px-3 py-2.5">
             <Zap size={16} className="text-primary" />
             <div>
@@ -186,7 +186,7 @@ const Home = () => {
       )}
 
       {/* Task List */}
-      <div className="flex-1 px-5">
+      <div className="flex-1 mt-4 px-5">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-base font-black text-foreground">
             {role === "tasker" ? "Yakındaki İşler" : "Oluşturduğun İşler"}
