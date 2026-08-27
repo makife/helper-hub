@@ -194,7 +194,16 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
             <p className="mt-1 text-xs font-semibold text-destructive">🔥 Acil iş — hemen başlaman bekleniyor</p>
           )}
         </div>
-
+        {/* Kişi kontenjanı */}
+        <div className="mb-4 flex items-center justify-between rounded-xl bg-muted/50 p-3">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Users size={14} className="text-primary" />
+            <span>Kişi kontenjanı</span>
+          </div>
+          <span className="text-sm font-black text-foreground">
+            {acceptedCount}/{needed} dolu
+          </span>
+        </div>
 
         {task.address_note && (
           <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
@@ -204,14 +213,41 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
         )}
 
         {user?.id !== task.owner_id && (
-          <button
-            onClick={handleAccept}
-            disabled={accepting}
-            className="gradient-warm w-full rounded-2xl px-6 py-4 text-lg font-bold text-primary-foreground shadow-soft transition-transform active:scale-[0.98] disabled:opacity-50"
-          >
-            {accepting ? "Kabul ediliyor..." : "Kabul Et ✋"}
-          </button>
+          iAccepted ? (
+            <div className="space-y-2">
+              <button
+                onClick={() => { onClose(); navigate(`/task/${task.id}`); }}
+                className="gradient-warm w-full rounded-2xl px-6 py-4 text-lg font-bold text-primary-foreground shadow-soft transition-transform active:scale-[0.98]"
+              >
+                İşi Aç 💬
+              </button>
+              <button
+                onClick={handleLeave}
+                disabled={accepting}
+                className="w-full rounded-2xl border border-border px-6 py-3 text-sm font-bold text-muted-foreground disabled:opacity-50"
+              >
+                İşten Ayrıl
+              </button>
+            </div>
+          ) : acceptedCount >= needed ? (
+            <div className="w-full rounded-2xl bg-muted px-6 py-4 text-center text-sm font-bold text-muted-foreground">
+              Kontenjan doldu ({needed}/{needed})
+            </div>
+          ) : (
+            <button
+              onClick={handleAccept}
+              disabled={accepting}
+              className="gradient-warm w-full rounded-2xl px-6 py-4 text-lg font-bold text-primary-foreground shadow-soft transition-transform active:scale-[0.98] disabled:opacity-50"
+            >
+              {accepting
+                ? "Kabul ediliyor..."
+                : needed > 1
+                  ? `Kabul Et ✋ (${acceptedCount}/${needed})`
+                  : "Kabul Et ✋"}
+            </button>
+          )
         )}
+
       </motion.div>
     </>
   );
