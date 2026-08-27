@@ -57,11 +57,12 @@ const CreateTask = () => {
     setLoading(true);
 
     // Get user location
-    let lat = 40.9903, lng = 29.0297; // default Kadıköy
+    let lat = 40.9903,
+      lng = 29.0297; // default Kadıköy
     if ("geolocation" in navigator) {
       try {
         const pos = await new Promise<GeolocationPosition>((resolve, reject) =>
-          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 })
+          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 }),
         );
         lat = pos.coords.latitude;
         lng = pos.coords.longitude;
@@ -75,7 +76,9 @@ const CreateTask = () => {
       const path = `${user.id}/${Date.now()}.${ext}`;
       const { error } = await supabase.storage.from("task-photos").upload(path, photo);
       if (!error) {
-        const { data: { publicUrl } } = supabase.storage.from("task-photos").getPublicUrl(path);
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("task-photos").getPublicUrl(path);
         photoUrls.push(publicUrl);
       }
     }
@@ -104,12 +107,12 @@ const CreateTask = () => {
     setLoading(false);
 
     if (error) {
-      toast.error("İş oluşturulamadı.");
+      toast.error("Yardım çağrısı oluşturulamadı.");
       console.error(error);
       return;
     }
 
-    toast.success("İş başarıyla oluşturuldu! 🎉");
+    toast.success("Yardım çağrısı başarıyla oluşturuldu!");
     navigate("/home");
   };
 
@@ -117,10 +120,13 @@ const CreateTask = () => {
     <div className="flex min-h-screen flex-col bg-background safe-top safe-bottom">
       {/* Header */}
       <div className="flex items-center gap-3 px-5 pb-3 pt-4">
-        <button onClick={() => navigate(-1)} className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card"
+        >
           <ArrowLeft size={20} className="text-foreground" />
         </button>
-        <h1 className="text-xl font-black text-foreground">İş Oluştur</h1>
+        <h1 className="text-xl font-black text-foreground">Yardım Çağrısı Oluştur</h1>
       </div>
 
       <div className="flex-1 space-y-5 overflow-y-auto px-5 pb-32">
@@ -149,7 +155,9 @@ const CreateTask = () => {
         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.05 }}>
           <label className="mb-1.5 flex items-center justify-between text-sm font-semibold text-foreground">
             Açıklama *
-            <span className={`text-xs ${description.length < 20 ? "text-destructive" : "text-muted-foreground"}`}>{description.length}/500</span>
+            <span className={`text-xs ${description.length < 20 ? "text-destructive" : "text-muted-foreground"}`}>
+              {description.length}/500
+            </span>
           </label>
           <textarea
             value={description}
@@ -167,13 +175,19 @@ const CreateTask = () => {
             {photoPreviews.map((preview, i) => (
               <div key={i} className="relative h-20 w-20 overflow-hidden rounded-xl">
                 <img src={preview} alt="" className="h-full w-full object-cover" />
-                <button onClick={() => removePhoto(i)} className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive">
+                <button
+                  onClick={() => removePhoto(i)}
+                  className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive"
+                >
                   <X size={12} className="text-destructive-foreground" />
                 </button>
               </div>
             ))}
             {photos.length < 2 && (
-              <button onClick={addPhoto} className="flex h-20 w-20 flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-muted/50 transition-colors active:bg-muted">
+              <button
+                onClick={addPhoto}
+                className="flex h-20 w-20 flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-muted/50 transition-colors active:bg-muted"
+              >
                 <Camera size={20} className="text-muted-foreground" />
                 <span className="text-[10px] text-muted-foreground">Ekle</span>
               </button>
@@ -252,7 +266,8 @@ const CreateTask = () => {
           </div>
           {urgency === "can_wait" && (
             <p className="mt-2 rounded-lg bg-accent/20 px-3 py-2 text-xs text-muted-foreground">
-              💡 Fiyat her 10 dakikada %8-10 düşecek. Minimum: <span className="font-bold text-foreground">{Math.round(price * 0.65)} ₺</span>
+              💡 Fiyat her 10 dakikada %8-10 düşecek. Minimum:{" "}
+              <span className="font-bold text-foreground">{Math.round(price * 0.65)} ₺</span>
             </p>
           )}
         </motion.div>
@@ -277,7 +292,11 @@ const CreateTask = () => {
       <div className="fixed bottom-0 left-0 right-0 z-30 bg-background px-5 pb-4 pt-2 safe-bottom">
         {!isValid && (
           <p className="mb-2 text-center text-xs text-muted-foreground">
-            {!category ? "⬆️ Önce bir kategori seç" : description.length < 20 ? `⬆️ Açıklama en az 20 karakter olmalı (${description.length}/20)` : ""}
+            {!category
+              ? "⬆️ Önce bir kategori seç"
+              : description.length < 20
+                ? `⬆️ Açıklama en az 20 karakter olmalı. (Detaylı açıklama yardım edecek kişiler için önemli olabilir!)(${description.length}/20)`
+                : ""}
           </p>
         )}
         <button
@@ -285,7 +304,7 @@ const CreateTask = () => {
           disabled={!isValid || loading}
           className="gradient-warm w-full rounded-2xl px-6 py-4 text-lg font-bold text-primary-foreground shadow-soft transition-all active:scale-[0.98] disabled:opacity-40"
         >
-          {loading ? "Oluşturuluyor..." : "İş Oluştur 🚀"}
+          {loading ? "Oluşturuluyor..." : "Yardım Çağrısı Oluştur!"}
         </button>
       </div>
     </div>
