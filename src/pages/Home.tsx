@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Zap, MapPin, ChevronRight, Plus, Briefcase } from "lucide-react";
+import { Zap, MapPin, ChevronRight, Bell } from "lucide-react";
 import TaskMap from "@/components/TaskMap";
 import TaskDetailSheet from "@/components/TaskDetailSheet";
 import BottomNav from "@/components/BottomNav";
@@ -140,66 +140,50 @@ const Home = () => {
   return (
     <div className="flex min-h-screen flex-col bg-background safe-top safe-bottom">
       {/* Header */}
-      <div className="px-5 pb-3 pt-4">
-        <h1 className="text-xl font-black text-foreground">
-          {role === "tasker" ? "Hoş geldin! 👋" : "Merhaba! 👋"}
-        </h1>
-        <p className="text-xs text-muted-foreground font-semibold">
-          {role === "tasker" ? "Etrafındaki işlere göz at" : "Bugün nasıl yardım almak istersin?"}
-        </p>
+      <div className="flex items-start justify-between px-5 pb-3 pt-4">
+        <div>
+          <h1 className="text-xl font-black text-foreground">
+            {role === "tasker" ? "Hoş geldin! 👋" : "Merhaba! 👋"}
+          </h1>
+          <p className="text-xs text-muted-foreground font-semibold">
+            {role === "tasker" ? "Etrafındaki işlere göz at" : "Bugün nasıl yardım almak istersin?"}
+          </p>
+        </div>
+        <button
+          onClick={() => navigate("/notifications")}
+          className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card"
+        >
+          <Bell size={18} className="text-muted-foreground" />
+        </button>
       </div>
 
       {/* Map */}
       <div
         className="relative mx-5 mb-4 overflow-hidden rounded-2xl border border-border shadow-card"
-        style={{ height: 260 }}
+        style={{ height: "calc(100vh - 230px)" }}
       >
         <TaskMap tasks={mapPins} onTaskClick={handleTaskClick} />
       </div>
 
       {/* Stats */}
-      <div className="mx-5 mb-4 flex gap-3">
-        {role === "tasker" ? (
-          <>
-            <div className="flex flex-1 items-center gap-2 rounded-xl bg-primary/5 px-3 py-2.5">
-              <Zap size={16} className="text-primary" />
-              <div>
-                <p className="text-xs text-muted-foreground">Açık İşler</p>
-                <p className="text-sm font-black text-foreground">{tasks.length} iş var</p>
-              </div>
+      {role === "tasker" && (
+        <div className="mx-5 mb-4 flex gap-3">
+          <div className="flex flex-1 items-center gap-2 rounded-xl bg-primary/5 px-3 py-2.5">
+            <Zap size={16} className="text-primary" />
+            <div>
+              <p className="text-xs text-muted-foreground">Açık İşler</p>
+              <p className="text-sm font-black text-foreground">{tasks.length} iş var</p>
             </div>
-            <div className="flex flex-1 items-center gap-2 rounded-xl bg-accent/30 px-3 py-2.5">
-              <MapPin size={16} className="text-primary" />
-              <div>
-                <p className="text-xs text-muted-foreground">Yakınında</p>
-                <p className="text-sm font-black text-foreground">{tasks.length} iş</p>
-              </div>
+          </div>
+          <div className="flex flex-1 items-center gap-2 rounded-xl bg-accent/30 px-3 py-2.5">
+            <MapPin size={16} className="text-primary" />
+            <div>
+              <p className="text-xs text-muted-foreground">Yakınında</p>
+              <p className="text-sm font-black text-foreground">{tasks.length} iş</p>
             </div>
-          </>
-        ) : (
-          <>
-            <div className="flex flex-1 items-center gap-2 rounded-xl bg-primary/5 px-3 py-2.5">
-              <Briefcase size={16} className="text-primary" />
-              <div>
-                <p className="text-xs text-muted-foreground">Oluşturduğun İşler</p>
-                <p className="text-sm font-black text-foreground">{tasks.length} iş</p>
-              </div>
-            </div>
-            <button
-              onClick={() => navigate("/create-task")}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl px-3 py-2.5 active:scale-[0.98] transition-all"
-              style={{
-                background: "linear-gradient(180deg, #4ADE80 0%, #22C55E 50%, #16A34A 100%)",
-                boxShadow:
-                  "inset 0 1px 1px rgba(255,255,255,0.5), inset 0 -2px 3px rgba(0,0,0,0.15), 0 4px 10px rgba(34,197,94,0.35)",
-              }}
-            >
-              <Plus size={18} className="text-white drop-shadow-sm" strokeWidth={3} />
-              <p className="text-sm font-black text-white drop-shadow-sm">Yardım Çağrısı Yap</p>
-            </button>
-          </>
-        )}
-      </div>
+          </div>
+        </div>
+      )}
 
       {/* Task List */}
       <div className="flex-1 px-5">
