@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { X, Clock, MapPin, Star, User, Navigation } from "lucide-react";
+import { X, Clock, MapPin, Star, User, Navigation, TrendingDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { useLivePrice, formatCountdown } from "@/lib/dynamicPricing";
 import type { Tables } from "@/integrations/supabase/types";
+
 
 type TaskWithUI = Tables<"tasks"> & {
   emoji: string;
