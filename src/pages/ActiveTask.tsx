@@ -133,8 +133,9 @@ const ActiveTask = () => {
 
   const handleSend = async () => {
     if (!newMessage.trim() || !user || !task) return;
-    const receiverId = task.owner_id === user.id ? task.tasker_id : task.owner_id;
-    if (!receiverId) return;
+    const receiverId = partnerId;
+    if (!receiverId) { toast.error("Henüz konuşulacak kişi yok."); return; }
+
 
     setSending(true);
     const { error } = await supabase.from("messages").insert({
