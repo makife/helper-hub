@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { 
   ArrowLeft, Clock, Lightbulb, Blinds, Armchair, 
-  Hammer, Wrench, Package, HelpCircle, Trash2, Edit3, X, Zap, Image as ImageIcon
+  Hammer, Wrench, Package, HelpCircle, Trash2, Edit3, X, Zap, Image as ImageIcon,
+  Sparkles, Droplet, Key, Laptop, Bike, Paintbrush, Utensils, Scissors, Car, Dog
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -17,26 +18,48 @@ const statusLabels: Record<string, { label: string; color: string }> = {
   cancelled: { label: "İptal Edildi", color: "text-destructive" },
 };
 
-// Kategori İkon Fonksiyonu (Harf Duyarlılığı & Underscore/Hyphen Esnekliği İle)
-const getCategoryIcon = (category: string) => {
-  const normalizedCategory = String(category || "").toLowerCase().replace("-", "_");
-  
-  switch (normalizedCategory) {
-    case "ampul_takma":
-      return <Lightbulb className="text-amber-500" size={24} />;
-    case "perde_asma":
-      return <Blinds className="text-blue-500" size={24} />;
-    case "mobilya_monte":
-      return <Armchair className="text-amber-700" size={24} />;
-    case "duvar_tamir":
-      return <Hammer className="text-stone-500" size={24} />;
-    case "kucuk_tamir":
-      return <Wrench className="text-slate-600" size={24} />;
-    case "tasima_yardimi":
-      return <Package className="text-orange-500" size={24} />;
-    default:
-      return <HelpCircle className="text-primary" size={24} />;
+// Akıllı İkon Eşleştirici (Hem Veritabanı Kategorisi Hem İlan Başlığına Bakar)
+const getCategoryIcon = (category: string, title?: string) => {
+  const textToSearch = `${category || ""} ${title || ""}`.toLowerCase();
+
+  if (textToSearch.includes("balkon") || textToSearch.includes("temizlik") || textToSearch.includes("cam_silme")) {
+    return <Sparkles className="text-emerald-500" size={24} />;
   }
+  if (textToSearch.includes("musluk") || textToSearch.includes("batarya") || textToSearch.includes("gider")) {
+    return <Droplet className="text-cyan-500" size={24} />;
+  }
+  if (textToSearch.includes("kilit") || textToSearch.includes("kapı")) {
+    return <Key className="text-amber-600" size={24} />;
+  }
+  if (textToSearch.includes("bisiklet")) {
+    return <Bike className="text-green-600" size={24} />;
+  }
+  if (textToSearch.includes("pc") || textToSearch.includes("format") || textToSearch.includes("yazılım") || textToSearch.includes("bilgisayar")) {
+    return <Laptop className="text-indigo-500" size={24} />;
+  }
+  if (textToSearch.includes("ampul") || textToSearch.includes("avize")) {
+    return <Lightbulb className="text-amber-500" size={24} />;
+  }
+  if (textToSearch.includes("perde") || textToSearch.includes("sineklik")) {
+    return <Blinds className="text-blue-500" size={24} />;
+  }
+  if (textToSearch.includes("mobilya") || textToSearch.includes("dolap")) {
+    return <Armchair className="text-amber-800" size={24} />;
+  }
+  if (textToSearch.includes("duvar") || textToSearch.includes("raf") || textToSearch.includes("boya")) {
+    return <Hammer className="text-stone-500" size={24} />;
+  }
+  if (textToSearch.includes("tasima") || textToSearch.includes("kurye") || textToSearch.includes("paket")) {
+    return <Package className="text-orange-500" size={24} />;
+  }
+  if (textToSearch.includes("kopek") || textToSearch.includes("kedi") || textToSearch.includes("evcil")) {
+    return <Dog className="text-yellow-600" size={24} />;
+  }
+  if (textToSearch.includes("oto") || textToSearch.includes("araba")) {
+    return <Car className="text-blue-600" size={24} />;
+  }
+
+  return <Wrench className="text-slate-600" size={24} />;
 };
 
 const MyTasks = () => {
@@ -115,7 +138,7 @@ const MyTasks = () => {
                   className="flex cursor-pointer items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-card hover:bg-muted/50 transition-colors"
                 >
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
-                    {getCategoryIcon(task.category)}
+                    {getCategoryIcon(task.category, task.title)}
                   </div>
 
                   <div className="flex-1 min-w-0">
@@ -153,7 +176,7 @@ const MyTasks = () => {
             >
               <div className="flex items-center justify-between border-b pb-3">
                 <div className="flex items-center gap-2">
-                  {getCategoryIcon(selectedTask.category)}
+                  {getCategoryIcon(selectedTask.category, selectedTask.title)}
                   <h2 className="text-lg font-bold text-foreground">{selectedTask.title}</h2>
                 </div>
                 <button onClick={() => setSelectedTask(null)} className="rounded-full p-1 bg-muted hover:bg-muted/80">
