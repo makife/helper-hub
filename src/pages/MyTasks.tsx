@@ -16,6 +16,7 @@ import { computePrice, formatCountdown } from "@/lib/dynamicPricing";
 import { getTaskEmoji } from "@/lib/taskCategories";
 import { leaveTask } from "@/lib/assignments";
 import { toast } from "sonner";
+import ConfirmDialog from "@/components/ConfirmDialog";
 
 
 const statusLabels: Record<string, { label: string; color: string }> = {
@@ -212,6 +213,11 @@ const MyTasks = () => {
   const [loading, setLoading] = useState(true);
   const [selectedTask, setSelectedTask] = useState<Tables<"tasks"> | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [confirmState, setConfirmState] = useState<
+    | { kind: "leave" | "cancel"; taskId: string; title: string; description: string; confirmLabel: string }
+    | null
+  >(null);
+
   const [viewCounts, setViewCounts] = useState<Record<string, number>>({});
   const [viewers, setViewers] = useState<{ id: string; full_name: string; avatar_url: string | null; viewed_at: string }[]>([]);
   const [, setPriceTick] = useState(0);
@@ -285,10 +291,10 @@ const MyTasks = () => {
 
   const handleLeave = async (taskId: string) => {
     if (!user) return;
-    if (!confirm("Bu işten ayrılmak istediğine emin misin?")) return;
     setIsUpdating(true);
     const ok = await leaveTask(taskId, user.id);
     setIsUpdating(false);
+    setConfirmState(null);
     if (ok) {
       toast.success("İşten ayrıldın.");
       fetchAccepted();
@@ -296,6 +302,7 @@ const MyTasks = () => {
       toast.error("İşten ayrılamadın, tekrar dene.");
     }
   };
+
 
 
   // Seçili işin görüntüleyenlerini yükle (sadece iş veren için)
@@ -331,8 +338,6 @@ const MyTasks = () => {
   }, [selectedTask?.id, user?.id]);
 
   const handleCancelTask = async (taskId: string) => {
-    if (!confirm("Bu yardım çağrısını iptal etmek istediğinize emin misiniz?")) return;
-    
     setIsUpdating(true);
     const { error } = await supabase
       .from("tasks")
@@ -342,9 +347,13 @@ const MyTasks = () => {
     if (!error) {
       setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, status: "cancelled" } : t)));
       setSelectedTask(null);
+    } else {
+      toast.error("İptal edilemedi, tekrar dene.");
     }
     setIsUpdating(false);
+    setConfirmState(null);
   };
+
 
   return (
     <div className="flex min-h-screen flex-col bg-background safe-top safe-bottom">
@@ -431,7 +440,16 @@ const MyTasks = () => {
                         </button>
                         <button
                           disabled={isUpdating}
-                          onClick={() => handleLeave(t.id)}
+                          onClick={() =>
+                            setConfirmState({
+                              kind: "leave",
+                              taskId: t.id,
+                              title: "İşten ayrılmak üzeresin",
+                              description: "Bu yardım çağrısındaki yerini bırakacaksın. Emin misin?",
+                              confirmLabel: "Ayrıl",
+                            })
+                          }
+
                           className="flex-1 rounded-xl border border-border py-2.5 text-xs font-bold text-muted-foreground disabled:opacity-50"
                         >
                           İşten Ayrıl
@@ -629,7 +647,16 @@ const MyTasks = () => {
                   <>
                     <button
                       disabled={isUpdating}
-                      onClick={() => handleCancelTask(selectedTask.id)}
+                      onClick={() =>
+                        setConfirmState({
+                          kind: "cancel",
+                          taskId: selectedTask.id,
+                          title: "Yardım çağrısını iptal et",
+                          description: "Bu çağrı kapatılacak ve haritadan kaldırılacak. Emin misin?",
+                          confirmLabel: "İptal Et",
+                        })
+                      }
+
                       className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-destructive/10 text-destructive py-3 font-bold hover:bg-destructive/20"
                     >
                       <Trash2 size={18} />
@@ -653,6 +680,21 @@ const MyTasks = () => {
           </div>
         )}
       </AnimatePresence>
+
+      <ConfirmDialog
+        open={!!confirmState}
+        title={confirmState?.title || ""}
+        description={confirmState?.description}
+        confirmLabel={confirmState?.confirmLabel}
+        destructive
+        loading={isUpdating}
+        onCancel={() => setConfirmState(null)}
+        onConfirm={() => {
+          if (!confirmState) return;
+          if (confirmState.kind === "leave") handleLeave(confirmState.taskId);
+          else handleCancelTask(confirmState.taskId);
+        }}
+      />
     </div>
   );
 };
