@@ -62,7 +62,9 @@ const CreateTask = () => {
         setExistingPhotoUrls(data.photo_urls || []);
         setPhotoPreviews(data.photo_urls || []);
 
-        const matchedCat = categories.find((c) => c.label === data.title);
+        const matchedCat = categories.find(
+          (category) => category.id === data.subcategory || category.label === data.title,
+        );
         if (matchedCat) {
           setSelectedCategoryId(matchedCat.id);
           setIsCustomCategory(false);

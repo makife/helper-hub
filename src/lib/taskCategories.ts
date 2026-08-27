@@ -74,13 +74,13 @@ export function getTaskCategory(category: string, subcategory?: string | null, t
     if (exactSubcategory) return exactSubcategory;
   }
 
-  const exactCategory = categoryById.get(category);
-  if (exactCategory) return exactCategory;
-
   const normalizedTitle = title?.trim().toLocaleLowerCase("tr-TR");
-  return TASK_CATEGORIES.find(
+  const titleCategory = TASK_CATEGORIES.find(
     (item) => item.label.toLocaleLowerCase("tr-TR") === normalizedTitle,
   );
+  if (titleCategory) return titleCategory;
+
+  return categoryById.get(category);
 }
 
 export function getTaskEmoji(category: string, subcategory?: string | null, title?: string) {
