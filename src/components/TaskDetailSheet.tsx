@@ -26,6 +26,7 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
   const navigate = useNavigate();
   const [owner, setOwner] = useState<Tables<"profiles"> | null>(null);
   const [accepting, setAccepting] = useState(false);
+  const livePrice = useLivePrice(task);
 
   useEffect(() => {
     supabase
@@ -45,9 +46,12 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
         tasker_id: user.id,
         status: "matched" as const,
         matched_at: new Date().toISOString(),
+        // Kabul anındaki canlı fiyatı kilitle
+        current_price: livePrice ? livePrice.price : task.current_price ?? task.price,
       })
       .eq("id", task.id)
       .eq("status", "open");
+
 
     setAccepting(false);
     if (error) {
