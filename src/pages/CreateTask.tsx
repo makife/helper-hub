@@ -63,6 +63,75 @@ const categories: { id: string; emoji: string; label: string; baseEnum: BaseEnum
 
 const durations = [15, 30, 45, 60];
 
+// Kişi Sayısı Seçenekleri
+const PERSON_OPTIONS = [
+  { value: 1, label: "1 Kişi", multiplier: 1 },
+  { value: 2, label: "2 Kişi", multiplier: 2 },
+  { value: 3, label: "3 Kişi", multiplier: 3 },
+  { value: 4, label: "4+ Kişi", multiplier: 4 },
+];
+
+export const PersonAndPriceSection = () => {
+  const [personCount, setPersonCount] = useState<number>(1);
+  const [basePrice, setBasePrice] = useState<number>(200); // Kişi başı veya taban teklif
+
+  // Toplam Fiyat Hesaplama
+  const totalPrice = basePrice * personCount;
+
+  return (
+    <div className="space-y-4 rounded-2xl border border-border bg-card p-4">
+      {/* Kişi Sayısı Seçimi */}
+      <div>
+        <label className="mb-2 flex items-center gap-2 text-sm font-bold text-foreground">
+          <Users size={18} className="text-primary" />
+          Kaç Kişi Lazım?
+        </label>
+        <div className="grid grid-cols-4 gap-2">
+          {PERSON_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setPersonCount(opt.value)}
+              className={`flex flex-col items-center justify-center rounded-xl p-2.5 text-xs font-bold transition-all ${
+                personCount === opt.value
+                  ? "bg-primary text-primary-foreground shadow-md scale-105"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+              }`}
+            >
+              <span>{opt.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Fiyat Girdisi */}
+      <div>
+        <label className="mb-1 block text-sm font-bold text-foreground">
+          Teklif Edilen Ücret (Kişi Başı)
+        </label>
+        <div className="relative">
+          <input
+            type="number"
+            value={basePrice}
+            onChange={(e) => setBasePrice(Number(e.target.value))}
+            className="w-full rounded-xl border border-input bg-background p-3 text-base font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+            placeholder="200"
+          />
+          <span className="absolute right-4 top-3.5 font-bold text-muted-foreground">₺</span>
+        </div>
+      </div>
+
+      {/* Özet ve Toplam Tutar */}
+      {personCount > 1 && (
+        <div className="flex justify-between items-center rounded-xl bg-primary/10 p-3 text-xs font-bold text-primary">
+          <span>{personCount} Kişi için Toplam Bütçe:</span>
+          <span className="text-base font-black">{totalPrice} ₺</span>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const CreateTask = () => {
   const [searchParams] = useSearchParams();
   const editTaskId = searchParams.get("edit");
