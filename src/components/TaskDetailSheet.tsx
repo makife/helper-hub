@@ -70,14 +70,14 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="fixed inset-0 z-40 bg-foreground/20"
+        className="fixed inset-0 z-[1000] bg-foreground/20"
       />
       <motion.div
         initial={{ y: "100%" }}
         animate={{ y: 0 }}
         exit={{ y: "100%" }}
         transition={{ type: "spring", damping: 25 }}
-        className="fixed bottom-0 left-0 right-0 z-50 max-h-[85vh] overflow-y-auto rounded-t-3xl bg-card p-6 shadow-lg"
+        className="fixed bottom-0 left-0 right-0 z-[1001] max-h-[85vh] overflow-y-auto rounded-t-3xl bg-card p-6 shadow-lg"
       >
         <div className="mb-4 flex items-start justify-between">
           <div className="flex items-center gap-3">
