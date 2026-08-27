@@ -13,6 +13,7 @@ type TaskPin = {
   urgent?: boolean;
   distance?: string;
   estimatedMinutes?: number;
+  ownerName?: string;
 };
 
 // Injects the pulsing-marker keyframes into the document once.
@@ -126,6 +127,9 @@ const TaskMap = ({ tasks, center = [40.9903, 29.0297], onTaskClick }: Props) => 
                 <p className="mb-1 text-[10px] font-bold text-destructive">🔥 ACİL YARDIM</p>
               )}
               <p className="font-bold">{task.title}</p>
+              {task.ownerName && (
+                <p className="text-xs text-muted-foreground">👤 {task.ownerName}</p>
+              )}
               {typeof task.estimatedMinutes === "number" && (
                 <p className="text-xs text-muted-foreground">~{task.estimatedMinutes} dk</p>
               )}
