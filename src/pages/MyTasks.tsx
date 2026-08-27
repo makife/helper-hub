@@ -12,6 +12,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Tables } from "@/integrations/supabase/types";
+import { getTaskEmoji } from "@/lib/taskCategories";
 
 const statusLabels: Record<string, { label: string; color: string }> = {
   open: { label: "Açık", color: "text-primary" },
@@ -82,14 +83,6 @@ const baseEnumEmoji: Record<string, string> = {
   duvar_tamir: "🔨",
   kucuk_tamir: "🔧",
   tasima_yardimi: "📦",
-};
-
-const getCategoryEmoji = (category: string, title?: string, subcategory?: string | null) => {
-  const foundSub = SUB_CATEGORIES.find(
-    (sub) => sub.id === subcategory || sub.id === category || sub.label.toLowerCase() === title?.toLowerCase()
-  );
-  if (foundSub) return foundSub.emoji;
-  return baseEnumEmoji[category] || "✨";
 };
 
 // Akıllı İkon Eşleştirici (Hem Veritabanı Kategorisi Hem İlan Başlığına Bakar)
@@ -266,7 +259,7 @@ const MyTasks = () => {
                   className="flex cursor-pointer items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-card hover:bg-muted/50 transition-colors"
                 >
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted text-2xl">
-                    {getCategoryEmoji(task.category, task.title, (task as any).subcategory)}
+                    {getTaskEmoji(task.category, task.subcategory, task.title)}
                   </div>
 
                   <div className="flex-1 min-w-0">
@@ -304,7 +297,7 @@ const MyTasks = () => {
             >
               <div className="flex items-center justify-between border-b pb-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-2xl">{getCategoryEmoji(selectedTask.category, selectedTask.title, (selectedTask as any).subcategory)}</span>
+                  <span className="text-2xl">{getTaskEmoji(selectedTask.category, selectedTask.subcategory, selectedTask.title)}</span>
                   <h2 className="text-lg font-bold text-foreground">{selectedTask.title}</h2>
                 </div>
                 <button onClick={() => setSelectedTask(null)} className="rounded-full p-1 bg-muted hover:bg-muted/80">

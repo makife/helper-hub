@@ -6,15 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import RouteMap from "@/components/RouteMap";
 import type { Tables } from "@/integrations/supabase/types";
-
-const categoryEmoji: Record<string, string> = {
-  ampul_takma: "💡",
-  perde_asma: "🪟",
-  mobilya_monte: "🪑",
-  duvar_tamir: "🔨",
-  kucuk_tamir: "🔧",
-  tasima_yardimi: "📦",
-};
+import { getTaskEmoji } from "@/lib/taskCategories";
 
 const ActiveTask = () => {
   const { taskId } = useParams<{ taskId: string }>();
@@ -159,7 +151,7 @@ const ActiveTask = () => {
       <div className="border-b border-border px-5 py-3 space-y-3">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted text-lg">
-            {categoryEmoji[task.category] || "📋"}
+            {getTaskEmoji(task.category, task.subcategory, task.title)}
           </div>
           <div className="flex-1">
             <p className="text-sm text-muted-foreground">{task.description}</p>
