@@ -23,9 +23,11 @@ const Home = () => {
   const [tasks, setTasks] = useState<TaskWithUI[]>([]);
   const [selectedTask, setSelectedTask] = useState<TaskWithUI | null>(null);
   const [ownerNames, setOwnerNames] = useState<Record<string, string>>({});
+  const [fillCounts, setFillCounts] = useState<Record<string, number>>({});
   const navigate = useNavigate();
   const { user } = useAuth();
   const { role } = useRole();
+
 
   const mapTask = (t: Tables<"tasks">): TaskWithUI => ({
     ...t,
