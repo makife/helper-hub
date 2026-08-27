@@ -55,10 +55,41 @@ Deno.serve(async (req) => {
     }
 
     // Send SMS via Twilio REST API directly
-    const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`;
+    const twilioBase = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}`;
     const credentials = btoa(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`);
 
-    const smsResponse = await fetch(twilioUrl, {
+    // Verify the configured "From" number actually belongs to this Twilio account.
+    // If not, fall back to the first SMS-capable number owned by the account.
+    let fromNumber = TWILIO_PHONE_NUMBER;
+    const numbersRes = await fetch(`${twilioBase}/IncomingPhoneNumbers.json?PageSize=50`, {
+      headers: { Authorization: `Basic ${credentials}` },
+    });
+    const numbersData = await numbersRes.json();
+    if (numbersRes.ok) {
+      const owned = (numbersData.incoming_phone_numbers ?? []) as Array<{
+        phone_number: string;
+        capabilities?: { sms?: boolean };
+      }>;
+      const digits = (v: string) => v.replace(/\D/g, "");
+      const match = owned.find((n) => digits(n.phone_number) === digits(TWILIO_PHONE_NUMBER));
+      if (!match) {
+        const smsCapable = owned.find((n) => n.capabilities?.sms !== false);
+        if (!smsCapable) {
+          throw new Error(
+            `Twilio hesabında (${TWILIO_ACCOUNT_SID}) SMS gönderebilecek numara yok. ` +
+              `Ayarlardaki numara (${TWILIO_PHONE_NUMBER}) bu hesaba ait değil.`
+          );
+        }
+        console.warn(
+          `Configured From ${TWILIO_PHONE_NUMBER} not owned by account; using ${smsCapable.phone_number}`
+        );
+        fromNumber = smsCapable.phone_number;
+      }
+    } else {
+      console.error("Could not list Twilio numbers:", numbersData);
+    }
+
+    const smsResponse = await fetch(`${twilioBase}/Messages.json`, {
       method: "POST",
       headers: {
         Authorization: `Basic ${credentials}`,
@@ -66,10 +97,11 @@ Deno.serve(async (req) => {
       },
       body: new URLSearchParams({
         To: phone,
-        From: TWILIO_PHONE_NUMBER,
+        From: fromNumber,
         Body: `Bi' El At doğrulama kodunuz: ${code}`,
       }),
     });
+
 
     const smsData = await smsResponse.json();
     if (!smsResponse.ok) {
