@@ -292,13 +292,13 @@ const ActiveTask = () => {
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-5 py-3 space-y-2">
-        {messages.length === 0 && (
+        {visibleMessages.length === 0 && (
           <div className="flex flex-col items-center py-10">
             <MessageCircle size={32} className="text-muted-foreground mb-2" />
             <p className="text-sm text-muted-foreground">Henüz mesaj yok. İlk mesajı gönder!</p>
           </div>
         )}
-        {messages.map((msg) => {
+        {visibleMessages.map((msg) => {
           const isMine = msg.sender_id === user?.id;
           return (
             <div key={msg.id} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
