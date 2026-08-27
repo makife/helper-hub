@@ -679,8 +679,23 @@ const MyTasks = () => {
           </div>
         )}
       </AnimatePresence>
+
+      <ConfirmDialog
+        open={!!confirmState}
+        title={confirmState?.title || ""}
+        description={confirmState?.description}
+        confirmLabel={confirmState?.confirmLabel}
+        destructive
+        loading={isUpdating}
+        onCancel={() => setConfirmState(null)}
+        onConfirm={() => {
+          if (!confirmState) return;
+          if (confirmState.kind === "leave") handleLeave(confirmState.taskId);
+          else handleCancelTask(confirmState.taskId);
+        }}
+      />
     </div>
   );
-};
+
 
 export default MyTasks;
