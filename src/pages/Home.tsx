@@ -162,7 +162,10 @@ const Home = () => {
     urgent: t.urgency === "urgent",
     estimatedMinutes: t.estimated_minutes ?? undefined,
     ownerName: ownerNames[t.owner_id],
+    filled: fillCounts[t.id] ?? 0,
+    personCount: t.person_count ?? 1,
   }));
+
 
 
 
