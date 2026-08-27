@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Zap, MapPin, Bell } from "lucide-react";
-import { useUnreadMessages } from "@/hooks/useUnreadMessages";
+import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
 import TaskMap from "@/components/TaskMap";
 import TaskDetailSheet from "@/components/TaskDetailSheet";
 import BottomNav from "@/components/BottomNav";
@@ -27,7 +27,7 @@ const Home = () => {
   const [ownerNames, setOwnerNames] = useState<Record<string, string>>({});
   const [fillCounts, setFillCounts] = useState<Record<string, number>>({});
   const navigate = useNavigate();
-  const unreadMessages = useUnreadMessages();
+  const unreadMessages = useUnreadNotifications();
   const { user } = useAuth();
 
 
