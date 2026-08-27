@@ -11,6 +11,7 @@ import { useRole } from "@/contexts/RoleContext";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { getTaskEmoji } from "@/lib/taskCategories";
+import { computePrice } from "@/lib/dynamicPricing";
 
 type TaskWithUI = Tables<"tasks"> & {
   emoji: string;

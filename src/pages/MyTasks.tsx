@@ -12,6 +12,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Tables } from "@/integrations/supabase/types";
+import { computePrice, formatCountdown } from "@/lib/dynamicPricing";
 import { getTaskEmoji } from "@/lib/taskCategories";
 
 const statusLabels: Record<string, { label: string; color: string }> = {
@@ -275,7 +276,10 @@ const MyTasks = () => {
                   </div>
 
                   <div className="text-right">
-                    <p className="text-base font-black text-primary">{task.current_price || task.price} ₺</p>
+                    <p className="text-base font-black text-primary">{computePrice(task).price} ₺</p>
+                    {computePrice(task).isDropping && (
+                      <p className="text-[10px] font-semibold text-primary">↓ {formatCountdown(computePrice(task).msToNextDrop)}</p>
+                    )}
                     <span className="text-[10px] text-muted-foreground">Detay →</span>
                   </div>
                 </motion.div>
