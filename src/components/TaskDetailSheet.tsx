@@ -32,6 +32,18 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
   const livePrice = useLivePrice(task);
   const needed = task.person_count ?? 1;
 
+  // Görüntüleme kaydı (iş veren hariç)
+  useEffect(() => {
+    if (!user || user.id === task.owner_id) return;
+    supabase
+      .from("task_views")
+      .upsert(
+        { task_id: task.id, viewer_id: user.id, viewed_at: new Date().toISOString() },
+        { onConflict: "task_id,viewer_id" }
+      )
+      .then(() => {});
+  }, [task.id, task.owner_id, user?.id]);
+
   useEffect(() => {
     supabase
       .from("profiles")
