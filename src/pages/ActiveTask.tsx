@@ -193,7 +193,9 @@ const ActiveTask = () => {
           <h1 className="text-base font-black text-foreground truncate">{task.title}</h1>
           <p className="text-xs text-muted-foreground">
             {task.status === "matched" ? "Eşleşti" : task.status === "in_progress" ? "Devam Ediyor" : task.status}
+            {needed > 1 && ` · 👥 ${taskers.length}/${needed} kişi`}
           </p>
+
         </div>
         <span className="text-lg font-black text-primary">{task.current_price || task.price} ₺</span>
       </div>
