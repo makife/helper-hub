@@ -285,10 +285,10 @@ const MyTasks = () => {
 
   const handleLeave = async (taskId: string) => {
     if (!user) return;
-    if (!confirm("Bu işten ayrılmak istediğine emin misin?")) return;
     setIsUpdating(true);
     const ok = await leaveTask(taskId, user.id);
     setIsUpdating(false);
+    setConfirmState(null);
     if (ok) {
       toast.success("İşten ayrıldın.");
       fetchAccepted();
@@ -296,6 +296,7 @@ const MyTasks = () => {
       toast.error("İşten ayrılamadın, tekrar dene.");
     }
   };
+
 
 
   // Seçili işin görüntüleyenlerini yükle (sadece iş veren için)
