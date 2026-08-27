@@ -1,0 +1,2 @@
+ALTER TABLE public.tasks 
+ADD COLUMN IF NOT EXISTS person_count INT DEFAULT 1;
