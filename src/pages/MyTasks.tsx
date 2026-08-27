@@ -2,9 +2,8 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { 
-  ArrowLeft, Clock, CheckCircle, XCircle, Lightbulb, 
-  Blinds, Armchair, Hammer, Wrench, Package, HelpCircle, 
-  Trash2, Eye, Edit3, X 
+  ArrowLeft, Clock, Lightbulb, Blinds, Armchair, 
+  Hammer, Wrench, Package, HelpCircle, Trash2, Edit3, X, Zap, Image as ImageIcon
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -18,7 +17,7 @@ const statusLabels: Record<string, { label: string; color: string }> = {
   cancelled: { label: "İptal Edildi", color: "text-destructive" },
 };
 
-// Lucide İkon Mapping
+// Veritabanındaki enum isimleriyle tam eşleşen ikon objesi
 const categoryIcons: Record<string, JSX.Element> = {
   ampul_takma: <Lightbulb className="text-amber-500" size={24} />,
   perde_asma: <Blinds className="text-blue-500" size={24} />,
@@ -52,7 +51,6 @@ const MyTasks = () => {
     fetchTasks();
   }, [user]);
 
-  // Görev İptal Etme
   const handleCancelTask = async (taskId: string) => {
     if (!confirm("Bu yardım çağrısını iptal etmek istediğinize emin misiniz?")) return;
     
@@ -89,7 +87,6 @@ const MyTasks = () => {
               <Clock size={32} className="text-muted-foreground" />
             </div>
             <p className="mt-3 text-lg font-bold text-foreground">Henüz iş yok</p>
-            <p className="mt-1 text-center text-sm text-muted-foreground">İş oluştur veya yakındaki işleri kabul et.</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -106,13 +103,19 @@ const MyTasks = () => {
                   onClick={() => setSelectedTask(task)}
                   className="flex cursor-pointer items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-card hover:bg-muted/50 transition-colors"
                 >
-                  {/* Dinamik İkon Kutusu */}
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
                     {icon}
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <h3 className="truncate text-sm font-bold text-foreground">{task.title}</h3>
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="truncate text-sm font-bold text-foreground">{task.title}</h3>
+                      {task.urgency === "urgent" && (
+                        <span className="flex items-center text-[10px] font-bold text-red-500 bg-red-100 px-1.5 py-0.5 rounded-full">
+                          <Zap size={10} className="fill-red-500 mr-0.5" /> Acil
+                        </span>
+                      )}
+                    </div>
                     <p className={`text-xs font-semibold ${status.color}`}>{status.label}</p>
                   </div>
 
@@ -147,30 +150,60 @@ const MyTasks = () => {
                 </button>
               </div>
 
-              <div className="space-y-2 text-sm text-foreground">
+              <div className="space-y-3 text-sm text-foreground">
+                {/* Acillik Durumu */}
+                <div className="flex justify-between items-center bg-muted/30 p-2.5 rounded-xl">
+                  <span className="text-xs text-muted-foreground font-semibold">Acillik Durumu:</span>
+                  {selectedTask.urgency === "urgent" ? (
+                    <span className="flex items-center gap-1 font-bold text-xs text-red-600 bg-red-100 px-2.5 py-1 rounded-lg">
+                      <Zap size={14} className="fill-red-600" /> Acil (Hemen Lazım)
+                    </span>
+                  ) : (
+                    <span className="font-semibold text-xs text-slate-600 bg-slate-100 px-2.5 py-1 rounded-lg">
+                      Esnek / Bekleyebilir
+                    </span>
+                  )}
+                </div>
+
+                {/* Açıklama */}
                 <div>
-                  <span className="font-semibold text-muted-foreground">Açıklama:</span>
+                  <span className="font-semibold text-muted-foreground text-xs">Açıklama:</span>
                   <p className="mt-1 text-sm bg-muted/40 p-3 rounded-xl">{selectedTask.description}</p>
                 </div>
-                <div className="flex justify-between py-1">
+
+                {/* Yüklenen Fotoğraflar */}
+                {selectedTask.photo_urls && selectedTask.photo_urls.length > 0 && (
+                  <div>
+                    <span className="font-semibold text-muted-foreground text-xs flex items-center gap-1 mb-1.5">
+                      <ImageIcon size={14} /> Eklenen Fotoğraflar ({selectedTask.photo_urls.length})
+                    </span>
+                    <div className="flex gap-2 overflow-x-auto pb-1">
+                      {selectedTask.photo_urls.map((url, idx) => (
+                        <img 
+                          key={idx} 
+                          src={url} 
+                          alt="İş Görseli" 
+                          className="h-20 w-20 object-cover rounded-xl border border-border"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex justify-between py-1 border-t pt-2">
                   <span className="text-muted-foreground">Fiyat:</span>
                   <span className="font-bold text-primary">{selectedTask.price} ₺</span>
                 </div>
-                <div className="flex justify-between py-1">
-                  <span className="text-muted-foreground">Durum:</span>
-                  <span className={`font-bold ${statusLabels[selectedTask.status]?.color}`}>
-                    {statusLabels[selectedTask.status]?.label}
-                  </span>
-                </div>
+                
                 {selectedTask.address_note && (
-                  <div className="flex justify-between py-1">
+                  <div className="flex justify-between py-1 border-t pt-2">
                     <span className="text-muted-foreground">Adres Notu:</span>
-                    <span className="font-medium">{selectedTask.address_note}</span>
+                    <span className="font-medium text-right max-w-[200px]">{selectedTask.address_note}</span>
                   </div>
                 )}
               </div>
 
-              {/* İşlem Butonları */}
+              {/* Butonlar */}
               <div className="flex gap-2 pt-3">
                 {selectedTask.status === "open" && selectedTask.owner_id === user?.id && (
                   <>
