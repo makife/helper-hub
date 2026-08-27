@@ -439,7 +439,16 @@ const MyTasks = () => {
                         </button>
                         <button
                           disabled={isUpdating}
-                          onClick={() => handleLeave(t.id)}
+                          onClick={() =>
+                            setConfirmState({
+                              kind: "leave",
+                              taskId: t.id,
+                              title: "İşten ayrılmak üzeresin",
+                              description: "Bu yardım çağrısındaki yerini bırakacaksın. Emin misin?",
+                              confirmLabel: "Ayrıl",
+                            })
+                          }
+
                           className="flex-1 rounded-xl border border-border py-2.5 text-xs font-bold text-muted-foreground disabled:opacity-50"
                         >
                           İşten Ayrıl
