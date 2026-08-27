@@ -194,8 +194,18 @@ const formatElapsed = (createdAt: string, now: number) => {
   return `${m}:${String(s).padStart(2, "0")}`;
 };
 
+type AcceptedItem = {
+  assignment_id: string;
+  agreed_price: number | null;
+  accepted_at: string;
+  task: Tables<"tasks">;
+  owner?: { full_name: string; avatar_url: string | null; user_id: string } | null;
+};
+
 const MyTasks = () => {
+  const [tab, setTab] = useState<"owned" | "accepted">("owned");
   const [tasks, setTasks] = useState<Tables<"tasks">[]>([]);
+  const [accepted, setAccepted] = useState<AcceptedItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTask, setSelectedTask] = useState<Tables<"tasks"> | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -217,12 +227,12 @@ const MyTasks = () => {
     const { data } = await supabase
       .from("tasks")
       .select("*")
-      .or(`owner_id.eq.${user.id},tasker_id.eq.${user.id}`)
+      .eq("owner_id", user.id)
       .order("created_at", { ascending: false });
     setTasks(data || []);
     setLoading(false);
 
-    const ownedIds = (data || []).filter((t) => t.owner_id === user.id).map((t) => t.id);
+    const ownedIds = (data || []).map((t) => t.id);
     if (ownedIds.length > 0) {
       const { data: views } = await supabase
         .from("task_views")
@@ -234,9 +244,56 @@ const MyTasks = () => {
     }
   };
 
+  const fetchAccepted = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("task_assignments")
+      .select("id, agreed_price, created_at, tasks(*)")
+      .eq("tasker_id", user.id)
+      .order("created_at", { ascending: false });
+
+    const items: AcceptedItem[] = (data || [])
+      .filter((row: any) => row.tasks)
+      .map((row: any) => ({
+        assignment_id: row.id,
+        agreed_price: row.agreed_price,
+        accepted_at: row.created_at,
+        task: row.tasks as Tables<"tasks">,
+        owner: null,
+      }));
+
+    const ownerIds = [...new Set(items.map((i) => i.task.owner_id))];
+    if (ownerIds.length > 0) {
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("user_id, full_name, avatar_url")
+        .in("user_id", ownerIds);
+      items.forEach((i) => {
+        i.owner = (profiles || []).find((p) => p.user_id === i.task.owner_id) || null;
+      });
+    }
+    setAccepted(items);
+  };
+
   useEffect(() => {
     fetchTasks();
+    fetchAccepted();
   }, [user]);
+
+  const handleLeave = async (taskId: string) => {
+    if (!user) return;
+    if (!confirm("Bu işten ayrılmak istediğine emin misin?")) return;
+    setIsUpdating(true);
+    const ok = await leaveTask(taskId, user.id);
+    setIsUpdating(false);
+    if (ok) {
+      toast.success("İşten ayrıldın.");
+      fetchAccepted();
+    } else {
+      toast.error("İşten ayrılamadın, tekrar dene.");
+    }
+  };
+
 
   // Seçili işin görüntüleyenlerini yükle (sadece iş veren için)
   useEffect(() => {
