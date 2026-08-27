@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import { Capacitor } from "@capacitor/core";
 import { lovable } from "@/integrations/lovable";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -10,9 +9,9 @@ import { toast } from "sonner";
 import logo from "@/assets/logo.png";
 
 const getPlatform = () => {
-  if (Capacitor.isNativePlatform()) {
-    return Capacitor.getPlatform() as "ios" | "android";
-  }
+  const ua = navigator.userAgent || "";
+  if (/iPad|iPhone|iPod/.test(ua)) return "ios" as const;
+  if (/Android/i.test(ua)) return "android" as const;
   return "web" as const;
 };
 
