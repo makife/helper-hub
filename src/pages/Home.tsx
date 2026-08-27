@@ -111,10 +111,22 @@ const Home = () => {
       })
       .subscribe();
 
+    const assignmentChannel = supabase
+      .channel("home-assignments")
+      .on("postgres_changes", { event: "*", schema: "public", table: "task_assignments" }, async () => {
+        setTasks((prev) => {
+          fetchAssignmentCounts(prev.map((t) => t.id)).then(setFillCounts);
+          return prev;
+        });
+      })
+      .subscribe();
+
     return () => {
       supabase.removeChannel(channel);
+      supabase.removeChannel(assignmentChannel);
     };
   }, [role, user]);
+
 
   // Canlı fiyat düşüşü: her 15 sn'de bir yeniden hesapla, değişince DB'ye yaz (sadece iş sahibi)
   const [priceTick, setPriceTick] = useState(0);
