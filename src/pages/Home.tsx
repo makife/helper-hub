@@ -10,15 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useRole } from "@/contexts/RoleContext";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
-
-const categoryEmoji: Record<string, string> = {
-  ampul_takma: "💡",
-  perde_asma: "🪟",
-  mobilya_monte: "🪑",
-  duvar_tamir: "🔨",
-  kucuk_tamir: "🔧",
-  tasima_yardimi: "📦",
-};
+import { getTaskEmoji } from "@/lib/taskCategories";
 
 type TaskWithUI = Tables<"tasks"> & {
   emoji: string;
@@ -36,7 +28,7 @@ const Home = () => {
 
   const mapTask = (t: Tables<"tasks">): TaskWithUI => ({
     ...t,
-    emoji: categoryEmoji[t.category] || "📋",
+    emoji: getTaskEmoji(t.category, t.subcategory, t.title),
     lat: t.latitude,
     lng: t.longitude,
   });
