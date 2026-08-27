@@ -5,6 +5,7 @@ import { ArrowLeft, Camera, MapPin, Flame, Clock, X, Edit3, Grid } from "lucide-
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { useSearchParams } from "react-router-dom";
 
 // Supabase ENUM Tipleri: "ampul_takma" | "perde_asma" | "mobilya_monte" | "duvar_tamir" | "kucuk_tamir" | "tasima_yardimi"
 type BaseEnum = "ampul_takma" | "perde_asma" | "mobilya_monte" | "duvar_tamir" | "kucuk_tamir" | "tasima_yardimi";
@@ -89,6 +90,9 @@ const CreateTask = () => {
   const [isCustomCategory, setIsCustomCategory] = useState(false);
   const [customCategoryText, setCustomCategoryText] = useState("");
 
+  const [searchParams] = useSearchParams();
+  const editTaskId = searchParams.get("edit");
+
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState(200);
   const [duration, setDuration] = useState(30);
@@ -126,21 +130,51 @@ const CreateTask = () => {
 
   const isValid = isValidCategory && description.length >= 20 && price >= 50;
 
-  const handleSubmit = async () => {
-    if (!isValid || !user) return;
-    setLoading(true);
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (!user) return;
 
-    let lat = 40.9903,
-      lng = 29.0297;
-    if ("geolocation" in navigator) {
-      try {
-        const pos = await new Promise<GeolocationPosition>((resolve, reject) =>
-          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 })
-        );
-        lat = pos.coords.latitude;
-        lng = pos.coords.longitude;
-      } catch {}
-    }
+  const safePrice = Math.max(50, price);
+  const safeMinPrice = urgency === "can_wait" ? Math.max(50, Math.round(safePrice * 0.65)) : safePrice;
+
+  const payload = {
+    owner_id: user.id,
+    title: taskTitle,
+    description,
+    category: enumCategory as any,
+    urgency,
+    price: safePrice,
+    current_price: safePrice,
+    min_price: safeMinPrice,
+    estimated_minutes: duration,
+    latitude: lat,
+    longitude: lng,
+    address_note: addressNote || null,
+    photo_urls: photoUrls,
+    price_drop_started_at: urgency === "can_wait" ? new Date().toISOString() : null,
+  };
+
+  let error;
+
+  if (editTaskId) {
+    // Düzenleme Modu: Var olan veriyi GÜNCELLE
+    const res = await supabase
+      .from("tasks")
+      .update(payload)
+      .eq("id", editTaskId);
+    error = res.error;
+  } else {
+    // Yeni İlan Modu: YENİ KAYIT ekle
+    const res = await supabase
+      .from("tasks")
+      .insert(payload);
+    error = res.error;
+  }
+
+  if (!error) {
+    navigate("/my-tasks");
+  }
+};
 
     const photoUrls: string[] = [];
     for (const photo of photos) {
