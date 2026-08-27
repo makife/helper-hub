@@ -27,6 +27,7 @@ const Home = () => {
   const [ownerNames, setOwnerNames] = useState<Record<string, string>>({});
   const [fillCounts, setFillCounts] = useState<Record<string, number>>({});
   const navigate = useNavigate();
+  const unreadMessages = useUnreadMessages();
   const { user } = useAuth();
 
 
