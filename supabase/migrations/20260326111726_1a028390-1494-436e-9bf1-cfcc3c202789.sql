@@ -69,7 +69,7 @@ CREATE TABLE public.tasks (
   category task_category NOT NULL,
   status task_status NOT NULL DEFAULT 'open',
   urgency task_urgency NOT NULL DEFAULT 'can_wait',
-  price INTEGER NOT NULL CHECK (price >= 100 AND price <= 500),
+  price INTEGER NOT NULL CHECK (price >= 50 AND price <= 50000),
   current_price INTEGER,
   min_price INTEGER,
   estimated_minutes INTEGER NOT NULL DEFAULT 30,
