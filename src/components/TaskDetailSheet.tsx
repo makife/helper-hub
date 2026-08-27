@@ -122,12 +122,34 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
         <div className="mb-4 rounded-xl bg-muted/50 p-3">
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">Ücret</span>
-            <span className="text-2xl font-black text-primary">{task.current_price || task.price} ₺</span>
+            <div className="text-right">
+              {livePrice && livePrice.price < livePrice.basePrice && (
+                <span className="mr-2 text-sm font-semibold text-muted-foreground line-through">
+                  {livePrice.basePrice} ₺
+                </span>
+              )}
+              <span className="text-2xl font-black text-primary">
+                {livePrice ? livePrice.price : task.current_price || task.price} ₺
+              </span>
+            </div>
           </div>
+          {livePrice?.isDropping && (
+            <p className="mt-1 flex items-center gap-1 text-xs font-semibold text-primary">
+              <TrendingDown size={12} />
+              Fiyat düşüyor — sonraki düşüşe {formatCountdown(livePrice.msToNextDrop)}
+              <span className="text-muted-foreground">(alt sınır {livePrice.minPrice} ₺)</span>
+            </p>
+          )}
+          {livePrice?.atFloor && (
+            <p className="mt-1 text-xs font-semibold text-muted-foreground">
+              En düşük ücrete ulaşıldı ({livePrice.minPrice} ₺)
+            </p>
+          )}
           {task.urgency === "urgent" && (
             <p className="mt-1 text-xs font-semibold text-destructive">🔥 Acil iş — hemen başlaman bekleniyor</p>
           )}
         </div>
+
 
         {task.address_note && (
           <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
