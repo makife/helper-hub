@@ -84,9 +84,9 @@ const baseEnumEmoji: Record<string, string> = {
   tasima_yardimi: "📦",
 };
 
-const getCategoryEmoji = (category: string, title?: string) => {
+const getCategoryEmoji = (category: string, title?: string, subcategory?: string | null) => {
   const foundSub = SUB_CATEGORIES.find(
-    (sub) => sub.id === category || sub.label.toLowerCase() === title?.toLowerCase()
+    (sub) => sub.id === subcategory || sub.id === category || sub.label.toLowerCase() === title?.toLowerCase()
   );
   if (foundSub) return foundSub.emoji;
   return baseEnumEmoji[category] || "✨";
