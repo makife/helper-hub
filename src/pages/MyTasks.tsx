@@ -184,11 +184,23 @@ const getCategoryIcon = (category: string, title?: string) => {
   }
 };
 
+// Yayında geçen süre: canlı sayaç
+const formatElapsed = (createdAt: string, now: number) => {
+  const total = Math.max(0, Math.floor((now - new Date(createdAt).getTime()) / 1000));
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  if (h > 0) return `${h}sa ${String(m).padStart(2, "0")}dk`;
+  return `${m}:${String(s).padStart(2, "0")}`;
+};
+
 const MyTasks = () => {
   const [tasks, setTasks] = useState<Tables<"tasks">[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTask, setSelectedTask] = useState<Tables<"tasks"> | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [viewCounts, setViewCounts] = useState<Record<string, number>>({});
+  const [viewers, setViewers] = useState<{ id: string; full_name: string; avatar_url: string | null; viewed_at: string }[]>([]);
   const [, setPriceTick] = useState(0);
 
   useEffect(() => {
@@ -209,11 +221,54 @@ const MyTasks = () => {
       .order("created_at", { ascending: false });
     setTasks(data || []);
     setLoading(false);
+
+    const ownedIds = (data || []).filter((t) => t.owner_id === user.id).map((t) => t.id);
+    if (ownedIds.length > 0) {
+      const { data: views } = await supabase
+        .from("task_views")
+        .select("task_id")
+        .in("task_id", ownedIds);
+      const counts: Record<string, number> = {};
+      (views || []).forEach((v) => { counts[v.task_id] = (counts[v.task_id] || 0) + 1; });
+      setViewCounts(counts);
+    }
   };
 
   useEffect(() => {
     fetchTasks();
   }, [user]);
+
+  // Seçili işin görüntüleyenlerini yükle (sadece iş veren için)
+  useEffect(() => {
+    if (!selectedTask || !user || selectedTask.owner_id !== user.id) {
+      setViewers([]);
+      return;
+    }
+    supabase
+      .from("task_views")
+      .select("viewer_id, viewed_at")
+      .eq("task_id", selectedTask.id)
+      .order("viewed_at", { ascending: false })
+      .then(async ({ data }) => {
+        const ids = (data || []).map((v) => v.viewer_id);
+        if (ids.length === 0) { setViewers([]); return; }
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("user_id, full_name, avatar_url")
+          .in("user_id", ids);
+        setViewers(
+          (data || []).map((v) => {
+            const p = (profiles || []).find((pr) => pr.user_id === v.viewer_id);
+            return {
+              id: v.viewer_id,
+              full_name: p?.full_name || "Kullanıcı",
+              avatar_url: p?.avatar_url || null,
+              viewed_at: v.viewed_at,
+            };
+          })
+        );
+      });
+  }, [selectedTask?.id, user?.id]);
 
   const handleCancelTask = async (taskId: string) => {
     if (!confirm("Bu yardım çağrısını iptal etmek istediğinize emin misiniz?")) return;
