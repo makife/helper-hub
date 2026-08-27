@@ -646,7 +646,16 @@ const MyTasks = () => {
                   <>
                     <button
                       disabled={isUpdating}
-                      onClick={() => handleCancelTask(selectedTask.id)}
+                      onClick={() =>
+                        setConfirmState({
+                          kind: "cancel",
+                          taskId: selectedTask.id,
+                          title: "Yardım çağrısını iptal et",
+                          description: "Bu çağrı kapatılacak ve haritadan kaldırılacak. Emin misin?",
+                          confirmLabel: "İptal Et",
+                        })
+                      }
+
                       className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-destructive/10 text-destructive py-3 font-bold hover:bg-destructive/20"
                     >
                       <Trash2 size={18} />
