@@ -12,6 +12,8 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { getTaskEmoji } from "@/lib/taskCategories";
 import { computePrice } from "@/lib/dynamicPricing";
+import { fetchAssignmentCounts } from "@/lib/assignments";
+
 
 type TaskWithUI = Tables<"tasks"> & {
   emoji: string;
