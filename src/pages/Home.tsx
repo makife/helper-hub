@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Zap, MapPin, ChevronRight, Bell } from "lucide-react";
+import { Zap, MapPin, Bell } from "lucide-react";
 import TaskMap from "@/components/TaskMap";
 import TaskDetailSheet from "@/components/TaskDetailSheet";
 import BottomNav from "@/components/BottomNav";
@@ -29,7 +29,6 @@ type TaskWithUI = Tables<"tasks"> & {
 const Home = () => {
   const [tasks, setTasks] = useState<TaskWithUI[]>([]);
   const [selectedTask, setSelectedTask] = useState<TaskWithUI | null>(null);
-  const [loading, setLoading] = useState(true);
   const [ownerNames, setOwnerNames] = useState<Record<string, string>>({});
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -58,7 +57,6 @@ const Home = () => {
       const { data } = await query;
       const mapped = (data || []).map(mapTask);
       setTasks(mapped);
-      setLoading(false);
 
       // Fetch owner names for map pin popups
       const ownerIds = [...new Set(mapped.map((t) => t.owner_id))];
@@ -138,9 +136,9 @@ const Home = () => {
 
 
   return (
-    <div className="flex min-h-screen flex-col bg-background safe-top safe-bottom">
+    <div className="flex h-screen flex-col overflow-hidden bg-background safe-top safe-bottom">
       {/* Header */}
-      <div className="flex items-start justify-between px-5 pb-3 pt-4">
+      <div className="relative z-10 flex items-start justify-between px-5 pb-3 pt-4">
         <div>
           <h1 className="text-xl font-black text-foreground">
             {role === "tasker" ? "Hoş geldin! 👋" : "Merhaba! 👋"}
@@ -157,82 +155,27 @@ const Home = () => {
         </button>
       </div>
 
-      {/* Map */}
-      <div
-        className="relative mx-5 overflow-hidden rounded-2xl border border-border shadow-card"
-        style={{ height: "calc(100vh - 170px)" }}
-      >
+      {/* Map — fills all remaining space down to the bottom nav */}
+      <div className="relative mx-5 mb-[calc(1.25rem+var(--bottom-nav-height,64px))] flex-1 overflow-hidden rounded-2xl border border-border shadow-card">
         <TaskMap tasks={mapPins} onTaskClick={handleTaskClick} />
-      </div>
 
-      {/* Stats */}
-      {role === "tasker" && (
-        <div className="mx-5 mt-4 mb-4 flex gap-3">
-          <div className="flex flex-1 items-center gap-2 rounded-xl bg-primary/5 px-3 py-2.5">
-            <Zap size={16} className="text-primary" />
-            <div>
-              <p className="text-xs text-muted-foreground">Açık İşler</p>
-              <p className="text-sm font-black text-foreground">{tasks.length} iş var</p>
+        {/* Stats overlay, floating on top of the map */}
+        {role === "tasker" && (
+          <div className="pointer-events-none absolute inset-x-3 bottom-3 flex gap-3">
+            <div className="pointer-events-auto flex flex-1 items-center gap-2 rounded-xl bg-card/95 px-3 py-2.5 shadow-card backdrop-blur">
+              <Zap size={16} className="text-primary" />
+              <div>
+                <p className="text-xs text-muted-foreground">Açık İşler</p>
+                <p className="text-sm font-black text-foreground">{tasks.length} iş var</p>
+              </div>
             </div>
-          </div>
-          <div className="flex flex-1 items-center gap-2 rounded-xl bg-accent/30 px-3 py-2.5">
-            <MapPin size={16} className="text-primary" />
-            <div>
-              <p className="text-xs text-muted-foreground">Yakınında</p>
-              <p className="text-sm font-black text-foreground">{tasks.length} iş</p>
+            <div className="pointer-events-auto flex flex-1 items-center gap-2 rounded-xl bg-card/95 px-3 py-2.5 shadow-card backdrop-blur">
+              <MapPin size={16} className="text-primary" />
+              <div>
+                <p className="text-xs text-muted-foreground">Yakınında</p>
+                <p className="text-sm font-black text-foreground">{tasks.length} iş</p>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Task List */}
-      <div className="flex-1 mt-4 px-5">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-base font-black text-foreground">
-            {role === "tasker" ? "Yakındaki İşler" : "Oluşturduğun İşler"}
-          </h2>
-        </div>
-        {loading ? (
-          <div className="flex items-center justify-center py-10">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          </div>
-        ) : tasks.length === 0 ? (
-          <div className="flex flex-col items-center py-10">
-            <p className="text-sm text-muted-foreground">Henüz açık iş yok</p>
-          </div>
-        ) : (
-          <div className="space-y-3 pb-24">
-            {tasks.map((task, i) => (
-              <motion.button
-                key={task.id}
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: i * 0.08 }}
-                onClick={() => setSelectedTask(task)}
-                className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card p-4 text-left shadow-card transition-all active:scale-[0.98]"
-              >
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted text-xl">
-                  {task.emoji}
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-bold text-foreground">{task.title}</h3>
-                    {task.urgency === "urgent" && (
-                      <span className="rounded-md bg-destructive/10 px-1.5 py-0.5 text-[10px] font-bold text-destructive">
-                        🔥 ACİL
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <span>~{task.estimated_minutes} dk</span>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-base font-black text-primary">{task.current_price || task.price} ₺</p>
-                  <ChevronRight size={14} className="ml-auto text-muted-foreground" />
-                </div>
-              </motion.button>
-            ))}
           </div>
         )}
       </div>
