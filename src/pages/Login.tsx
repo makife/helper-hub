@@ -31,7 +31,7 @@ const Login = () => {
         .eq("user_id", user.id)
         .maybeSingle();
       if (cancelled) return;
-      navigate(profile?.full_name?.trim() ? "/home" : "/role-select", { replace: true });
+      navigate(profile?.full_name?.trim() ? "/home" : "/profile-setup", { replace: true });
     })();
     return () => {
       cancelled = true;
