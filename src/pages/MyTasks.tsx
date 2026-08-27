@@ -14,6 +14,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import type { Tables } from "@/integrations/supabase/types";
 import { computePrice, formatCountdown } from "@/lib/dynamicPricing";
 import { getTaskEmoji } from "@/lib/taskCategories";
+import { leaveTask } from "@/lib/assignments";
+import { toast } from "sonner";
+
 
 const statusLabels: Record<string, { label: string; color: string }> = {
   open: { label: "Açık", color: "text-primary" },
@@ -194,8 +197,18 @@ const formatElapsed = (createdAt: string, now: number) => {
   return `${m}:${String(s).padStart(2, "0")}`;
 };
 
+type AcceptedItem = {
+  assignment_id: string;
+  agreed_price: number | null;
+  accepted_at: string;
+  task: Tables<"tasks">;
+  owner?: { full_name: string; avatar_url: string | null; user_id: string } | null;
+};
+
 const MyTasks = () => {
+  const [tab, setTab] = useState<"owned" | "accepted">("owned");
   const [tasks, setTasks] = useState<Tables<"tasks">[]>([]);
+  const [accepted, setAccepted] = useState<AcceptedItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTask, setSelectedTask] = useState<Tables<"tasks"> | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -217,12 +230,12 @@ const MyTasks = () => {
     const { data } = await supabase
       .from("tasks")
       .select("*")
-      .or(`owner_id.eq.${user.id},tasker_id.eq.${user.id}`)
+      .eq("owner_id", user.id)
       .order("created_at", { ascending: false });
     setTasks(data || []);
     setLoading(false);
 
-    const ownedIds = (data || []).filter((t) => t.owner_id === user.id).map((t) => t.id);
+    const ownedIds = (data || []).map((t) => t.id);
     if (ownedIds.length > 0) {
       const { data: views } = await supabase
         .from("task_views")
@@ -234,9 +247,56 @@ const MyTasks = () => {
     }
   };
 
+  const fetchAccepted = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("task_assignments")
+      .select("id, agreed_price, created_at, tasks(*)")
+      .eq("tasker_id", user.id)
+      .order("created_at", { ascending: false });
+
+    const items: AcceptedItem[] = (data || [])
+      .filter((row: any) => row.tasks)
+      .map((row: any) => ({
+        assignment_id: row.id,
+        agreed_price: row.agreed_price,
+        accepted_at: row.created_at,
+        task: row.tasks as Tables<"tasks">,
+        owner: null,
+      }));
+
+    const ownerIds = [...new Set(items.map((i) => i.task.owner_id))];
+    if (ownerIds.length > 0) {
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("user_id, full_name, avatar_url")
+        .in("user_id", ownerIds);
+      items.forEach((i) => {
+        i.owner = (profiles || []).find((p) => p.user_id === i.task.owner_id) || null;
+      });
+    }
+    setAccepted(items);
+  };
+
   useEffect(() => {
     fetchTasks();
+    fetchAccepted();
   }, [user]);
+
+  const handleLeave = async (taskId: string) => {
+    if (!user) return;
+    if (!confirm("Bu işten ayrılmak istediğine emin misin?")) return;
+    setIsUpdating(true);
+    const ok = await leaveTask(taskId, user.id);
+    setIsUpdating(false);
+    if (ok) {
+      toast.success("İşten ayrıldın.");
+      fetchAccepted();
+    } else {
+      toast.error("İşten ayrılamadın, tekrar dene.");
+    }
+  };
+
 
   // Seçili işin görüntüleyenlerini yükle (sadece iş veren için)
   useEffect(() => {
@@ -295,20 +355,104 @@ const MyTasks = () => {
         <h1 className="text-xl font-black text-foreground">İşlerim</h1>
       </div>
 
+
+      <div className="mx-5 mb-3 flex rounded-2xl bg-muted p-1">
+        <button
+          onClick={() => setTab("owned")}
+          className={`flex-1 rounded-xl py-2 text-xs font-black transition-all ${tab === "owned" ? "bg-card text-primary shadow-card" : "text-muted-foreground"}`}
+        >
+          Yardım Çağrılarım ({tasks.length})
+        </button>
+        <button
+          onClick={() => setTab("accepted")}
+          className={`flex-1 rounded-xl py-2 text-xs font-black transition-all ${tab === "accepted" ? "bg-card text-primary shadow-card" : "text-muted-foreground"}`}
+        >
+          El Attıklarım ({accepted.length})
+        </button>
+      </div>
+
       <div className="flex-1 px-5 pb-24">
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
           </div>
+        ) : tab === "accepted" ? (
+          accepted.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted">
+                <HeartHandshake size={32} className="text-muted-foreground" />
+              </div>
+              <p className="mt-3 text-lg font-bold text-foreground">Henüz el attığın iş yok</p>
+              <p className="text-xs text-muted-foreground">Haritadan bir yardım çağrısı kabul et.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {accepted.map((item, i) => {
+                const t = item.task;
+                const status = statusLabels[t.status] || statusLabels.open;
+                const isDone = t.status === "completed" || t.status === "cancelled";
+                return (
+                  <motion.div
+                    key={item.assignment_id}
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: i * 0.05 }}
+                    className={`rounded-2xl border border-border bg-card p-4 shadow-card ${isDone ? "opacity-60" : ""}`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted text-2xl">
+                        {getTaskEmoji(t.category, t.subcategory, t.title)}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="truncate text-sm font-bold text-foreground">{t.title}</h3>
+                        <p className={`text-xs font-semibold ${status.color}`}>{status.label}</p>
+                        <button
+                          onClick={() => navigate(`/profile/${t.owner_id}`)}
+                          className="mt-0.5 flex items-center gap-1 text-[10px] font-semibold text-muted-foreground"
+                        >
+                          <User size={11} className="text-primary" />
+                          {item.owner?.full_name || "İş veren"}
+                        </button>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-base font-black text-primary">
+                          {item.agreed_price ?? t.current_price ?? t.price} ₺
+                        </p>
+                        <span className="text-[10px] text-muted-foreground">Anlaşılan</span>
+                      </div>
+                    </div>
+                    {!isDone && (
+                      <div className="mt-3 flex gap-2">
+                        <button
+                          onClick={() => navigate(`/task/${t.id}`)}
+                          className="flex-1 rounded-xl bg-primary py-2.5 text-xs font-bold text-primary-foreground"
+                        >
+                          İşi Aç 💬
+                        </button>
+                        <button
+                          disabled={isUpdating}
+                          onClick={() => handleLeave(t.id)}
+                          className="flex-1 rounded-xl border border-border py-2.5 text-xs font-bold text-muted-foreground disabled:opacity-50"
+                        >
+                          İşten Ayrıl
+                        </button>
+                      </div>
+                    )}
+                  </motion.div>
+                );
+              })}
+            </div>
+          )
         ) : tasks.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20">
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted">
               <Clock size={32} className="text-muted-foreground" />
             </div>
-            <p className="mt-3 text-lg font-bold text-foreground">Henüz iş yok</p>
+            <p className="mt-3 text-lg font-bold text-foreground">Henüz yardım çağrın yok</p>
           </div>
         ) : (
           <div className="space-y-3">
+
             {tasks.map((task, i) => {
               const status = statusLabels[task.status] || statusLabels.open;
 
