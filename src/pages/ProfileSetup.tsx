@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Camera, MapPin, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -27,10 +27,7 @@ const ProfileSetup = () => {
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
   const { user } = useAuth();
-  const role = (location.state as any)?.role || "owner";
-  const isTasker = role === "tasker";
 
   const handlePhotoUpload = () => {
     const input = document.createElement("input");
@@ -98,8 +95,7 @@ const ProfileSetup = () => {
         full_name: name.trim(),
         bio: bio.trim() || null,
         avatar_url: avatarUrl,
-        role,
-        skills: isTasker ? selectedSkills : [],
+        skills: selectedSkills,
         latitude: coords?.lat ?? null,
         longitude: coords?.lng ?? null,
       })
@@ -159,19 +155,17 @@ const ProfileSetup = () => {
           <textarea value={bio} onChange={(e) => setBio(e.target.value.slice(0, 150))} placeholder="Kendini kısaca tanıt..." rows={2} className="w-full resize-none rounded-xl border-2 border-border bg-card px-4 py-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:border-primary" />
         </motion.div>
 
-        {/* Skills (Tasker only) */}
-        {isTasker && (
-          <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.25 }}>
-            <label className="mb-2 block text-sm font-semibold text-foreground">Becerilerin</label>
-            <div className="flex flex-wrap gap-2">
-              {skills.map((skill) => (
-                <button key={skill.id} onClick={() => toggleSkill(skill.id)} className={`rounded-xl px-3 py-2 text-sm font-semibold transition-all active:scale-95 ${selectedSkills.includes(skill.id) ? "gradient-warm text-primary-foreground shadow-soft" : "border border-border bg-card text-foreground"}`}>
-                  {skill.label}
-                </button>
-              ))}
-            </div>
-          </motion.div>
-        )}
+        {/* Skills */}
+        <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.25 }}>
+          <label className="mb-2 block text-sm font-semibold text-foreground">Becerilerin</label>
+          <div className="flex flex-wrap gap-2">
+            {skills.map((skill) => (
+              <button key={skill.id} onClick={() => toggleSkill(skill.id)} className={`rounded-xl px-3 py-2 text-sm font-semibold transition-all active:scale-95 ${selectedSkills.includes(skill.id) ? "gradient-warm text-primary-foreground shadow-soft" : "border border-border bg-card text-foreground"}`}>
+                {skill.label}
+              </button>
+            ))}
+          </div>
+        </motion.div>
 
         {/* Location */}
         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }}>
