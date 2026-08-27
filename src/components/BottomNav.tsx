@@ -1,9 +1,11 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { MapPin, Briefcase, MessageCircle, User, Plus } from "lucide-react";
+import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 
 const BottomNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const unread = useUnreadMessages();
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -35,7 +37,12 @@ const BottomNav = () => {
         <span className="text-[10px] font-bold text-[#E5600A]">Yardım Çağrısı</span>
       </button>
 
-      <button onClick={() => navigate("/messages")} className="flex flex-col items-center gap-0.5">
+      <button onClick={() => navigate("/messages")} className="relative flex flex-col items-center gap-0.5">
+        {unread > 0 && (
+          <span className="absolute -top-1 right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[9px] font-black text-destructive-foreground">
+            {unread > 9 ? "9+" : unread}
+          </span>
+        )}
         <MessageCircle size={20} className={isActive("/messages") ? "text-primary" : "text-muted-foreground"} />
         <span className={`text-[10px] font-semibold ${isActive("/messages") ? "text-primary" : "text-muted-foreground"}`}>Mesajlar</span>
       </button>
