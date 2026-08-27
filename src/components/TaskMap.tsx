@@ -14,7 +14,10 @@ type TaskPin = {
   distance?: string;
   estimatedMinutes?: number;
   ownerName?: string;
+  filled?: number;
+  personCount?: number;
 };
+
 
 // Injects the pulsing-marker keyframes into the document once.
 const ensurePulseStyles = () => {
