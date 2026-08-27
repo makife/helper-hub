@@ -17,14 +17,26 @@ const statusLabels: Record<string, { label: string; color: string }> = {
   cancelled: { label: "İptal Edildi", color: "text-destructive" },
 };
 
-// Veritabanındaki enum isimleriyle tam eşleşen ikon objesi
-const categoryIcons: Record<string, JSX.Element> = {
-  ampul_takma: <Lightbulb className="text-amber-500" size={24} />,
-  perde_asma: <Blinds className="text-blue-500" size={24} />,
-  mobilya_monte: <Armchair className="text-amber-700" size={24} />,
-  duvar_tamir: <Hammer className="text-stone-500" size={24} />,
-  kucuk_tamir: <Wrench className="text-slate-600" size={24} />,
-  tasima_yardimi: <Package className="text-orange-500" size={24} />,
+// Kategori İkon Fonksiyonu (Harf Duyarlılığı & Underscore/Hyphen Esnekliği İle)
+const getCategoryIcon = (category: string) => {
+  const normalizedCategory = String(category || "").toLowerCase().replace("-", "_");
+  
+  switch (normalizedCategory) {
+    case "ampul_takma":
+      return <Lightbulb className="text-amber-500" size={24} />;
+    case "perde_asma":
+      return <Blinds className="text-blue-500" size={24} />;
+    case "mobilya_monte":
+      return <Armchair className="text-amber-700" size={24} />;
+    case "duvar_tamir":
+      return <Hammer className="text-stone-500" size={24} />;
+    case "kucuk_tamir":
+      return <Wrench className="text-slate-600" size={24} />;
+    case "tasima_yardimi":
+      return <Package className="text-orange-500" size={24} />;
+    default:
+      return <HelpCircle className="text-primary" size={24} />;
+  }
 };
 
 const MyTasks = () => {
@@ -92,7 +104,6 @@ const MyTasks = () => {
           <div className="space-y-3">
             {tasks.map((task, i) => {
               const status = statusLabels[task.status] || statusLabels.open;
-              const icon = categoryIcons[task.category] || <HelpCircle className="text-primary" size={24} />;
 
               return (
                 <motion.div
@@ -104,7 +115,7 @@ const MyTasks = () => {
                   className="flex cursor-pointer items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-card hover:bg-muted/50 transition-colors"
                 >
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
-                    {icon}
+                    {getCategoryIcon(task.category)}
                   </div>
 
                   <div className="flex-1 min-w-0">
@@ -130,7 +141,7 @@ const MyTasks = () => {
         )}
       </div>
 
-      {/* Detay & İşlem Modalı */}
+      {/* Detay Modalı */}
       <AnimatePresence>
         {selectedTask && (
           <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 p-4">
@@ -142,7 +153,7 @@ const MyTasks = () => {
             >
               <div className="flex items-center justify-between border-b pb-3">
                 <div className="flex items-center gap-2">
-                  {categoryIcons[selectedTask.category] || <HelpCircle size={20} />}
+                  {getCategoryIcon(selectedTask.category)}
                   <h2 className="text-lg font-bold text-foreground">{selectedTask.title}</h2>
                 </div>
                 <button onClick={() => setSelectedTask(null)} className="rounded-full p-1 bg-muted hover:bg-muted/80">
@@ -151,7 +162,6 @@ const MyTasks = () => {
               </div>
 
               <div className="space-y-3 text-sm text-foreground">
-                {/* Acillik Durumu */}
                 <div className="flex justify-between items-center bg-muted/30 p-2.5 rounded-xl">
                   <span className="text-xs text-muted-foreground font-semibold">Acillik Durumu:</span>
                   {selectedTask.urgency === "urgent" ? (
@@ -165,13 +175,11 @@ const MyTasks = () => {
                   )}
                 </div>
 
-                {/* Açıklama */}
                 <div>
                   <span className="font-semibold text-muted-foreground text-xs">Açıklama:</span>
                   <p className="mt-1 text-sm bg-muted/40 p-3 rounded-xl">{selectedTask.description}</p>
                 </div>
 
-                {/* Yüklenen Fotoğraflar */}
                 {selectedTask.photo_urls && selectedTask.photo_urls.length > 0 && (
                   <div>
                     <span className="font-semibold text-muted-foreground text-xs flex items-center gap-1 mb-1.5">
@@ -203,7 +211,6 @@ const MyTasks = () => {
                 )}
               </div>
 
-              {/* Butonlar */}
               <div className="flex gap-2 pt-3">
                 {selectedTask.status === "open" && selectedTask.owner_id === user?.id && (
                   <>
