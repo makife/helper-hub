@@ -169,24 +169,24 @@ const CreateTask = () => {
       ? "kucuk_tamir"
       : selectedCatObj?.baseEnum || "kucuk_tamir";
 
-    const minPrice = urgency === "can_wait" ? Math.round(price * 0.65) : price;
+    const minPrice = urgency === "can_wait" ? Math.max(50, Math.round(price * 0.65)) : price;
 
     const { error } = await supabase.from("tasks").insert({
-      owner_id: user.id,
-      title: taskTitle,
-      description,
-      category: enumCategory as any,
-      urgency,
-      price,
-      current_price: price,
-      min_price: minPrice,
-      estimated_minutes: duration,
-      latitude: lat,
-      longitude: lng,
-      address_note: addressNote || null,
-      photo_urls: photoUrls,
-      price_drop_started_at: urgency === "can_wait" ? new Date().toISOString() : null,
-    });
+  owner_id: user.id,
+  title: taskTitle,
+  description,
+  category: enumCategory as any,
+  urgency,
+  price,
+  current_price: price,
+  min_price: minPrice,
+  estimated_minutes: duration,
+  latitude: lat,
+  longitude: lng,
+  address_note: addressNote || null,
+  photo_urls: photoUrls,
+  price_drop_started_at: urgency === "can_wait" ? new Date().toISOString() : null,
+});
 
     setLoading(false);
 
