@@ -7,7 +7,7 @@ import {
   Bike, Paintbrush, Utensils, Scissors, Car, Dog, Shirt, Tv, Wifi, Smartphone, 
   Plug, Cat, Hospital, Sprout, BatteryCharging, HeartHandshake, UserCheck, 
   Baby, BookOpen, MessageSquare, Guitar, Camera, PartyPopper, UtensilsCrossed, 
-  Hourglass, WashingMachine, Snowflake, HelpCircle, ShoppingCart
+  Hourglass, WashingMachine, Snowflake, HelpCircle, ShoppingCart, Eye, Timer, User
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -184,11 +184,23 @@ const getCategoryIcon = (category: string, title?: string) => {
   }
 };
 
+// Yayında geçen süre: canlı sayaç
+const formatElapsed = (createdAt: string, now: number) => {
+  const total = Math.max(0, Math.floor((now - new Date(createdAt).getTime()) / 1000));
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  if (h > 0) return `${h}sa ${String(m).padStart(2, "0")}dk`;
+  return `${m}:${String(s).padStart(2, "0")}`;
+};
+
 const MyTasks = () => {
   const [tasks, setTasks] = useState<Tables<"tasks">[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTask, setSelectedTask] = useState<Tables<"tasks"> | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [viewCounts, setViewCounts] = useState<Record<string, number>>({});
+  const [viewers, setViewers] = useState<{ id: string; full_name: string; avatar_url: string | null; viewed_at: string }[]>([]);
   const [, setPriceTick] = useState(0);
 
   useEffect(() => {
@@ -209,11 +221,54 @@ const MyTasks = () => {
       .order("created_at", { ascending: false });
     setTasks(data || []);
     setLoading(false);
+
+    const ownedIds = (data || []).filter((t) => t.owner_id === user.id).map((t) => t.id);
+    if (ownedIds.length > 0) {
+      const { data: views } = await supabase
+        .from("task_views")
+        .select("task_id")
+        .in("task_id", ownedIds);
+      const counts: Record<string, number> = {};
+      (views || []).forEach((v) => { counts[v.task_id] = (counts[v.task_id] || 0) + 1; });
+      setViewCounts(counts);
+    }
   };
 
   useEffect(() => {
     fetchTasks();
   }, [user]);
+
+  // Seçili işin görüntüleyenlerini yükle (sadece iş veren için)
+  useEffect(() => {
+    if (!selectedTask || !user || selectedTask.owner_id !== user.id) {
+      setViewers([]);
+      return;
+    }
+    supabase
+      .from("task_views")
+      .select("viewer_id, viewed_at")
+      .eq("task_id", selectedTask.id)
+      .order("viewed_at", { ascending: false })
+      .then(async ({ data }) => {
+        const ids = (data || []).map((v) => v.viewer_id);
+        if (ids.length === 0) { setViewers([]); return; }
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("user_id, full_name, avatar_url")
+          .in("user_id", ids);
+        setViewers(
+          (data || []).map((v) => {
+            const p = (profiles || []).find((pr) => pr.user_id === v.viewer_id);
+            return {
+              id: v.viewer_id,
+              full_name: p?.full_name || "Kullanıcı",
+              avatar_url: p?.avatar_url || null,
+              viewed_at: v.viewed_at,
+            };
+          })
+        );
+      });
+  }, [selectedTask?.id, user?.id]);
 
   const handleCancelTask = async (taskId: string) => {
     if (!confirm("Bu yardım çağrısını iptal etmek istediğinize emin misiniz?")) return;
@@ -280,6 +335,18 @@ const MyTasks = () => {
                       )}
                     </div>
                     <p className={`text-xs font-semibold ${status.color}`}>{status.label}</p>
+                    <div className="mt-1 flex items-center gap-3 text-[10px] font-semibold text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <Timer size={11} className="text-primary" />
+                        {formatElapsed(task.created_at, Date.now())}
+                      </span>
+                      {task.owner_id === user?.id && (
+                        <span className="flex items-center gap-1">
+                          <Eye size={11} className="text-primary" />
+                          {viewCounts[task.id] || 0} görüntülenme
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   <div className="text-right">
@@ -357,6 +424,53 @@ const MyTasks = () => {
                   <span className="text-muted-foreground">Fiyat:</span>
                   <span className="font-bold text-primary">{selectedTask.price} ₺</span>
                 </div>
+
+                {/* Yayında geçen süre */}
+                <div className="flex justify-between items-center py-1 border-t pt-2">
+                  <span className="text-muted-foreground flex items-center gap-1">
+                    <Timer size={14} className="text-primary" /> Yayında:
+                  </span>
+                  <span className="font-bold text-foreground tabular-nums">
+                    {formatElapsed(selectedTask.created_at, Date.now())}
+                  </span>
+                </div>
+
+                {/* Görüntüleyenler (sadece iş veren) */}
+                {selectedTask.owner_id === user?.id && (
+                  <div className="border-t pt-2">
+                    <span className="text-muted-foreground flex items-center gap-1 mb-2">
+                      <Eye size={14} className="text-primary" /> Görüntüleyenler ({viewers.length})
+                    </span>
+                    {viewers.length === 0 ? (
+                      <p className="text-xs text-muted-foreground bg-muted/40 p-2.5 rounded-xl">
+                        Henüz kimse görüntülemedi.
+                      </p>
+                    ) : (
+                      <div className="space-y-1.5 max-h-40 overflow-y-auto">
+                        {viewers.map((v) => (
+                          <button
+                            key={v.id}
+                            onClick={() => { setSelectedTask(null); navigate(`/profile/${v.id}`); }}
+                            className="flex w-full items-center gap-2.5 rounded-xl bg-muted/40 p-2 text-left hover:bg-muted/70"
+                          >
+                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted overflow-hidden">
+                              {v.avatar_url ? (
+                                <img src={v.avatar_url} alt="" className="h-full w-full object-cover" />
+                              ) : (
+                                <User size={14} className="text-muted-foreground" />
+                              )}
+                            </div>
+                            <span className="flex-1 text-xs font-bold text-foreground truncate">{v.full_name}</span>
+                            <span className="text-[10px] text-muted-foreground">
+                              {new Date(v.viewed_at).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 
                 {selectedTask.address_note && (
                   <div className="flex justify-between py-1 border-t pt-2">
