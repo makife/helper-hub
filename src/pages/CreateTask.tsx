@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { useSearchParams, useNavigate } from "react-router-dom";
 
 
-// Supabase ENUM Tipleri: "ampul_takma" | "perde_asma" | "mobilya_monte" | "duvar_tamir" | "kucuk_tamir" | "tasima_yardimi"
+// Supabase ENUM Tipleri: "ampul_taka" | "perde_asma" | "mobilya_monte" | "duvar_tamir" | "kucuk_tamir" | "tasima_yardimi"
 type BaseEnum = "ampul_takma" | "perde_asma" | "mobilya_monte" | "duvar_tamir" | "kucuk_tamir" | "tasima_yardimi";
 
 // 50 Adet Zengin Kategori Listesi
