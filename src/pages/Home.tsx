@@ -55,6 +55,10 @@ const Home = () => {
       const mapped = (data || []).map(mapTask);
       setTasks(mapped);
 
+      setFillCounts(await fetchAssignmentCounts(mapped.map((t) => t.id)));
+
+
+
       // Fetch owner names for map pin popups
       const ownerIds = [...new Set(mapped.map((t) => t.owner_id))];
       if (ownerIds.length > 0) {
