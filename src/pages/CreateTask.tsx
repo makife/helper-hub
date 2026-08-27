@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Camera, MapPin, Flame, Clock, X, Edit3, Grid } from "lucide-react";
+import { ArrowLeft, Camera, MapPin, Flame, Clock, X, Edit3, Grid, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
 type BaseEnum = "ampul_takma" | "perde_asma" | "mobilya_monte" | "duvar_tamir" | "kucuk_tamir" | "tasima_yardimi";
 
-// Kişi Sayısı Seçenekleri
 const PERSON_OPTIONS = [
   { value: 1, label: "1 Kişi", multiplier: 1 },
   { value: 2, label: "2 Kişi", multiplier: 2 },
@@ -71,12 +70,6 @@ const categories: { id: string; emoji: string; label: string; baseEnum: BaseEnum
 
 const durations = [15, 30, 45, 60];
 
-export const PersonAndPriceSection = () => {
-  const [personCount, setPersonCount] = useState<number>(1);
-  const [basePrice, setBasePrice] = useState<number>(200); // Kişi başı veya taban teklif
-
-
-
 const CreateTask = () => {
   const [searchParams] = useSearchParams();
   const editTaskId = searchParams.get("edit");
@@ -86,7 +79,8 @@ const CreateTask = () => {
   const [customCategoryText, setCustomCategoryText] = useState("");
 
   const [description, setDescription] = useState("");
-  const [price, setPrice] = useState(200);
+  const [personCount, setPersonCount] = useState<number>(1);
+  const [basePrice, setBasePrice] = useState<number>(200);
   const [duration, setDuration] = useState(30);
   const [urgency, setUrgency] = useState<"urgent" | "can_wait">("can_wait");
   const [addressNote, setAddressNote] = useState("");
@@ -98,7 +92,8 @@ const CreateTask = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  // DÜZENLEME MODU: Mevcut İlan Bilgilerini Form Alanlarına Yükle
+  const totalPrice = basePrice * personCount;
+
   useEffect(() => {
     if (!editTaskId) return;
 
@@ -111,14 +106,14 @@ const CreateTask = () => {
 
       if (data && !error) {
         setDescription(data.description || "");
-        setPrice(data.price || 200);
+        setBasePrice(data.price ? Math.round(data.price / (data.person_count || 1)) : 200);
+        setPersonCount(data.person_count || 1);
         setDuration(data.estimated_minutes || 30);
         setUrgency((data.urgency as "urgent" | "can_wait") || "can_wait");
         setAddressNote(data.address_note || "");
         setExistingPhotoUrls(data.photo_urls || []);
         setPhotoPreviews(data.photo_urls || []);
 
-        // Kategori Eşleme
         const matchedCat = categories.find((c) => c.label === data.title);
         if (matchedCat) {
           setSelectedCategoryId(matchedCat.id);
@@ -158,7 +153,7 @@ const CreateTask = () => {
     ? customCategoryText.trim().length >= 3
     : Boolean(selectedCategoryId);
 
-  const isValid = isValidCategory && description.length >= 20 && price >= 50;
+  const isValid = isValidCategory && description.length >= 20 && totalPrice >= 50;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -167,7 +162,6 @@ const CreateTask = () => {
     setLoading(true);
 
     try {
-      // 1. Yeni Yüklenen Fotoğrafları Storage'a Yükle
       const uploadedUrls: string[] = [];
       for (const photo of photos) {
         const ext = photo.name.split(".").pop();
@@ -180,7 +174,6 @@ const CreateTask = () => {
       }
 
       const finalPhotoUrls = [...existingPhotoUrls, ...uploadedUrls];
-
       const selectedCatObj = categories.find((c) => c.id === selectedCategoryId);
       const taskTitle = isCustomCategory
         ? customCategoryText.trim()
@@ -190,8 +183,8 @@ const CreateTask = () => {
         ? "kucuk_tamir"
         : selectedCatObj?.baseEnum || "kucuk_tamir";
 
-      const safePrice = Math.max(50, price);
-      const safeMinPrice = urgency === "can_wait" ? Math.max(50, Math.round(safePrice * 0.65)) : safePrice;
+      const safeTotalPrice = Math.max(50, totalPrice);
+      const safeMinPrice = urgency === "can_wait" ? Math.max(50, Math.round(safeTotalPrice * 0.65)) : safeTotalPrice;
 
       const taskPayload = {
         owner_id: user.id,
@@ -199,9 +192,10 @@ const CreateTask = () => {
         description,
         category: enumCategory as any,
         urgency,
-        price: safePrice,
-        current_price: safePrice,
+        price: safeTotalPrice,
+        current_price: safeTotalPrice,
         min_price: safeMinPrice,
+        person_count: personCount,
         estimated_minutes: duration,
         address_note: addressNote || null,
         photo_urls: finalPhotoUrls,
@@ -209,19 +203,11 @@ const CreateTask = () => {
       };
 
       let error;
-
       if (editTaskId) {
-        // DÜZENLEME MODU (UPDATE)
-        const res = await supabase
-          .from("tasks")
-          .update(taskPayload)
-          .eq("id", editTaskId);
+        const res = await supabase.from("tasks").update(taskPayload).eq("id", editTaskId);
         error = res.error;
       } else {
-        // YENİ KAYIT MODU (INSERT)
-        const res = await supabase
-          .from("tasks")
-          .insert(taskPayload);
+        const res = await supabase.from("tasks").insert(taskPayload);
         error = res.error;
       }
 
@@ -241,63 +227,6 @@ const CreateTask = () => {
     }
   };
 
-  // Toplam Fiyat Hesaplama
-  const totalPrice = basePrice * personCount;
-
-  return (
-    <div className="space-y-4 rounded-2xl border border-border bg-card p-4">
-      {/* Kişi Sayısı Seçimi */}
-      <div>
-        <label className="mb-2 flex items-center gap-2 text-sm font-bold text-foreground">
-          <Users size={18} className="text-primary" />
-          Kaç Kişi Lazım?
-        </label>
-        <div className="grid grid-cols-4 gap-2">
-          {PERSON_OPTIONS.map((opt) => (
-            <button
-              key={opt.value}
-              type="button"
-              onClick={() => setPersonCount(opt.value)}
-              className={`flex flex-col items-center justify-center rounded-xl p-2.5 text-xs font-bold transition-all ${
-                personCount === opt.value
-                  ? "bg-primary text-primary-foreground shadow-md scale-105"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
-              }`}
-            >
-              <span>{opt.label}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Fiyat Girdisi */}
-      <div>
-        <label className="mb-1 block text-sm font-bold text-foreground">
-          Teklif Edilen Ücret (Kişi Başı)
-        </label>
-        <div className="relative">
-          <input
-            type="number"
-            value={basePrice}
-            onChange={(e) => setBasePrice(Number(e.target.value))}
-            className="w-full rounded-xl border border-input bg-background p-3 text-base font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-            placeholder="200"
-          />
-          <span className="absolute right-4 top-3.5 font-bold text-muted-foreground">₺</span>
-        </div>
-      </div>
-
-      {/* Özet ve Toplam Tutar */}
-      {personCount > 1 && (
-        <div className="flex justify-between items-center rounded-xl bg-primary/10 p-3 text-xs font-bold text-primary">
-          <span>{personCount} Kişi için Toplam Bütçe:</span>
-          <span className="text-base font-black">{totalPrice} ₺</span>
-        </div>
-      )}
-    </div>
-  );
-};
-  
   return (
     <div className="flex min-h-screen flex-col bg-background safe-top safe-bottom">
       {/* Header */}
@@ -387,8 +316,58 @@ const CreateTask = () => {
           />
         </motion.div>
 
+        {/* Kişi Sayısı & Fiyat Alanı */}
+        <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }} className="space-y-4 rounded-2xl border border-border bg-card p-4">
+          <div>
+            <label className="mb-2 flex items-center gap-2 text-sm font-bold text-foreground">
+              <Users size={18} className="text-primary" />
+              Kaç Kişi Lazım?
+            </label>
+            <div className="grid grid-cols-4 gap-2">
+              {PERSON_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setPersonCount(opt.value)}
+                  className={`flex flex-col items-center justify-center rounded-xl p-2.5 text-xs font-bold transition-all ${
+                    personCount === opt.value
+                      ? "bg-primary text-primary-foreground shadow-md scale-105"
+                      : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  }`}
+                >
+                  <span>{opt.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-bold text-foreground">
+              Teklif Edilen Ücret (Kişi Başı ₺) *
+            </label>
+            <div className="relative">
+              <input
+                type="number"
+                min={50}
+                value={basePrice}
+                onChange={(e) => setBasePrice(Number(e.target.value))}
+                className="w-full rounded-xl border border-input bg-background p-3 text-base font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="200"
+              />
+              <span className="absolute right-4 top-3.5 font-bold text-muted-foreground">₺</span>
+            </div>
+          </div>
+
+          {personCount > 1 && (
+            <div className="flex justify-between items-center rounded-xl bg-primary/10 p-3 text-xs font-bold text-primary">
+              <span>{personCount} Kişi için Toplam Bütçe:</span>
+              <span className="text-base font-black">{totalPrice} ₺</span>
+            </div>
+          )}
+        </motion.div>
+
         {/* Fotoğraf */}
-        <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}>
+        <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.15 }}>
           <label className="mb-2 block text-sm font-semibold text-foreground">Fotoğraf (opsiyonel)</label>
           <div className="flex gap-2">
             {photoPreviews.map((preview, i) => (
@@ -413,37 +392,6 @@ const CreateTask = () => {
                 <span className="text-[10px] text-muted-foreground">Ekle</span>
               </button>
             )}
-          </div>
-        </motion.div>
-
-        {/* Fiyat */}
-        <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.15 }}>
-          <div className="mb-2 flex items-center justify-between">
-            <label className="text-sm font-semibold text-foreground">Fiyat (₺) *</label>
-            <div className="flex items-center gap-1 rounded-xl border-2 border-primary bg-card px-3 py-1">
-              <input
-                type="number"
-                min={50}
-                max={5000}
-                value={price}
-                onChange={(e) => setPrice(Number(e.target.value))}
-                className="w-20 text-right text-lg font-black text-primary outline-none bg-transparent"
-              />
-              <span className="font-bold text-primary">₺</span>
-            </div>
-          </div>
-          <input
-            type="range"
-            min={100}
-            max={1000}
-            step={10}
-            value={price}
-            onChange={(e) => setPrice(Number(e.target.value))}
-            className="w-full accent-primary"
-          />
-          <div className="flex justify-between text-xs text-muted-foreground">
-            <span>100 ₺</span>
-            <span>1000 ₺</span>
           </div>
         </motion.div>
 
