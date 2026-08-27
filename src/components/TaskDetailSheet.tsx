@@ -85,6 +85,12 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
     setAccepting(false);
 
     if (result.ok !== true) {
+      if (result.reason === "credits") {
+        toast.error(result.message, {
+          action: { label: "Kredi Al", onClick: () => { onClose(); navigate("/market"); } },
+        });
+        return;
+      }
       toast.error(result.message);
       if (result.reason === "already") {
         onClose();
@@ -92,6 +98,7 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
       }
       return;
     }
+
 
     toast.success(
       needed > 1
