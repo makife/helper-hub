@@ -74,6 +74,24 @@ export const SUB_CATEGORIES = [
   { id: "cesitli_isler", emoji: "✨", label: "Çeşitli Genel İşler", baseEnum: "kucuk_tamir" },
 ];
 
+// Yardım çağrısı oluşturma ekranındaki aynı emoji ikonları eşleştirir
+const baseEnumEmoji: Record<string, string> = {
+  ampul_takma: "💡",
+  perde_asma: "🪟",
+  mobilya_monte: "🪑",
+  duvar_tamir: "🔨",
+  kucuk_tamir: "🔧",
+  tasima_yardimi: "📦",
+};
+
+const getCategoryEmoji = (category: string, title?: string) => {
+  const foundSub = SUB_CATEGORIES.find(
+    (sub) => sub.id === category || sub.label.toLowerCase() === title?.toLowerCase()
+  );
+  if (foundSub) return foundSub.emoji;
+  return baseEnumEmoji[category] || "✨";
+};
+
 // Akıllı İkon Eşleştirici (Hem Veritabanı Kategorisi Hem İlan Başlığına Bakar)
 const getCategoryIcon = (category: string, title?: string) => {
   // Veritabanındaki category ID'sini veya title metnini eşleştir
@@ -247,8 +265,8 @@ const MyTasks = () => {
                   onClick={() => setSelectedTask(task)}
                   className="flex cursor-pointer items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-card hover:bg-muted/50 transition-colors"
                 >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
-                    {getCategoryIcon(task.category, task.title)}
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted text-2xl">
+                    {getCategoryEmoji(task.category, task.title)}
                   </div>
 
                   <div className="flex-1 min-w-0">
@@ -286,7 +304,7 @@ const MyTasks = () => {
             >
               <div className="flex items-center justify-between border-b pb-3">
                 <div className="flex items-center gap-2">
-                  {getCategoryIcon(selectedTask.category, selectedTask.title)}
+                  <span className="text-2xl">{getCategoryEmoji(selectedTask.category, selectedTask.title)}</span>
                   <h2 className="text-lg font-bold text-foreground">{selectedTask.title}</h2>
                 </div>
                 <button onClick={() => setSelectedTask(null)} className="rounded-full p-1 bg-muted hover:bg-muted/80">
