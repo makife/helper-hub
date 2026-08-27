@@ -7,7 +7,6 @@ import TaskDetailSheet from "@/components/TaskDetailSheet";
 import BottomNav from "@/components/BottomNav";
 import RouteMap from "@/components/RouteMap";
 import { useAuth } from "@/contexts/AuthContext";
-import { useRole } from "@/contexts/RoleContext";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { getTaskEmoji } from "@/lib/taskCategories";
@@ -28,7 +27,6 @@ const Home = () => {
   const [fillCounts, setFillCounts] = useState<Record<string, number>>({});
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { role } = useRole();
 
 
   const mapTask = (t: Tables<"tasks">): TaskWithUI => ({
@@ -45,11 +43,6 @@ const Home = () => {
         .select("*")
         .eq("status", "open")
         .order("created_at", { ascending: false });
-
-      // Owner mode: show only own tasks
-      if (role === "owner" && user) {
-        query = query.eq("owner_id", user.id);
-      }
 
       const { data } = await query;
       const mapped = (data || []).map(mapTask);
@@ -125,7 +118,7 @@ const Home = () => {
       supabase.removeChannel(channel);
       supabase.removeChannel(assignmentChannel);
     };
-  }, [role, user]);
+  }, [user]);
 
 
   // Canlı fiyat düşüşü: her 15 sn'de bir yeniden hesapla, değişince DB'ye yaz (sadece iş sahibi)
@@ -177,10 +170,10 @@ const Home = () => {
       <div className="relative z-10 flex items-start justify-between px-5 pb-3 pt-4">
         <div>
           <h1 className="text-xl font-black text-foreground">
-            {role === "tasker" ? "Hoş geldin! 👋" : "Merhaba! 👋"}
+            Merhaba! 👋
           </h1>
           <p className="text-xs text-muted-foreground font-semibold">
-            {role === "tasker" ? "Etrafındaki işlere göz at" : "Bugün nasıl yardım almak istersin?"}
+            Etrafındaki yardım çağrılarına göz at
           </p>
         </div>
         <button
@@ -196,7 +189,7 @@ const Home = () => {
         <TaskMap tasks={mapPins} onTaskClick={handleTaskClick} />
 
         {/* Stats overlay, floating on top of the map */}
-        {role === "tasker" && (
+        {(
           <div className="pointer-events-none absolute inset-x-3 bottom-3 flex gap-3">
             <div className="pointer-events-auto flex flex-1 items-center gap-2 rounded-xl bg-card/95 px-3 py-2.5 shadow-card backdrop-blur">
               <Zap size={16} className="text-primary" />
