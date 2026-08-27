@@ -216,6 +216,7 @@ const CreateTask = () => {
         title: taskTitle,
         description,
         category: enumCategory as any,
+        subcategory: isCustomCategory ? null : selectedCategoryId,
         urgency,
         price: safeTotalPrice,
         current_price: safeTotalPrice,
