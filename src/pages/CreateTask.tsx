@@ -169,17 +169,18 @@ const CreateTask = () => {
       ? "kucuk_tamir"
       : selectedCatObj?.baseEnum || "kucuk_tamir";
 
-    const minPrice = urgency === "can_wait" ? Math.max(50, Math.round(price * 0.65)) : price;
+const safePrice = Math.max(50, price);
+const safeMinPrice = urgency === "can_wait" ? Math.max(50, Math.round(safePrice * 0.65)) : safePrice;
 
-    const { error } = await supabase.from("tasks").insert({
+const { error } = await supabase.from("tasks").insert({
   owner_id: user.id,
   title: taskTitle,
   description,
   category: enumCategory as any,
   urgency,
-  price,
-  current_price: price,
-  min_price: minPrice,
+  price: safePrice,
+  current_price: safePrice, // null kalmaması için eklendi
+  min_price: safeMinPrice,   // null kalmaması için eklendi
   estimated_minutes: duration,
   latitude: lat,
   longitude: lng,
