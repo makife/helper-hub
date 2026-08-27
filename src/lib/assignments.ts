@@ -38,7 +38,7 @@ export const fetchMyActiveAssignment = async (userId: string) => {
 
 export type AcceptResult =
   | { ok: true }
-  | { ok: false; reason: "already" | "busy" | "full" | "error"; message: string };
+  | { ok: false; reason: "already" | "busy" | "full" | "credits" | "error"; message: string };
 
 export const acceptTask = async (
   taskId: string,
@@ -55,6 +55,9 @@ export const acceptTask = async (
   if (!error) return { ok: true };
 
   const msg = `${error.message} ${error.details ?? ""}`;
+  if (msg.includes("Yetersiz kredi")) {
+    return { ok: false, reason: "credits", message: "Kredin yetersiz. Kredi Marketi'nden kredi yükleyebilirsin." };
+  }
   if (msg.includes("aktif bir isin var")) {
     return { ok: false, reason: "busy", message: "Zaten aktif bir işin var. Önce onu tamamla veya bırak." };
   }

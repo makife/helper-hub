@@ -1,27 +1,57 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Star, CheckCircle, Phone, User } from "lucide-react";
+import { ArrowLeft, Star, CheckCircle, Phone, User, BadgeCheck, Award } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
+
+const SKILL_LABELS: Record<string, string> = {
+  ampul_takma: "💡 Ampul Takma",
+  perde_asma: "🪟 Perde Asma",
+  mobilya_monte: "🪑 Mobilya Monte",
+  duvar_tamir: "🔨 Duvar Tamir",
+  kucuk_tamir: "🔧 Küçük Tamir",
+  tasima_yardimi: "📦 Taşıma Yardımı",
+};
+
+type ReviewRow = Tables<"reviews"> & { reviewer?: { full_name: string; avatar_url: string | null } | null };
 
 const UserProfile = () => {
   const { userId } = useParams<{ userId: string }>();
   const [profile, setProfile] = useState<Tables<"profiles"> | null>(null);
+  const [credentials, setCredentials] = useState<Tables<"credentials">[]>([]);
+  const [reviews, setReviews] = useState<ReviewRow[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!userId) return;
-    supabase
-      .from("profiles")
-      .select("*")
-      .eq("user_id", userId)
-      .maybeSingle()
-      .then(({ data }) => {
-        setProfile(data);
-        setLoading(false);
-      });
+    const load = async () => {
+      const [{ data: p }, { data: c }, { data: r }] = await Promise.all([
+        supabase.from("profiles").select("*").eq("user_id", userId).maybeSingle(),
+        supabase.from("credentials").select("*").eq("user_id", userId).order("created_at", { ascending: false }),
+        supabase.from("reviews").select("*").eq("reviewee_id", userId).order("created_at", { ascending: false }).limit(10),
+      ]);
+      setProfile(p);
+      setCredentials(c || []);
+
+      const rows = (r || []) as ReviewRow[];
+      if (rows.length) {
+        const ids = [...new Set(rows.map((x) => x.reviewer_id))];
+        const { data: profs } = await supabase
+          .from("profiles")
+          .select("user_id, full_name, avatar_url")
+          .in("user_id", ids);
+        const map = new Map((profs || []).map((x) => [x.user_id, x]));
+        rows.forEach((row) => {
+          const rp = map.get(row.reviewer_id);
+          row.reviewer = rp ? { full_name: rp.full_name, avatar_url: rp.avatar_url } : null;
+        });
+      }
+      setReviews(rows);
+      setLoading(false);
+    };
+    load();
   }, [userId]);
 
   return (
@@ -43,21 +73,16 @@ const UserProfile = () => {
         </div>
       ) : (
         <div className="flex-1 px-5 pb-24">
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            className="mb-5 flex flex-col items-center"
-          >
+          <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="mb-5 flex flex-col items-center">
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted">
               {profile.avatar_url ? (
-                <img src={profile.avatar_url} alt="" className="h-full w-full rounded-full object-cover" />
+                <img src={profile.avatar_url} alt={`${profile.full_name} profil fotoğrafı`} className="h-full w-full rounded-full object-cover" />
               ) : (
                 <User size={36} className="text-muted-foreground" />
               )}
             </div>
-            <h2 className="mt-3 text-lg font-black text-foreground">
-              {profile.full_name || "İsimsiz Kullanıcı"}
-            </h2>
+            <h2 className="mt-3 text-lg font-black text-foreground">{profile.full_name || "İsimsiz Kullanıcı"}</h2>
+            {profile.profession && <p className="mt-0.5 text-sm font-bold text-primary">{profile.profession}</p>}
             {profile.phone && (
               <div className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
                 <Phone size={12} />
@@ -69,8 +94,8 @@ const UserProfile = () => {
           <div className="mb-5 flex gap-3">
             <div className="flex flex-1 flex-col items-center rounded-xl bg-card p-3 shadow-card">
               <Star size={18} className="text-accent" />
-              <p className="mt-1 text-lg font-black text-foreground">{profile.rating || "0.0"}</p>
-              <p className="text-[10px] text-muted-foreground">Puan</p>
+              <p className="mt-1 text-lg font-black text-foreground">{Number(profile.rating || 0).toFixed(1)}</p>
+              <p className="text-[10px] text-muted-foreground">Puan ({reviews.length})</p>
             </div>
             <div className="flex flex-1 flex-col items-center rounded-xl bg-card p-3 shadow-card">
               <CheckCircle size={18} className="text-primary" />
@@ -78,9 +103,9 @@ const UserProfile = () => {
               <p className="text-[10px] text-muted-foreground">Tamamlanan</p>
             </div>
             <div className="flex flex-1 flex-col items-center rounded-xl bg-card p-3 shadow-card">
-              <span className="text-lg">💰</span>
-              <p className="mt-1 text-lg font-black text-foreground">{profile.credits || 0}</p>
-              <p className="text-[10px] text-muted-foreground">Kredi</p>
+              <Award size={18} className="text-success" />
+              <p className="mt-1 text-lg font-black text-foreground">{credentials.length}</p>
+              <p className="text-[10px] text-muted-foreground">Belge</p>
             </div>
           </div>
 
@@ -90,6 +115,79 @@ const UserProfile = () => {
               <p className="mt-1 text-sm text-foreground">{profile.bio}</p>
             </div>
           )}
+
+          {(profile.skills?.length ?? 0) > 0 && (
+            <div className="mb-5 rounded-xl bg-card p-4 shadow-card">
+              <p className="mb-2 text-xs font-semibold text-muted-foreground">Beceriler</p>
+              <div className="flex flex-wrap gap-2">
+                {(profile.skills || []).map((s) => (
+                  <span key={s} className="rounded-full bg-muted px-3 py-1.5 text-xs font-bold text-foreground">
+                    {SKILL_LABELS[s] || s}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {credentials.length > 0 && (
+            <div className="mb-5 rounded-2xl bg-card p-4 shadow-card">
+              <p className="mb-3 flex items-center gap-1.5 text-sm font-black text-foreground">
+                <BadgeCheck size={16} className="text-primary" />
+                Sertifika & Belgeler
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                {credentials.map((c) => (
+                  <div key={c.id} className="overflow-hidden rounded-xl border border-border">
+                    {c.image_url ? (
+                      <img src={c.image_url} alt={c.title} className="h-24 w-full object-cover" />
+                    ) : (
+                      <div className="flex h-24 w-full items-center justify-center bg-muted">
+                        <BadgeCheck size={24} className="text-muted-foreground" />
+                      </div>
+                    )}
+                    <p className="px-2 py-2 text-xs font-bold text-foreground line-clamp-2">{c.title}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="rounded-2xl bg-card p-4 shadow-card">
+            <p className="mb-3 flex items-center gap-1.5 text-sm font-black text-foreground">
+              <Star size={16} className="text-accent" />
+              Değerlendirmeler
+            </p>
+            {reviews.length === 0 ? (
+              <p className="text-xs text-muted-foreground">Henüz değerlendirme yok.</p>
+            ) : (
+              <div className="space-y-3">
+                {reviews.map((r) => (
+                  <div key={r.id} className="flex gap-3 border-b border-border pb-3 last:border-0 last:pb-0">
+                    <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full bg-muted">
+                      {r.reviewer?.avatar_url ? (
+                        <img src={r.reviewer.avatar_url} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center">
+                          <User size={16} className="text-muted-foreground" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs font-bold text-foreground">{r.reviewer?.full_name || "Kullanıcı"}</p>
+                        <div className="flex items-center gap-0.5 text-accent">
+                          {Array.from({ length: r.rating }).map((_, i) => (
+                            <Star key={i} size={11} fill="currentColor" />
+                          ))}
+                        </div>
+                      </div>
+                      {r.comment && <p className="mt-0.5 text-xs text-muted-foreground">{r.comment}</p>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
