@@ -335,6 +335,18 @@ const MyTasks = () => {
                       )}
                     </div>
                     <p className={`text-xs font-semibold ${status.color}`}>{status.label}</p>
+                    <div className="mt-1 flex items-center gap-3 text-[10px] font-semibold text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <Timer size={11} className="text-primary" />
+                        {formatElapsed(task.created_at, Date.now())}
+                      </span>
+                      {task.owner_id === user?.id && (
+                        <span className="flex items-center gap-1">
+                          <Eye size={11} className="text-primary" />
+                          {viewCounts[task.id] || 0} görüntülenme
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   <div className="text-right">
@@ -412,6 +424,53 @@ const MyTasks = () => {
                   <span className="text-muted-foreground">Fiyat:</span>
                   <span className="font-bold text-primary">{selectedTask.price} ₺</span>
                 </div>
+
+                {/* Yayında geçen süre */}
+                <div className="flex justify-between items-center py-1 border-t pt-2">
+                  <span className="text-muted-foreground flex items-center gap-1">
+                    <Timer size={14} className="text-primary" /> Yayında:
+                  </span>
+                  <span className="font-bold text-foreground tabular-nums">
+                    {formatElapsed(selectedTask.created_at, Date.now())}
+                  </span>
+                </div>
+
+                {/* Görüntüleyenler (sadece iş veren) */}
+                {selectedTask.owner_id === user?.id && (
+                  <div className="border-t pt-2">
+                    <span className="text-muted-foreground flex items-center gap-1 mb-2">
+                      <Eye size={14} className="text-primary" /> Görüntüleyenler ({viewers.length})
+                    </span>
+                    {viewers.length === 0 ? (
+                      <p className="text-xs text-muted-foreground bg-muted/40 p-2.5 rounded-xl">
+                        Henüz kimse görüntülemedi.
+                      </p>
+                    ) : (
+                      <div className="space-y-1.5 max-h-40 overflow-y-auto">
+                        {viewers.map((v) => (
+                          <button
+                            key={v.id}
+                            onClick={() => { setSelectedTask(null); navigate(`/profile/${v.id}`); }}
+                            className="flex w-full items-center gap-2.5 rounded-xl bg-muted/40 p-2 text-left hover:bg-muted/70"
+                          >
+                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted overflow-hidden">
+                              {v.avatar_url ? (
+                                <img src={v.avatar_url} alt="" className="h-full w-full object-cover" />
+                              ) : (
+                                <User size={14} className="text-muted-foreground" />
+                              )}
+                            </div>
+                            <span className="flex-1 text-xs font-bold text-foreground truncate">{v.full_name}</span>
+                            <span className="text-[10px] text-muted-foreground">
+                              {new Date(v.viewed_at).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 
                 {selectedTask.address_note && (
                   <div className="flex justify-between py-1 border-t pt-2">
