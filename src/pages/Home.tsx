@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { User, MessageCircle, Zap, MapPin, ChevronRight, Plus, Briefcase } from "lucide-react";
+import { Zap, MapPin, ChevronRight, Plus, Briefcase } from "lucide-react";
 import TaskMap from "@/components/TaskMap";
 import TaskDetailSheet from "@/components/TaskDetailSheet";
 import BottomNav from "@/components/BottomNav";
@@ -30,38 +30,10 @@ const Home = () => {
   const [tasks, setTasks] = useState<TaskWithUI[]>([]);
   const [selectedTask, setSelectedTask] = useState<TaskWithUI | null>(null);
   const [loading, setLoading] = useState(true);
-  const [locationName, setLocationName] = useState("Konum alınıyor...");
   const [ownerNames, setOwnerNames] = useState<Record<string, string>>({});
   const navigate = useNavigate();
   const { user } = useAuth();
   const { role } = useRole();
-
-  useEffect(() => {
-    if (!("geolocation" in navigator)) {
-      setLocationName("Konum bulunamadı");
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        try {
-          const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json&accept-language=tr`,
-          );
-          const data = await res.json();
-          const addr = data.address || {};
-          const town = addr.town || addr.county || "";
-          const district = addr.suburb || addr.neighbourhood || "";
-          const city = addr.city || addr.province || addr.state || "";
-          const locationParts = [district || town, district ? town : "", city].filter(Boolean);
-          const unique = [...new Set(locationParts)];
-          setLocationName(unique.length > 0 ? unique.join(", ") : "Konum bulundu");
-        } catch {
-          setLocationName("Konum bulundu");
-        }
-      },
-      () => setLocationName("Konum izni verilmedi"),
-    );
-  }, []);
 
   const mapTask = (t: Tables<"tasks">): TaskWithUI => ({
     ...t,
@@ -168,26 +140,13 @@ const Home = () => {
   return (
     <div className="flex min-h-screen flex-col bg-background safe-top safe-bottom">
       {/* Header */}
-      <div className="flex items-center justify-between px-5 pb-3 pt-4">
-        <div>
-          <p className="text-xs font-semibold text-muted-foreground">📍 {locationName}</p>
-          <h1 className="text-xl font-black text-foreground">{role === "tasker" ? "İş Al 🔧" : "İş Ver 👋"}</h1>
-          <p className="text-xs text-primary font-semibold">{role === "tasker" ? "İş Al Modundasın" : "İş Ver Modundasın"}</p>
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => navigate("/messages")}
-            className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card"
-          >
-            <MessageCircle size={18} className="text-muted-foreground" />
-          </button>
-          <button
-            onClick={() => navigate("/profile")}
-            className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card"
-          >
-            <User size={18} className="text-muted-foreground" />
-          </button>
-        </div>
+      <div className="px-5 pb-3 pt-4">
+        <h1 className="text-xl font-black text-foreground">
+          {role === "tasker" ? "Hoş geldin! 👋" : "Merhaba! 👋"}
+        </h1>
+        <p className="text-xs text-muted-foreground font-semibold">
+          {role === "tasker" ? "Etrafındaki işlere göz at" : "Bugün nasıl yardım almak istersin?"}
+        </p>
       </div>
 
       {/* Map */}
@@ -228,13 +187,15 @@ const Home = () => {
             </div>
             <button
               onClick={() => navigate("/create-task")}
-              className="flex flex-1 items-center gap-2 rounded-xl bg-primary/10 px-3 py-2.5 active:scale-[0.98]"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl px-3 py-2.5 active:scale-[0.98] transition-all"
+              style={{
+                background: "linear-gradient(180deg, #4ADE80 0%, #22C55E 50%, #16A34A 100%)",
+                boxShadow:
+                  "inset 0 1px 1px rgba(255,255,255,0.5), inset 0 -2px 3px rgba(0,0,0,0.15), 0 4px 10px rgba(34,197,94,0.35)",
+              }}
             >
-              <Plus size={16} className="text-primary" />
-              <div>
-                <p className="text-xs text-muted-foreground">Yeni</p>
-                <p className="text-sm font-black text-primary">İş Oluştur</p>
-              </div>
+              <Plus size={18} className="text-white drop-shadow-sm" strokeWidth={3} />
+              <p className="text-sm font-black text-white drop-shadow-sm">Yardım Çağrısı Yap</p>
             </button>
           </>
         )}
