@@ -7,13 +7,78 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
 // Supabase'deki 'task_category' ENUM tipine tam uyan orijinal listemiz:
-const baseCategories = [
-  { id: "ampul_takma" as const, emoji: "💡", label: "Ampul Takma" },
-  { id: "perde_asma" as const, emoji: "🪟", label: "Perde Asma" },
-  { id: "mobilya_monte" as const, emoji: "🪑", label: "Mobilya Montajı" },
-  { id: "duvar_tamir" as const, emoji: "🔨", label: "Duvar Tamiri" },
-  { id: "kucuk_tamir" as const, emoji: "🔧", label: "Küçük Tamirat" },
-  { id: "tasima_yardimi" as const, emoji: "📦", label: "Taşıma Yardımı" },
+const categories = [
+  // Ev & Tamirat
+  { id: "ampul_takma", emoji: "💡", label: "Ampul Takma" },
+  { id: "perde_asma", emoji: "🪟", label: "Perde Asma" },
+  { id: "mobilya_monte", emoji: "🪑", label: "Mobilya Montajı" },
+  { id: "duvar_tamir", emoji: "🔨", label: "Duvar Tamiri" },
+  { id: "kucuk_tamir", emoji: "🔧", label: "Küçük Tamirat" },
+  { id: "musluk_tamir", emoji: "🚰", label: "Musluk / Batarya" },
+  { id: "kapı_kilit", emoji: "🔑", label: "Kilit / Kol Değişimi" },
+  { id: "raf_montaj", emoji: "📐", label: "Tablo / Raf Asma" },
+  { id: "silikon_cekme", emoji: "🧪", label: "Silikon Çekme" },
+  { id: "tikaniklik_acma", emoji: "🪠", label: "Gider Açma" },
+
+  // Taşıma & Nakliye
+  { id: "tasima_yardimi", emoji: "📦", label: "Taşıma Yardımı" },
+  { id: "esya_tasima", emoji: "🚚", label: "Ağır Eşya Taşıma" },
+  { id: "kurye_paket", emoji: "✉️", label: "Paket / Evrak Getirme" },
+  { id: "alisveris_teslimat", emoji: "🛒", label: "Market Alışverişi" },
+  { id: "arac_yukleme", emoji: "📦", label: "Araç Yükleme/Boşaltma" },
+
+  // Temizlik & Düzen
+  { id: "ev_temizligi", emoji: "🧹", label: "Ev Temizliği" },
+  { id: "cam_silme", emoji: "🧼", label: "Cam Silme" },
+  { id: "balkon_temizligi", emoji: "🪴", label: "Balkon Temizliği" },
+  { id: "utulu_kıyafet", emoji: "👔", label: "Ütü Yapma" },
+  { id: "dolap_duzenleme", emoji: "👗", label: "Dolap Düzenleme" },
+  { id: "hali_yikama_yardim", emoji: "🧽", label: "Halı / Koltuk Temizliği" },
+
+  // Teknoloji & Kurulum
+  { id: "tv_kurulum", emoji: "📺", label: "TV / Askı Aparatı" },
+  { id: "wifi_internet", emoji: "📡", label: "Wi-Fi / Modem Kurulumu" },
+  { id: "bilgisayar_format", emoji: "💻", label: "PC / Format / Yazılım" },
+  { id: "telefon_kurulum", emoji: "📱", label: "Telefon Akıllı Cihaz" },
+  { id: "kablo_duzenleme", emoji: "🔌", label: "Kablo Gizleme/Düzen" },
+
+  // Evcil Hayvan
+  { id: "kopek_gezdirme", emoji: "🐕", label: "Köpek Gezdirme" },
+  { id: "kedi_bakimi", emoji: "🐈", label: "Kedi Besleme / Bakım" },
+  { id: "vet_götürme", emoji: "🏥", label: "Evcil Hayvan Taşıma" },
+
+  // Bahçe & Dış Mekan
+  { id: "bahce_sulama", emoji: "🌱", label: "Çiçek / Bahçe Sulama" },
+  { id: "ot_biciim", emoji: "✂️", label: "Çim Biçme / Budama" },
+  { id: "oto_yikama", emoji: "🚗", label: "Araba Yıkama / Temizlik" },
+  { id: "akü_takviye", emoji: "🔋", label: "Akü Takviye / Oto" },
+
+  // Kişisel & Yardım
+  { id: "yasli_yardim", emoji: "👵", label: "Yaşlı / Hasta Yardımı" },
+  { id: "refakat", emoji: "🤝", label: "Kısa Süreli Refakat" },
+  { id: "cocuk_oyun", emoji: "🧸", label: "Çocuk Bakımı / Oyun" },
+
+  // Özel Yetenek & Ders
+  { id: "ozel_ders", emoji: "📚", label: "Özel Ders / Ödev" },
+  { id: "dil_pratik", emoji: "🗣️", label: "Yabancı Dil Pratiği" },
+  { id: "muzik_dersi", emoji: "🎸", label: "Enstrüman Eğitimi" },
+  { id: "fotograf_cekimi", emoji: "📸", label: "Fotoğraf Çekimi" },
+
+  // Etkinlik & Diğer
+  { id: "parti_hazirlik", emoji: "🎈", label: "Organizasyon / Parti" },
+  { id: "yemek_hazirlik", emoji: "🍲", label: "Yemek / İkram Hazırlığı" },
+  { id: "sira_bekleme", emoji: "⏳", label: "Sıra Bekleme Yardımı" },
+  { id: "diger_yardim", emoji: "✨", label: "Çeşitli İşler" },
+  
+  // Ekstra Teknik & Ağır İşler
+  { id: "boya_badana", emoji: "🎨", label: "Rötuş / Boya İşi" },
+  { id: "beyaz_esya_baglanti", emoji: "🧺", label: "Çamaşır/Bulaşık Mak." },
+  { id: "avize_montaj", emoji: "💡", label: "Avize / Armatür Montajı" },
+  { id: "sineklik_montaj", emoji: "🦟", label: "Sineklik Takma" },
+  { id: "bisiklet_tamir", emoji: "🚲", label: "Bisiklet Bakım/Tamir" },
+
+  // Özel Kategori Seçeneği
+  { id: "custom", emoji: "✏️", label: "Kategoriyi Elle Gir" },
 ];
 
 const durations = [15, 30, 45, 60];
