@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Camera, MapPin, Flame, Clock, X, Edit3, Grid } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
+
 
 // Supabase ENUM Tipleri: "ampul_takma" | "perde_asma" | "mobilya_monte" | "duvar_tamir" | "kucuk_tamir" | "tasima_yardimi"
 type BaseEnum = "ampul_takma" | "perde_asma" | "mobilya_monte" | "duvar_tamir" | "kucuk_tamir" | "tasima_yardimi";
@@ -93,6 +94,7 @@ const CreateTask = () => {
   const [searchParams] = useSearchParams();
   const editTaskId = searchParams.get("edit");
 
+
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState(200);
   const [duration, setDuration] = useState(30);
@@ -130,14 +132,39 @@ const CreateTask = () => {
 
   const isValid = isValidCategory && description.length >= 20 && price >= 50;
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  useEffect(() => {
+  if (!editTaskId) return;
+
+  const loadTaskData = async () => {
+    const { data, error } = await supabase
+      .from("tasks")
+      .select("*")
+      .eq("id", editTaskId)
+      .single();
+
+    if (data && !error) {
+      setTaskTitle(data.title);
+      setDescription(data.description);
+      setEnumCategory(data.category);
+      setUrgency(data.urgency);
+      setPrice(data.price);
+      setDuration(data.estimated_minutes);
+      setAddressNote(data.address_note || "");
+      setPhotoUrls(data.photo_urls || []);
+    }
+  };
+
+  loadTaskData();
+}, [editTaskId]);
+
+const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
   if (!user) return;
 
   const safePrice = Math.max(50, price);
   const safeMinPrice = urgency === "can_wait" ? Math.max(50, Math.round(safePrice * 0.65)) : safePrice;
 
-  const payload = {
+  const taskPayload = {
     owner_id: user.id,
     title: taskTitle,
     description,
@@ -157,17 +184,17 @@ const CreateTask = () => {
   let error;
 
   if (editTaskId) {
-    // Düzenleme Modu: Var olan veriyi GÜNCELLE
+    // Düzenleme modundaysa UPDATE atar
     const res = await supabase
       .from("tasks")
-      .update(payload)
+      .update(taskPayload)
       .eq("id", editTaskId);
     error = res.error;
   } else {
-    // Yeni İlan Modu: YENİ KAYIT ekle
+    // Normal moddaysa INSERT atar
     const res = await supabase
       .from("tasks")
-      .insert(payload);
+      .insert(taskPayload);
     error = res.error;
   }
 
