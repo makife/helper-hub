@@ -5,6 +5,7 @@ import { Zap, MapPin, Bell } from "lucide-react";
 import TaskMap from "@/components/TaskMap";
 import TaskDetailSheet from "@/components/TaskDetailSheet";
 import BottomNav from "@/components/BottomNav";
+import RouteMap from "@/components/RouteMap";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRole } from "@/contexts/RoleContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -48,6 +49,7 @@ const Home = () => {
         .eq("status", "open")
         .order("created_at", { ascending: false });
 
+      // Owner mode: show only own tasks
       if (role === "owner" && user) {
         query = query.eq("owner_id", user.id);
       }
@@ -56,6 +58,7 @@ const Home = () => {
       const mapped = (data || []).map(mapTask);
       setTasks(mapped);
 
+      // Fetch owner names for map pin popups
       const ownerIds = [...new Set(mapped.map((t) => t.owner_id))];
       if (ownerIds.length > 0) {
         const { data: profiles } = await supabase
@@ -129,10 +132,13 @@ const Home = () => {
     ownerName: ownerNames[t.owner_id],
   }));
 
+
+
+
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-background safe-top">
-      {/* Header / Karşılama Mesajı */}
-      <div className="relative z-10 flex items-start justify-between px-5 pb-3 pt-4 bg-background/80 backdrop-blur-md">
+    <div className="flex h-screen flex-col overflow-hidden bg-background safe-top safe-bottom">
+      {/* Header */}
+      <div className="relative z-10 flex items-start justify-between px-5 pb-3 pt-4">
         <div>
           <h1 className="text-xl font-black text-foreground">
             {role === "tasker" ? "Hoş geldin! 👋" : "Merhaba! 👋"}
@@ -149,13 +155,13 @@ const Home = () => {
         </button>
       </div>
 
-      {/* Harita alanı — Karşılama mesajı ile Alt Menü (BottomNav) arasını tamamen doldurur */}
-      <div className="relative flex-1 w-full overflow-hidden pb-[calc(var(--bottom-nav-height,72px)+env(safe-area-inset-bottom,0px))]">
+      {/* Map — fills all remaining space down to the bottom nav */}
+      <div className="relative mx-5 mb-[calc(1.25rem+var(--bottom-nav-height,64px))] flex-1 overflow-hidden rounded-2xl border border-border shadow-card">
         <TaskMap tasks={mapPins} onTaskClick={handleTaskClick} />
 
-        {/* İstatistik Kartları Overlay */}
+        {/* Stats overlay, floating on top of the map */}
         {role === "tasker" && (
-          <div className="pointer-events-none absolute inset-x-4 bottom-[calc(var(--bottom-nav-height,72px)+1rem)] z-10 flex gap-3">
+          <div className="pointer-events-none absolute inset-x-3 bottom-3 flex gap-3">
             <div className="pointer-events-auto flex flex-1 items-center gap-2 rounded-xl bg-card/95 px-3 py-2.5 shadow-card backdrop-blur">
               <Zap size={16} className="text-primary" />
               <div>
@@ -174,7 +180,7 @@ const Home = () => {
         )}
       </div>
 
-      {/* Detay Kartı */}
+      {/* Task Detail Sheet */}
       <AnimatePresence>
         {selectedTask && (
           <TaskDetailSheet
