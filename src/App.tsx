@@ -7,8 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { RoleProvider } from "@/contexts/RoleContext";
 import Welcome from "./pages/Welcome";
 import Onboarding from "./pages/Onboarding";
-import PhoneLogin from "./pages/PhoneLogin";
-import OTPVerify from "./pages/OTPVerify";
+import Login from "./pages/Login";
 import RoleSelect from "./pages/RoleSelect";
 import ProfileSetup from "./pages/ProfileSetup";
 import Home from "./pages/Home";
@@ -35,8 +34,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Welcome />} />
             <Route path="/onboarding" element={<Onboarding />} />
-            <Route path="/login" element={<PhoneLogin />} />
-            <Route path="/otp" element={<OTPVerify />} />
+            <Route path="/login" element={<Login />} />
             <Route path="/role-select" element={<RoleSelect />} />
             <Route path="/profile-setup" element={<ProfileSetup />} />
             <Route path="/home" element={<Home />} />
