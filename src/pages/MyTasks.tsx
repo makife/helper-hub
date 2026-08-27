@@ -2,9 +2,12 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { 
-  ArrowLeft, Clock, Lightbulb, Blinds, Armchair, 
-  Hammer, Wrench, Package, HelpCircle, Trash2, Edit3, X, Zap, Image as ImageIcon,
-  Sparkles, Droplet, Key, Laptop, Bike, Paintbrush, Utensils, Scissors, Car, Dog
+  ArrowLeft, Clock, Lightbulb, Blinds, Armchair, Hammer, Wrench, Package, 
+  Trash2, Edit3, X, Zap, Image as ImageIcon, Sparkles, Droplet, Key, Laptop, 
+  Bike, Paintbrush, Utensils, Scissors, Car, Dog, Shirt, Tv, Wifi, Smartphone, 
+  Plug, Cat, Hospital, Sprout, BatteryCharging, HeartHandshake, UserCheck, 
+  Baby, BookOpen, MessageSquare, Guitar, Camera, PartyPopper, UtensilsCrossed, 
+  Hourglass, WashingMachine, Snowflake, HelpCircle, ShoppingCart
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -18,48 +21,155 @@ const statusLabels: Record<string, { label: string; color: string }> = {
   cancelled: { label: "İptal Edildi", color: "text-destructive" },
 };
 
+export const SUB_CATEGORIES = [
+  { id: "ampul_takma", emoji: "💡", label: "Ampul Takma", baseEnum: "ampul_takma" },
+  { id: "perde_asma", emoji: "🪟", label: "Perde Asma", baseEnum: "perde_asma" },
+  { id: "mobilya_monte", emoji: "🪑", label: "Mobilya Montajı", baseEnum: "mobilya_monte" },
+  { id: "duvar_tamir", emoji: "🔨", label: "Duvar Tamiri", baseEnum: "duvar_tamir" },
+  { id: "kucuk_tamir", emoji: "🔧", label: "Küçük Tamirat", baseEnum: "kucuk_tamir" },
+  { id: "musluk_tamir", emoji: "🚰", label: "Musluk / Batarya", baseEnum: "kucuk_tamir" },
+  { id: "kapı_kilit", emoji: "🔑", label: "Kilit / Kol Değişimi", baseEnum: "kucuk_tamir" },
+  { id: "raf_montaj", emoji: "📐", label: "Tablo / Raf Asma", baseEnum: "duvar_tamir" },
+  { id: "silikon_cekme", emoji: "🧪", label: "Silikon Çekme", baseEnum: "kucuk_tamir" },
+  { id: "gider_acma", emoji: "🪠", label: "Gider Açma", baseEnum: "kucuk_tamir" },
+  { id: "tasima_yardimi", emoji: "📦", label: "Taşıma Yardımı", baseEnum: "tasima_yardimi" },
+  { id: "esya_tasima", emoji: "🚚", label: "Ağır Eşya Taşıma", baseEnum: "tasima_yardimi" },
+  { id: "kurye_paket", emoji: "✉️", label: "Paket / Evrak Getirme", baseEnum: "tasima_yardimi" },
+  { id: "alisveris_teslimat", emoji: "🛒", label: "Market Alışverişi", baseEnum: "tasima_yardimi" },
+  { id: "arac_yukleme", emoji: "📦", label: "Araç Yükleme/Boşaltma", baseEnum: "tasima_yardimi" },
+  { id: "ev_temizligi", emoji: "🧹", label: "Ev Temizliği", baseEnum: "kucuk_tamir" },
+  { id: "cam_silme", emoji: "🧼", label: "Cam Silme", baseEnum: "kucuk_tamir" },
+  { id: "balkon_temizligi", emoji: "🪴", label: "Balkon Temizliği", baseEnum: "kucuk_tamir" },
+  { id: "utu_yapma", emoji: "👔", label: "Ütü Yapma", baseEnum: "kucuk_tamir" },
+  { id: "dolap_duzenleme", emoji: "👗", label: "Dolap Düzenleme", baseEnum: "kucuk_tamir" },
+  { id: "hali_yikama", emoji: "🧽", label: "Halı / Koltuk Temizleme", baseEnum: "kucuk_tamir" },
+  { id: "tv_kurulum", emoji: "📺", label: "TV / Askı Aparatı", baseEnum: "duvar_tamir" },
+  { id: "wifi_internet", emoji: "📡", label: "Wi-Fi / Modem Kurulumu", baseEnum: "kucuk_tamir" },
+  { id: "bilgisayar_format", emoji: "💻", label: "PC / Format / Yazılım", baseEnum: "kucuk_tamir" },
+  { id: "telefon_kurulum", emoji: "📱", label: "Akıllı Cihaz Kurulumu", baseEnum: "kucuk_tamir" },
+  { id: "kablo_duzenleme", emoji: "🔌", label: "Kablo Gizleme/Düzen", baseEnum: "kucuk_tamir" },
+  { id: "kopek_gezdirme", emoji: "🐕", label: "Köpek Gezdirme", baseEnum: "tasima_yardimi" },
+  { id: "kedi_bakimi", emoji: "🐈", label: "Kedi Besleme / Bakım", baseEnum: "tasima_yardimi" },
+  { id: "vet_goturme", emoji: "🏥", label: "Evcil Hayvan Taşıma", baseEnum: "tasima_yardimi" },
+  { id: "bahce_sulama", emoji: "🌱", label: "Çiçek / Bahçe Sulama", baseEnum: "kucuk_tamir" },
+  { id: "cim_bicme", emoji: "✂️", label: "Çim Biçme / Budama", baseEnum: "kucuk_tamir" },
+  { id: "oto_yikama", emoji: "🚗", label: "Araba Yıkama / Temizlik", baseEnum: "kucuk_tamir" },
+  { id: "aku_takviye", emoji: "🔋", label: "Akü Takviye / Oto", baseEnum: "kucuk_tamir" },
+  { id: "yasli_yardim", emoji: "👵", label: "Yaşlı / Hasta Yardımı", baseEnum: "tasima_yardimi" },
+  { id: "refakat", emoji: "🤝", label: "Kısa Süreli Refakat", baseEnum: "tasima_yardimi" },
+  { id: "cocuk_oyun", emoji: "🧸", label: "Çocuk Bakımı / Oyun", baseEnum: "tasima_yardimi" },
+  { id: "ozel_ders", emoji: "📚", label: "Özel Ders / Ödev", baseEnum: "kucuk_tamir" },
+  { id: "dil_pratik", emoji: "🗣️", label: "Yabancı Dil Pratiği", baseEnum: "kucuk_tamir" },
+  { id: "muzik_dersi", emoji: "🎸", label: "Enstrüman Eğitimi", baseEnum: "kucuk_tamir" },
+  { id: "fotograf_cekimi", emoji: "📸", label: "Fotoğraf Çekimi", baseEnum: "kucuk_tamir" },
+  { id: "parti_hazirlik", emoji: "🎈", label: "Organizasyon / Parti", baseEnum: "tasima_yardimi" },
+  { id: "yemek_hazirlik", emoji: "🍲", label: "Yemek / İkram Hazırlığı", baseEnum: "kucuk_tamir" },
+  { id: "sira_bekleme", emoji: "⏳", label: "Sıra Bekleme Yardımı", baseEnum: "tasima_yardimi" },
+  { id: "boya_badana", emoji: "🎨", label: "Rötuş / Boya İşi", baseEnum: "duvar_tamir" },
+  { id: "beyaz_esya_baglanti", emoji: "🧺", label: "Çamaşır/Bulaşık Mak.", baseEnum: "kucuk_tamir" },
+  { id: "avize_montaj", emoji: "💡", label: "Avize Montajı", baseEnum: "ampul_takma" },
+  { id: "sineklik_montaj", emoji: "🦟", label: "Sineklik Takma", baseEnum: "perde_asma" },
+  { id: "bisiklet_tamir", emoji: "🚲", label: "Bisiklet Bakım/Tamir", baseEnum: "kucuk_tamir" },
+  { id: "klima_filitre", emoji: "❄️", label: "Klima Filtre Temizlik", baseEnum: "kucuk_tamir" },
+  { id: "cesitli_isler", emoji: "✨", label: "Çeşitli Genel İşler", baseEnum: "kucuk_tamir" },
+];
+
 // Akıllı İkon Eşleştirici (Hem Veritabanı Kategorisi Hem İlan Başlığına Bakar)
 const getCategoryIcon = (category: string, title?: string) => {
-  const textToSearch = `${category || ""} ${title || ""}`.toLowerCase();
+  // Veritabanındaki category ID'sini veya title metnini eşleştir
+  const foundSub = SUB_CATEGORIES.find(
+    (sub) => sub.id === category || sub.label.toLowerCase() === title?.toLowerCase()
+  );
 
-  if (textToSearch.includes("balkon") || textToSearch.includes("temizlik") || textToSearch.includes("cam_silme")) {
-    return <Sparkles className="text-emerald-500" size={24} />;
-  }
-  if (textToSearch.includes("musluk") || textToSearch.includes("batarya") || textToSearch.includes("gider")) {
-    return <Droplet className="text-cyan-500" size={24} />;
-  }
-  if (textToSearch.includes("kilit") || textToSearch.includes("kapı")) {
-    return <Key className="text-amber-600" size={24} />;
-  }
-  if (textToSearch.includes("bisiklet")) {
-    return <Bike className="text-green-600" size={24} />;
-  }
-  if (textToSearch.includes("pc") || textToSearch.includes("format") || textToSearch.includes("yazılım") || textToSearch.includes("bilgisayar")) {
-    return <Laptop className="text-indigo-500" size={24} />;
-  }
-  if (textToSearch.includes("ampul") || textToSearch.includes("avize")) {
-    return <Lightbulb className="text-amber-500" size={24} />;
-  }
-  if (textToSearch.includes("perde") || textToSearch.includes("sineklik")) {
-    return <Blinds className="text-blue-500" size={24} />;
-  }
-  if (textToSearch.includes("mobilya") || textToSearch.includes("dolap")) {
-    return <Armchair className="text-amber-800" size={24} />;
-  }
-  if (textToSearch.includes("duvar") || textToSearch.includes("raf") || textToSearch.includes("boya")) {
-    return <Hammer className="text-stone-500" size={24} />;
-  }
-  if (textToSearch.includes("tasima") || textToSearch.includes("kurye") || textToSearch.includes("paket")) {
-    return <Package className="text-orange-500" size={24} />;
-  }
-  if (textToSearch.includes("kopek") || textToSearch.includes("kedi") || textToSearch.includes("evcil")) {
-    return <Dog className="text-yellow-600" size={24} />;
-  }
-  if (textToSearch.includes("oto") || textToSearch.includes("araba")) {
-    return <Car className="text-blue-600" size={24} />;
-  }
+  const matchedId = foundSub ? foundSub.id : category;
 
-  return <Wrench className="text-slate-600" size={24} />;
+  switch (matchedId) {
+    case "ampul_takma":
+    case "avize_montaj":
+      return <Lightbulb className="text-amber-500" size={24} />;
+    case "perde_asma":
+    case "sineklik_montaj":
+      return <Blinds className="text-blue-500" size={24} />;
+    case "mobilya_monte":
+      return <Armchair className="text-amber-800" size={24} />;
+    case "duvar_tamir":
+    case "raf_montaj":
+      return <Hammer className="text-stone-500" size={24} />;
+    case "boya_badana":
+      return <Paintbrush className="text-pink-500" size={24} />;
+    case "musluk_tamir":
+    case "gider_acma":
+    case "silikon_cekme":
+      return <Droplet className="text-cyan-500" size={24} />;
+    case "kapı_kilit":
+      return <Key className="text-amber-600" size={24} />;
+    case "tasima_yardimi":
+    case "esya_tasima":
+    case "arac_yukleme":
+      return <Package className="text-orange-500" size={24} />;
+    case "kurye_paket":
+      return <Package className="text-purple-500" size={24} />;
+    case "alisveris_teslimat":
+      return <ShoppingCart className="text-green-500" size={24} />;
+    case "balkon_temizligi":
+    case "ev_temizligi":
+    case "cam_silme":
+    case "hali_yikama":
+      return <Sparkles className="text-emerald-500" size={24} />;
+    case "utu_yapma":
+    case "dolap_duzenleme":
+      return <Shirt className="text-indigo-400" size={24} />;
+    case "tv_kurulum":
+      return <Tv className="text-slate-700" size={24} />;
+    case "wifi_internet":
+      return <Wifi className="text-blue-600" size={24} />;
+    case "bilgisayar_format":
+      return <Laptop className="text-indigo-600" size={24} />;
+    case "telefon_kurulum":
+      return <Smartphone className="text-teal-600" size={24} />;
+    case "kablo_duzenleme":
+      return <Plug className="text-yellow-600" size={24} />;
+    case "kopek_gezdirme":
+      return <Dog className="text-amber-700" size={24} />;
+    case "kedi_bakimi":
+      return <Cat className="text-orange-400" size={24} />;
+    case "vet_goturme":
+      return <Hospital className="text-red-500" size={24} />;
+    case "bahce_sulama":
+      return <Sprout className="text-green-500" size={24} />;
+    case "cim_bicme":
+      return <Scissors className="text-lime-600" size={24} />;
+    case "oto_yikama":
+      return <Car className="text-blue-500" size={24} />;
+    case "aku_takviye":
+      return <BatteryCharging className="text-red-600" size={24} />;
+    case "yasli_yardim":
+    case "refakat":
+      return <HeartHandshake className="text-rose-500" size={24} />;
+    case "cocuk_oyun":
+      return <Baby className="text-sky-400" size={24} />;
+    case "ozel_ders":
+    case "dil_pratik":
+      return <BookOpen className="text-blue-700" size={24} />;
+    case "muzik_dersi":
+      return <Guitar className="text-purple-600" size={24} />;
+    case "fotograf_cekimi":
+      return <Camera className="text-slate-800" size={24} />;
+    case "parti_hazirlik":
+      return <PartyPopper className="text-pink-600" size={24} />;
+    case "yemek_hazirlik":
+      return <UtensilsCrossed className="text-orange-600" size={24} />;
+    case "sira_bekleme":
+      return <Hourglass className="text-amber-600" size={24} />;
+    case "beyaz_esya_baglanti":
+      return <WashingMachine className="text-cyan-600" size={24} />;
+    case "bisiklet_tamir":
+      return <Bike className="text-green-600" size={24} />;
+    case "klima_filitre":
+      return <Snowflake className="text-sky-500" size={24} />;
+    default:
+      return <Wrench className="text-slate-600" size={24} />;
+  }
 };
 
 const MyTasks = () => {
