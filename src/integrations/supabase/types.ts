@@ -197,6 +197,7 @@ export type Database = {
           matched_at: string | null
           min_price: number | null
           owner_id: string
+          person_count: number
           photo_urls: string[] | null
           price: number
           price_drop_started_at: string | null
@@ -222,6 +223,7 @@ export type Database = {
           matched_at?: string | null
           min_price?: number | null
           owner_id: string
+          person_count?: number
           photo_urls?: string[] | null
           price: number
           price_drop_started_at?: string | null
@@ -247,6 +249,7 @@ export type Database = {
           matched_at?: string | null
           min_price?: number | null
           owner_id?: string
+          person_count?: number
           photo_urls?: string[] | null
           price?: number
           price_drop_started_at?: string | null

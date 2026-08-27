@@ -186,6 +186,31 @@ const CreateTask = () => {
       const safeTotalPrice = Math.max(50, totalPrice);
       const safeMinPrice = urgency === "can_wait" ? Math.max(50, Math.round(safeTotalPrice * 0.65)) : safeTotalPrice;
 
+      let latitude: number | null = null;
+      let longitude: number | null = null;
+      try {
+        const pos = await new Promise<GeolocationPosition>((resolve, reject) =>
+          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 8000 })
+        );
+        latitude = pos.coords.latitude;
+        longitude = pos.coords.longitude;
+      } catch {
+        // Konum izni yoksa profildeki kayıtlı konuma düş
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("latitude, longitude")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        latitude = profile?.latitude ?? null;
+        longitude = profile?.longitude ?? null;
+      }
+
+      if (latitude == null || longitude == null) {
+        setLoading(false);
+        toast.error("Konum alınamadı. Lütfen konum izni verip tekrar dene.");
+        return;
+      }
+
       const taskPayload = {
         owner_id: user.id,
         title: taskTitle,
@@ -199,6 +224,8 @@ const CreateTask = () => {
         estimated_minutes: duration,
         address_note: addressNote || null,
         photo_urls: finalPhotoUrls,
+        latitude,
+        longitude,
         price_drop_started_at: urgency === "can_wait" ? new Date().toISOString() : null,
       };
 
