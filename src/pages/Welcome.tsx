@@ -39,7 +39,7 @@ const Welcome = () => {
         transition={{ delay: 0.3, duration: 0.5 }}
         className="mb-2 text-4xl font-black text-foreground"
       >
-        Bi' El At
+        Bi'El At
       </motion.h1>
 
       <motion.p
