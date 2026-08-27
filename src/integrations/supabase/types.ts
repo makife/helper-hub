@@ -14,6 +14,71 @@ export type Database = {
   }
   public: {
     Tables: {
+      credentials: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      credit_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string | null
+          id: string
+          kind: string
+          task_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          kind?: string
+          task_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          kind?: string
+          task_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_transactions_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           content: string
@@ -137,6 +202,7 @@ export type Database = {
           latitude: number | null
           longitude: number | null
           phone: string | null
+          profession: string | null
           rating: number | null
           role: Database["public"]["Enums"]["user_role"]
           skills: Database["public"]["Enums"]["task_category"][] | null
@@ -157,6 +223,7 @@ export type Database = {
           latitude?: number | null
           longitude?: number | null
           phone?: string | null
+          profession?: string | null
           rating?: number | null
           role?: Database["public"]["Enums"]["user_role"]
           skills?: Database["public"]["Enums"]["task_category"][] | null
@@ -177,6 +244,7 @@ export type Database = {
           latitude?: number | null
           longitude?: number | null
           phone?: string | null
+          profession?: string | null
           rating?: number | null
           role?: Database["public"]["Enums"]["user_role"]
           skills?: Database["public"]["Enums"]["task_category"][] | null
