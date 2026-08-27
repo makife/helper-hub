@@ -332,8 +332,6 @@ const MyTasks = () => {
   }, [selectedTask?.id, user?.id]);
 
   const handleCancelTask = async (taskId: string) => {
-    if (!confirm("Bu yardım çağrısını iptal etmek istediğinize emin misiniz?")) return;
-    
     setIsUpdating(true);
     const { error } = await supabase
       .from("tasks")
@@ -343,9 +341,13 @@ const MyTasks = () => {
     if (!error) {
       setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, status: "cancelled" } : t)));
       setSelectedTask(null);
+    } else {
+      toast.error("İptal edilemedi, tekrar dene.");
     }
     setIsUpdating(false);
+    setConfirmState(null);
   };
+
 
   return (
     <div className="flex min-h-screen flex-col bg-background safe-top safe-bottom">
