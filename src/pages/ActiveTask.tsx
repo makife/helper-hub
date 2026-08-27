@@ -8,18 +8,27 @@ import RouteMap from "@/components/RouteMap";
 import type { Tables } from "@/integrations/supabase/types";
 import { getTaskEmoji } from "@/lib/taskCategories";
 
+type TaskerEntry = { tasker_id: string; profile: Tables<"profiles"> | null };
+
 const ActiveTask = () => {
   const { taskId } = useParams<{ taskId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [task, setTask] = useState<Tables<"tasks"> | null>(null);
-  const [otherProfile, setOtherProfile] = useState<Tables<"profiles"> | null>(null);
+  const [taskers, setTaskers] = useState<TaskerEntry[]>([]);
+  const [ownerProfile, setOwnerProfile] = useState<Tables<"profiles"> | null>(null);
+  const [partnerId, setPartnerId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Tables<"messages">[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [showRoute, setShowRoute] = useState(false);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const isOwner = !!user && task?.owner_id === user.id;
+  const otherProfile = isOwner
+    ? taskers.find((t) => t.tasker_id === partnerId)?.profile ?? null
+    : ownerProfile;
 
   useEffect(() => {
     if (!taskId || !user) return;
@@ -29,11 +38,33 @@ const ActiveTask = () => {
       if (!data) { navigate("/home"); return; }
       setTask(data);
 
-      // Fetch other user's profile
-      const otherId = data.owner_id === user.id ? data.tasker_id : data.owner_id;
-      if (otherId) {
-        const { data: profile } = await supabase.from("profiles").select("*").eq("user_id", otherId).maybeSingle();
-        setOtherProfile(profile);
+      const { data: owner } = await supabase
+        .from("profiles").select("*").eq("user_id", data.owner_id).maybeSingle();
+      setOwnerProfile(owner);
+
+      const { data: assignments } = await supabase
+        .from("task_assignments")
+        .select("tasker_id")
+        .eq("task_id", taskId)
+        .eq("status", "accepted")
+        .order("created_at", { ascending: true });
+
+      const ids = (assignments || []).map((a) => a.tasker_id);
+      let profiles: Tables<"profiles">[] = [];
+      if (ids.length > 0) {
+        const { data: p } = await supabase.from("profiles").select("*").in("user_id", ids);
+        profiles = p || [];
+      }
+      const entries = ids.map((id) => ({
+        tasker_id: id,
+        profile: profiles.find((p) => p.user_id === id) || null,
+      }));
+      setTaskers(entries);
+
+      if (data.owner_id === user.id) {
+        setPartnerId((prev) => prev ?? entries[0]?.tasker_id ?? null);
+      } else {
+        setPartnerId(data.owner_id);
       }
     };
 
@@ -82,8 +113,19 @@ const ActiveTask = () => {
       })
       .subscribe();
 
-    return () => { supabase.removeChannel(channel); };
+    const assignmentChannel = supabase
+      .channel(`task-assignments-page-${taskId}`)
+      .on("postgres_changes", {
+        event: "*", schema: "public", table: "task_assignments", filter: `task_id=eq.${taskId}`,
+      }, () => fetchTask())
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+      supabase.removeChannel(assignmentChannel);
+    };
   }, [taskId, user]);
+
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
