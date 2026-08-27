@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Bell, MessageCircle, UserCheck } from "lucide-react";
+import { ArrowLeft, Bell, MessageCircle, UserCheck, UserMinus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
 type Notif = {
   id: string;
-  type: "message" | "assignment";
+  type: "message" | "assignment_accepted" | "assignment_left";
   title: string;
   body: string;
   at: string;
-  taskId: string;
+  taskId: string | null;
   unread: boolean;
 };
 
@@ -36,7 +36,27 @@ const Notifications = () => {
     const load = async () => {
       const list: Notif[] = [];
 
-      // 1) Gelen mesajlar
+      // 1) Kalıcı bildirimler (iş kabul / iş bırakma)
+      const { data: notifs } = await supabase
+        .from("notifications")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(50);
+
+      for (const n of notifs ?? []) {
+        list.push({
+          id: `n-${n.id}`,
+          type: n.type === "assignment_left" ? "assignment_left" : "assignment_accepted",
+          title: n.title,
+          body: n.body ?? "",
+          at: n.created_at,
+          taskId: n.task_id,
+          unread: !n.is_read,
+        });
+      }
+
+      // 2) Gelen mesajlar
       const { data: msgs } = await supabase
         .from("messages")
         .select("id, content, created_at, is_read, task_id, sender_id")
@@ -44,30 +64,9 @@ const Notifications = () => {
         .order("created_at", { ascending: false })
         .limit(30);
 
-      // 2) Kendi çağrılarıma gelen başvurular
-      const { data: myTasks } = await supabase
-        .from("tasks")
-        .select("id, title")
-        .eq("owner_id", user.id);
-
-      const taskTitles = new Map((myTasks ?? []).map((t) => [t.id, t.title]));
-
-      let assigns: { id: string; task_id: string; tasker_id: string; created_at: string }[] = [];
-      if (myTasks && myTasks.length > 0) {
-        const { data } = await supabase
-          .from("task_assignments")
-          .select("id, task_id, tasker_id, created_at")
-          .in("task_id", myTasks.map((t) => t.id))
-          .order("created_at", { ascending: false })
-          .limit(30);
-        assigns = data ?? [];
-      }
-
-      const userIds = [
-        ...new Set([...(msgs ?? []).map((m) => m.sender_id), ...assigns.map((a) => a.tasker_id)]),
-      ];
-      const { data: profiles } = userIds.length
-        ? await supabase.from("profiles").select("user_id, full_name").in("user_id", userIds)
+      const senderIds = [...new Set((msgs ?? []).map((m) => m.sender_id))];
+      const { data: profiles } = senderIds.length
+        ? await supabase.from("profiles").select("user_id, full_name").in("user_id", senderIds)
         : { data: [] as { user_id: string; full_name: string }[] };
       const names = new Map((profiles ?? []).map((p) => [p.user_id, p.full_name]));
 
@@ -83,21 +82,15 @@ const Notifications = () => {
         });
       }
 
-      for (const a of assigns) {
-        list.push({
-          id: `a-${a.id}`,
-          type: "assignment",
-          title: `${names.get(a.tasker_id) || "Bir kullanıcı"} çağrını kabul etti`,
-          body: taskTitles.get(a.task_id) || "Yardım çağrısı",
-          at: a.created_at,
-          taskId: a.task_id,
-          unread: false,
-        });
-      }
-
       list.sort((x, y) => new Date(y.at).getTime() - new Date(x.at).getTime());
       setItems(list);
       setLoading(false);
+
+      // Bildirimleri okundu olarak işaretle
+      const unreadIds = (notifs ?? []).filter((n) => !n.is_read).map((n) => n.id);
+      if (unreadIds.length > 0) {
+        await supabase.from("notifications").update({ is_read: true }).in("id", unreadIds);
+      }
     };
 
     load();
@@ -105,13 +98,19 @@ const Notifications = () => {
     const channel = supabase
       .channel("notifications-feed")
       .on("postgres_changes", { event: "*", schema: "public", table: "messages" }, () => load())
-      .on("postgres_changes", { event: "*", schema: "public", table: "task_assignments" }, () => load())
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications" }, () => load())
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
   }, [user]);
+
+  const iconFor = (t: Notif["type"]) => {
+    if (t === "message") return <MessageCircle size={18} className="text-primary" />;
+    if (t === "assignment_left") return <UserMinus size={18} className="text-destructive" />;
+    return <UserCheck size={18} className="text-primary" />;
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-background safe-top safe-bottom">
@@ -134,7 +133,7 @@ const Notifications = () => {
             </div>
             <p className="text-lg font-bold text-foreground">Henüz bildirim yok</p>
             <p className="text-center text-sm text-muted-foreground">
-              Çağrına başvuru geldiğinde ve yeni mesaj aldığında burada görünecek.
+              Çağrına başvuru geldiğinde, biri işi bıraktığında ve yeni mesaj aldığında burada görünecek.
             </p>
           </motion.div>
         </div>
@@ -143,18 +142,12 @@ const Notifications = () => {
           {items.map((n) => (
             <button
               key={n.id}
-              onClick={() => navigate(n.type === "message" ? "/messages" : `/task/${n.taskId}`)}
+              onClick={() => navigate(n.type === "message" ? "/messages" : n.taskId ? `/task/${n.taskId}` : "/my-tasks")}
               className={`flex w-full items-start gap-3 rounded-2xl border p-3 text-left shadow-card ${
                 n.unread ? "border-primary/40 bg-primary/5" : "border-border bg-card"
               }`}
             >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted">
-                {n.type === "message" ? (
-                  <MessageCircle size={18} className="text-primary" />
-                ) : (
-                  <UserCheck size={18} className="text-primary" />
-                )}
-              </div>
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted">{iconFor(n.type)}</div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-bold text-foreground">{n.title}</p>
                 <p className="truncate text-xs text-muted-foreground">{n.body}</p>
