@@ -72,7 +72,7 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
     const result = await acceptTask(task.id, user.id, price);
     setAccepting(false);
 
-    if (!result.ok) {
+    if (result.ok !== true) {
       toast.error(result.message);
       if (result.reason === "already") {
         onClose();
