@@ -84,9 +84,9 @@ const baseEnumEmoji: Record<string, string> = {
   tasima_yardimi: "📦",
 };
 
-const getCategoryEmoji = (category: string, title?: string) => {
+const getCategoryEmoji = (category: string, title?: string, subcategory?: string | null) => {
   const foundSub = SUB_CATEGORIES.find(
-    (sub) => sub.id === category || sub.label.toLowerCase() === title?.toLowerCase()
+    (sub) => sub.id === subcategory || sub.id === category || sub.label.toLowerCase() === title?.toLowerCase()
   );
   if (foundSub) return foundSub.emoji;
   return baseEnumEmoji[category] || "✨";
@@ -266,7 +266,7 @@ const MyTasks = () => {
                   className="flex cursor-pointer items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-card hover:bg-muted/50 transition-colors"
                 >
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted text-2xl">
-                    {getCategoryEmoji(task.category, task.title)}
+                    {getCategoryEmoji(task.category, task.title, (task as any).subcategory)}
                   </div>
 
                   <div className="flex-1 min-w-0">
@@ -304,7 +304,7 @@ const MyTasks = () => {
             >
               <div className="flex items-center justify-between border-b pb-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-2xl">{getCategoryEmoji(selectedTask.category, selectedTask.title)}</span>
+                  <span className="text-2xl">{getCategoryEmoji(selectedTask.category, selectedTask.title, (selectedTask as any).subcategory)}</span>
                   <h2 className="text-lg font-bold text-foreground">{selectedTask.title}</h2>
                 </div>
                 <button onClick={() => setSelectedTask(null)} className="rounded-full p-1 bg-muted hover:bg-muted/80">

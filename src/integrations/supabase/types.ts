@@ -202,6 +202,7 @@ export type Database = {
           price: number
           price_drop_started_at: string | null
           status: Database["public"]["Enums"]["task_status"]
+          subcategory: string | null
           tasker_id: string | null
           title: string
           updated_at: string
@@ -228,6 +229,7 @@ export type Database = {
           price: number
           price_drop_started_at?: string | null
           status?: Database["public"]["Enums"]["task_status"]
+          subcategory?: string | null
           tasker_id?: string | null
           title: string
           updated_at?: string
@@ -254,6 +256,7 @@ export type Database = {
           price?: number
           price_drop_started_at?: string | null
           status?: Database["public"]["Enums"]["task_status"]
+          subcategory?: string | null
           tasker_id?: string | null
           title?: string
           updated_at?: string
