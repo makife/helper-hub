@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, LogOut, Star, CheckCircle, Phone, User } from "lucide-react";
+import { ArrowLeft, LogOut, Star, CheckCircle, Phone, User, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Tables } from "@/integrations/supabase/types";
+import { toast } from "sonner";
 
 const Profile = () => {
   const [profile, setProfile] = useState<Tables<"profiles"> | null>(null);
   const [loading, setLoading] = useState(true);
+  const [locationLoading, setLocationLoading] = useState(false);
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
 
@@ -30,6 +32,37 @@ const Profile = () => {
     await signOut();
     navigate("/");
   };
+
+  const requestLocation = () => {
+    if (!("geolocation" in navigator) || !user) return;
+    setLocationLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude, longitude } = pos.coords;
+        const { error } = await supabase
+          .from("profiles")
+          .update({ latitude, longitude })
+          .eq("user_id", user.id);
+
+        setLocationLoading(false);
+
+        if (error) {
+          toast.error("Konum kaydedilemedi.");
+          console.error(error);
+          return;
+        }
+
+        setProfile((prev) => (prev ? { ...prev, latitude, longitude } : prev));
+        toast.success("Konum güncellendi ✓");
+      },
+      () => {
+        setLocationLoading(false);
+        toast.error("Konum izni reddedildi");
+      }
+    );
+  };
+
+  const locationGranted = profile?.latitude != null && profile?.longitude != null;
 
   return (
     <div className="flex min-h-screen flex-col bg-background safe-top safe-bottom">
@@ -93,6 +126,24 @@ const Profile = () => {
               <p className="mt-1 text-sm text-foreground">{profile.bio}</p>
             </div>
           )}
+
+          <button
+            onClick={requestLocation}
+            disabled={locationLoading}
+            className={`mb-5 flex w-full items-center gap-3 rounded-xl border-2 px-4 py-3.5 text-left transition-all active:scale-[0.98] disabled:opacity-60 ${locationGranted ? "border-success/30 bg-success/5" : "border-border bg-card"}`}
+          >
+            <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${locationGranted ? "bg-success text-success-foreground" : "bg-primary/10 text-primary"}`}>
+              <MapPin size={20} />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-bold text-foreground">
+                {locationLoading ? "Konum alınıyor..." : locationGranted ? "Konum aktif ✓" : "Konumunu aç"}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {locationGranted ? "Yakınındaki işleri görebilirsin" : "Yakınındaki işleri görmek için gerekli"}
+              </p>
+            </div>
+          </button>
 
           <button
             onClick={handleSignOut}
