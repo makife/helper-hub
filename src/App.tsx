@@ -24,7 +24,6 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <RoleProvider>
       <TooltipProvider>
         <Toaster />
         <Sonner />
@@ -33,7 +32,6 @@ const App = () => (
             <Route path="/" element={<Welcome />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/role-select" element={<RoleSelect />} />
             <Route path="/profile-setup" element={<ProfileSetup />} />
             <Route path="/home" element={<Home />} />
             <Route path="/create-task" element={<CreateTask />} />
@@ -48,7 +46,6 @@ const App = () => (
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
-      </RoleProvider>
     </AuthProvider>
   </QueryClientProvider>
 );
