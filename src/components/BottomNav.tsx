@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { MapPin, Briefcase, Bell, MessageCircle, User } from "lucide-react";
+import { MapPin, Briefcase, MessageCircle, User, Plus } from "lucide-react";
 
 const BottomNav = () => {
   const navigate = useNavigate();
@@ -17,10 +17,24 @@ const BottomNav = () => {
         <Briefcase size={20} className={isActive("/my-tasks") ? "text-primary" : "text-muted-foreground"} />
         <span className={`text-[10px] font-semibold ${isActive("/my-tasks") ? "text-primary" : "text-muted-foreground"}`}>İşlerim</span>
       </button>
-      <button onClick={() => navigate("/notifications")} className="flex flex-col items-center gap-0.5">
-        <Bell size={20} className={isActive("/notifications") ? "text-primary" : "text-muted-foreground"} />
-        <span className={`text-[10px] font-semibold ${isActive("/notifications") ? "text-primary" : "text-muted-foreground"}`}>Bildirim</span>
+
+      <button
+        onClick={() => navigate("/create-task")}
+        className="relative -mt-9 flex flex-col items-center gap-1 active:scale-[0.96] transition-transform"
+      >
+        <div
+          className="flex h-16 w-16 items-center justify-center rounded-full border-4 border-card"
+          style={{
+            background: "linear-gradient(180deg, #FFA84D 0%, #FB7A24 55%, #E5600A 100%)",
+            boxShadow:
+              "inset 0 1px 2px rgba(255,255,255,0.55), inset 0 -3px 4px rgba(0,0,0,0.2), 0 6px 14px rgba(229,96,10,0.45)",
+          }}
+        >
+          <Plus size={28} className="text-white drop-shadow-sm" strokeWidth={3} />
+        </div>
+        <span className="text-[10px] font-bold text-[#E5600A]">Yardım Çağrısı</span>
       </button>
+
       <button onClick={() => navigate("/messages")} className="flex flex-col items-center gap-0.5">
         <MessageCircle size={20} className={isActive("/messages") ? "text-primary" : "text-muted-foreground"} />
         <span className={`text-[10px] font-semibold ${isActive("/messages") ? "text-primary" : "text-muted-foreground"}`}>Mesajlar</span>
