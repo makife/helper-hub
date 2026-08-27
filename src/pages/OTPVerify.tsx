@@ -60,7 +60,7 @@ const OTPVerify = () => {
       toast.success("Giriş başarılı!");
 
       if (needsProfile) {
-        navigate("/role-select");
+        navigate("/profile-setup");
       } else {
         navigate("/home");
       }

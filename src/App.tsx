@@ -4,11 +4,9 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { RoleProvider } from "@/contexts/RoleContext";
 import Welcome from "./pages/Welcome";
 import Onboarding from "./pages/Onboarding";
 import Login from "./pages/Login";
-import RoleSelect from "./pages/RoleSelect";
 import ProfileSetup from "./pages/ProfileSetup";
 import Home from "./pages/Home";
 import CreateTask from "./pages/CreateTask";
@@ -26,7 +24,6 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <RoleProvider>
       <TooltipProvider>
         <Toaster />
         <Sonner />
@@ -35,7 +32,6 @@ const App = () => (
             <Route path="/" element={<Welcome />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/role-select" element={<RoleSelect />} />
             <Route path="/profile-setup" element={<ProfileSetup />} />
             <Route path="/home" element={<Home />} />
             <Route path="/create-task" element={<CreateTask />} />
@@ -50,7 +46,6 @@ const App = () => (
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
-      </RoleProvider>
     </AuthProvider>
   </QueryClientProvider>
 );
