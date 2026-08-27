@@ -180,6 +180,44 @@ export type Database = {
           },
         ]
       }
+      task_assignments: {
+        Row: {
+          agreed_price: number | null
+          created_at: string
+          id: string
+          status: string
+          task_id: string
+          tasker_id: string
+          updated_at: string
+        }
+        Insert: {
+          agreed_price?: number | null
+          created_at?: string
+          id?: string
+          status?: string
+          task_id: string
+          tasker_id: string
+          updated_at?: string
+        }
+        Update: {
+          agreed_price?: number | null
+          created_at?: string
+          id?: string
+          status?: string
+          task_id?: string
+          tasker_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_assignments_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tasks: {
         Row: {
           address_note: string | null
