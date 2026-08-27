@@ -1,13 +1,11 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { User, MessageCircle, Zap, MapPin, ChevronRight, Plus, Briefcase } from "lucide-react";
+import { Zap, MapPin, ChevronRight, Plus } from "lucide-react";
 import TaskMap from "@/components/TaskMap";
 import TaskDetailSheet from "@/components/TaskDetailSheet";
 import BottomNav from "@/components/BottomNav";
-import RouteMap from "@/components/RouteMap";
 import { useAuth } from "@/contexts/AuthContext";
-import { useRole } from "@/contexts/RoleContext";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -33,7 +31,6 @@ const Home = () => {
   const [locationName, setLocationName] = useState("Konum alınıyor...");
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { role } = useRole();
 
   useEffect(() => {
     if (!("geolocation" in navigator)) {
@@ -77,9 +74,9 @@ const Home = () => {
         .eq("status", "open")
         .order("created_at", { ascending: false });
 
-      // Owner mode: show only own tasks
-      if (role === "owner" && user) {
-        query = query.eq("owner_id", user.id);
+      // Show help requests from other people, not the user's own
+      if (user) {
+        query = query.neq("owner_id", user.id);
       }
 
       const { data } = await query;
@@ -93,11 +90,15 @@ const Home = () => {
       .on("postgres_changes", { event: "*", schema: "public", table: "tasks" }, (payload) => {
         if (payload.eventType === "INSERT") {
           const newTask = mapTask(payload.new as Tables<"tasks">);
-          if (newTask.status === "open") setTasks((prev) => [newTask, ...prev]);
+          if (newTask.status === "open" && newTask.owner_id !== user?.id) {
+            setTasks((prev) => [newTask, ...prev]);
+          }
         } else if (payload.eventType === "UPDATE") {
           const updated = mapTask(payload.new as Tables<"tasks">);
           setTasks((prev) => {
-            if (updated.status !== "open") return prev.filter((t) => t.id !== updated.id);
+            if (updated.status !== "open" || updated.owner_id === user?.id) {
+              return prev.filter((t) => t.id !== updated.id);
+            }
             return prev.map((t) => (t.id === updated.id ? updated : t));
           });
         } else if (payload.eventType === "DELETE") {
@@ -110,7 +111,7 @@ const Home = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [role, user]);
+  }, [user]);
 
   const handleTaskClick = (task: { id: string }) => {
     const matched = tasks.find((t) => t.id === task.id);
@@ -125,34 +126,15 @@ const Home = () => {
     lng: t.lng,
     emoji: t.emoji,
     urgent: t.urgency === "urgent",
+    estimatedMinutes: t.estimated_minutes,
   }));
-
-
-
 
   return (
     <div className="flex min-h-screen flex-col bg-background safe-top safe-bottom">
       {/* Header */}
-      <div className="flex items-center justify-between px-5 pb-3 pt-4">
-        <div>
-          <p className="text-xs font-semibold text-muted-foreground">📍 {locationName}</p>
-          <h1 className="text-xl font-black text-foreground">{role === "tasker" ? "İş Al 🔧" : "İş Ver 👋"}</h1>
-          <p className="text-xs text-primary font-semibold">{role === "tasker" ? "İş Al Modundasın" : "İş Ver Modundasın"}</p>
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => navigate("/messages")}
-            className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card"
-          >
-            <MessageCircle size={18} className="text-muted-foreground" />
-          </button>
-          <button
-            onClick={() => navigate("/profile")}
-            className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card"
-          >
-            <User size={18} className="text-muted-foreground" />
-          </button>
-        </div>
+      <div className="px-5 pb-3 pt-4">
+        <p className="text-xs font-semibold text-muted-foreground">📍 {locationName}</p>
+        <h1 className="text-xl font-black text-foreground">Yakındaki Yardım Çağrıları 🆘</h1>
       </div>
 
       {/* Map */}
@@ -161,56 +143,36 @@ const Home = () => {
         style={{ height: 260 }}
       >
         <TaskMap tasks={mapPins} onTaskClick={handleTaskClick} />
+        <button
+          onClick={() => navigate("/create-task")}
+          className="gradient-warm absolute bottom-3 right-3 flex h-12 w-12 items-center justify-center rounded-full shadow-soft"
+        >
+          <Plus size={22} className="text-primary-foreground" />
+        </button>
       </div>
 
       {/* Stats */}
       <div className="mx-5 mb-4 flex gap-3">
-        {role === "tasker" ? (
-          <>
-            <div className="flex flex-1 items-center gap-2 rounded-xl bg-primary/5 px-3 py-2.5">
-              <Zap size={16} className="text-primary" />
-              <div>
-                <p className="text-xs text-muted-foreground">Açık İşler</p>
-                <p className="text-sm font-black text-foreground">{tasks.length} iş var</p>
-              </div>
-            </div>
-            <div className="flex flex-1 items-center gap-2 rounded-xl bg-accent/30 px-3 py-2.5">
-              <MapPin size={16} className="text-primary" />
-              <div>
-                <p className="text-xs text-muted-foreground">Yakınında</p>
-                <p className="text-sm font-black text-foreground">{tasks.length} iş</p>
-              </div>
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="flex flex-1 items-center gap-2 rounded-xl bg-primary/5 px-3 py-2.5">
-              <Briefcase size={16} className="text-primary" />
-              <div>
-                <p className="text-xs text-muted-foreground">Oluşturduğun İşler</p>
-                <p className="text-sm font-black text-foreground">{tasks.length} iş</p>
-              </div>
-            </div>
-            <button
-              onClick={() => navigate("/create-task")}
-              className="flex flex-1 items-center gap-2 rounded-xl bg-primary/10 px-3 py-2.5 active:scale-[0.98]"
-            >
-              <Plus size={16} className="text-primary" />
-              <div>
-                <p className="text-xs text-muted-foreground">Yeni</p>
-                <p className="text-sm font-black text-primary">İş Oluştur</p>
-              </div>
-            </button>
-          </>
-        )}
+        <div className="flex flex-1 items-center gap-2 rounded-xl bg-primary/5 px-3 py-2.5">
+          <Zap size={16} className="text-primary" />
+          <div>
+            <p className="text-xs text-muted-foreground">Açık Çağrılar</p>
+            <p className="text-sm font-black text-foreground">{tasks.length} kişi</p>
+          </div>
+        </div>
+        <div className="flex flex-1 items-center gap-2 rounded-xl bg-accent/30 px-3 py-2.5">
+          <MapPin size={16} className="text-primary" />
+          <div>
+            <p className="text-xs text-muted-foreground">Yakınında</p>
+            <p className="text-sm font-black text-foreground">{tasks.length} çağrı</p>
+          </div>
+        </div>
       </div>
 
       {/* Task List */}
       <div className="flex-1 px-5">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-base font-black text-foreground">
-            {role === "tasker" ? "Yakındaki İşler" : "Oluşturduğun İşler"}
-          </h2>
+          <h2 className="text-base font-black text-foreground">Yakındaki Çağrılar</h2>
         </div>
         {loading ? (
           <div className="flex items-center justify-center py-10">
@@ -218,7 +180,7 @@ const Home = () => {
           </div>
         ) : tasks.length === 0 ? (
           <div className="flex flex-col items-center py-10">
-            <p className="text-sm text-muted-foreground">Henüz açık iş yok</p>
+            <p className="text-sm text-muted-foreground">Henüz açık çağrı yok</p>
           </div>
         ) : (
           <div className="space-y-3 pb-24">
