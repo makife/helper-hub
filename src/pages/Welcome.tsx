@@ -61,7 +61,7 @@ const Welcome = () => {
           onClick={() => navigate("/onboarding")}
           className="gradient-warm w-full rounded-2xl px-6 py-4 text-lg font-bold text-primary-foreground shadow-soft transition-transform active:scale-[0.98]"
         >
-          Başlayalım 🤝
+          Başlayalım
         </button>
 
         <button
