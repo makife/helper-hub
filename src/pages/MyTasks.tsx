@@ -14,6 +14,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import type { Tables } from "@/integrations/supabase/types";
 import { computePrice, formatCountdown } from "@/lib/dynamicPricing";
 import { getTaskEmoji } from "@/lib/taskCategories";
+import { leaveTask } from "@/lib/assignments";
+import { toast } from "sonner";
+
 
 const statusLabels: Record<string, { label: string; color: string }> = {
   open: { label: "Açık", color: "text-primary" },
