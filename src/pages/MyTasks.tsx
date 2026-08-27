@@ -212,6 +212,11 @@ const MyTasks = () => {
   const [loading, setLoading] = useState(true);
   const [selectedTask, setSelectedTask] = useState<Tables<"tasks"> | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [confirmState, setConfirmState] = useState<
+    | { kind: "leave" | "cancel"; taskId: string; title: string; description: string; confirmLabel: string }
+    | null
+  >(null);
+
   const [viewCounts, setViewCounts] = useState<Record<string, number>>({});
   const [viewers, setViewers] = useState<{ id: string; full_name: string; avatar_url: string | null; viewed_at: string }[]>([]);
   const [, setPriceTick] = useState(0);
