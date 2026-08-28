@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import ReviewDialog from "@/components/ReviewDialog";
 import { usePendingReviews } from "@/hooks/usePendingReviews";
+import TaskTimeline from "@/components/TaskTimeline";
 import {
   taskStatusLabels as statusLabels,
   isClosedStatus,
@@ -227,6 +228,7 @@ const MyTasks = () => {
 
   const [viewCounts, setViewCounts] = useState<Record<string, number>>({});
   const [viewers, setViewers] = useState<{ id: string; full_name: string; avatar_url: string | null; viewed_at: string }[]>([]);
+  const [ownedArrivals, setOwnedArrivals] = useState<Record<string, string | null>>({});
   const [, setPriceTick] = useState(0);
 
   useEffect(() => {
@@ -257,6 +259,19 @@ const MyTasks = () => {
       const counts: Record<string, number> = {};
       (views || []).forEach((v) => { counts[v.task_id] = (counts[v.task_id] || 0) + 1; });
       setViewCounts(counts);
+
+      const { data: assigns } = await supabase
+        .from("task_assignments")
+        .select("task_id, arrived_at")
+        .in("task_id", ownedIds)
+        .eq("status", "accepted");
+      const arrivals: Record<string, string | null> = {};
+      (assigns || []).forEach((a) => {
+        if (!arrivals[a.task_id] || (a.arrived_at && a.arrived_at < (arrivals[a.task_id] as string))) {
+          arrivals[a.task_id] = a.arrived_at;
+        }
+      });
+      setOwnedArrivals(arrivals);
     }
   };
 
@@ -496,6 +511,14 @@ const MyTasks = () => {
                         <span className="text-[10px] text-muted-foreground">Anlaşılan</span>
                       </div>
                     </div>
+
+                    <div className="mt-3 rounded-xl bg-muted/40 p-3">
+                      <p className="text-[10px] font-black uppercase tracking-wide text-muted-foreground">
+                        İş Akışı
+                      </p>
+                      <TaskTimeline task={t} arrivedAt={item.arrived_at} />
+                    </div>
+
                     {t.status === "pending_confirm" && (
                       <p className="mt-3 rounded-xl bg-muted/60 p-2.5 text-xs font-semibold text-muted-foreground">
                         {isMyCompletionRequest
@@ -587,15 +610,18 @@ const MyTasks = () => {
 
             {tasks.map((task, i) => {
               const status = statusLabels[task.status] || statusLabels.open;
+              const isFaded = isClosedStatus(task.status);
 
               return (
                 <motion.div
                   key={task.id}
                   initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
+                  animate={{ y: 0, opacity: isFaded ? 0.5 : 1 }}
                   transition={{ delay: i * 0.05 }}
                   onClick={() => setSelectedTask(task)}
-                  className="flex cursor-pointer items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-card hover:bg-muted/50 transition-colors"
+                  className={`flex cursor-pointer items-center gap-3 rounded-2xl border border-border p-4 shadow-card transition-colors ${
+                    isFaded ? "bg-muted/40 grayscale hover:opacity-80" : "bg-card hover:bg-muted/50"
+                  }`}
                 >
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted text-2xl">
                     {getTaskEmoji(task.category, task.subcategory, task.title)}
@@ -713,6 +739,14 @@ const MyTasks = () => {
                     {formatElapsed(selectedTask.created_at, Date.now())}
                   </span>
                 </div>
+
+                {/* İş akışı zaman çizelgesi */}
+                <div className="border-t pt-2">
+                  <span className="text-muted-foreground text-xs font-semibold">İş Akışı:</span>
+                  <TaskTimeline task={selectedTask} arrivedAt={ownedArrivals[selectedTask.id]} />
+                </div>
+
+
 
                 {/* Görüntüleyenler (sadece iş veren) */}
                 {selectedTask.owner_id === user?.id && (
