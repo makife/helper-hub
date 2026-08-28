@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "170480992927",
+    "project_id": "bielat-1c00a",
+    "storage_bucket": "bielat-1c00a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:170480992927:android:db62a906b0809bf161d8aa",
+        "android_client_info": {
+          "package_name": "com.ergan.bielat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "170480992927-9h9fana5ctkvim4bcncrv65rgnkj5tpa.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ergan.bielat",
+            "certificate_hash": "b636a79da9d607e05ee6356112b55255932737ac"
+          }
+        },
+        {
+          "client_id": "170480992927-atlomu65ucoqmm8htskmh28gh0ajttdg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDp0B9HBGcAoiSkuUHN4RpsHdP_hB4GDEM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "170480992927-atlomu65ucoqmm8htskmh28gh0ajttdg.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "170480992927-9536qsa2g1snclflt6jkfd1p5tr640et.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.ergan.bielat"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
