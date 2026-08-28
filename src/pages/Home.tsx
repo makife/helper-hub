@@ -143,7 +143,7 @@ const Home = () => {
       supabase.removeChannel(channel);
       supabase.removeChannel(assignmentChannel);
     };
-  }, [user]);
+  }, [user, userPos]);
 
 
   // Canlı fiyat düşüşü: her 15 sn'de bir yeniden hesapla, değişince DB'ye yaz (sadece iş sahibi)
