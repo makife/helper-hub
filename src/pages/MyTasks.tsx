@@ -511,15 +511,39 @@ const MyTasks = () => {
                         >
                           İşi Aç 💬
                         </button>
-                        <button
-                          onClick={() => handleRequestCompletion(t.id)}
-                          disabled={isUpdating}
-                          className="flex-1 rounded-xl bg-accent py-2.5 text-xs font-bold text-accent-foreground disabled:opacity-50"
-                        >
-                          <CheckCircle2 size={14} className="mr-1 inline" /> Bitirdim
-                        </button>
+                        {!item.arrived_at ? (
+                          <button
+                            onClick={() => handleMarkArrival(item)}
+                            disabled={isUpdating}
+                            className="flex-1 rounded-xl bg-accent py-2.5 text-xs font-bold text-accent-foreground disabled:opacity-50"
+                          >
+                            <User size={14} className="mr-1 inline" /> Vardım
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleRequestCompletion(t.id)}
+                            disabled={isUpdating || (completionUnlockMs(item.arrived_at, t.estimated_minutes) ?? 0) > 0}
+                            className="flex-1 rounded-xl bg-accent py-2.5 text-xs font-bold text-accent-foreground disabled:opacity-50"
+                          >
+                            <CheckCircle2 size={14} className="mr-1 inline" />
+                            {(completionUnlockMs(item.arrived_at, t.estimated_minutes) ?? 0) > 0
+                              ? formatRemaining(completionUnlockMs(item.arrived_at, t.estimated_minutes) ?? 0)
+                              : "Bitirdim"}
+                          </button>
+                        )}
                       </div>
                     )}
+                    {!isDone && t.status !== "pending_confirm" && !item.arrived_at && (
+                      <p className="mt-2 text-[10px] text-muted-foreground">
+                        İş konumuna 300 m yaklaşınca "Vardım" de; "Bitirdim" bundan sonra açılır.
+                      </p>
+                    )}
+                    {t.rejection_count ? (
+                      <p className="mt-2 rounded-xl bg-destructive/10 p-2 text-[10px] font-semibold text-destructive">
+                        İş veren itiraz etti ({t.rejection_count}/2). Tamamlayıp tekrar bildir.
+                      </p>
+                    ) : null}
+
                     {!isDone && t.status === "pending_confirm" && !isMyCompletionRequest && (
                       <button
                         onClick={() => handleConfirmCompletion(t.id)}
