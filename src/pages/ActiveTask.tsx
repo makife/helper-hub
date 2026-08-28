@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import RouteMap from "@/components/RouteMap";
 import type { Tables } from "@/integrations/supabase/types";
 import { getTaskEmoji } from "@/lib/taskCategories";
-import { confirmCompletion, confirmDeadlineMs, formatRemaining, requestCompletion, taskStatusLabels } from "@/lib/taskLifecycle";
+import { confirmCompletion, confirmDeadlineMs, formatRemaining, requestCompletion, rejectCompletion, markArrival, completionUnlockMs, taskStatusLabels } from "@/lib/taskLifecycle";
 
 type TaskerEntry = { tasker_id: string; profile: Tables<"profiles"> | null };
 
