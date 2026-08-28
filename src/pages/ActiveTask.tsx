@@ -287,39 +287,84 @@ const ActiveTask = () => {
 
         {/* Completion actions */}
         {task.status === "pending_confirm" && isOwner && (
-          <button
-            onClick={async () => {
-              const ok = await confirmCompletion(task.id);
-              if (ok) {
-                setTask((current) => current ? { ...current, status: "completed", completed_at: new Date().toISOString() } : current);
-                toast.success("Yardım çağrısı tamamlandı.");
-              } else toast.error("İş tamamlanamadı, tekrar dene.");
-            }}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 font-bold text-primary-foreground shadow-soft"
-          >
-            <CheckCircle2 size={18} /> İşi Onayla ve Tamamla
-          </button>
+          <div className="space-y-2">
+            <button
+              onClick={async () => {
+                const ok = await confirmCompletion(task.id);
+                if (ok) {
+                  setTask((current) => current ? { ...current, status: "completed", completed_at: new Date().toISOString() } : current);
+                  toast.success("Yardım çağrısı tamamlandı.");
+                } else toast.error("İş tamamlanamadı, tekrar dene.");
+              }}
+              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 font-bold text-primary-foreground shadow-soft"
+            >
+              <CheckCircle2 size={18} /> İşi Onayla ve Tamamla
+            </button>
+            <button
+              onClick={() => setRejectOpen(true)}
+              className="flex w-full items-center justify-center gap-2 rounded-2xl border border-destructive/40 px-4 py-3 text-sm font-bold text-destructive"
+            >
+              <XCircle size={18} /> İş Yapılmadı
+            </button>
+            <p className="text-center text-[11px] text-muted-foreground">
+              {(task.rejection_count ?? 0) >= 1
+                ? "İkinci itirazın anlaşmazlık olarak tarafsız kurallarla sonuçlanır."
+                : "İtiraz edersen el atan kişi işi tamamlayıp tekrar bildirebilir."}
+            </p>
+          </div>
         )}
-        {task.status !== "completed" && task.status !== "cancelled" && task.status !== "expired" && isTasker && task.status !== "pending_confirm" && (
-          <button
-            onClick={async () => {
-              if (!user) return;
-              const ok = await requestCompletion(task.id, user.id);
-              if (ok) {
-                setTask((current) => current ? { ...current, status: "pending_confirm", completion_requested_at: new Date().toISOString(), completion_requested_by: user.id } : current);
-                toast.success("İş verene onay isteği gönderildi.");
-              } else toast.error("İş tamamlanma isteği gönderilemedi.");
-            }}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-accent px-4 py-3 font-bold text-accent-foreground"
-          >
-            <CheckCircle2 size={18} /> İşi Bitirdim
-          </button>
+
+        {/* Tasker: varış kaydı + bitirdim */}
+        {isTasker && !["completed", "cancelled", "expired", "disputed", "pending_confirm"].includes(task.status) && (
+          <div className="space-y-2">
+            {!myArrivedAt ? (
+              <button
+                disabled={arriving}
+                onClick={async () => {
+                  setArriving(true);
+                  const res = await markArrival(task.id, task.latitude, task.longitude);
+                  setArriving(false);
+                  if (res.ok) {
+                    setMyArrivedAt(new Date().toISOString());
+                    toast.success(res.message);
+                  } else toast.error(res.message);
+                }}
+                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-accent px-4 py-3 font-bold text-accent-foreground disabled:opacity-50"
+              >
+                <MapPin size={18} /> {arriving ? "Konum kontrol ediliyor..." : "Vardım (Konumumu Doğrula)"}
+              </button>
+            ) : (
+              <button
+                disabled={(completionUnlockMs(myArrivedAt, task.estimated_minutes) ?? 1) > 0}
+                onClick={async () => {
+                  const res = await requestCompletion(task.id);
+                  if (res.ok) {
+                    setTask((current) => current ? { ...current, status: "pending_confirm", completion_requested_at: new Date().toISOString(), completion_requested_by: user!.id } : current);
+                    toast.success(res.message);
+                  } else toast.error(res.message);
+                }}
+                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-accent px-4 py-3 font-bold text-accent-foreground disabled:opacity-50"
+              >
+                <CheckCircle2 size={18} />
+                {(completionUnlockMs(myArrivedAt, task.estimated_minutes) ?? 0) > 0
+                  ? `İşi Bitirdim · ${formatRemaining(completionUnlockMs(myArrivedAt, task.estimated_minutes) ?? 0)} sonra`
+                  : "İşi Bitirdim"}
+              </button>
+            )}
+            <p className="text-center text-[11px] text-muted-foreground">
+              {myArrivedAt
+                ? "Varışın kayıtlı. İtiraz olursa bu kayıt seni korur."
+                : "İş konumuna 300 m yaklaşınca varışını kaydet — bitirdim butonu bundan sonra açılır."}
+            </p>
+          </div>
         )}
+
         {task.status === "pending_confirm" && isTasker && (
           <p className="rounded-2xl bg-muted px-4 py-3 text-center text-xs font-semibold text-muted-foreground">
             Onay bekleniyor · {formatRemaining(confirmDeadlineMs(task.completion_requested_at))}
           </p>
         )}
+
 
         {/* Route button */}
         <button
