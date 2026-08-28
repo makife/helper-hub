@@ -7,8 +7,8 @@ import {
   Bike, Paintbrush, Utensils, Scissors, Car, Dog, Shirt, Tv, Wifi, Smartphone, 
   Plug, Cat, Hospital, Sprout, BatteryCharging, HeartHandshake, UserCheck, 
   Baby, BookOpen, MessageSquare, Guitar, Camera, PartyPopper, UtensilsCrossed, 
-  Hourglass, WashingMachine, Snowflake, HelpCircle, ShoppingCart, Eye, Timer, User
-} from "lucide-react";
+  Hourglass, WashingMachine, Snowflake, HelpCircle, ShoppingCart, Eye, Timer, User, CheckCircle2
+ } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Tables } from "@/integrations/supabase/types";
@@ -17,15 +17,17 @@ import { getTaskEmoji } from "@/lib/taskCategories";
 import { leaveTask } from "@/lib/assignments";
 import { toast } from "sonner";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import ReviewDialog from "@/components/ReviewDialog";
+import { usePendingReviews } from "@/hooks/usePendingReviews";
+import {
+  taskStatusLabels as statusLabels,
+  isClosedStatus,
+  requestCompletion,
+  confirmCompletion,
+  confirmDeadlineMs,
+  formatRemaining,
+} from "@/lib/taskLifecycle";
 
-
-const statusLabels: Record<string, { label: string; color: string }> = {
-  open: { label: "Açık", color: "text-primary" },
-  matched: { label: "Eşleşti", color: "text-accent" },
-  in_progress: { label: "Devam Ediyor", color: "text-primary" },
-  completed: { label: "Tamamlandı", color: "text-green-600" },
-  cancelled: { label: "İptal Edildi", color: "text-destructive" },
-};
 
 export const SUB_CATEGORIES = [
   { id: "ampul_takma", emoji: "💡", label: "Ampul Takma", baseEnum: "ampul_takma" },
@@ -217,6 +219,7 @@ const MyTasks = () => {
     | { kind: "leave" | "cancel"; taskId: string; title: string; description: string; confirmLabel: string }
     | null
   >(null);
+  const { pending: pendingReviews, refresh: refreshPendingReviews } = usePendingReviews();
 
   const [viewCounts, setViewCounts] = useState<Record<string, number>>({});
   const [viewers, setViewers] = useState<{ id: string; full_name: string; avatar_url: string | null; viewed_at: string }[]>([]);
@@ -287,7 +290,8 @@ const MyTasks = () => {
   useEffect(() => {
     fetchTasks();
     fetchAccepted();
-  }, [user]);
+    refreshPendingReviews();
+  }, [user, refreshPendingReviews]);
 
   const handleLeave = async (taskId: string) => {
     if (!user) return;
@@ -300,6 +304,33 @@ const MyTasks = () => {
       fetchAccepted();
     } else {
       toast.error("İşten ayrılamadın, tekrar dene.");
+    }
+  };
+
+  const handleRequestCompletion = async (taskId: string) => {
+    if (!user) return;
+    setIsUpdating(true);
+    const ok = await requestCompletion(taskId, user.id);
+    setIsUpdating(false);
+    if (ok) {
+      toast.success("İş verene onay isteği gönderildi.");
+      await fetchAccepted();
+    } else {
+      toast.error("İş tamamlanma isteği gönderilemedi.");
+    }
+  };
+
+  const handleConfirmCompletion = async (taskId: string) => {
+    setIsUpdating(true);
+    const ok = await confirmCompletion(taskId);
+    setIsUpdating(false);
+    if (ok) {
+      toast.success("Yardım çağrısı tamamlandı.");
+      setSelectedTask(null);
+      await fetchTasks();
+      refreshPendingReviews();
+    } else {
+      toast.error("İş tamamlanamadı, tekrar dene.");
     }
   };
 
@@ -399,7 +430,9 @@ const MyTasks = () => {
               {accepted.map((item, i) => {
                 const t = item.task;
                 const status = statusLabels[t.status] || statusLabels.open;
-                const isDone = t.status === "completed" || t.status === "cancelled";
+                const isDone = isClosedStatus(t.status);
+                const isMyCompletionRequest =
+                  t.status === "pending_confirm" && t.completion_requested_by === user?.id;
                 return (
                   <motion.div
                     key={item.assignment_id}
@@ -430,7 +463,14 @@ const MyTasks = () => {
                         <span className="text-[10px] text-muted-foreground">Anlaşılan</span>
                       </div>
                     </div>
-                    {!isDone && (
+                    {t.status === "pending_confirm" && (
+                      <p className="mt-3 rounded-xl bg-muted/60 p-2.5 text-xs font-semibold text-muted-foreground">
+                        {isMyCompletionRequest
+                          ? "İş verenden onay bekleniyor. 24 saat içinde otomatik tamamlanır."
+                          : `İşi tamamlamak için kalan süre: ${formatRemaining(confirmDeadlineMs(t.completion_requested_at))}`}
+                      </p>
+                    )}
+                    {!isDone && t.status !== "pending_confirm" && (
                       <div className="mt-3 flex gap-2">
                         <button
                           onClick={() => navigate(`/task/${t.id}`)}
@@ -439,22 +479,39 @@ const MyTasks = () => {
                           İşi Aç 💬
                         </button>
                         <button
+                          onClick={() => handleRequestCompletion(t.id)}
                           disabled={isUpdating}
-                          onClick={() =>
-                            setConfirmState({
-                              kind: "leave",
-                              taskId: t.id,
-                              title: "İşten ayrılmak üzeresin",
-                              description: "Bu yardım çağrısındaki yerini bırakacaksın. Emin misin?",
-                              confirmLabel: "Ayrıl",
-                            })
-                          }
-
-                          className="flex-1 rounded-xl border border-border py-2.5 text-xs font-bold text-muted-foreground disabled:opacity-50"
+                          className="flex-1 rounded-xl bg-accent py-2.5 text-xs font-bold text-accent-foreground disabled:opacity-50"
                         >
-                          İşten Ayrıl
+                          <CheckCircle2 size={14} className="mr-1 inline" /> Bitirdim
                         </button>
                       </div>
+                    )}
+                    {!isDone && t.status === "pending_confirm" && !isMyCompletionRequest && (
+                      <button
+                        onClick={() => handleConfirmCompletion(t.id)}
+                        disabled={isUpdating}
+                        className="mt-3 w-full rounded-xl bg-primary py-2.5 text-xs font-bold text-primary-foreground disabled:opacity-50"
+                      >
+                        <CheckCircle2 size={14} className="mr-1 inline" /> İşi Onayla ve Tamamla
+                      </button>
+                    )}
+                    {!isDone && t.status !== "pending_confirm" && (
+                      <button
+                        disabled={isUpdating}
+                        onClick={() =>
+                          setConfirmState({
+                            kind: "leave",
+                            taskId: t.id,
+                            title: "İşten ayrılmak üzeresin",
+                            description: "Bu yardım çağrısındaki yerini bırakacaksın. Emin misin?",
+                            confirmLabel: "Ayrıl",
+                          })
+                        }
+                        className="mt-2 w-full rounded-xl border border-border py-2.5 text-xs font-bold text-muted-foreground disabled:opacity-50"
+                      >
+                        İşten Ayrıl
+                      </button>
                     )}
                   </motion.div>
                 );
@@ -500,14 +557,17 @@ const MyTasks = () => {
                     <div className="mt-1 flex items-center gap-3 text-[10px] font-semibold text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <Timer size={11} className="text-primary" />
-                        {formatElapsed(task.created_at, Date.now())}
+                        {task.status === "open" ? `Yayında ${formatElapsed(task.created_at, Date.now())}` : ""}
                       </span>
-                      {task.owner_id === user?.id && (
+                      {task.status === "pending_confirm" && (
                         <span className="flex items-center gap-1">
-                          <Eye size={11} className="text-primary" />
-                          {viewCounts[task.id] || 0} görüntülenme
+                          Onay için {formatRemaining(confirmDeadlineMs(task.completion_requested_at))}
                         </span>
                       )}
+                      <span className="flex items-center gap-1">
+                        <Eye size={11} className="text-primary" />
+                        {viewCounts[task.id] || 0} görüntülenme
+                      </span>
                     </div>
                   </div>
 
@@ -620,8 +680,8 @@ const MyTasks = () => {
                                 <img src={v.avatar_url} alt="" className="h-full w-full object-cover" />
                               ) : (
                                 <User size={14} className="text-muted-foreground" />
-                              )}
-                            </div>
+                )}
+              </div>
                             <span className="flex-1 text-xs font-bold text-foreground truncate">{v.full_name}</span>
                             <span className="text-[10px] text-muted-foreground">
                               {new Date(v.viewed_at).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}
@@ -643,6 +703,16 @@ const MyTasks = () => {
               </div>
 
               <div className="flex gap-2 pt-3">
+                {selectedTask.status === "pending_confirm" && selectedTask.owner_id === user?.id && (
+                  <button
+                    onClick={() => handleConfirmCompletion(selectedTask.id)}
+                    disabled={isUpdating}
+                    className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground py-3 font-bold disabled:opacity-50"
+                  >
+                    <CheckCircle2 size={18} />
+                    İşi Onayla ve Tamamla
+                  </button>
+                )}
                 {selectedTask.status === "open" && selectedTask.owner_id === user?.id && (
                   <>
                     <button

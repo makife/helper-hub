@@ -1,12 +1,13 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Navigation, MessageCircle, Send, MapPin, User, Clock } from "lucide-react";
+import { ArrowLeft, Navigation, MessageCircle, Send, MapPin, User, Clock, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import RouteMap from "@/components/RouteMap";
 import type { Tables } from "@/integrations/supabase/types";
 import { getTaskEmoji } from "@/lib/taskCategories";
+import { confirmCompletion, confirmDeadlineMs, formatRemaining, requestCompletion, taskStatusLabels } from "@/lib/taskLifecycle";
 
 type TaskerEntry = { tasker_id: string; profile: Tables<"profiles"> | null };
 
@@ -189,13 +190,12 @@ const ActiveTask = () => {
         <button onClick={() => navigate("/home")} className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card">
           <ArrowLeft size={20} className="text-foreground" />
         </button>
-        <div className="flex-1">
-          <h1 className="text-base font-black text-foreground truncate">{task.title}</h1>
+        <div className="min-w-0 flex-1">
+          <h1 className="truncate text-base font-black text-foreground">{task.title}</h1>
           <p className="text-xs text-muted-foreground">
-            {task.status === "matched" ? "Eşleşti" : task.status === "in_progress" ? "Devam Ediyor" : task.status}
+            {taskStatusLabels[task.status]?.label || task.status}
             {needed > 1 && ` · 👥 ${taskers.length}/${needed} kişi`}
           </p>
-
         </div>
         <span className="text-lg font-black text-primary">{task.current_price || task.price} ₺</span>
       </div>
@@ -279,6 +279,42 @@ const ActiveTask = () => {
             </div>
           </div>
         </div>
+
+        {/* Completion actions */}
+        {task.status === "pending_confirm" && isOwner && (
+          <button
+            onClick={async () => {
+              const ok = await confirmCompletion(task.id);
+              if (ok) {
+                setTask((current) => current ? { ...current, status: "completed", completed_at: new Date().toISOString() } : current);
+                toast.success("Yardım çağrısı tamamlandı.");
+              } else toast.error("İş tamamlanamadı, tekrar dene.");
+            }}
+            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 font-bold text-primary-foreground shadow-soft"
+          >
+            <CheckCircle2 size={18} /> İşi Onayla ve Tamamla
+          </button>
+        )}
+        {task.status !== "completed" && task.status !== "cancelled" && task.status !== "expired" && isTasker && task.status !== "pending_confirm" && (
+          <button
+            onClick={async () => {
+              if (!user) return;
+              const ok = await requestCompletion(task.id, user.id);
+              if (ok) {
+                setTask((current) => current ? { ...current, status: "pending_confirm", completion_requested_at: new Date().toISOString(), completion_requested_by: user.id } : current);
+                toast.success("İş verene onay isteği gönderildi.");
+              } else toast.error("İş tamamlanma isteği gönderilemedi.");
+            }}
+            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-accent px-4 py-3 font-bold text-accent-foreground"
+          >
+            <CheckCircle2 size={18} /> İşi Bitirdim
+          </button>
+        )}
+        {task.status === "pending_confirm" && isTasker && (
+          <p className="rounded-2xl bg-muted px-4 py-3 text-center text-xs font-semibold text-muted-foreground">
+            Onay bekleniyor · {formatRemaining(confirmDeadlineMs(task.completion_requested_at))}
+          </p>
+        )}
 
         {/* Route button */}
         <button
