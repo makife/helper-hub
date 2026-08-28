@@ -234,7 +234,7 @@ const CreateTask = () => {
         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
           <div className="mb-2 flex items-center justify-between">
             <label className="text-sm font-semibold text-foreground">
-              Kategori * {!isCustomCategory && <span className="text-xs text-muted-foreground">({categories.length} Seçenek)</span>}
+              Kategori * {!isCustomCategory && <span className="text-xs text-muted-foreground"></span>}
             </label>
             <button
               type="button"
