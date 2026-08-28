@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import onboarding1 from "@/assets/onboarding-1.png";
 import onboarding2 from "@/assets/onboarding-2.png";
 import onboarding3 from "@/assets/onboarding-3.png";
