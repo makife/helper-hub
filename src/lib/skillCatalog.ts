@@ -339,12 +339,12 @@ export const ALL_SKILLS: string[] = SKILL_GROUPS.flatMap((g) => g.skills);
 const normalize = (value: string) =>
   value
     .toLocaleLowerCase("tr-TR")
-    .replaceAll("ı", "i")
-    .replaceAll("ş", "s")
-    .replaceAll("ğ", "g")
-    .replaceAll("ü", "u")
-    .replaceAll("ö", "o")
-    .replaceAll("ç", "c")
+    .replace(/ı/g, "i")
+    .replace(/ş/g, "s")
+    .replace(/ğ/g, "g")
+    .replace(/ü/g, "u")
+    .replace(/ö/g, "o")
+    .replace(/ç/g, "c")
     .trim();
 
 export const searchSkills = (query: string): SkillGroup[] => {

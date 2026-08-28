@@ -18,23 +18,23 @@ import {
   ShoppingBag,
   X,
   Check,
+  Search,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Tables } from "@/integrations/supabase/types";
 import { toast } from "sonner";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import { ALL_SKILLS, searchSkills } from "@/lib/skillCatalog";
 
-const SKILLS = [
-  { id: "ampul_takma" as const, label: "💡 Ampul Takma" },
-  { id: "perde_asma" as const, label: "🪟 Perde Asma" },
-  { id: "mobilya_monte" as const, label: "🪑 Mobilya Monte" },
-  { id: "duvar_tamir" as const, label: "🔨 Duvar Tamir" },
-  { id: "kucuk_tamir" as const, label: "🔧 Küçük Tamir" },
-  { id: "tasima_yardimi" as const, label: "📦 Taşıma Yardımı" },
-];
-
-type SkillId = (typeof SKILLS)[number]["id"];
+const LEGACY_SKILL_LABELS: Record<string, string> = {
+  ampul_takma: "Ampul takma",
+  perde_asma: "Perde asma",
+  mobilya_monte: "Mobilya montajı",
+  duvar_tamir: "Duvar tamiri",
+  kucuk_tamir: "Küçük tamir",
+  tasima_yardimi: "Taşıma yardımı",
+};
 type Credential = Tables<"credentials">;
 type ReviewRow = Tables<"reviews"> & { reviewer?: { full_name: string; avatar_url: string | null } | null };
 
@@ -50,7 +50,8 @@ const Profile = () => {
   const [name, setName] = useState("");
   const [profession, setProfession] = useState("");
   const [bio, setBio] = useState("");
-  const [skills, setSkills] = useState<SkillId[]>([]);
+  const [skillTags, setSkillTags] = useState<string[]>([]);
+  const [skillQuery, setSkillQuery] = useState("");
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarSheetOpen, setAvatarSheetOpen] = useState(false);
 
@@ -94,7 +95,8 @@ const Profile = () => {
       setName(p.full_name || "");
       setProfession(p.profession || "");
       setBio(p.bio || "");
-      setSkills((p.skills || []) as SkillId[]);
+      const savedTags = p.skill_tags || [];
+      setSkillTags(savedTags.length ? savedTags : (p.skills || []).map((skill) => LEGACY_SKILL_LABELS[skill] || skill));
     }
     setLoading(false);
   }, [user]);
@@ -157,7 +159,7 @@ const Profile = () => {
         full_name: name.trim(),
         profession: profession.trim() || null,
         bio: bio.trim() || null,
-        skills: skills as Tables<"profiles">["skills"],
+        skill_tags: skillTags,
       })
       .eq("user_id", user.id);
     setSaving(false);
@@ -167,11 +169,17 @@ const Profile = () => {
     }
     setProfile((prev) =>
       prev
-        ? { ...prev, full_name: name.trim(), profession: profession.trim() || null, bio: bio.trim() || null, skills: skills as Tables<"profiles">["skills"] }
+        ? { ...prev, full_name: name.trim(), profession: profession.trim() || null, bio: bio.trim() || null, skill_tags: skillTags }
         : prev
     );
     setEditing(false);
     toast.success("Profil güncellendi ✓");
+  };
+
+  const filteredSkillGroups = searchSkills(skillQuery);
+
+  const toggleSkill = (skill: string) => {
+    setSkillTags((prev) => (prev.includes(skill) ? prev.filter((item) => item !== skill) : [...prev, skill]));
   };
 
   const saveCredential = async () => {
@@ -459,15 +467,15 @@ const Profile = () => {
                   <p className="mt-1 text-sm text-foreground">{profile.bio}</p>
                 </div>
               )}
-              {(profile?.skill_tags?.length ?? 0) > 0 && (
+              {((profile?.skill_tags?.length ?? 0) > 0 || (profile?.skills?.length ?? 0) > 0) && (
                 <div className="mb-5 rounded-xl bg-card p-4 shadow-card">
                   <p className="mb-2 text-xs font-semibold text-muted-foreground">
-                    Becerilerim ({profile?.skill_tags?.length})
+                    Becerilerim ({profile?.skill_tags?.length || profile?.skills?.length})
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    {(profile?.skill_tags || []).map((s) => (
-                      <span key={s} className="rounded-full bg-muted px-3 py-1.5 text-xs font-bold text-foreground">
-                        {s}
+                    {(profile?.skill_tags?.length ? profile.skill_tags : (profile?.skills || []).map((skill) => LEGACY_SKILL_LABELS[skill] || skill)).map((skill) => (
+                      <span key={skill} className="rounded-full bg-muted px-3 py-1.5 text-xs font-bold text-foreground">
+                        {skill}
                       </span>
                     ))}
                   </div>
