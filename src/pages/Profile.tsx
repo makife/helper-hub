@@ -362,8 +362,8 @@ const Profile = () => {
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-xs font-bold text-muted-foreground">Becerilerim</label>
-                <div className="flex flex-wrap gap-2">
+                <label className="mb-2 block text-xs font-bold text-muted-foreground">Becerilerim</label>
+                <div className="grid grid-cols-2 gap-2.5">
                   {SKILLS.map((s) => {
                     const active = skills.includes(s.id);
                     return (
@@ -373,10 +373,11 @@ const Profile = () => {
                         onClick={() =>
                           setSkills((prev) => (active ? prev.filter((x) => x !== s.id) : [...prev, s.id]))
                         }
-                        className={`rounded-full px-3 py-2 text-xs font-bold transition-all ${
-                          active ? "gradient-warm text-primary-foreground" : "border border-border bg-background text-foreground"
+                        className={`flex items-center justify-center gap-2 rounded-xl px-3 py-3.5 text-sm font-bold transition-all active:scale-[0.98] ${
+                          active ? "gradient-warm text-primary-foreground shadow-soft" : "border-2 border-border bg-background text-foreground"
                         }`}
                       >
+                        <span className={`h-2.5 w-2.5 rounded-full ${active ? "bg-white/80" : "bg-muted"}`} />
                         {s.label}
                       </button>
                     );
