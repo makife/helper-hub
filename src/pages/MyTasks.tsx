@@ -259,6 +259,19 @@ const MyTasks = () => {
       const counts: Record<string, number> = {};
       (views || []).forEach((v) => { counts[v.task_id] = (counts[v.task_id] || 0) + 1; });
       setViewCounts(counts);
+
+      const { data: assigns } = await supabase
+        .from("task_assignments")
+        .select("task_id, arrived_at")
+        .in("task_id", ownedIds)
+        .eq("status", "accepted");
+      const arrivals: Record<string, string | null> = {};
+      (assigns || []).forEach((a) => {
+        if (!arrivals[a.task_id] || (a.arrived_at && a.arrived_at < (arrivals[a.task_id] as string))) {
+          arrivals[a.task_id] = a.arrived_at;
+        }
+      });
+      setOwnedArrivals(arrivals);
     }
   };
 
