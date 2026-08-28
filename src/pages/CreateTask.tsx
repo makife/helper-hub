@@ -272,14 +272,16 @@ const CreateTask = () => {
                   key={cat.id}
                   type="button"
                   onClick={() => setSelectedCategoryId(cat.id)}
-                  className={`flex flex-col items-center justify-center gap-1 rounded-xl p-3 text-center transition-all active:scale-95 ${
+                  className={`flex min-h-[88px] flex-col items-center justify-center gap-1 rounded-xl p-2.5 text-center transition-all active:scale-95 ${
                     selectedCategoryId === cat.id
                       ? "gradient-warm text-primary-foreground shadow-soft"
                       : "border border-border bg-card text-foreground"
                   }`}
                 >
                   <span className="text-2xl">{cat.emoji}</span>
-                  <span className="text-xs font-bold line-clamp-1">{cat.label}</span>
+                  <span className="text-[11px] font-bold leading-tight whitespace-normal break-words text-center line-clamp-2">
+                    {cat.label}
+                  </span>
                 </button>
               ))}
             </div>
