@@ -6,6 +6,7 @@ import { lovable } from "@/integrations/lovable";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { isNativePlatform, signInNativeOAuth } from "@/lib/nativeAuth";
 import logo from "@/assets/logo.png";
 
 const getPlatform = () => {
@@ -41,6 +42,13 @@ const Login = () => {
   const signIn = async (provider: "google" | "apple") => {
     setPending(provider);
     try {
+      if (isNativePlatform()) {
+        // Native APK: giriş sistem tarayıcısında açılır, deep-link ile geri dönülür.
+        // appUrlOpen dinleyicisi (App.tsx) oturumu kurunca pending AuthCallback üzerinden çözülür.
+        await signInNativeOAuth(provider);
+        setPending(null);
+        return;
+      }
       const { error } = await lovable.auth.signInWithOAuth(provider, {
         redirect_uri: `${window.location.origin}/login`,
       });
