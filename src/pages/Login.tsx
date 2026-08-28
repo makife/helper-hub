@@ -69,15 +69,15 @@ const Login = () => {
 
   return (
     <div className="flex min-h-screen flex-col bg-background px-6 pb-8 pt-12 safe-top safe-bottom">
-      <motion.button
-        initial={{ x: -20, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        onClick={() => navigate(-1)}
-        className="mb-8 flex items-center gap-2 text-sm font-semibold text-muted-foreground"
-      >
-        <ArrowLeft size={20} />
-        Geri
-      </motion.button>
+      <div className="mb-2 mt-2 flex h-10 items-center">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex h-10 w-20 items-center justify-center gap-1 rounded-full p-0 text-sm font-bold leading-none text-foreground transition-all active:scale-[0.98]"
+        >
+          <ChevronLeft size={18} className="text-primary" />
+          <span className="leading-none">Geri</span>
+        </button>
+      </div>
 
       <motion.div
         initial={{ y: 20, opacity: 0 }}
