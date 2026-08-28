@@ -220,7 +220,7 @@ const MyTasks = () => {
   const [selectedTask, setSelectedTask] = useState<Tables<"tasks"> | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
   const [confirmState, setConfirmState] = useState<
-    | { kind: "leave" | "cancel"; taskId: string; title: string; description: string; confirmLabel: string }
+    | { kind: "leave" | "cancel" | "reject"; taskId: string; title: string; description: string; confirmLabel: string }
     | null
   >(null);
   const { pending: pendingReviews, refresh: refreshPendingReviews } = usePendingReviews();
