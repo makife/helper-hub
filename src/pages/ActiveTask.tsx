@@ -426,7 +426,69 @@ const ActiveTask = () => {
           </button>
         </div>
       </div>
+
+      {/* İtiraz penceresi */}
+      <AnimatePresence>
+        {rejectOpen && (
+          <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/60 p-5">
+            <motion.div
+              initial={{ scale: 0.94, opacity: 0, y: 16 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.94, opacity: 0, y: 16 }}
+              className="w-full max-w-sm rounded-3xl border border-border bg-card p-6 shadow-xl"
+            >
+              <h2 className="text-lg font-black text-foreground">İş yapılmadı mı?</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {(task.rejection_count ?? 0) >= 1
+                  ? "Bu ikinci itirazın. Anlaşmazlık olarak değerlendirilecek ve varış kaydına göre tarafsız sonuçlandırılacak."
+                  : "El atan kişiye bildirilecek ve işi tamamlayıp tekrar bildirebilecek. Haksız itirazlar sicilinize işlenir."}
+              </p>
+              <textarea
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                maxLength={300}
+                rows={3}
+                placeholder="Nedenini kısaca yaz"
+                className="mt-4 w-full resize-none rounded-2xl border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+              />
+              <div className="mt-4 flex gap-2">
+                <button
+                  onClick={() => setRejectOpen(false)}
+                  className="flex-1 rounded-2xl border border-border py-3 text-sm font-bold text-muted-foreground"
+                >
+                  Vazgeç
+                </button>
+                <button
+                  onClick={async () => {
+                    const res = await rejectCompletion(task.id, rejectReason.trim() || undefined);
+                    setRejectOpen(false);
+                    setRejectReason("");
+                    if (res.ok) {
+                      toast.success(res.message);
+                      setTask((current) =>
+                        current
+                          ? {
+                              ...current,
+                              status: res.code === "disputed" ? "cancelled" : "in_progress",
+                              rejection_count: (current.rejection_count ?? 0) + 1,
+                              completion_requested_at: null,
+                              completion_requested_by: null,
+                            }
+                          : current
+                      );
+                    } else toast.error(res.message);
+                  }}
+                  className="flex-1 rounded-2xl bg-destructive py-3 text-sm font-bold text-destructive-foreground"
+                >
+                  İtiraz Et
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
+
   );
 };
 
