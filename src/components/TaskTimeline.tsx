@@ -64,7 +64,7 @@ export const buildTaskSteps = (
   }
 
   if (task.status === "pending_confirm") {
-    steps.push({ label: "İş verenin onayı bekleniyor" });
+    steps.push({ label: "El atan bitirdiğini belirtti, sizden onay bekliyor" });
   }
 
   if (task.disputed_at) {
