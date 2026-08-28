@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { initRevenueCat, logOutRevenueCat } from "@/lib/revenuecat";
+
 
 type AuthContextType = {
   user: User | null;
@@ -29,6 +31,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+        if (session?.user) void initRevenueCat(session.user.id);
       }
     );
 
@@ -36,14 +39,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+      if (session?.user) void initRevenueCat(session.user.id);
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
   const signOut = async () => {
+    await logOutRevenueCat();
     await supabase.auth.signOut();
   };
+
 
   return (
     <AuthContext.Provider value={{ user, session, loading, signOut }}>
