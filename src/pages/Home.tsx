@@ -15,6 +15,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import { getTaskEmoji } from "@/lib/taskCategories";
 import { computePrice } from "@/lib/dynamicPricing";
 import { fetchAssignmentCounts } from "@/lib/assignments";
+import { distanceMeters } from "@/lib/taskLifecycle";
 
 
 type TaskWithUI = Tables<"tasks"> & {
