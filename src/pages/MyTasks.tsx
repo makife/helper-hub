@@ -511,6 +511,14 @@ const MyTasks = () => {
                         <span className="text-[10px] text-muted-foreground">Anlaşılan</span>
                       </div>
                     </div>
+
+                    <div className="mt-3 rounded-xl bg-muted/40 p-3">
+                      <p className="text-[10px] font-black uppercase tracking-wide text-muted-foreground">
+                        İş Akışı
+                      </p>
+                      <TaskTimeline task={t} arrivedAt={item.arrived_at} />
+                    </div>
+
                     {t.status === "pending_confirm" && (
                       <p className="mt-3 rounded-xl bg-muted/60 p-2.5 text-xs font-semibold text-muted-foreground">
                         {isMyCompletionRequest
