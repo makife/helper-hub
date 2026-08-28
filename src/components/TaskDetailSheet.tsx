@@ -160,7 +160,7 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
         {/* Owner Profile */}
         {owner && (
           <button
-            onClick={() => { onClose(); navigate(`/profile/${owner.user_id}`); }}
+            onClick={() => navigate(`/profile/${owner.user_id}`)}
             className="mb-4 flex w-full items-center gap-3 rounded-xl bg-muted/50 p-3 text-left transition-all active:scale-[0.98]"
           >
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">

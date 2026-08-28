@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Zap, MapPin, Bell } from "lucide-react";
 import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
 import TaskMap from "@/components/TaskMap";
@@ -29,6 +29,7 @@ const Home = () => {
   const [ownerNames, setOwnerNames] = useState<Record<string, string>>({});
   const [fillCounts, setFillCounts] = useState<Record<string, number>>({});
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const unreadMessages = useUnreadNotifications();
   const { user } = useAuth();
   const { pending: pendingReviews, refresh: refreshPendingReviews } = usePendingReviews();
@@ -147,8 +148,22 @@ const Home = () => {
 
   const handleTaskClick = (task: { id: string }) => {
     const matched = tasks.find((t) => t.id === task.id);
-    if (matched) setSelectedTask(matched);
+    if (matched) {
+      setSelectedTask(matched);
+      setSearchParams({ task: matched.id });
+    }
   };
+
+  // URL'deki ?task= parametresine göre detay sayfasını aç/kapat
+  useEffect(() => {
+    const taskId = searchParams.get("task");
+    if (!taskId) {
+      setSelectedTask(null);
+      return;
+    }
+    const matched = tasks.find((t) => t.id === taskId);
+    if (matched) setSelectedTask(matched);
+  }, [searchParams, tasks]);
 
   const mapPins = tasks.map((t) => ({
     id: t.id,
@@ -224,7 +239,10 @@ const Home = () => {
         {selectedTask && (
           <TaskDetailSheet
             task={selectedTask}
-            onClose={() => setSelectedTask(null)}
+            onClose={() => {
+              setSelectedTask(null);
+              setSearchParams({});
+            }}
           />
         )}
       </AnimatePresence>
