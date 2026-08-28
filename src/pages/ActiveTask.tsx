@@ -49,11 +49,12 @@ const ActiveTask = () => {
 
       const { data: assignments } = await supabase
         .from("task_assignments")
-        .select("tasker_id")
+        .select("tasker_id, arrived_at")
         .eq("task_id", taskId)
         .eq("status", "accepted")
         .order("created_at", { ascending: true });
 
+      setMyArrivedAt((assignments || []).find((a) => a.tasker_id === user.id)?.arrived_at ?? null);
       const ids = (assignments || []).map((a) => a.tasker_id);
       let profiles: Tables<"profiles">[] = [];
       if (ids.length > 0) {
