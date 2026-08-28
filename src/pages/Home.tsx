@@ -52,6 +52,15 @@ const Home = () => {
   });
 
   useEffect(() => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => setUserPos([pos.coords.latitude, pos.coords.longitude]),
+        () => {} // silently fail
+      );
+    }
+  }, []);
+
+  useEffect(() => {
     const fetchTasks = async () => {
       const { data } = await supabase
         .from("tasks")
