@@ -761,15 +761,37 @@ const MyTasks = () => {
 
               <div className="flex gap-2 pt-3">
                 {selectedTask.status === "pending_confirm" && selectedTask.owner_id === user?.id && (
-                  <button
-                    onClick={() => handleConfirmCompletion(selectedTask.id)}
-                    disabled={isUpdating}
-                    className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground py-3 font-bold disabled:opacity-50"
-                  >
-                    <CheckCircle2 size={18} />
-                    İşi Onayla ve Tamamla
-                  </button>
+                  <>
+                    <button
+                      onClick={() => handleConfirmCompletion(selectedTask.id)}
+                      disabled={isUpdating}
+                      className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground py-3 font-bold disabled:opacity-50"
+                    >
+                      <CheckCircle2 size={18} />
+                      Onayla
+                    </button>
+                    <button
+                      onClick={() =>
+                        setConfirmState({
+                          kind: "reject",
+                          taskId: selectedTask.id,
+                          title: "İş yapılmadı mı?",
+                          description:
+                            (selectedTask.rejection_count ?? 0) >= 1
+                              ? "Bu ikinci itirazın. Anlaşmazlık olarak değerlendirilecek ve varış kaydına göre tarafsız sonuçlandırılacak."
+                              : "El atan kişiye bildirilecek, işi tamamlayıp tekrar bildirebilecek. Haksız itirazlar sicilinize işlenir.",
+                          confirmLabel: "İtiraz Et",
+                        })
+                      }
+                      disabled={isUpdating}
+                      className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-destructive/10 text-destructive py-3 font-bold disabled:opacity-50"
+                    >
+                      <X size={18} />
+                      İş Yapılmadı
+                    </button>
+                  </>
                 )}
+
                 {selectedTask.status === "open" && selectedTask.owner_id === user?.id && (
                   <>
                     <button
