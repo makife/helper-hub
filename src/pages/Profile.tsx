@@ -18,23 +18,23 @@ import {
   ShoppingBag,
   X,
   Check,
+  Search,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Tables } from "@/integrations/supabase/types";
 import { toast } from "sonner";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import { ALL_SKILLS, searchSkills } from "@/lib/skillCatalog";
 
-const SKILLS = [
-  { id: "ampul_takma" as const, label: "💡 Ampul Takma" },
-  { id: "perde_asma" as const, label: "🪟 Perde Asma" },
-  { id: "mobilya_monte" as const, label: "🪑 Mobilya Monte" },
-  { id: "duvar_tamir" as const, label: "🔨 Duvar Tamir" },
-  { id: "kucuk_tamir" as const, label: "🔧 Küçük Tamir" },
-  { id: "tasima_yardimi" as const, label: "📦 Taşıma Yardımı" },
-];
-
-type SkillId = (typeof SKILLS)[number]["id"];
+const LEGACY_SKILL_LABELS: Record<string, string> = {
+  ampul_takma: "Ampul takma",
+  perde_asma: "Perde asma",
+  mobilya_monte: "Mobilya montajı",
+  duvar_tamir: "Duvar tamiri",
+  kucuk_tamir: "Küçük tamir",
+  tasima_yardimi: "Taşıma yardımı",
+};
 type Credential = Tables<"credentials">;
 type ReviewRow = Tables<"reviews"> & { reviewer?: { full_name: string; avatar_url: string | null } | null };
 
@@ -50,7 +50,8 @@ const Profile = () => {
   const [name, setName] = useState("");
   const [profession, setProfession] = useState("");
   const [bio, setBio] = useState("");
-  const [skills, setSkills] = useState<SkillId[]>([]);
+  const [skillTags, setSkillTags] = useState<string[]>([]);
+  const [skillQuery, setSkillQuery] = useState("");
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarSheetOpen, setAvatarSheetOpen] = useState(false);
 
@@ -94,7 +95,8 @@ const Profile = () => {
       setName(p.full_name || "");
       setProfession(p.profession || "");
       setBio(p.bio || "");
-      setSkills((p.skills || []) as SkillId[]);
+      const savedTags = p.skill_tags || [];
+      setSkillTags(savedTags.length ? savedTags : (p.skills || []).map((skill) => LEGACY_SKILL_LABELS[skill] || skill));
     }
     setLoading(false);
   }, [user]);
@@ -157,7 +159,7 @@ const Profile = () => {
         full_name: name.trim(),
         profession: profession.trim() || null,
         bio: bio.trim() || null,
-        skills: skills as Tables<"profiles">["skills"],
+        skill_tags: skillTags,
       })
       .eq("user_id", user.id);
     setSaving(false);
@@ -167,11 +169,17 @@ const Profile = () => {
     }
     setProfile((prev) =>
       prev
-        ? { ...prev, full_name: name.trim(), profession: profession.trim() || null, bio: bio.trim() || null, skills: skills as Tables<"profiles">["skills"] }
+        ? { ...prev, full_name: name.trim(), profession: profession.trim() || null, bio: bio.trim() || null, skill_tags: skillTags }
         : prev
     );
     setEditing(false);
     toast.success("Profil güncellendi ✓");
+  };
+
+  const filteredSkillGroups = searchSkills(skillQuery);
+
+  const toggleSkill = (skill: string) => {
+    setSkillTags((prev) => (prev.includes(skill) ? prev.filter((item) => item !== skill) : [...prev, skill]));
   };
 
   const saveCredential = async () => {
@@ -362,26 +370,84 @@ const Profile = () => {
                 />
               </div>
               <div>
-                <label className="mb-2 block text-xs font-bold text-muted-foreground">Becerilerim</label>
-                <div className="grid grid-cols-2 gap-2.5">
-                  {SKILLS.map((s) => {
-                    const active = skills.includes(s.id);
-                    return (
+                <div className="mb-2 flex items-center justify-between">
+                  <label className="block text-xs font-bold text-muted-foreground">
+                    Becerilerim {skillTags.length > 0 && `(${skillTags.length})`}
+                  </label>
+                  {skillTags.length > 0 && (
+                    <button type="button" onClick={() => setSkillTags([])} className="text-xs font-bold text-muted-foreground">
+                      Temizle
+                    </button>
+                  )}
+                </div>
+
+                {skillTags.length > 0 && (
+                  <div className="mb-2 flex flex-wrap gap-2">
+                    {skillTags.map((s) => (
                       <button
-                        key={s.id}
+                        key={s}
                         type="button"
-                        onClick={() =>
-                          setSkills((prev) => (active ? prev.filter((x) => x !== s.id) : [...prev, s.id]))
-                        }
-                        className={`flex items-center justify-center gap-2 rounded-xl px-3 py-3.5 text-sm font-bold transition-all active:scale-[0.98] ${
-                          active ? "gradient-warm text-primary-foreground shadow-soft" : "border-2 border-border bg-background text-foreground"
-                        }`}
+                        onClick={() => toggleSkill(s)}
+                        className="gradient-warm flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold text-primary-foreground"
                       >
-                        <span className={`h-2.5 w-2.5 rounded-full ${active ? "bg-white/80" : "bg-muted"}`} />
-                        {s.label}
+                        {s}
+                        <X size={12} />
                       </button>
-                    );
-                  })}
+                    ))}
+                  </div>
+                )}
+
+                <div className="relative mb-2">
+                  <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <input
+                    value={skillQuery}
+                    onChange={(e) => setSkillQuery(e.target.value)}
+                    placeholder="Beceri ara (ör. musluk, boya, özel ders)"
+                    className="w-full rounded-xl border-2 border-border bg-background py-2.5 pl-9 pr-3 text-sm text-foreground outline-none focus:border-primary placeholder:text-muted-foreground/50"
+                  />
+                </div>
+
+                {skillQuery.trim().length > 1 && !ALL_SKILLS.some((s) => s.toLocaleLowerCase("tr-TR") === skillQuery.trim().toLocaleLowerCase("tr-TR")) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      toggleSkill(skillQuery.trim());
+                      setSkillQuery("");
+                    }}
+                    className="mb-2 flex w-full items-center gap-2 rounded-xl border-2 border-dashed border-border px-3 py-2.5 text-xs font-bold text-foreground"
+                  >
+                    <Plus size={14} />"{skillQuery.trim()}" becerisini ekle
+                  </button>
+                )}
+
+                <div className="max-h-64 space-y-3 overflow-y-auto rounded-xl border-2 border-border bg-background p-3">
+                  {filteredSkillGroups.length === 0 && (
+                    <p className="py-4 text-center text-xs text-muted-foreground">Sonuç yok, kendin ekleyebilirsin.</p>
+                  )}
+                  {filteredSkillGroups.map((g) => (
+                    <div key={g.id}>
+                      <p className="mb-1.5 text-[11px] font-black uppercase tracking-wide text-muted-foreground">
+                        {g.emoji} {g.label}
+                      </p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {g.skills.map((s) => {
+                          const active = skillTags.includes(s);
+                          return (
+                            <button
+                              key={s}
+                              type="button"
+                              onClick={() => toggleSkill(s)}
+                              className={`rounded-full px-3 py-1.5 text-xs font-bold transition-all active:scale-95 ${
+                                active ? "gradient-warm text-primary-foreground" : "border border-border bg-card text-foreground"
+                              }`}
+                            >
+                              {s}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
               <button
@@ -401,14 +467,15 @@ const Profile = () => {
                   <p className="mt-1 text-sm text-foreground">{profile.bio}</p>
                 </div>
               )}
-              {(profile?.skills?.length ?? 0) > 0 && (
+              {((profile?.skill_tags?.length ?? 0) > 0 || (profile?.skills?.length ?? 0) > 0) && (
                 <div className="mb-5 rounded-xl bg-card p-4 shadow-card">
-                  <p className="mb-2 text-xs font-semibold text-muted-foreground">Becerilerim</p>
-                  <div className="grid grid-cols-2 gap-2.5">
-                    {(profile?.skills || []).map((s) => (
-                      <span key={s} className="flex items-center justify-center gap-2 rounded-xl bg-muted px-3 py-3 text-sm font-bold text-foreground">
-                        <span className="h-2 w-2 rounded-full bg-primary/70" />
-                        {SKILLS.find((x) => x.id === s)?.label || s}
+                  <p className="mb-2 text-xs font-semibold text-muted-foreground">
+                    Becerilerim ({profile?.skill_tags?.length || profile?.skills?.length})
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {(profile?.skill_tags?.length ? profile.skill_tags : (profile?.skills || []).map((skill) => LEGACY_SKILL_LABELS[skill] || skill)).map((skill) => (
+                      <span key={skill} className="rounded-full bg-muted px-3 py-1.5 text-xs font-bold text-foreground">
+                        {skill}
                       </span>
                     ))}
                   </div>
