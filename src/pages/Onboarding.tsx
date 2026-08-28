@@ -48,6 +48,24 @@ const Onboarding = () => {
 
   return (
     <div className="flex min-h-screen flex-col bg-background px-6 pb-8 pt-12 safe-top safe-bottom">
+      {/* Back / Skip controls */}
+      <div className="mb-2 mt-2 flex items-center justify-between">
+        <button
+          onClick={prev}
+          className="flex items-center gap-1 rounded-full px-3 py-2 text-sm font-bold text-foreground transition-all active:scale-[0.98]"
+        >
+          <ChevronLeft size={18} className="text-primary" />
+          Geri
+        </button>
+        <button
+          onClick={skip}
+          className="flex items-center gap-1 rounded-full px-3 py-2 text-sm font-bold text-primary transition-all active:scale-[0.98]"
+        >
+          Atla
+          <ChevronRight size={18} />
+        </button>
+      </div>
+
       {/* Content */}
       <div className="flex flex-1 flex-col items-center justify-center">
         <AnimatePresence mode="wait">
@@ -88,24 +106,6 @@ const Onboarding = () => {
             }`}
           />
         ))}
-      </div>
-
-      {/* Back / Skip controls */}
-      <div className="mb-4 flex items-center gap-3">
-        <button
-          onClick={prev}
-          className="flex flex-1 items-center justify-center gap-2 rounded-2xl border-2 border-border bg-card px-5 py-3.5 text-sm font-bold text-foreground shadow-card transition-all active:scale-[0.98]"
-        >
-          <ChevronLeft size={18} className="text-primary" />
-          Geri
-        </button>
-        <button
-          onClick={skip}
-          className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3.5 text-sm font-bold text-primary-foreground shadow-soft transition-all active:scale-[0.98]"
-        >
-          Atla
-          <ChevronRight size={18} className="opacity-80" />
-        </button>
       </div>
 
       {/* Main CTA */}
