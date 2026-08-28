@@ -17,6 +17,10 @@ const ActiveTask = () => {
   const { user } = useAuth();
   const [task, setTask] = useState<Tables<"tasks"> | null>(null);
   const [taskers, setTaskers] = useState<TaskerEntry[]>([]);
+  const [myArrivedAt, setMyArrivedAt] = useState<string | null>(null);
+  const [arriving, setArriving] = useState(false);
+  const [rejectOpen, setRejectOpen] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
   const [ownerProfile, setOwnerProfile] = useState<Tables<"profiles"> | null>(null);
   const [partnerId, setPartnerId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Tables<"messages">[]>([]);
