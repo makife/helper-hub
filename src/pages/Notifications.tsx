@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Bell, MessageCircle, UserCheck, UserMinus } from "lucide-react";
+import { ArrowLeft, Bell, MessageCircle, UserCheck, UserMinus, Calendar } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { formatDateTime } from "@/lib/dateFormat";
 
 type Notif = {
   id: string;
@@ -15,14 +16,7 @@ type Notif = {
   unread: boolean;
 };
 
-const timeAgo = (date: string) => {
-  const mins = Math.floor((Date.now() - new Date(date).getTime()) / 60000);
-  if (mins < 1) return "şimdi";
-  if (mins < 60) return `${mins} dk`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours} sa`;
-  return `${Math.floor(hours / 24)} gün`;
-};
+const dateLabel = (date: string) => formatDateTime(date);
 
 const Notifications = () => {
   const navigate = useNavigate();
@@ -152,7 +146,10 @@ const Notifications = () => {
                 <p className="truncate text-sm font-bold text-foreground">{n.title}</p>
                 <p className="truncate text-xs text-muted-foreground">{n.body}</p>
               </div>
-              <span className="shrink-0 text-[10px] font-semibold text-muted-foreground">{timeAgo(n.at)}</span>
+              <span className="flex shrink-0 items-center gap-1 text-[10px] font-semibold text-muted-foreground">
+                <Calendar size={10} />
+                {dateLabel(n.at)}
+              </span>
             </button>
           ))}
         </div>

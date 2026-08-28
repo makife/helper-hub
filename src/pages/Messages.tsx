@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, MessageCircle } from "lucide-react";
+import { ArrowLeft, MessageCircle, Calendar } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { formatDateTime } from "@/lib/dateFormat";
 
 type Conversation = {
   task_id: string;
@@ -92,15 +93,7 @@ const Messages = () => {
     return () => { supabase.removeChannel(channel); };
   }, [user]);
 
-  const timeAgo = (date: string) => {
-    const diff = Date.now() - new Date(date).getTime();
-    const mins = Math.floor(diff / 60000);
-    if (mins < 1) return "şimdi";
-    if (mins < 60) return `${mins} dk`;
-    const hours = Math.floor(mins / 60);
-    if (hours < 24) return `${hours} sa`;
-    return `${Math.floor(hours / 24)} gün`;
-  };
+  const dateLabel = (date: string) => formatDateTime(date);
 
   return (
     <div className="flex min-h-screen flex-col bg-background safe-top safe-bottom">
@@ -149,8 +142,9 @@ const Messages = () => {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
                     <h3 className="text-sm font-bold text-foreground truncate">{conv.other_user_name}</h3>
-                    <span className="text-[10px] text-muted-foreground ml-2 flex-shrink-0">
-                      {timeAgo(conv.last_message_at)}
+                    <span className="flex items-center gap-1 text-[10px] text-muted-foreground ml-2 flex-shrink-0">
+                      <Calendar size={10} />
+                      {dateLabel(conv.last_message_at)}
                     </span>
                   </div>
                   <p className="text-xs text-muted-foreground truncate">{conv.task_title}</p>
