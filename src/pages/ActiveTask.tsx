@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Navigation, MessageCircle, Send, MapPin, User, Clock, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Navigation, MessageCircle, Send, MapPin, User, Clock, CheckCircle2, XCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
