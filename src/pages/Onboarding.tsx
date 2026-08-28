@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import onboarding1 from "@/assets/onboarding-1.png";
 import onboarding2 from "@/assets/onboarding-2.png";
 import onboarding3 from "@/assets/onboarding-3.png";
@@ -35,18 +36,18 @@ const Onboarding = () => {
     }
   };
 
+  const prev = () => {
+    if (current > 0) {
+      setCurrent(current - 1);
+    } else {
+      navigate("/welcome");
+    }
+  };
+
+  const skip = () => navigate("/login");
+
   return (
     <div className="flex min-h-screen flex-col bg-background px-6 pb-8 pt-12 safe-top safe-bottom">
-      {/* Skip */}
-      <div className="flex justify-end">
-        <button
-          onClick={() => navigate("/login")}
-          className="text-sm font-semibold text-muted-foreground"
-        >
-          Atla
-        </button>
-      </div>
-
       {/* Content */}
       <div className="flex flex-1 flex-col items-center justify-center">
         <AnimatePresence mode="wait">
@@ -89,7 +90,25 @@ const Onboarding = () => {
         ))}
       </div>
 
-      {/* Button */}
+      {/* Back / Skip controls */}
+      <div className="mb-4 flex items-center gap-3">
+        <button
+          onClick={prev}
+          className="flex flex-1 items-center justify-center gap-2 rounded-2xl border-2 border-border bg-card px-5 py-3.5 text-sm font-bold text-foreground shadow-card transition-all active:scale-[0.98]"
+        >
+          <ChevronLeft size={18} className="text-primary" />
+          Geri
+        </button>
+        <button
+          onClick={skip}
+          className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3.5 text-sm font-bold text-primary-foreground shadow-soft transition-all active:scale-[0.98]"
+        >
+          Atla
+          <ChevronRight size={18} className="opacity-80" />
+        </button>
+      </div>
+
+      {/* Main CTA */}
       <button
         onClick={next}
         className="gradient-warm w-full rounded-2xl px-6 py-4 text-lg font-bold text-primary-foreground shadow-soft transition-transform active:scale-[0.98]"
