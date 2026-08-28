@@ -171,17 +171,15 @@ const Home = () => {
     lat: t.lat,
     lng: t.lng,
     emoji: t.emoji,
-    urgent: t.urgency === "urgent",
+    status: t.status,
+    urgent: t.urgency === "urgent" && t.status === "open",
     estimatedMinutes: t.estimated_minutes ?? undefined,
     ownerName: ownerNames[t.owner_id],
     filled: fillCounts[t.id] ?? 0,
     personCount: t.person_count ?? 1,
   }));
 
-
-
-
-
+  const openCount = tasks.filter((t) => t.status === "open").length;
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-background safe-top safe-bottom">
@@ -219,7 +217,7 @@ const Home = () => {
               <Zap size={16} className="text-primary" />
               <div>
                 <p className="text-xs text-muted-foreground">Açık İşler</p>
-                <p className="text-sm font-black text-foreground">{tasks.length} iş var</p>
+                <p className="text-sm font-black text-foreground">{openCount} iş var</p>
               </div>
             </div>
             <div className="pointer-events-auto flex flex-1 items-center gap-2 rounded-xl bg-card/95 px-3 py-2.5 shadow-card backdrop-blur">
