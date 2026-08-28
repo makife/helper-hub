@@ -148,6 +148,11 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
                 <Clock size={12} />
                 <span>~{task.estimated_minutes} dk</span>
               </div>
+              {task.status === "expired" && (
+                <span className="mt-1 inline-flex items-center rounded-lg bg-muted px-2 py-0.5 text-[10px] font-bold text-muted-foreground">
+                  ⏰ Süresi Doldu
+                </span>
+              )}
             </div>
           </div>
           <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
