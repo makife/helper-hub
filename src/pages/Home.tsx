@@ -44,19 +44,16 @@ const Home = () => {
 
   useEffect(() => {
     const fetchTasks = async () => {
-      let query = supabase
+      const { data } = await supabase
         .from("tasks")
         .select("*")
-        .eq("status", "open")
+        .in("status", ["open", "expired"])
         .order("created_at", { ascending: false });
 
-      const { data } = await query;
       const mapped = (data || []).map(mapTask);
       setTasks(mapped);
 
       setFillCounts(await fetchAssignmentCounts(mapped.map((t) => t.id)));
-
-
 
       // Fetch owner names for map pin popups
       const ownerIds = [...new Set(mapped.map((t) => t.owner_id))];
@@ -79,7 +76,7 @@ const Home = () => {
       .on("postgres_changes", { event: "*", schema: "public", table: "tasks" }, (payload) => {
         if (payload.eventType === "INSERT") {
           const newTask = mapTask(payload.new as Tables<"tasks">);
-          if (newTask.status === "open") {
+          if (newTask.status === "open" || newTask.status === "expired") {
             setTasks((prev) => [newTask, ...prev]);
             setOwnerNames((prev) => {
               if (prev[newTask.owner_id]) return prev;
@@ -100,7 +97,9 @@ const Home = () => {
         } else if (payload.eventType === "UPDATE") {
           const updated = mapTask(payload.new as Tables<"tasks">);
           setTasks((prev) => {
-            if (updated.status !== "open") return prev.filter((t) => t.id !== updated.id);
+            if (updated.status !== "open" && updated.status !== "expired") {
+              return prev.filter((t) => t.id !== updated.id);
+            }
             return prev.map((t) => (t.id === updated.id ? updated : t));
           });
         } else if (payload.eventType === "DELETE") {
@@ -172,17 +171,15 @@ const Home = () => {
     lat: t.lat,
     lng: t.lng,
     emoji: t.emoji,
-    urgent: t.urgency === "urgent",
+    status: t.status,
+    urgent: t.urgency === "urgent" && t.status === "open",
     estimatedMinutes: t.estimated_minutes ?? undefined,
     ownerName: ownerNames[t.owner_id],
     filled: fillCounts[t.id] ?? 0,
     personCount: t.person_count ?? 1,
   }));
 
-
-
-
-
+  const openCount = tasks.filter((t) => t.status === "open").length;
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-background safe-top safe-bottom">
@@ -220,7 +217,7 @@ const Home = () => {
               <Zap size={16} className="text-primary" />
               <div>
                 <p className="text-xs text-muted-foreground">Açık İşler</p>
-                <p className="text-sm font-black text-foreground">{tasks.length} iş var</p>
+                <p className="text-sm font-black text-foreground">{openCount} iş var</p>
               </div>
             </div>
             <div className="pointer-events-auto flex flex-1 items-center gap-2 rounded-xl bg-card/95 px-3 py-2.5 shadow-card backdrop-blur">
