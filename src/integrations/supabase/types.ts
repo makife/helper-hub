@@ -79,6 +79,33 @@ export type Database = {
           },
         ]
       }
+      device_tokens: {
+        Row: {
+          created_at: string
+          id: string
+          platform: string
+          token: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          platform?: string
+          token: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          platform?: string
+          token?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string
@@ -251,6 +278,24 @@ export type Database = {
           total_completed?: number | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      push_config: {
+        Row: {
+          function_url: string
+          hook_secret: string
+          id: boolean
+        }
+        Insert: {
+          function_url: string
+          hook_secret: string
+          id?: boolean
+        }
+        Update: {
+          function_url?: string
+          hook_secret?: string
+          id?: boolean
         }
         Relationships: []
       }
@@ -535,6 +580,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      dispatch_push: {
+        Args: { _body: string; _path: string; _title: string; _user_id: string }
+        Returns: undefined
+      }
       grant_store_credits: {
         Args: {
           _credits: number

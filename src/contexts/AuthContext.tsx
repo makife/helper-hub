@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { initRevenueCat, logOutRevenueCat } from "@/lib/revenuecat";
+import { initializePushNotifications, unregisterPushNotifications } from "@/lib/pushNotifications";
 
 
 type AuthContextType = {
@@ -31,7 +32,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
-        if (session?.user) void initRevenueCat(session.user.id);
+        if (session?.user) {
+          void initRevenueCat(session.user.id);
+          void initializePushNotifications(session.user.id);
+        } else {
+          void unregisterPushNotifications();
+        }
       }
     );
 
@@ -39,13 +45,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
-      if (session?.user) void initRevenueCat(session.user.id);
+      if (session?.user) {
+        void initRevenueCat(session.user.id);
+        void initializePushNotifications(session.user.id);
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
   const signOut = async () => {
+    await unregisterPushNotifications();
     await logOutRevenueCat();
     await supabase.auth.signOut();
   };
