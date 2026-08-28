@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 const PUBLISHED_ORIGIN = "https://task-hand-shake.lovable.app";
 const NATIVE_SCHEME = "com.ergan.bielat";
 const NATIVE_CALLBACK = `${NATIVE_SCHEME}://auth/callback`;
+const WEB_CALLBACK = `${PUBLISHED_ORIGIN}/auth/callback`;
 const STATE_KEY = "native_oauth_state";
 
 export const isNativePlatform = () => Capacitor.isNativePlatform();
@@ -33,7 +34,7 @@ export const signInNativeOAuth = async (provider: "google" | "apple") => {
   }
   const params = new URLSearchParams({
     provider,
-    redirect_uri: `${PUBLISHED_ORIGIN}/auth/callback`,
+    redirect_uri: WEB_CALLBACK,
     state,
   });
   await Browser.open({ url: `${PUBLISHED_ORIGIN}/~oauth/initiate?${params.toString()}` });
@@ -57,7 +58,9 @@ const parseParams = (url: string) => {
 export const setupNativeAuthListener = () => {
   if (!isNativePlatform()) return;
   App.addListener("appUrlOpen", async ({ url }) => {
-    if (!url.startsWith(NATIVE_CALLBACK)) return;
+    const isNativeCallback = url.startsWith(NATIVE_CALLBACK);
+    const isWebCallback = url.startsWith(WEB_CALLBACK);
+    if (!isNativeCallback && !isWebCallback) return;
     try {
       await Browser.close();
     } catch {
