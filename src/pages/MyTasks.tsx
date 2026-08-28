@@ -765,6 +765,11 @@ const MyTasks = () => {
           else handleCancelTask(confirmState.taskId);
         }}
       />
+
+      <ReviewDialog
+        review={pendingReviews[0] || null}
+        onDone={async () => { await refreshPendingReviews(); }}
+      />
     </div>
   );
 };
