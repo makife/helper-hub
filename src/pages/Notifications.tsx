@@ -35,8 +35,7 @@ const Notifications = () => {
         .from("notifications")
         .select("*")
         .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(50);
+        .order("created_at", { ascending: false });
 
       for (const n of notifs ?? []) {
         list.push({
@@ -55,8 +54,7 @@ const Notifications = () => {
         .from("messages")
         .select("id, content, created_at, is_read, task_id, sender_id")
         .eq("receiver_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(30);
+        .order("created_at", { ascending: false });
 
       const senderIds = [...new Set((msgs ?? []).map((m) => m.sender_id))];
       const { data: profiles } = senderIds.length
@@ -145,11 +143,11 @@ const Notifications = () => {
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-bold text-foreground">{n.title}</p>
                 <p className="truncate text-xs text-muted-foreground">{n.body}</p>
+                <span className="mt-1 flex items-center gap-1 text-[10px] font-semibold text-muted-foreground">
+                  <Calendar size={10} />
+                  {dateLabel(n.at)}
+                </span>
               </div>
-              <span className="flex shrink-0 items-center gap-1 text-[10px] font-semibold text-muted-foreground">
-                <Calendar size={10} />
-                {dateLabel(n.at)}
-              </span>
             </button>
           ))}
         </div>
