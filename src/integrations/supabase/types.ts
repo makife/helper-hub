@@ -232,6 +232,7 @@ export type Database = {
           profession: string | null
           rating: number | null
           role: Database["public"]["Enums"]["user_role"]
+          skill_tags: string[]
           skills: Database["public"]["Enums"]["task_category"][] | null
           total_completed: number | null
           updated_at: string
@@ -253,6 +254,7 @@ export type Database = {
           profession?: string | null
           rating?: number | null
           role?: Database["public"]["Enums"]["user_role"]
+          skill_tags?: string[]
           skills?: Database["public"]["Enums"]["task_category"][] | null
           total_completed?: number | null
           updated_at?: string
@@ -274,6 +276,7 @@ export type Database = {
           profession?: string | null
           rating?: number | null
           role?: Database["public"]["Enums"]["user_role"]
+          skill_tags?: string[]
           skills?: Database["public"]["Enums"]["task_category"][] | null
           total_completed?: number | null
           updated_at?: string
