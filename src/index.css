@@ -55,6 +55,21 @@
     @apply border-border;
   }
 
+  /* Tüm scroll çubuklarını gizle (native mobil görünüm) */
+  * {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+  }
+  *::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, WebView */
+    width: 0;
+    height: 0;
+  }
+
+  html, body {
+    overscroll-behavior: none;
+  }
+
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'Nunito', sans-serif;
