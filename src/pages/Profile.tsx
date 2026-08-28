@@ -107,10 +107,11 @@ const Profile = () => {
     navigate("/");
   };
 
-  const pickImage = (onPick: (file: File) => void) => {
+  const pickImage = (onPick: (file: File) => void, capture?: boolean) => {
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";
+    if (capture) input.setAttribute("capture", "user");
     input.onchange = (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (file) onPick(file);
