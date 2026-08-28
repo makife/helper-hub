@@ -52,6 +52,7 @@ const Profile = () => {
   const [bio, setBio] = useState("");
   const [skills, setSkills] = useState<SkillId[]>([]);
   const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarSheetOpen, setAvatarSheetOpen] = useState(false);
 
   const [credOpen, setCredOpen] = useState(false);
   const [credTitle, setCredTitle] = useState("");
@@ -266,7 +267,7 @@ const Profile = () => {
           {/* Avatar + isim */}
           <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="mb-5 flex flex-col items-center">
             <button
-              onClick={() => pickImage(uploadAvatar)}
+              onClick={() => setAvatarSheetOpen(true)}
               disabled={avatarUploading}
               className="relative flex h-24 w-24 items-center justify-center rounded-full bg-muted disabled:opacity-60"
             >
