@@ -7,6 +7,8 @@ import TaskMap from "@/components/TaskMap";
 import TaskDetailSheet from "@/components/TaskDetailSheet";
 import BottomNav from "@/components/BottomNav";
 import RouteMap from "@/components/RouteMap";
+import ReviewDialog from "@/components/ReviewDialog";
+import { usePendingReviews } from "@/hooks/usePendingReviews";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
@@ -29,6 +31,7 @@ const Home = () => {
   const navigate = useNavigate();
   const unreadMessages = useUnreadNotifications();
   const { user } = useAuth();
+  const { pending: pendingReviews, refresh: refreshPendingReviews } = usePendingReviews();
 
 
   const mapTask = (t: Tables<"tasks">): TaskWithUI => ({
@@ -225,6 +228,11 @@ const Home = () => {
           />
         )}
       </AnimatePresence>
+
+      <ReviewDialog
+        review={pendingReviews[0] || null}
+        onDone={async () => { await refreshPendingReviews(); }}
+      />
 
       <BottomNav />
     </div>

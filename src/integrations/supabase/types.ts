@@ -365,10 +365,13 @@ export type Database = {
           cancelled_at: string | null
           category: Database["public"]["Enums"]["task_category"]
           completed_at: string | null
+          completion_requested_at: string | null
+          completion_requested_by: string | null
           created_at: string
           current_price: number | null
           description: string
           estimated_minutes: number
+          expires_at: string | null
           id: string
           is_demo: boolean | null
           latitude: number
@@ -392,10 +395,13 @@ export type Database = {
           cancelled_at?: string | null
           category: Database["public"]["Enums"]["task_category"]
           completed_at?: string | null
+          completion_requested_at?: string | null
+          completion_requested_by?: string | null
           created_at?: string
           current_price?: number | null
           description: string
           estimated_minutes?: number
+          expires_at?: string | null
           id?: string
           is_demo?: boolean | null
           latitude: number
@@ -419,10 +425,13 @@ export type Database = {
           cancelled_at?: string | null
           category?: Database["public"]["Enums"]["task_category"]
           completed_at?: string | null
+          completion_requested_at?: string | null
+          completion_requested_by?: string | null
           created_at?: string
           current_price?: number | null
           description?: string
           estimated_minutes?: number
+          expires_at?: string | null
           id?: string
           is_demo?: boolean | null
           latitude?: number
@@ -473,6 +482,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      process_task_lifecycle: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
@@ -489,6 +499,8 @@ export type Database = {
         | "in_progress"
         | "completed"
         | "cancelled"
+        | "pending_confirm"
+        | "expired"
       task_urgency: "urgent" | "can_wait"
       user_role: "owner" | "tasker"
     }
@@ -627,7 +639,15 @@ export const Constants = {
         "kucuk_tamir",
         "tasima_yardimi",
       ],
-      task_status: ["open", "matched", "in_progress", "completed", "cancelled"],
+      task_status: [
+        "open",
+        "matched",
+        "in_progress",
+        "completed",
+        "cancelled",
+        "pending_confirm",
+        "expired",
+      ],
       task_urgency: ["urgent", "can_wait"],
       user_role: ["owner", "tasker"],
     },
