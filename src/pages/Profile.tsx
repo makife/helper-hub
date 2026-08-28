@@ -362,26 +362,84 @@ const Profile = () => {
                 />
               </div>
               <div>
-                <label className="mb-2 block text-xs font-bold text-muted-foreground">Becerilerim</label>
-                <div className="grid grid-cols-2 gap-2.5">
-                  {SKILLS.map((s) => {
-                    const active = skills.includes(s.id);
-                    return (
+                <div className="mb-2 flex items-center justify-between">
+                  <label className="block text-xs font-bold text-muted-foreground">
+                    Becerilerim {skillTags.length > 0 && `(${skillTags.length})`}
+                  </label>
+                  {skillTags.length > 0 && (
+                    <button type="button" onClick={() => setSkillTags([])} className="text-xs font-bold text-muted-foreground">
+                      Temizle
+                    </button>
+                  )}
+                </div>
+
+                {skillTags.length > 0 && (
+                  <div className="mb-2 flex flex-wrap gap-2">
+                    {skillTags.map((s) => (
                       <button
-                        key={s.id}
+                        key={s}
                         type="button"
-                        onClick={() =>
-                          setSkills((prev) => (active ? prev.filter((x) => x !== s.id) : [...prev, s.id]))
-                        }
-                        className={`flex items-center justify-center gap-2 rounded-xl px-3 py-3.5 text-sm font-bold transition-all active:scale-[0.98] ${
-                          active ? "gradient-warm text-primary-foreground shadow-soft" : "border-2 border-border bg-background text-foreground"
-                        }`}
+                        onClick={() => toggleSkill(s)}
+                        className="gradient-warm flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold text-primary-foreground"
                       >
-                        <span className={`h-2.5 w-2.5 rounded-full ${active ? "bg-white/80" : "bg-muted"}`} />
-                        {s.label}
+                        {s}
+                        <X size={12} />
                       </button>
-                    );
-                  })}
+                    ))}
+                  </div>
+                )}
+
+                <div className="relative mb-2">
+                  <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <input
+                    value={skillQuery}
+                    onChange={(e) => setSkillQuery(e.target.value)}
+                    placeholder="Beceri ara (ör. musluk, boya, özel ders)"
+                    className="w-full rounded-xl border-2 border-border bg-background py-2.5 pl-9 pr-3 text-sm text-foreground outline-none focus:border-primary placeholder:text-muted-foreground/50"
+                  />
+                </div>
+
+                {skillQuery.trim().length > 1 && !ALL_SKILLS.some((s) => s.toLocaleLowerCase("tr-TR") === skillQuery.trim().toLocaleLowerCase("tr-TR")) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      toggleSkill(skillQuery.trim());
+                      setSkillQuery("");
+                    }}
+                    className="mb-2 flex w-full items-center gap-2 rounded-xl border-2 border-dashed border-border px-3 py-2.5 text-xs font-bold text-foreground"
+                  >
+                    <Plus size={14} />"{skillQuery.trim()}" becerisini ekle
+                  </button>
+                )}
+
+                <div className="max-h-64 space-y-3 overflow-y-auto rounded-xl border-2 border-border bg-background p-3">
+                  {filteredSkillGroups.length === 0 && (
+                    <p className="py-4 text-center text-xs text-muted-foreground">Sonuç yok, kendin ekleyebilirsin.</p>
+                  )}
+                  {filteredSkillGroups.map((g) => (
+                    <div key={g.id}>
+                      <p className="mb-1.5 text-[11px] font-black uppercase tracking-wide text-muted-foreground">
+                        {g.emoji} {g.label}
+                      </p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {g.skills.map((s) => {
+                          const active = skillTags.includes(s);
+                          return (
+                            <button
+                              key={s}
+                              type="button"
+                              onClick={() => toggleSkill(s)}
+                              className={`rounded-full px-3 py-1.5 text-xs font-bold transition-all active:scale-95 ${
+                                active ? "gradient-warm text-primary-foreground" : "border border-border bg-card text-foreground"
+                              }`}
+                            >
+                              {s}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
               <button
