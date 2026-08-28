@@ -15,6 +15,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import { getTaskEmoji } from "@/lib/taskCategories";
 import { computePrice } from "@/lib/dynamicPricing";
 import { fetchAssignmentCounts } from "@/lib/assignments";
+import { distanceMeters } from "@/lib/taskLifecycle";
 
 
 type TaskWithUI = Tables<"tasks"> & {
@@ -23,16 +24,24 @@ type TaskWithUI = Tables<"tasks"> & {
   lng: number;
 };
 
+const RADIUS_M = 100_000;
+
 const Home = () => {
   const [tasks, setTasks] = useState<TaskWithUI[]>([]);
   const [selectedTask, setSelectedTask] = useState<TaskWithUI | null>(null);
   const [ownerNames, setOwnerNames] = useState<Record<string, string>>({});
   const [fillCounts, setFillCounts] = useState<Record<string, number>>({});
+  const [userPos, setUserPos] = useState<[number, number] | null>(null);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const unreadMessages = useUnreadNotifications();
   const { user } = useAuth();
   const { pending: pendingReviews, refresh: refreshPendingReviews } = usePendingReviews();
+
+  const withinRadius = (lat: number, lng: number) => {
+    if (!userPos) return true;
+    return distanceMeters(userPos[0], userPos[1], lat, lng) <= RADIUS_M;
+  };
 
 
   const mapTask = (t: Tables<"tasks">): TaskWithUI => ({
@@ -43,6 +52,15 @@ const Home = () => {
   });
 
   useEffect(() => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => setUserPos([pos.coords.latitude, pos.coords.longitude]),
+        () => {} // silently fail
+      );
+    }
+  }, []);
+
+  useEffect(() => {
     const fetchTasks = async () => {
       const { data } = await supabase
         .from("tasks")
@@ -50,7 +68,7 @@ const Home = () => {
         .eq("status", "open")
         .order("created_at", { ascending: false });
 
-      const mapped = (data || []).map(mapTask);
+      const mapped = (data || []).map(mapTask).filter((t) => withinRadius(t.lat, t.lng));
       setTasks(mapped);
 
       setFillCounts(await fetchAssignmentCounts(mapped.map((t) => t.id)));
@@ -76,7 +94,7 @@ const Home = () => {
       .on("postgres_changes", { event: "*", schema: "public", table: "tasks" }, (payload) => {
         if (payload.eventType === "INSERT") {
           const newTask = mapTask(payload.new as Tables<"tasks">);
-          if (newTask.status === "open") {
+          if (newTask.status === "open" && withinRadius(newTask.lat, newTask.lng)) {
             setTasks((prev) => [newTask, ...prev]);
             setOwnerNames((prev) => {
               if (prev[newTask.owner_id]) return prev;
@@ -97,10 +115,12 @@ const Home = () => {
         } else if (payload.eventType === "UPDATE") {
           const updated = mapTask(payload.new as Tables<"tasks">);
           setTasks((prev) => {
-            if (updated.status !== "open") {
+            if (updated.status !== "open" || !withinRadius(updated.lat, updated.lng)) {
               return prev.filter((t) => t.id !== updated.id);
             }
-            return prev.map((t) => (t.id === updated.id ? updated : t));
+            const exists = prev.some((t) => t.id === updated.id);
+            if (exists) return prev.map((t) => (t.id === updated.id ? updated : t));
+            return [updated, ...prev];
           });
         } else if (payload.eventType === "DELETE") {
           const old = payload.old as { id: string };
@@ -123,7 +143,7 @@ const Home = () => {
       supabase.removeChannel(channel);
       supabase.removeChannel(assignmentChannel);
     };
-  }, [user]);
+  }, [user, userPos]);
 
 
   // Canlı fiyat düşüşü: her 15 sn'de bir yeniden hesapla, değişince DB'ye yaz (sadece iş sahibi)
@@ -220,7 +240,7 @@ const Home = () => {
             <div className="pointer-events-auto flex flex-1 items-center gap-2 rounded-xl bg-card/95 px-3 py-2.5 shadow-card backdrop-blur">
               <MapPin size={16} className="text-primary" />
               <div>
-                <p className="text-xs text-muted-foreground">Yakınında</p>
+                <p className="text-xs text-muted-foreground">100 km Yakınında</p>
                 <p className="text-sm font-black text-foreground">{tasks.length} iş</p>
               </div>
             </div>
