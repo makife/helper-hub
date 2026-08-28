@@ -39,8 +39,6 @@ const Onboarding = () => {
   const prev = () => {
     if (current > 0) {
       setCurrent(current - 1);
-    } else {
-      navigate("/welcome");
     }
   };
 
@@ -50,16 +48,20 @@ const Onboarding = () => {
     <div className="flex min-h-screen flex-col bg-background px-6 pb-8 pt-12 safe-top safe-bottom">
       {/* Back / Skip controls */}
       <div className="mb-2 mt-2 flex items-center justify-between">
-        <button
-          onClick={prev}
-          className="flex items-center gap-1 rounded-full px-3 py-2 text-sm font-bold text-foreground transition-all active:scale-[0.98]"
-        >
-          <ChevronLeft size={18} className="text-primary" />
-          Geri
-        </button>
+        {current > 0 ? (
+          <button
+            onClick={prev}
+            className="flex h-10 items-center gap-1 rounded-full px-3 text-sm font-bold leading-none text-foreground transition-all active:scale-[0.98]"
+          >
+            <ChevronLeft size={18} className="text-primary" />
+            Geri
+          </button>
+        ) : (
+          <div className="h-10 w-[75px]" aria-hidden="true" />
+        )}
         <button
           onClick={skip}
-          className="flex items-center gap-1 rounded-full px-3 py-2 text-sm font-bold text-primary transition-all active:scale-[0.98]"
+          className="flex h-10 items-center gap-1 rounded-full px-3 text-sm font-bold leading-none text-primary transition-all active:scale-[0.98]"
         >
           Atla
           <ChevronRight size={18} />
