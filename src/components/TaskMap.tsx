@@ -10,7 +10,6 @@ type TaskPin = {
   price: number;
   lat: number;
   lng: number;
-  status?: string;
   urgent?: boolean;
   distance?: string;
   estimatedMinutes?: number;
@@ -41,23 +40,19 @@ const ensurePulseStyles = () => {
       border-radius: 50%; font-size: 18px; border: 2px solid white;
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
-    .task-pin-faded { opacity: 0.55; filter: grayscale(0.6); }
-    .task-pin-faded .task-pulse-ring { animation: none; opacity: 0; }
   `;
   document.head.appendChild(style);
 };
 
-const createEmojiIcon = (emoji: string, urgent?: boolean, isFaded?: boolean) => {
+const createEmojiIcon = (emoji: string, urgent?: boolean) => {
   ensurePulseStyles();
   const ringColor = urgent ? "rgba(231,76,60,0.55)" : "hsl(24, 90%, 55%, 0.45)";
   const dotBg = urgent
     ? "linear-gradient(135deg, #e74c3c, #c0392b)"
-    : isFaded
-      ? "linear-gradient(135deg, #9ca3af, #6b7280)"
-      : "linear-gradient(135deg, hsl(24, 90%, 55%), hsl(35, 95%, 58%))";
+    : "linear-gradient(135deg, hsl(24, 90%, 55%), hsl(35, 95%, 58%))";
   return L.divIcon({
     html: `
-      <div class="task-pulse-wrap ${isFaded ? "task-pin-faded" : ""}">
+      <div class="task-pulse-wrap">
         <div class="task-pulse-ring" style="background:${ringColor}"></div>
         <div class="task-pulse-dot" style="background:${dotBg}">${emoji}</div>
       </div>
@@ -123,53 +118,43 @@ const TaskMap = ({ tasks, center = [40.9903, 29.0297], onTaskClick }: Props) => 
 
       {userPos && <Marker position={userPos} icon={userIcon} />}
 
-      {tasks.map((task) => {
-        const isExpired = task.status === "expired";
-        return (
-          <Marker
-            key={task.id}
-            position={[task.lat, task.lng]}
-            icon={createEmojiIcon(task.emoji, task.urgent && !isExpired, isExpired)}
-          >
-            <Popup>
-              <div className="min-w-[160px] text-center">
-                {task.urgent && !isExpired && (
-                  <p className="mb-1 text-[10px] font-bold text-destructive">🔥 ACİL YARDIM</p>
-                )}
-                {isExpired && (
-                  <p className="mb-1 text-[10px] font-bold text-muted-foreground">⏰ SÜRESİ DOLDU</p>
-                )}
-                <p className={`font-bold ${isExpired ? "text-muted-foreground line-through" : ""}`}>
-                  {task.title}
+      {tasks.map((task) => (
+        <Marker
+          key={task.id}
+          position={[task.lat, task.lng]}
+          icon={createEmojiIcon(task.emoji, task.urgent)}
+        >
+          <Popup>
+            <div className="min-w-[160px] text-center">
+              {task.urgent && (
+                <p className="mb-1 text-[10px] font-bold text-destructive">🔥 ACİL YARDIM</p>
+              )}
+              <p className="font-bold">{task.title}</p>
+              {task.ownerName && (
+                <p className="text-xs text-muted-foreground">👤 {task.ownerName}</p>
+              )}
+              {typeof task.estimatedMinutes === "number" && (
+                <p className="text-xs text-muted-foreground">~{task.estimatedMinutes} dk</p>
+              )}
+              <p className="mt-0.5 text-primary font-black">{task.price} ₺</p>
+              {(task.personCount ?? 1) > 1 && (
+                <p className="text-xs font-bold text-muted-foreground">
+                  👥 {task.filled ?? 0}/{task.personCount} dolu
                 </p>
-                {task.ownerName && (
-                  <p className="text-xs text-muted-foreground">👤 {task.ownerName}</p>
-                )}
-                {typeof task.estimatedMinutes === "number" && (
-                  <p className="text-xs text-muted-foreground">~{task.estimatedMinutes} dk</p>
-                )}
-                <p className={`mt-0.5 font-black ${isExpired ? "text-muted-foreground" : "text-primary"}`}>
-                  {isExpired ? "Kapanmış" : `${task.price} ₺`}
-                </p>
-                {(task.personCount ?? 1) > 1 && (
-                  <p className="text-xs font-bold text-muted-foreground">
-                    👥 {task.filled ?? 0}/{task.personCount} dolu
-                  </p>
-                )}
+              )}
 
-                {onTaskClick && (
-                  <button
-                    onClick={() => onTaskClick(task)}
-                    className="mt-2 w-full rounded-lg bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground"
-                  >
-                    Detayları Gör
-                  </button>
-                )}
-              </div>
-            </Popup>
-          </Marker>
-        );
-      })}
+              {onTaskClick && (
+                <button
+                  onClick={() => onTaskClick(task)}
+                  className="mt-2 w-full rounded-lg bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground"
+                >
+                  Detayları Gör
+                </button>
+              )}
+            </div>
+          </Popup>
+        </Marker>
+      ))}
     </MapContainer>
   );
 };

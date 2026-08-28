@@ -35,8 +35,7 @@ const Notifications = () => {
         .from("notifications")
         .select("*")
         .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(50);
+        .order("created_at", { ascending: false });
 
       for (const n of notifs ?? []) {
         list.push({
@@ -55,8 +54,7 @@ const Notifications = () => {
         .from("messages")
         .select("id, content, created_at, is_read, task_id, sender_id")
         .eq("receiver_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(30);
+        .order("created_at", { ascending: false });
 
       const senderIds = [...new Set((msgs ?? []).map((m) => m.sender_id))];
       const { data: profiles } = senderIds.length
