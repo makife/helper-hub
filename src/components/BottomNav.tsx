@@ -17,7 +17,12 @@ const BottomNav = () => {
         <MapPin size={20} className={isActive("/home") ? "text-primary" : "text-muted-foreground"} />
         <span className={`text-[10px] font-bold ${isActive("/home") ? "text-primary" : "text-muted-foreground"}`}>Keşfet</span>
       </button>
-      <button onClick={() => navigate("/my-tasks")} className="flex flex-col items-center gap-0.5">
+      <button onClick={() => navigate("/my-tasks")} className="relative flex flex-col items-center gap-0.5">
+        {pendingConfirmCount > 0 && (
+          <span className="absolute -top-1 right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[9px] font-black text-destructive-foreground">
+            {pendingConfirmCount > 9 ? "9+" : pendingConfirmCount}
+          </span>
+        )}
         <Briefcase size={20} className={isActive("/my-tasks") ? "text-primary" : "text-muted-foreground"} />
         <span className={`text-[10px] font-semibold ${isActive("/my-tasks") ? "text-primary" : "text-muted-foreground"}`}>İşlerim</span>
       </button>
