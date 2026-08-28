@@ -292,6 +292,48 @@ export type Database = {
           },
         ]
       }
+      store_purchases: {
+        Row: {
+          created_at: string
+          credits: number
+          currency: string | null
+          event_id: string
+          event_type: string
+          id: string
+          price: number | null
+          product_id: string
+          raw: Json | null
+          store: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          credits?: number
+          currency?: string | null
+          event_id: string
+          event_type: string
+          id?: string
+          price?: number | null
+          product_id: string
+          raw?: Json | null
+          store?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          credits?: number
+          currency?: string | null
+          event_id?: string
+          event_type?: string
+          id?: string
+          price?: number | null
+          product_id?: string
+          raw?: Json | null
+          store?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       task_assignments: {
         Row: {
           agreed_price: number | null
@@ -493,6 +535,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      grant_store_credits: {
+        Args: {
+          _credits: number
+          _currency: string
+          _event_id: string
+          _event_type: string
+          _price: number
+          _product_id: string
+          _raw: Json
+          _store: string
+          _user_id: string
+        }
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
