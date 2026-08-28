@@ -240,7 +240,7 @@ const Home = () => {
             <div className="pointer-events-auto flex flex-1 items-center gap-2 rounded-xl bg-card/95 px-3 py-2.5 shadow-card backdrop-blur">
               <MapPin size={16} className="text-primary" />
               <div>
-                <p className="text-xs text-muted-foreground">Yakınında</p>
+                <p className="text-xs text-muted-foreground">100 km Yakınında</p>
                 <p className="text-sm font-black text-foreground">{tasks.length} iş</p>
               </div>
             </div>
