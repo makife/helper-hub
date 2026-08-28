@@ -29,6 +29,7 @@ const Home = () => {
   const [ownerNames, setOwnerNames] = useState<Record<string, string>>({});
   const [fillCounts, setFillCounts] = useState<Record<string, number>>({});
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const unreadMessages = useUnreadNotifications();
   const { user } = useAuth();
   const { pending: pendingReviews, refresh: refreshPendingReviews } = usePendingReviews();
