@@ -7,7 +7,8 @@ import {
   Bike, Paintbrush, Utensils, Scissors, Car, Dog, Shirt, Tv, Wifi, Smartphone, 
   Plug, Cat, Hospital, Sprout, BatteryCharging, HeartHandshake, UserCheck, 
   Baby, BookOpen, MessageSquare, Guitar, Camera, PartyPopper, UtensilsCrossed, 
-  Hourglass, WashingMachine, Snowflake, HelpCircle, ShoppingCart, Eye, Timer, User, CheckCircle2
+  Hourglass, WashingMachine, Snowflake, HelpCircle, ShoppingCart, Eye, Timer, User, CheckCircle2,
+  Calendar
  } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -31,6 +32,7 @@ import {
   confirmDeadlineMs,
   formatRemaining,
 } from "@/lib/taskLifecycle";
+import { formatDateTime } from "@/lib/dateFormat";
 
 
 export const SUB_CATEGORIES = [
@@ -503,6 +505,10 @@ const MyTasks = () => {
                           <User size={11} className="text-primary" />
                           {item.owner?.full_name || "İş veren"}
                         </button>
+                        <span className="mt-1 flex items-center gap-1 text-[10px] font-semibold text-muted-foreground">
+                          <Calendar size={11} className="text-primary" />
+                          {formatDateTime(item.accepted_at)}
+                        </span>
                       </div>
                       <div className="text-right">
                         <p className="text-base font-black text-primary">
@@ -637,7 +643,11 @@ const MyTasks = () => {
                       )}
                     </div>
                     <p className={`text-xs font-semibold ${status.color}`}>{status.label}</p>
-                    <div className="mt-1 flex items-center gap-3 text-[10px] font-semibold text-muted-foreground">
+                    <div className="mt-1 flex flex-wrap items-center gap-3 text-[10px] font-semibold text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <Calendar size={11} className="text-primary" />
+                        {formatDateTime(task.created_at)}
+                      </span>
                       <span className="flex items-center gap-1">
                         <Timer size={11} className="text-primary" />
                         {task.status === "open" ? `Yayında ${formatElapsed(task.created_at, Date.now())}` : ""}
