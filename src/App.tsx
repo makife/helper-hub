@@ -7,6 +7,8 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import Welcome from "./pages/Welcome";
 import Onboarding from "./pages/Onboarding";
 import Login from "./pages/Login";
+import AuthCallback from "./pages/AuthCallback";
+import { setupNativeAuthListener } from "@/lib/nativeAuth";
 import ProfileSetup from "./pages/ProfileSetup";
 import Home from "./pages/Home";
 import CreateTask from "./pages/CreateTask";
@@ -22,6 +24,9 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+// Native OAuth deep-link geri dönüşünü yakalar (com.ergan.bielat://auth/callback)
+setupNativeAuthListener();
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
@@ -33,6 +38,7 @@ const App = () => (
             <Route path="/" element={<Welcome />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/profile-setup" element={<ProfileSetup />} />
             <Route path="/home" element={<Home />} />
             <Route path="/create-task" element={<CreateTask />} />
