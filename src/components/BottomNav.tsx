@@ -1,11 +1,13 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { MapPin, Briefcase, MessageCircle, User, Plus } from "lucide-react";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
+import { useTaskBadge } from "@/hooks/useTaskBadge";
 
 const BottomNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const unread = useUnreadMessages();
+  const pendingConfirmCount = useTaskBadge();
 
   const isActive = (path: string) => location.pathname === path;
 
