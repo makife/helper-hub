@@ -36,18 +36,18 @@ const Onboarding = () => {
     }
   };
 
+  const prev = () => {
+    if (current > 0) {
+      setCurrent(current - 1);
+    } else {
+      navigate("/welcome");
+    }
+  };
+
+  const skip = () => navigate("/login");
+
   return (
     <div className="flex min-h-screen flex-col bg-background px-6 pb-8 pt-12 safe-top safe-bottom">
-      {/* Skip */}
-      <div className="flex justify-end">
-        <button
-          onClick={() => navigate("/login")}
-          className="text-sm font-semibold text-muted-foreground"
-        >
-          Atla
-        </button>
-      </div>
-
       {/* Content */}
       <div className="flex flex-1 flex-col items-center justify-center">
         <AnimatePresence mode="wait">
