@@ -94,7 +94,7 @@ const Home = () => {
       .on("postgres_changes", { event: "*", schema: "public", table: "tasks" }, (payload) => {
         if (payload.eventType === "INSERT") {
           const newTask = mapTask(payload.new as Tables<"tasks">);
-          if (newTask.status === "open") {
+          if (newTask.status === "open" && withinRadius(newTask.lat, newTask.lng)) {
             setTasks((prev) => [newTask, ...prev]);
             setOwnerNames((prev) => {
               if (prev[newTask.owner_id]) return prev;
@@ -115,10 +115,12 @@ const Home = () => {
         } else if (payload.eventType === "UPDATE") {
           const updated = mapTask(payload.new as Tables<"tasks">);
           setTasks((prev) => {
-            if (updated.status !== "open") {
+            if (updated.status !== "open" || !withinRadius(updated.lat, updated.lng)) {
               return prev.filter((t) => t.id !== updated.id);
             }
-            return prev.map((t) => (t.id === updated.id ? updated : t));
+            const exists = prev.some((t) => t.id === updated.id);
+            if (exists) return prev.map((t) => (t.id === updated.id ? updated : t));
+            return [updated, ...prev];
           });
         } else if (payload.eventType === "DELETE") {
           const old = payload.old as { id: string };
