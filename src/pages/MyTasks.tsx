@@ -312,15 +312,43 @@ const MyTasks = () => {
   const handleRequestCompletion = async (taskId: string) => {
     if (!user) return;
     setIsUpdating(true);
-    const ok = await requestCompletion(taskId, user.id);
+    const res = await requestCompletion(taskId);
     setIsUpdating(false);
-    if (ok) {
-      toast.success("İş verene onay isteği gönderildi.");
+    if (res.ok) {
+      toast.success(res.message);
       await fetchAccepted();
     } else {
-      toast.error("İş tamamlanma isteği gönderilemedi.");
+      toast.error(res.message);
     }
   };
+
+  const handleMarkArrival = async (item: AcceptedItem) => {
+    setIsUpdating(true);
+    const res = await markArrival(item.task.id, item.task.latitude, item.task.longitude);
+    setIsUpdating(false);
+    if (res.ok) {
+      toast.success(res.message);
+      await fetchAccepted();
+    } else {
+      toast.error(res.message);
+    }
+  };
+
+  const handleRejectCompletion = async (taskId: string) => {
+    setIsUpdating(true);
+    const res = await rejectCompletion(taskId);
+    setIsUpdating(false);
+    setConfirmState(null);
+    if (res.ok) {
+      toast.success(res.message);
+      setSelectedTask(null);
+      await fetchTasks();
+      await fetchAccepted();
+    } else {
+      toast.error(res.message);
+    }
+  };
+
 
   const handleConfirmCompletion = async (taskId: string) => {
     setIsUpdating(true);
