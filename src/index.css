@@ -70,10 +70,16 @@
     overscroll-behavior: none;
   }
 
+  html {
+    font-size: 17px;
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'Nunito', sans-serif;
   }
+
 }
 
 @layer utilities {
