@@ -610,15 +610,18 @@ const MyTasks = () => {
 
             {tasks.map((task, i) => {
               const status = statusLabels[task.status] || statusLabels.open;
+              const isFaded = isClosedStatus(task.status);
 
               return (
                 <motion.div
                   key={task.id}
                   initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
+                  animate={{ y: 0, opacity: isFaded ? 0.5 : 1 }}
                   transition={{ delay: i * 0.05 }}
                   onClick={() => setSelectedTask(task)}
-                  className="flex cursor-pointer items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-card hover:bg-muted/50 transition-colors"
+                  className={`flex cursor-pointer items-center gap-3 rounded-2xl border border-border p-4 shadow-card transition-colors ${
+                    isFaded ? "bg-muted/40 grayscale hover:opacity-80" : "bg-card hover:bg-muted/50"
+                  }`}
                 >
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted text-2xl">
                     {getTaskEmoji(task.category, task.subcategory, task.title)}
