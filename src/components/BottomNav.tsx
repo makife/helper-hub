@@ -1,6 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { MapPin, Briefcase, MessageCircle, User, Plus } from "lucide-react";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
+import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
 import { useTaskBadge } from "@/hooks/useTaskBadge";
 
 const BottomNav = () => {
@@ -8,6 +9,8 @@ const BottomNav = () => {
   const location = useLocation();
   const unread = useUnreadMessages();
   const pendingConfirmCount = useTaskBadge();
+  const unreadNotifications = useUnreadNotifications();
+  const pulseTasks = pendingConfirmCount > 0 || unreadNotifications > 0;
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -23,7 +26,9 @@ const BottomNav = () => {
             {pendingConfirmCount > 9 ? "9+" : pendingConfirmCount}
           </span>
         )}
-        <Briefcase size={20} className={isActive("/my-tasks") ? "text-primary" : "text-muted-foreground"} />
+        <div className={`rounded-full p-1 ${pulseTasks ? "pulse-ring" : ""}`}>
+          <Briefcase size={20} className={isActive("/my-tasks") ? "text-primary" : "text-muted-foreground"} />
+        </div>
         <span className={`text-[10px] font-semibold ${isActive("/my-tasks") ? "text-primary" : "text-muted-foreground"}`}>İşlerim</span>
       </button>
 
