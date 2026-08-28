@@ -740,6 +740,14 @@ const MyTasks = () => {
                   </span>
                 </div>
 
+                {/* İş akışı zaman çizelgesi */}
+                <div className="border-t pt-2">
+                  <span className="text-muted-foreground text-xs font-semibold">İş Akışı:</span>
+                  <TaskTimeline task={selectedTask} arrivedAt={ownedArrivals[selectedTask.id]} />
+                </div>
+
+
+
                 {/* Görüntüleyenler (sadece iş veren) */}
                 {selectedTask.owner_id === user?.id && (
                   <div className="border-t pt-2">
