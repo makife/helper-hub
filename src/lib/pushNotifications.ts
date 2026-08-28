@@ -27,7 +27,10 @@ export async function initializePushNotifications(userId: string) {
     window.dispatchEvent(new CustomEvent('native-push-received', { detail: notification }));
   });
   await FirebaseMessaging.addListener('notificationActionPerformed', ({ notification }) => {
-    const path = notification.data?.path;
+    const data = notification.data;
+    const path = typeof data === 'object' && data !== null && 'path' in data
+      ? (data as { path?: unknown }).path
+      : undefined;
     if (typeof path === 'string' && path.startsWith('/')) {
       window.history.pushState({}, '', path);
       window.dispatchEvent(new PopStateEvent('popstate'));
