@@ -841,6 +841,7 @@ const MyTasks = () => {
         onConfirm={() => {
           if (!confirmState) return;
           if (confirmState.kind === "leave") handleLeave(confirmState.taskId);
+          else if (confirmState.kind === "reject") handleRejectCompletion(confirmState.taskId);
           else handleCancelTask(confirmState.taskId);
         }}
       />
