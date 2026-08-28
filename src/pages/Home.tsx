@@ -148,8 +148,22 @@ const Home = () => {
 
   const handleTaskClick = (task: { id: string }) => {
     const matched = tasks.find((t) => t.id === task.id);
-    if (matched) setSelectedTask(matched);
+    if (matched) {
+      setSelectedTask(matched);
+      setSearchParams({ task: matched.id });
+    }
   };
+
+  // URL'deki ?task= parametresine göre detay sayfasını aç/kapat
+  useEffect(() => {
+    const taskId = searchParams.get("task");
+    if (!taskId) {
+      setSelectedTask(null);
+      return;
+    }
+    const matched = tasks.find((t) => t.id === taskId);
+    if (matched) setSelectedTask(matched);
+  }, [searchParams, tasks]);
 
   const mapPins = tasks.map((t) => ({
     id: t.id,
