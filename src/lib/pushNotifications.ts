@@ -15,8 +15,8 @@ export async function initializePushNotifications(userId: string) {
   if (result.receive !== 'granted') return;
 
   await PushNotifications.register();
-
   await PushNotifications.removeAllListeners();
+
   await PushNotifications.addListener('registration', async (token: Token) => {
     const platform = Capacitor.getPlatform();
     const { error } = await supabase.from('device_tokens').upsert(
