@@ -499,7 +499,7 @@ const Profile = () => {
             <div className="mb-3 flex items-center justify-between">
               <p className="flex items-center gap-1.5 text-sm font-black text-foreground">
                 <BadgeCheck size={16} className="text-primary" />
-                Sertifika & Belgelerim
+                Yetkinlik Belgelerim
               </p>
               <button
                 onClick={() => setCredOpen(true)}
@@ -611,7 +611,7 @@ const Profile = () => {
             className="w-full rounded-t-3xl bg-card p-5 safe-bottom"
           >
             <div className="mb-4 flex items-center justify-between">
-              <p className="text-base font-black text-foreground">Sertifika / Belge Ekle</p>
+              <p className="text-base font-black text-foreground">Yetkinlik Belgesi Ekle</p>
               <button onClick={() => setCredOpen(false)} className="text-muted-foreground">
                 <X size={20} />
               </button>

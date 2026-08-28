@@ -131,9 +131,12 @@ const UserProfile = () => {
 
           {credentials.length > 0 && (
             <div className="mb-5 rounded-2xl bg-card p-4 shadow-card">
-              <p className="mb-3 flex items-center gap-1.5 text-sm font-black text-foreground">
+              <p className="mb-1 flex items-center gap-1.5 text-sm font-black text-foreground">
                 <BadgeCheck size={16} className="text-primary" />
-                Sertifika & Belgeler
+                Yetkinlik Belgeleri
+              </p>
+              <p className="mb-3 text-xs text-muted-foreground">
+                Bu belgeler kullanıcı tarafından yüklenmiştir; doğruluğu Bi' El At tarafından onaylanmamıştır.
               </p>
               <div className="grid grid-cols-2 gap-3">
                 {credentials.map((c) => (
