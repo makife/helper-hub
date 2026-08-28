@@ -381,8 +381,9 @@ const Profile = () => {
               <div>
                 <div className="mb-2 flex items-center justify-between">
                   <label className="block text-xs font-bold text-muted-foreground">
-                    Becerilerim {skillTags.length > 0 && `(${skillTags.length})`}
+                    Becerilerim ({skillTags.length}/10)
                   </label>
+
                   {skillTags.length > 0 && (
                     <button type="button" onClick={() => setSkillTags([])} className="text-xs font-bold text-muted-foreground">
                       Temizle
