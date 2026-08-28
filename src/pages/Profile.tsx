@@ -573,6 +573,52 @@ const Profile = () => {
         </div>
       )}
 
+      {/* Profil fotoğrafı seçim penceresi */}
+      {avatarSheetOpen && (
+        <div className="fixed inset-0 z-[1001] flex items-end justify-center bg-black/50" onClick={() => setAvatarSheetOpen(false)}>
+          <motion.div
+            initial={{ y: 80, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-md rounded-t-3xl bg-card p-5 pb-8 safe-bottom"
+          >
+            <h3 className="mb-4 text-center text-base font-black text-foreground">Profil Fotoğrafı</h3>
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() => { setAvatarSheetOpen(false); pickImage(uploadAvatar, true); }}
+                className="flex w-full items-center gap-3 rounded-2xl border-2 border-border bg-background px-4 py-3.5 text-left transition-all active:scale-[0.98]"
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+                  <Camera size={18} className="text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-foreground">Kamera ile Çek</p>
+                  <p className="text-xs text-muted-foreground">Yeni bir fotoğraf çek</p>
+                </div>
+              </button>
+              <button
+                onClick={() => { setAvatarSheetOpen(false); pickImage(uploadAvatar); }}
+                className="flex w-full items-center gap-3 rounded-2xl border-2 border-border bg-background px-4 py-3.5 text-left transition-all active:scale-[0.98]"
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+                  <Plus size={18} className="text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-foreground">Galeriden Seç</p>
+                  <p className="text-xs text-muted-foreground">Mevcut bir fotoğrafı kullan</p>
+                </div>
+              </button>
+              <button
+                onClick={() => setAvatarSheetOpen(false)}
+                className="mt-1 w-full rounded-2xl bg-muted py-3 text-sm font-bold text-muted-foreground transition-all active:scale-[0.98]"
+              >
+                Vazgeç
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
       <ConfirmDialog
         open={!!credToDelete}
         title="Belgeyi sil"
