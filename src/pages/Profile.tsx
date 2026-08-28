@@ -178,8 +178,17 @@ const Profile = () => {
 
   const filteredSkillGroups = searchSkills(skillQuery);
 
+  const MAX_SKILLS = 10;
+
   const toggleSkill = (skill: string) => {
-    setSkillTags((prev) => (prev.includes(skill) ? prev.filter((item) => item !== skill) : [...prev, skill]));
+    setSkillTags((prev) => {
+      if (prev.includes(skill)) return prev.filter((item) => item !== skill);
+      if (prev.length >= MAX_SKILLS) {
+        toast.error(`En fazla ${MAX_SKILLS} beceri ekleyebilirsin`);
+        return prev;
+      }
+      return [...prev, skill];
+    });
   };
 
   const saveCredential = async () => {
