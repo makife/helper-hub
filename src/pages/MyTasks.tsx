@@ -260,7 +260,7 @@ const MyTasks = () => {
     if (!user) return;
     const { data } = await supabase
       .from("task_assignments")
-      .select("id, agreed_price, created_at, tasks(*)")
+      .select("id, agreed_price, created_at, arrived_at, tasks(*)")
       .eq("tasker_id", user.id)
       .order("created_at", { ascending: false });
 
@@ -270,6 +270,7 @@ const MyTasks = () => {
         assignment_id: row.id,
         agreed_price: row.agreed_price,
         accepted_at: row.created_at,
+        arrived_at: row.arrived_at ?? null,
         task: row.tasks as Tables<"tasks">,
         owner: null,
       }));
