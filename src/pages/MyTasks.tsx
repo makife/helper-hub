@@ -204,6 +204,7 @@ type AcceptedItem = {
   assignment_id: string;
   agreed_price: number | null;
   accepted_at: string;
+  arrived_at?: string | null;
   task: Tables<"tasks">;
   owner?: { full_name: string; avatar_url: string | null; user_id: string } | null;
 };
