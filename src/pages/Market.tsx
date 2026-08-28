@@ -13,8 +13,10 @@ import {
   isNativePlatform,
   purchaseStorePack,
   restorePurchases,
+  type PurchaseOutcome,
   type StorePack,
 } from "@/lib/revenuecat";
+
 
 type Pack = {
   id: string;
@@ -126,13 +128,14 @@ const Market = () => {
 
     if (native && selected.storePack) {
       const before = credits;
-      const result = await purchaseStorePack(selected.storePack);
+      const result: PurchaseOutcome = await purchaseStorePack(selected.storePack);
       setBuying(false);
       setSelected(null);
-      if (!result.ok) {
+      if (result.ok === false) {
         if (!result.cancelled) toast.error(result.message);
         return;
       }
+
       toast.success("Satın alma alındı, kredin yükleniyor…");
       const arrived = await waitForCredits(before);
       if (arrived) toast.success(`${total} kredi hesabına eklendi 🎉`);
