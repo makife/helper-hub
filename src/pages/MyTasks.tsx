@@ -7,7 +7,8 @@ import {
   Bike, Paintbrush, Utensils, Scissors, Car, Dog, Shirt, Tv, Wifi, Smartphone, 
   Plug, Cat, Hospital, Sprout, BatteryCharging, HeartHandshake, UserCheck, 
   Baby, BookOpen, MessageSquare, Guitar, Camera, PartyPopper, UtensilsCrossed, 
-  Hourglass, WashingMachine, Snowflake, HelpCircle, ShoppingCart, Eye, Timer, User, CheckCircle2
+  Hourglass, WashingMachine, Snowflake, HelpCircle, ShoppingCart, Eye, Timer, User, CheckCircle2,
+  Calendar
  } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -31,6 +32,7 @@ import {
   confirmDeadlineMs,
   formatRemaining,
 } from "@/lib/taskLifecycle";
+import { formatDateTime } from "@/lib/dateFormat";
 
 
 export const SUB_CATEGORIES = [
