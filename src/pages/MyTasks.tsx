@@ -644,7 +644,7 @@ const MyTasks = () => {
                       </span>
                       {task.status === "pending_confirm" && (
                         <span className="flex items-center gap-1">
-                          Onay için {formatRemaining(confirmDeadlineMs(task.completion_requested_at))}
+                          El atan bitirdi, onay için {formatRemaining(confirmDeadlineMs(task.completion_requested_at))}
                         </span>
                       )}
                       <span className="flex items-center gap-1">
