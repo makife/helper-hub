@@ -90,7 +90,25 @@ const Onboarding = () => {
         ))}
       </div>
 
-      {/* Button */}
+      {/* Back / Skip controls */}
+      <div className="mb-4 flex items-center gap-3">
+        <button
+          onClick={prev}
+          className="flex flex-1 items-center justify-center gap-2 rounded-2xl border-2 border-border bg-card px-5 py-3.5 text-sm font-bold text-foreground shadow-card transition-all active:scale-[0.98]"
+        >
+          <ChevronLeft size={18} className="text-primary" />
+          Geri
+        </button>
+        <button
+          onClick={skip}
+          className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3.5 text-sm font-bold text-primary-foreground shadow-soft transition-all active:scale-[0.98]"
+        >
+          Atla
+          <ChevronRight size={18} className="opacity-80" />
+        </button>
+      </div>
+
+      {/* Main CTA */}
       <button
         onClick={next}
         className="gradient-warm w-full rounded-2xl px-6 py-4 text-lg font-bold text-primary-foreground shadow-soft transition-transform active:scale-[0.98]"
