@@ -239,7 +239,10 @@ const Home = () => {
         {selectedTask && (
           <TaskDetailSheet
             task={selectedTask}
-            onClose={() => setSelectedTask(null)}
+            onClose={() => {
+              setSelectedTask(null);
+              setSearchParams({});
+            }}
           />
         )}
       </AnimatePresence>
