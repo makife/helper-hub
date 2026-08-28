@@ -295,6 +295,8 @@ export type Database = {
       task_assignments: {
         Row: {
           agreed_price: number | null
+          arrival_distance_m: number | null
+          arrived_at: string | null
           created_at: string
           id: string
           status: string
@@ -304,6 +306,8 @@ export type Database = {
         }
         Insert: {
           agreed_price?: number | null
+          arrival_distance_m?: number | null
+          arrived_at?: string | null
           created_at?: string
           id?: string
           status?: string
@@ -313,6 +317,8 @@ export type Database = {
         }
         Update: {
           agreed_price?: number | null
+          arrival_distance_m?: number | null
+          arrived_at?: string | null
           created_at?: string
           id?: string
           status?: string
@@ -370,10 +376,13 @@ export type Database = {
           created_at: string
           current_price: number | null
           description: string
+          dispute_reason: string | null
+          disputed_at: string | null
           estimated_minutes: number
           expires_at: string | null
           id: string
           is_demo: boolean | null
+          last_rejected_at: string | null
           latitude: number
           longitude: number
           matched_at: string | null
@@ -383,6 +392,7 @@ export type Database = {
           photo_urls: string[] | null
           price: number
           price_drop_started_at: string | null
+          rejection_count: number
           status: Database["public"]["Enums"]["task_status"]
           subcategory: string | null
           tasker_id: string | null
@@ -400,10 +410,13 @@ export type Database = {
           created_at?: string
           current_price?: number | null
           description: string
+          dispute_reason?: string | null
+          disputed_at?: string | null
           estimated_minutes?: number
           expires_at?: string | null
           id?: string
           is_demo?: boolean | null
+          last_rejected_at?: string | null
           latitude: number
           longitude: number
           matched_at?: string | null
@@ -413,6 +426,7 @@ export type Database = {
           photo_urls?: string[] | null
           price: number
           price_drop_started_at?: string | null
+          rejection_count?: number
           status?: Database["public"]["Enums"]["task_status"]
           subcategory?: string | null
           tasker_id?: string | null
@@ -430,10 +444,13 @@ export type Database = {
           created_at?: string
           current_price?: number | null
           description?: string
+          dispute_reason?: string | null
+          disputed_at?: string | null
           estimated_minutes?: number
           expires_at?: string | null
           id?: string
           is_demo?: boolean | null
+          last_rejected_at?: string | null
           latitude?: number
           longitude?: number
           matched_at?: string | null
@@ -443,6 +460,7 @@ export type Database = {
           photo_urls?: string[] | null
           price?: number
           price_drop_started_at?: string | null
+          rejection_count?: number
           status?: Database["public"]["Enums"]["task_status"]
           subcategory?: string | null
           tasker_id?: string | null
@@ -482,7 +500,17 @@ export type Database = {
         }
         Returns: boolean
       }
+      mark_arrival: {
+        Args: { _distance_m: number; _task_id: string }
+        Returns: boolean
+      }
       process_task_lifecycle: { Args: never; Returns: undefined }
+      reject_task_completion: {
+        Args: { _reason?: string; _task_id: string }
+        Returns: string
+      }
+      request_task_completion: { Args: { _task_id: string }; Returns: string }
+      resolve_dispute: { Args: { _task_id: string }; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
@@ -501,6 +529,7 @@ export type Database = {
         | "cancelled"
         | "pending_confirm"
         | "expired"
+        | "disputed"
       task_urgency: "urgent" | "can_wait"
       user_role: "owner" | "tasker"
     }
@@ -647,6 +676,7 @@ export const Constants = {
         "cancelled",
         "pending_confirm",
         "expired",
+        "disputed",
       ],
       task_urgency: ["urgent", "can_wait"],
       user_role: ["owner", "tasker"],

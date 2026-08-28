@@ -24,6 +24,9 @@ import {
   isClosedStatus,
   requestCompletion,
   confirmCompletion,
+  rejectCompletion,
+  markArrival,
+  completionUnlockMs,
   confirmDeadlineMs,
   formatRemaining,
 } from "@/lib/taskLifecycle";
@@ -204,6 +207,7 @@ type AcceptedItem = {
   assignment_id: string;
   agreed_price: number | null;
   accepted_at: string;
+  arrived_at?: string | null;
   task: Tables<"tasks">;
   owner?: { full_name: string; avatar_url: string | null; user_id: string } | null;
 };
@@ -216,7 +220,7 @@ const MyTasks = () => {
   const [selectedTask, setSelectedTask] = useState<Tables<"tasks"> | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
   const [confirmState, setConfirmState] = useState<
-    | { kind: "leave" | "cancel"; taskId: string; title: string; description: string; confirmLabel: string }
+    | { kind: "leave" | "cancel" | "reject"; taskId: string; title: string; description: string; confirmLabel: string }
     | null
   >(null);
   const { pending: pendingReviews, refresh: refreshPendingReviews } = usePendingReviews();
@@ -260,7 +264,7 @@ const MyTasks = () => {
     if (!user) return;
     const { data } = await supabase
       .from("task_assignments")
-      .select("id, agreed_price, created_at, tasks(*)")
+      .select("id, agreed_price, created_at, arrived_at, tasks(*)")
       .eq("tasker_id", user.id)
       .order("created_at", { ascending: false });
 
@@ -270,6 +274,7 @@ const MyTasks = () => {
         assignment_id: row.id,
         agreed_price: row.agreed_price,
         accepted_at: row.created_at,
+        arrived_at: row.arrived_at ?? null,
         task: row.tasks as Tables<"tasks">,
         owner: null,
       }));
@@ -310,15 +315,43 @@ const MyTasks = () => {
   const handleRequestCompletion = async (taskId: string) => {
     if (!user) return;
     setIsUpdating(true);
-    const ok = await requestCompletion(taskId, user.id);
+    const res = await requestCompletion(taskId);
     setIsUpdating(false);
-    if (ok) {
-      toast.success("İş verene onay isteği gönderildi.");
+    if (res.ok) {
+      toast.success(res.message);
       await fetchAccepted();
     } else {
-      toast.error("İş tamamlanma isteği gönderilemedi.");
+      toast.error(res.message);
     }
   };
+
+  const handleMarkArrival = async (item: AcceptedItem) => {
+    setIsUpdating(true);
+    const res = await markArrival(item.task.id, item.task.latitude, item.task.longitude);
+    setIsUpdating(false);
+    if (res.ok) {
+      toast.success(res.message);
+      await fetchAccepted();
+    } else {
+      toast.error(res.message);
+    }
+  };
+
+  const handleRejectCompletion = async (taskId: string) => {
+    setIsUpdating(true);
+    const res = await rejectCompletion(taskId);
+    setIsUpdating(false);
+    setConfirmState(null);
+    if (res.ok) {
+      toast.success(res.message);
+      setSelectedTask(null);
+      await fetchTasks();
+      await fetchAccepted();
+    } else {
+      toast.error(res.message);
+    }
+  };
+
 
   const handleConfirmCompletion = async (taskId: string) => {
     setIsUpdating(true);
@@ -478,15 +511,39 @@ const MyTasks = () => {
                         >
                           İşi Aç 💬
                         </button>
-                        <button
-                          onClick={() => handleRequestCompletion(t.id)}
-                          disabled={isUpdating}
-                          className="flex-1 rounded-xl bg-accent py-2.5 text-xs font-bold text-accent-foreground disabled:opacity-50"
-                        >
-                          <CheckCircle2 size={14} className="mr-1 inline" /> Bitirdim
-                        </button>
+                        {!item.arrived_at ? (
+                          <button
+                            onClick={() => handleMarkArrival(item)}
+                            disabled={isUpdating}
+                            className="flex-1 rounded-xl bg-accent py-2.5 text-xs font-bold text-accent-foreground disabled:opacity-50"
+                          >
+                            <User size={14} className="mr-1 inline" /> Vardım
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleRequestCompletion(t.id)}
+                            disabled={isUpdating || (completionUnlockMs(item.arrived_at, t.estimated_minutes) ?? 0) > 0}
+                            className="flex-1 rounded-xl bg-accent py-2.5 text-xs font-bold text-accent-foreground disabled:opacity-50"
+                          >
+                            <CheckCircle2 size={14} className="mr-1 inline" />
+                            {(completionUnlockMs(item.arrived_at, t.estimated_minutes) ?? 0) > 0
+                              ? formatRemaining(completionUnlockMs(item.arrived_at, t.estimated_minutes) ?? 0)
+                              : "Bitirdim"}
+                          </button>
+                        )}
                       </div>
                     )}
+                    {!isDone && t.status !== "pending_confirm" && !item.arrived_at && (
+                      <p className="mt-2 text-[10px] text-muted-foreground">
+                        İş konumuna 300 m yaklaşınca "Vardım" de; "Bitirdim" bundan sonra açılır.
+                      </p>
+                    )}
+                    {t.rejection_count ? (
+                      <p className="mt-2 rounded-xl bg-destructive/10 p-2 text-[10px] font-semibold text-destructive">
+                        İş veren itiraz etti ({t.rejection_count}/2). Tamamlayıp tekrar bildir.
+                      </p>
+                    ) : null}
+
                     {!isDone && t.status === "pending_confirm" && !isMyCompletionRequest && (
                       <button
                         onClick={() => handleConfirmCompletion(t.id)}
@@ -704,15 +761,37 @@ const MyTasks = () => {
 
               <div className="flex gap-2 pt-3">
                 {selectedTask.status === "pending_confirm" && selectedTask.owner_id === user?.id && (
-                  <button
-                    onClick={() => handleConfirmCompletion(selectedTask.id)}
-                    disabled={isUpdating}
-                    className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground py-3 font-bold disabled:opacity-50"
-                  >
-                    <CheckCircle2 size={18} />
-                    İşi Onayla ve Tamamla
-                  </button>
+                  <>
+                    <button
+                      onClick={() => handleConfirmCompletion(selectedTask.id)}
+                      disabled={isUpdating}
+                      className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground py-3 font-bold disabled:opacity-50"
+                    >
+                      <CheckCircle2 size={18} />
+                      Onayla
+                    </button>
+                    <button
+                      onClick={() =>
+                        setConfirmState({
+                          kind: "reject",
+                          taskId: selectedTask.id,
+                          title: "İş yapılmadı mı?",
+                          description:
+                            (selectedTask.rejection_count ?? 0) >= 1
+                              ? "Bu ikinci itirazın. Anlaşmazlık olarak değerlendirilecek ve varış kaydına göre tarafsız sonuçlandırılacak."
+                              : "El atan kişiye bildirilecek, işi tamamlayıp tekrar bildirebilecek. Haksız itirazlar sicilinize işlenir.",
+                          confirmLabel: "İtiraz Et",
+                        })
+                      }
+                      disabled={isUpdating}
+                      className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-destructive/10 text-destructive py-3 font-bold disabled:opacity-50"
+                    >
+                      <X size={18} />
+                      İş Yapılmadı
+                    </button>
+                  </>
                 )}
+
                 {selectedTask.status === "open" && selectedTask.owner_id === user?.id && (
                   <>
                     <button
@@ -762,6 +841,7 @@ const MyTasks = () => {
         onConfirm={() => {
           if (!confirmState) return;
           if (confirmState.kind === "leave") handleLeave(confirmState.taskId);
+          else if (confirmState.kind === "reject") handleRejectCompletion(confirmState.taskId);
           else handleCancelTask(confirmState.taskId);
         }}
       />

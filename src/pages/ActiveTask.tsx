@@ -1,13 +1,14 @@
 import { useEffect, useState, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Navigation, MessageCircle, Send, MapPin, User, Clock, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Navigation, MessageCircle, Send, MapPin, User, Clock, CheckCircle2, XCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import RouteMap from "@/components/RouteMap";
 import type { Tables } from "@/integrations/supabase/types";
 import { getTaskEmoji } from "@/lib/taskCategories";
-import { confirmCompletion, confirmDeadlineMs, formatRemaining, requestCompletion, taskStatusLabels } from "@/lib/taskLifecycle";
+import { confirmCompletion, confirmDeadlineMs, formatRemaining, requestCompletion, rejectCompletion, markArrival, completionUnlockMs, taskStatusLabels } from "@/lib/taskLifecycle";
 
 type TaskerEntry = { tasker_id: string; profile: Tables<"profiles"> | null };
 
@@ -17,6 +18,10 @@ const ActiveTask = () => {
   const { user } = useAuth();
   const [task, setTask] = useState<Tables<"tasks"> | null>(null);
   const [taskers, setTaskers] = useState<TaskerEntry[]>([]);
+  const [myArrivedAt, setMyArrivedAt] = useState<string | null>(null);
+  const [arriving, setArriving] = useState(false);
+  const [rejectOpen, setRejectOpen] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
   const [ownerProfile, setOwnerProfile] = useState<Tables<"profiles"> | null>(null);
   const [partnerId, setPartnerId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Tables<"messages">[]>([]);
@@ -45,11 +50,12 @@ const ActiveTask = () => {
 
       const { data: assignments } = await supabase
         .from("task_assignments")
-        .select("tasker_id")
+        .select("tasker_id, arrived_at")
         .eq("task_id", taskId)
         .eq("status", "accepted")
         .order("created_at", { ascending: true });
 
+      setMyArrivedAt((assignments || []).find((a) => a.tasker_id === user.id)?.arrived_at ?? null);
       const ids = (assignments || []).map((a) => a.tasker_id);
       let profiles: Tables<"profiles">[] = [];
       if (ids.length > 0) {
@@ -282,39 +288,84 @@ const ActiveTask = () => {
 
         {/* Completion actions */}
         {task.status === "pending_confirm" && isOwner && (
-          <button
-            onClick={async () => {
-              const ok = await confirmCompletion(task.id);
-              if (ok) {
-                setTask((current) => current ? { ...current, status: "completed", completed_at: new Date().toISOString() } : current);
-                toast.success("Yardım çağrısı tamamlandı.");
-              } else toast.error("İş tamamlanamadı, tekrar dene.");
-            }}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 font-bold text-primary-foreground shadow-soft"
-          >
-            <CheckCircle2 size={18} /> İşi Onayla ve Tamamla
-          </button>
+          <div className="space-y-2">
+            <button
+              onClick={async () => {
+                const ok = await confirmCompletion(task.id);
+                if (ok) {
+                  setTask((current) => current ? { ...current, status: "completed", completed_at: new Date().toISOString() } : current);
+                  toast.success("Yardım çağrısı tamamlandı.");
+                } else toast.error("İş tamamlanamadı, tekrar dene.");
+              }}
+              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 font-bold text-primary-foreground shadow-soft"
+            >
+              <CheckCircle2 size={18} /> İşi Onayla ve Tamamla
+            </button>
+            <button
+              onClick={() => setRejectOpen(true)}
+              className="flex w-full items-center justify-center gap-2 rounded-2xl border border-destructive/40 px-4 py-3 text-sm font-bold text-destructive"
+            >
+              <XCircle size={18} /> İş Yapılmadı
+            </button>
+            <p className="text-center text-[11px] text-muted-foreground">
+              {(task.rejection_count ?? 0) >= 1
+                ? "İkinci itirazın anlaşmazlık olarak tarafsız kurallarla sonuçlanır."
+                : "İtiraz edersen el atan kişi işi tamamlayıp tekrar bildirebilir."}
+            </p>
+          </div>
         )}
-        {task.status !== "completed" && task.status !== "cancelled" && task.status !== "expired" && isTasker && task.status !== "pending_confirm" && (
-          <button
-            onClick={async () => {
-              if (!user) return;
-              const ok = await requestCompletion(task.id, user.id);
-              if (ok) {
-                setTask((current) => current ? { ...current, status: "pending_confirm", completion_requested_at: new Date().toISOString(), completion_requested_by: user.id } : current);
-                toast.success("İş verene onay isteği gönderildi.");
-              } else toast.error("İş tamamlanma isteği gönderilemedi.");
-            }}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-accent px-4 py-3 font-bold text-accent-foreground"
-          >
-            <CheckCircle2 size={18} /> İşi Bitirdim
-          </button>
+
+        {/* Tasker: varış kaydı + bitirdim */}
+        {isTasker && !["completed", "cancelled", "expired", "disputed", "pending_confirm"].includes(task.status) && (
+          <div className="space-y-2">
+            {!myArrivedAt ? (
+              <button
+                disabled={arriving}
+                onClick={async () => {
+                  setArriving(true);
+                  const res = await markArrival(task.id, task.latitude, task.longitude);
+                  setArriving(false);
+                  if (res.ok) {
+                    setMyArrivedAt(new Date().toISOString());
+                    toast.success(res.message);
+                  } else toast.error(res.message);
+                }}
+                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-accent px-4 py-3 font-bold text-accent-foreground disabled:opacity-50"
+              >
+                <MapPin size={18} /> {arriving ? "Konum kontrol ediliyor..." : "Vardım (Konumumu Doğrula)"}
+              </button>
+            ) : (
+              <button
+                disabled={(completionUnlockMs(myArrivedAt, task.estimated_minutes) ?? 1) > 0}
+                onClick={async () => {
+                  const res = await requestCompletion(task.id);
+                  if (res.ok) {
+                    setTask((current) => current ? { ...current, status: "pending_confirm", completion_requested_at: new Date().toISOString(), completion_requested_by: user!.id } : current);
+                    toast.success(res.message);
+                  } else toast.error(res.message);
+                }}
+                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-accent px-4 py-3 font-bold text-accent-foreground disabled:opacity-50"
+              >
+                <CheckCircle2 size={18} />
+                {(completionUnlockMs(myArrivedAt, task.estimated_minutes) ?? 0) > 0
+                  ? `İşi Bitirdim · ${formatRemaining(completionUnlockMs(myArrivedAt, task.estimated_minutes) ?? 0)} sonra`
+                  : "İşi Bitirdim"}
+              </button>
+            )}
+            <p className="text-center text-[11px] text-muted-foreground">
+              {myArrivedAt
+                ? "Varışın kayıtlı. İtiraz olursa bu kayıt seni korur."
+                : "İş konumuna 300 m yaklaşınca varışını kaydet — bitirdim butonu bundan sonra açılır."}
+            </p>
+          </div>
         )}
+
         {task.status === "pending_confirm" && isTasker && (
           <p className="rounded-2xl bg-muted px-4 py-3 text-center text-xs font-semibold text-muted-foreground">
             Onay bekleniyor · {formatRemaining(confirmDeadlineMs(task.completion_requested_at))}
           </p>
         )}
+
 
         {/* Route button */}
         <button
@@ -376,7 +427,69 @@ const ActiveTask = () => {
           </button>
         </div>
       </div>
+
+      {/* İtiraz penceresi */}
+      <AnimatePresence>
+        {rejectOpen && (
+          <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/60 p-5">
+            <motion.div
+              initial={{ scale: 0.94, opacity: 0, y: 16 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.94, opacity: 0, y: 16 }}
+              className="w-full max-w-sm rounded-3xl border border-border bg-card p-6 shadow-xl"
+            >
+              <h2 className="text-lg font-black text-foreground">İş yapılmadı mı?</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {(task.rejection_count ?? 0) >= 1
+                  ? "Bu ikinci itirazın. Anlaşmazlık olarak değerlendirilecek ve varış kaydına göre tarafsız sonuçlandırılacak."
+                  : "El atan kişiye bildirilecek ve işi tamamlayıp tekrar bildirebilecek. Haksız itirazlar sicilinize işlenir."}
+              </p>
+              <textarea
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                maxLength={300}
+                rows={3}
+                placeholder="Nedenini kısaca yaz"
+                className="mt-4 w-full resize-none rounded-2xl border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+              />
+              <div className="mt-4 flex gap-2">
+                <button
+                  onClick={() => setRejectOpen(false)}
+                  className="flex-1 rounded-2xl border border-border py-3 text-sm font-bold text-muted-foreground"
+                >
+                  Vazgeç
+                </button>
+                <button
+                  onClick={async () => {
+                    const res = await rejectCompletion(task.id, rejectReason.trim() || undefined);
+                    setRejectOpen(false);
+                    setRejectReason("");
+                    if (res.ok) {
+                      toast.success(res.message);
+                      setTask((current) =>
+                        current
+                          ? {
+                              ...current,
+                              status: res.code === "disputed" ? "cancelled" : "in_progress",
+                              rejection_count: (current.rejection_count ?? 0) + 1,
+                              completion_requested_at: null,
+                              completion_requested_by: null,
+                            }
+                          : current
+                      );
+                    } else toast.error(res.message);
+                  }}
+                  className="flex-1 rounded-2xl bg-destructive py-3 text-sm font-bold text-destructive-foreground"
+                >
+                  İtiraz Et
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
+
   );
 };
 
