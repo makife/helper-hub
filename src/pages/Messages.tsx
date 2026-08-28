@@ -140,15 +140,13 @@ const Messages = () => {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-bold text-foreground truncate">{conv.other_user_name}</h3>
-                    <span className="flex items-center gap-1 text-[10px] text-muted-foreground ml-2 flex-shrink-0">
-                      <Calendar size={10} />
-                      {dateLabel(conv.last_message_at)}
-                    </span>
-                  </div>
+                  <h3 className="truncate text-sm font-bold text-foreground">{conv.other_user_name}</h3>
                   <p className="text-xs text-muted-foreground truncate">{conv.task_title}</p>
                   <p className="text-xs text-muted-foreground truncate mt-0.5">{conv.last_message}</p>
+                  <span className="mt-1 flex items-center gap-1 text-[10px] text-muted-foreground">
+                    <Calendar size={10} />
+                    {dateLabel(conv.last_message_at)}
+                  </span>
                 </div>
                 {conv.unread_count > 0 && (
                   <div className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary px-1.5">

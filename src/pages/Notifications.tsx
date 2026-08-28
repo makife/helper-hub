@@ -143,11 +143,11 @@ const Notifications = () => {
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-bold text-foreground">{n.title}</p>
                 <p className="truncate text-xs text-muted-foreground">{n.body}</p>
+                <span className="mt-1 flex items-center gap-1 text-[10px] font-semibold text-muted-foreground">
+                  <Calendar size={10} />
+                  {dateLabel(n.at)}
+                </span>
               </div>
-              <span className="flex shrink-0 items-center gap-1 text-[10px] font-semibold text-muted-foreground">
-                <Calendar size={10} />
-                {dateLabel(n.at)}
-              </span>
             </button>
           ))}
         </div>
