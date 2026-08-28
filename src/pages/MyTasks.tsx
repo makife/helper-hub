@@ -522,7 +522,7 @@ const MyTasks = () => {
                     {t.status === "pending_confirm" && (
                       <p className="mt-3 rounded-xl bg-muted/60 p-2.5 text-xs font-semibold text-muted-foreground">
                         {isMyCompletionRequest
-                          ? "İş verenden onay bekleniyor. 24 saat içinde otomatik tamamlanır."
+                          ? "El atan bitirdiğini belirtti, sizden onay bekliyor. 24 saat içinde otomatik tamamlanır."
                           : `İşi tamamlamak için kalan süre: ${formatRemaining(confirmDeadlineMs(t.completion_requested_at))}`}
                       </p>
                     )}
