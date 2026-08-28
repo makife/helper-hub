@@ -68,7 +68,7 @@ const Home = () => {
         .eq("status", "open")
         .order("created_at", { ascending: false });
 
-      const mapped = (data || []).map(mapTask);
+      const mapped = (data || []).map(mapTask).filter((t) => withinRadius(t.lat, t.lng));
       setTasks(mapped);
 
       setFillCounts(await fetchAssignmentCounts(mapped.map((t) => t.id)));
