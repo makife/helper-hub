@@ -237,7 +237,11 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
         )}
 
         {user?.id !== task.owner_id && (
-          iAccepted ? (
+          task.status === "expired" ? (
+            <div className="w-full rounded-2xl bg-muted px-6 py-4 text-center text-sm font-bold text-muted-foreground">
+              Bu yardım çağrısının süresi doldu
+            </div>
+          ) : iAccepted ? (
             <div className="space-y-2">
               <button
                 onClick={() => { onClose(); navigate(`/task/${task.id}`); }}
