@@ -24,6 +24,9 @@ import {
   isClosedStatus,
   requestCompletion,
   confirmCompletion,
+  rejectCompletion,
+  markArrival,
+  completionUnlockMs,
   confirmDeadlineMs,
   formatRemaining,
 } from "@/lib/taskLifecycle";
