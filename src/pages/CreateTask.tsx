@@ -194,7 +194,14 @@ const CreateTask = () => {
       setLoading(false);
 
       if (error) {
-        toast.error(editTaskId ? "Yardım çağrısı güncellenemedi." : "Yardım çağrısı oluşturulamadı.");
+        if (!editTaskId && error.message?.includes("Yetersiz kredi")) {
+          toast.error("Yetersiz kredi! Yardım çağrısı oluşturmak için 1 kredi gerekli.", {
+            action: { label: "Kredi Yükle", onClick: () => navigate("/market") },
+            duration: 6000,
+          });
+        } else {
+          toast.error(editTaskId ? "Yardım çağrısı güncellenemedi." : "Yardım çağrısı oluşturulamadı.");
+        }
         console.error(error);
         return;
       }
