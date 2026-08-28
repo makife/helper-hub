@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import ReviewDialog from "@/components/ReviewDialog";
 import { usePendingReviews } from "@/hooks/usePendingReviews";
+import TaskTimeline from "@/components/TaskTimeline";
 import {
   taskStatusLabels as statusLabels,
   isClosedStatus,
