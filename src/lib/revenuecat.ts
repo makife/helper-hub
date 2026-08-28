@@ -11,8 +11,8 @@ import {
  * RevenueCat → Project Settings → API keys ekranından alınır.
  */
 export const REVENUECAT_KEYS = {
-  ios: "", // appl_xxxxxxxxxxxxxxxxxxxx
-  android: "", // goog_xxxxxxxxxxxxxxxxxxxx
+  ios: "", // appl_LkUWptnaBNRBvxaaIGCFZvfKDrr
+  android: "", // goog_pEDsXcVoklDKmEkABsxQawbCgoW
 };
 
 /** RevenueCat ürün kimliği → yüklenecek kredi (bonus dahil) */
