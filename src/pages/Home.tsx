@@ -229,20 +229,14 @@ const Home = () => {
 
         {/* Stats overlay, floating on top of the map */}
         {(
-          <div className="pointer-events-none absolute inset-x-3 bottom-3 flex gap-3">
-            <div className="pointer-events-auto flex flex-1 items-center gap-2 rounded-xl bg-card/95 px-3 py-2.5 shadow-card backdrop-blur">
-              <Zap size={16} className="text-primary" />
-              <div>
-                <p className="text-xs text-muted-foreground">Açık İşler</p>
-                <p className="text-sm font-black text-foreground">{tasks.length} iş var</p>
-              </div>
+          <div className="pointer-events-none absolute inset-x-3 top-3 flex justify-end gap-2">
+            <div className="flex items-center gap-1.5 rounded-full bg-card/95 px-3 py-1.5 shadow-card backdrop-blur">
+              <Zap size={12} className="text-primary" />
+              <p className="text-[11px] font-black text-foreground">{tasks.length} açık iş</p>
             </div>
-            <div className="pointer-events-auto flex flex-1 items-center gap-2 rounded-xl bg-card/95 px-3 py-2.5 shadow-card backdrop-blur">
-              <MapPin size={16} className="text-primary" />
-              <div>
-                <p className="text-xs text-muted-foreground">100 km Yakınında</p>
-                <p className="text-sm font-black text-foreground">{tasks.length} iş</p>
-              </div>
+            <div className="flex items-center gap-1.5 rounded-full bg-card/95 px-3 py-1.5 shadow-card backdrop-blur">
+              <MapPin size={12} className="text-primary" />
+              <p className="text-[11px] font-black text-foreground">100 km yakınında</p>
             </div>
           </div>
         )}
