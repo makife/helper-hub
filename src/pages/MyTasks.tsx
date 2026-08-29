@@ -265,7 +265,7 @@ const MyTasks = () => {
 
       const { data: assigns } = await supabase
         .from("task_assignments")
-        .select("task_id, arrived_at")
+        .select("task_id, arrived_at, tasker_id")
         .in("task_id", ownedIds)
         .eq("status", "accepted");
       const arrivals: Record<string, string | null> = {};
@@ -275,6 +275,27 @@ const MyTasks = () => {
         }
       });
       setOwnedArrivals(arrivals);
+
+      const taskerIds = [...new Set((assigns || []).map((a) => a.tasker_id))];
+      if (taskerIds.length > 0) {
+        const { data: taskerProfiles } = await supabase
+          .from("profiles")
+          .select("user_id, full_name, avatar_url")
+          .in("user_id", taskerIds);
+        const taskerMap: Record<string, { user_id: string; full_name: string; avatar_url: string | null }[]> = {};
+        (assigns || []).forEach((a) => {
+          const p = (taskerProfiles || []).find((tp) => tp.user_id === a.tasker_id);
+          if (p) {
+            taskerMap[a.task_id] = taskerMap[a.task_id] || [];
+            if (!taskerMap[a.task_id].some((x) => x.user_id === p.user_id)) {
+              taskerMap[a.task_id].push(p);
+            }
+          }
+        });
+        setOwnedTaskers(taskerMap);
+      } else {
+        setOwnedTaskers({});
+      }
     }
   };
 
