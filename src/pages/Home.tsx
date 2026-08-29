@@ -178,6 +178,8 @@ const Home = () => {
   };
 
   const handleLocateMe = () => {
+    // Bilinen konum varsa anında oraya uç, GPS'i arka planda tazele
+    if (userPos) setMapCenter([userPos[0], userPos[1]]);
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
@@ -186,9 +188,11 @@ const Home = () => {
           setMapCenter(coords);
         },
         () => {}, // silently fail
+        { enableHighAccuracy: true, timeout: 8000, maximumAge: 30000 },
       );
     }
   };
+
 
   // URL'deki ?task= parametresine göre detay sayfasını aç/kapat
   useEffect(() => {
