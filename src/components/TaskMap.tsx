@@ -138,46 +138,50 @@ const TaskMap = ({ tasks, center = [40.9903, 29.0297], userPos = null, onTaskCli
           icon={createEmojiIcon(task.emoji, task.urgent)}
         >
           <Popup>
-            <div className="flex min-w-[150px] flex-col gap-0.5 leading-none">
+            <div className="flex min-w-[170px] flex-col gap-0.5 leading-none">
               {task.urgent && (
                 <p className="m-0 text-center text-[10px] font-bold text-destructive">🔥 ACİL YARDIM</p>
               )}
 
-              <div className="flex items-center gap-1.5">
-                <span className="text-[10px] font-semibold text-muted-foreground">Kategori:</span>
-                <span className="text-base leading-none">{task.emoji}</span>
-                <span className="line-clamp-1 font-bold">{task.title}</span>
+              <div className="grid grid-cols-[52px_1fr] items-center gap-1">
+                <span className="text-right text-[10px] font-semibold text-muted-foreground">Kategori:</span>
+                <div className="flex items-center gap-1 overflow-hidden">
+                  <span className="text-base leading-none">{task.emoji}</span>
+                  <span className="line-clamp-1 text-xs font-bold">{task.title}</span>
+                </div>
               </div>
 
               {task.ownerName && (
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] font-semibold text-muted-foreground">Çağrı yapan:</span>
-                  {task.ownerAvatar ? (
-                    <img
-                      src={task.ownerAvatar}
-                      alt={task.ownerName}
-                      className="h-4 w-4 rounded-full object-cover ring-1 ring-primary/20"
-                    />
-                  ) : (
-                    <div className="flex h-4 w-4 items-center justify-center rounded-full bg-muted ring-1 ring-primary/20">
-                      <span className="text-[9px] font-bold text-muted-foreground">
-                        {task.ownerName.charAt(0).toUpperCase()}
-                      </span>
-                    </div>
-                  )}
-                  <span className="text-xs text-muted-foreground">{task.ownerName}</span>
+                <div className="grid grid-cols-[52px_1fr] items-center gap-1">
+                  <span className="text-right text-[10px] font-semibold text-muted-foreground">Çağrı yapan:</span>
+                  <div className="flex items-center gap-1 overflow-hidden">
+                    {task.ownerAvatar ? (
+                      <img
+                        src={task.ownerAvatar}
+                        alt={task.ownerName}
+                        className="h-4 w-4 rounded-full object-cover ring-1 ring-primary/20"
+                      />
+                    ) : (
+                      <div className="flex h-4 w-4 items-center justify-center rounded-full bg-muted ring-1 ring-primary/20">
+                        <span className="text-[9px] font-bold text-muted-foreground">
+                          {task.ownerName.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                    )}
+                    <span className="line-clamp-1 text-xs text-muted-foreground">{task.ownerName}</span>
+                  </div>
                 </div>
               )}
 
               {typeof task.estimatedMinutes === "number" && (
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] font-semibold text-muted-foreground">Süre:</span>
+                <div className="grid grid-cols-[52px_1fr] items-center gap-1">
+                  <span className="text-right text-[10px] font-semibold text-muted-foreground">Süre:</span>
                   <span className="text-xs text-muted-foreground">~{task.estimatedMinutes} dk</span>
                 </div>
               )}
 
-              <div className="flex items-center gap-1.5">
-                <span className="text-[10px] font-semibold text-muted-foreground">Fiyat:</span>
+              <div className="grid grid-cols-[52px_1fr] items-center gap-1">
+                <span className="text-right text-[10px] font-semibold text-muted-foreground">Fiyat:</span>
                 <span className="font-black text-primary">{task.price} ₺</span>
               </div>
 
