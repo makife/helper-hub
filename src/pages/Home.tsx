@@ -265,8 +265,8 @@ const Home = () => {
         </button>
       </div>
 
-      {/* Map — fills all remaining space down to the bottom nav */}
-      <div className="relative mx-5 mb-[calc(1.25rem+var(--bottom-nav-height,64px))] flex-1 overflow-hidden rounded-2xl border border-border shadow-card">
+      {/* Map — fills all remaining space edge-to-edge, bottom nav floats on top */}
+      <div className="relative flex-1 overflow-hidden">
         <TaskMap tasks={mapPins} onTaskClick={handleTaskClick} center={mapCenter || undefined} userPos={userPos} />
 
         {/* Stats overlay, floating on top of the map */}
