@@ -647,26 +647,42 @@ const MyTasks = () => {
                   animate={{ y: 0, opacity: isFaded ? 0.5 : 1 }}
                   transition={{ delay: i * 0.05 }}
                   onClick={() => setSelectedTask(task)}
-                  className={`flex cursor-pointer items-center gap-3 rounded-2xl border border-border p-4 shadow-card transition-colors ${
+                  className={`cursor-pointer rounded-2xl border border-border p-4 shadow-card transition-colors ${
                     isFaded ? "bg-muted/40 grayscale hover:opacity-80" : "bg-card hover:bg-muted/50"
                   }`}
                 >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted text-2xl">
-                    {getTaskEmoji(task.category, task.subcategory, task.title)}
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted text-2xl">
+                      {getTaskEmoji(task.category, task.subcategory, task.title)}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <h3 className="truncate text-sm font-bold text-foreground">{task.title}</h3>
+                        {task.urgency === "urgent" && (
+                          <span className="flex items-center text-[10px] font-bold text-red-500 bg-red-100 px-1.5 py-0.5 rounded-full">
+                            <Zap size={10} className="fill-red-500 mr-0.5" /> Acil
+                          </span>
+                        )}
+                      </div>
+                      <p className={`text-xs font-semibold ${status.color}`}>{status.label}</p>
+                    </div>
+
+                    <div className="text-right">
+                      <p className="text-base font-black text-primary">{computePrice(task).price} ₺</p>
+                      {computePrice(task).isDropping && (
+                        <p className="text-[10px] font-semibold text-primary">↓ {formatCountdown(computePrice(task).msToNextDrop)}</p>
+                      )}
+                      <span className="text-[10px] text-muted-foreground">Detay →</span>
+                    </div>
                   </div>
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <h3 className="truncate text-sm font-bold text-foreground">{task.title}</h3>
-                      {task.urgency === "urgent" && (
-                        <span className="flex items-center text-[10px] font-bold text-red-500 bg-red-100 px-1.5 py-0.5 rounded-full">
-                          <Zap size={10} className="fill-red-500 mr-0.5" /> Acil
-                        </span>
-                      )}
-                    </div>
-                    <p className={`text-xs font-semibold ${status.color}`}>{status.label}</p>
-                    {(ownedTaskers[task.id] || []).length > 0 && (
-                      <div className="mt-1 flex flex-wrap items-center gap-2">
+                  {(ownedTaskers[task.id] || []).length > 0 && (
+                    <div className="mt-3 rounded-xl bg-muted/40 p-3">
+                      <p className="mb-2 text-[10px] font-black uppercase tracking-wide text-muted-foreground">
+                        İşi Kabul Eden / El Atan
+                      </p>
+                      <div className="flex flex-wrap items-center gap-2">
                         {(ownedTaskers[task.id] || []).map((tp) => (
                           <button
                             key={tp.user_id}
@@ -674,47 +690,40 @@ const MyTasks = () => {
                               e.stopPropagation();
                               navigate(`/profile/${tp.user_id}`);
                             }}
-                            className="flex items-center gap-1 rounded-full bg-primary/10 py-0.5 pl-0.5 pr-2 text-[10px] font-bold text-primary"
+                            className="flex items-center gap-1.5 rounded-full bg-primary/10 py-1 pl-1 pr-2.5 text-[11px] font-bold text-primary"
                           >
                             {tp.avatar_url ? (
-                              <img src={tp.avatar_url} alt={tp.full_name} className="h-4 w-4 rounded-full object-cover" />
+                              <img src={tp.avatar_url} alt={tp.full_name} className="h-5 w-5 rounded-full object-cover" />
                             ) : (
-                              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary/20">
-                                <User size={9} />
+                              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/20">
+                                <User size={11} />
                               </span>
                             )}
                             {tp.full_name}
                           </button>
                         ))}
                       </div>
-                    )}
-                    <div className="mt-1 flex flex-wrap items-center gap-3 text-[10px] font-semibold text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Calendar size={11} className="text-primary" />
-                        {formatDateTime(task.created_at)}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Timer size={11} className="text-primary" />
-                        {task.status === "open" ? `Yayında ${formatElapsed(task.created_at, Date.now())}` : ""}
-                      </span>
-                      {task.status === "pending_confirm" && (
-                        <span className="flex items-center gap-1">
-                          El atan bitirdi, onay için {formatRemaining(confirmDeadlineMs(task.completion_requested_at))}
-                        </span>
-                      )}
-                      <span className="flex items-center gap-1">
-                        <Eye size={11} className="text-primary" />
-                        {viewCounts[task.id] || 0} görüntülenme
-                      </span>
                     </div>
-                  </div>
+                  )}
 
-                  <div className="text-right">
-                    <p className="text-base font-black text-primary">{computePrice(task).price} ₺</p>
-                    {computePrice(task).isDropping && (
-                      <p className="text-[10px] font-semibold text-primary">↓ {formatCountdown(computePrice(task).msToNextDrop)}</p>
+                  <div className="mt-3 flex flex-wrap items-center gap-3 text-[10px] font-semibold text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <Calendar size={11} className="text-primary" />
+                      {formatDateTime(task.created_at)}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Timer size={11} className="text-primary" />
+                      {task.status === "open" ? `Yayında ${formatElapsed(task.created_at, Date.now())}` : ""}
+                    </span>
+                    {task.status === "pending_confirm" && (
+                      <span className="flex items-center gap-1">
+                        El atan bitirdi, onay için {formatRemaining(confirmDeadlineMs(task.completion_requested_at))}
+                      </span>
                     )}
-                    <span className="text-[10px] text-muted-foreground">Detay →</span>
+                    <span className="flex items-center gap-1">
+                      <Eye size={11} className="text-primary" />
+                      {viewCounts[task.id] || 0} görüntülenme
+                    </span>
                   </div>
                 </motion.div>
               );
