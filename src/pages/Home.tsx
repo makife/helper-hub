@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Zap, MapPin, Bell } from "lucide-react";
+import { Zap, MapPin, Bell, Crosshair } from "lucide-react";
 import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
 import TaskMap from "@/components/TaskMap";
 import TaskDetailSheet from "@/components/TaskDetailSheet";
@@ -32,6 +32,7 @@ const Home = () => {
   const [ownerNames, setOwnerNames] = useState<Record<string, string>>({});
   const [fillCounts, setFillCounts] = useState<Record<string, number>>({});
   const [userPos, setUserPos] = useState<[number, number] | null>(null);
+  const [mapCenter, setMapCenter] = useState<[number, number] | null>(null);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const unreadMessages = useUnreadNotifications();
@@ -54,7 +55,11 @@ const Home = () => {
   useEffect(() => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
-        (pos) => setUserPos([pos.coords.latitude, pos.coords.longitude]),
+        (pos) => {
+          const coords: [number, number] = [pos.coords.latitude, pos.coords.longitude];
+          setUserPos(coords);
+          setMapCenter(coords);
+        },
         () => {} // silently fail
       );
     }
@@ -173,6 +178,19 @@ const Home = () => {
     }
   };
 
+  const handleLocateMe = () => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const coords: [number, number] = [pos.coords.latitude, pos.coords.longitude];
+          setUserPos(coords);
+          setMapCenter(coords);
+        },
+        () => {} // silently fail
+      );
+    }
+  };
+
   // URL'deki ?task= parametresine göre detay sayfasını aç/kapat
   useEffect(() => {
     const taskId = searchParams.get("task");
@@ -225,7 +243,7 @@ const Home = () => {
 
       {/* Map — fills all remaining space down to the bottom nav */}
       <div className="relative mx-5 mb-[calc(1.25rem+var(--bottom-nav-height,64px))] flex-1 overflow-hidden rounded-2xl border border-border shadow-card">
-        <TaskMap tasks={mapPins} onTaskClick={handleTaskClick} />
+        <TaskMap tasks={mapPins} onTaskClick={handleTaskClick} center={mapCenter || undefined} userPos={userPos} />
 
         {/* Stats overlay, floating on top of the map */}
         {(
@@ -240,6 +258,15 @@ const Home = () => {
             </div>
           </div>
         )}
+
+        {/* Locate me button */}
+        <button
+          onClick={handleLocateMe}
+          className="absolute bottom-4 right-4 z-[999] flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 pointer-events-auto"
+          aria-label="Konumuma git"
+        >
+          <Crosshair size={22} className="text-primary-foreground" />
+        </button>
       </div>
 
       {/* Task Detail Sheet */}

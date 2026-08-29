@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -75,22 +75,12 @@ const LocationUpdater = ({ center }: { center: [number, number] }) => {
 type Props = {
   tasks: TaskPin[];
   center?: [number, number];
+  userPos?: [number, number] | null;
   onTaskClick?: (task: TaskPin) => void;
 };
 
-const TaskMap = ({ tasks, center = [40.9903, 29.0297], onTaskClick }: Props) => {
-  const [userPos, setUserPos] = useState<[number, number] | null>(null);
-
-  useEffect(() => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => setUserPos([pos.coords.latitude, pos.coords.longitude]),
-        () => {} // silently fail
-      );
-    }
-  }, []);
-
-  const mapCenter = userPos || center;
+const TaskMap = ({ tasks, center = [40.9903, 29.0297], userPos = null, onTaskClick }: Props) => {
+  const mapCenter = center || userPos || [40.9903, 29.0297];
 
   const userIcon = useMemo(() => L.divIcon({
     html: `<div style="
