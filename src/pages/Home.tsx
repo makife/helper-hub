@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Zap, MapPin, Bell, Crosshair } from "lucide-react";
+import logo from "@/assets/logo.png";
 import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
 import TaskMap from "@/components/TaskMap";
 import TaskDetailSheet from "@/components/TaskDetailSheet";
