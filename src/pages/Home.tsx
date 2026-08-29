@@ -286,7 +286,7 @@ const Home = () => {
         {/* Locate me button */}
         <button
           onClick={handleLocateMe}
-          className="absolute bottom-4 right-4 z-[999] flex h-8 w-8 items-center justify-center rounded-full bg-sky-200 text-sky-700 shadow-md pointer-events-auto"
+          className="fixed bottom-24 right-4 z-[600] flex h-8 w-8 items-center justify-center rounded-full bg-sky-200 text-sky-700 shadow-md pointer-events-auto"
           aria-label="Konumuma git"
         >
           <Crosshair size={22} className="text-sky-700" />
