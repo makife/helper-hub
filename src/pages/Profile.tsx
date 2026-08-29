@@ -595,6 +595,42 @@ const Profile = () => {
             </div>
           </button>
 
+          <div className="mb-5 space-y-2.5 rounded-2xl border border-border bg-card p-2 shadow-card">
+            <button
+              onClick={() => navigate("/terms")}
+              className="flex w-full items-center justify-between rounded-xl px-3 py-3 text-left transition-all active:scale-[0.98]"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <FileText size={18} />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-foreground">Kullanım Koşulları</p>
+                  <p className="text-[11px] text-muted-foreground">Hizmet şartları ve sorumluluklar</p>
+                </div>
+              </div>
+              <ChevronRight size={18} className="text-muted-foreground" />
+            </button>
+
+            <div className="mx-3 h-px bg-border" />
+
+            <button
+              onClick={() => navigate("/privacy")}
+              className="flex w-full items-center justify-between rounded-xl px-3 py-3 text-left transition-all active:scale-[0.98]"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Shield size={18} />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-foreground">Gizlilik Politikası</p>
+                  <p className="text-[11px] text-muted-foreground">Kişisel verilerin korunması</p>
+                </div>
+              </div>
+              <ChevronRight size={18} className="text-muted-foreground" />
+            </button>
+          </div>
+
           <button
             onClick={handleSignOut}
             className="flex w-full items-center justify-center gap-2 rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3.5 text-sm font-bold text-destructive transition-all active:scale-[0.98]"
