@@ -138,20 +138,20 @@ const TaskMap = ({ tasks, center = [40.9903, 29.0297], userPos = null, onTaskCli
           icon={createEmojiIcon(task.emoji, task.urgent)}
         >
           <Popup>
-            <div className="flex min-w-[170px] flex-col leading-none">
+            <div className="flex min-w-[200px] flex-col leading-none">
               {task.urgent && (
                 <p className="m-0 pb-1 text-center text-[10px] font-bold text-destructive">🔥 ACİL YARDIM</p>
               )}
 
               <div className="flex items-center justify-between border-b border-border/40 py-1">
                 <span className="text-[10px] font-semibold text-muted-foreground">Kategori:</span>
-                <span className="line-clamp-1 max-w-[90px] text-right text-xs font-bold">{task.title}</span>
+                <span className="line-clamp-1 max-w-[120px] text-right text-xs font-bold">{task.title}</span>
               </div>
 
               {task.ownerName && (
                 <div className="flex items-center justify-between border-b border-border/40 py-1">
                   <span className="text-[10px] font-semibold text-muted-foreground">Çağrı yapan:</span>
-                  <span className="line-clamp-1 max-w-[90px] text-right text-xs text-muted-foreground">{task.ownerName}</span>
+                  <span className="line-clamp-1 max-w-[120px] text-right text-xs text-muted-foreground">{task.ownerName}</span>
                 </div>
               )}
 
