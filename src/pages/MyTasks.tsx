@@ -861,8 +861,35 @@ const MyTasks = () => {
                   </div>
                 )}
 
-                
+                {/* İşi kabul edenler (sadece iş veren) */}
+                {selectedTask.owner_id === user?.id && (ownedTaskers[selectedTask.id] || []).length > 0 && (
+                  <div className="border-t pt-2">
+                    <span className="text-muted-foreground text-xs font-semibold flex items-center gap-1 mb-2">
+                      <UserCheck size={14} className="text-primary" /> İşi Kabul Eden / El Atan
+                    </span>
+                    <div className="space-y-1.5">
+                      {(ownedTaskers[selectedTask.id] || []).map((tp) => (
+                        <button
+                          key={tp.user_id}
+                          onClick={() => { setSelectedTask(null); navigate(`/profile/${tp.user_id}`); }}
+                          className="flex w-full items-center gap-2.5 rounded-xl bg-muted/40 p-2 text-left hover:bg-muted/70"
+                        >
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted overflow-hidden">
+                            {tp.avatar_url ? (
+                              <img src={tp.avatar_url} alt={tp.full_name} className="h-full w-full object-cover" />
+                            ) : (
+                              <User size={14} className="text-muted-foreground" />
+                            )}
+                          </div>
+                          <span className="flex-1 text-xs font-bold text-foreground truncate">{tp.full_name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {selectedTask.address_note && (
+
                   <div className="flex justify-between py-1 border-t pt-2">
                     <span className="text-muted-foreground">Adres Notu:</span>
                     <span className="font-medium text-right max-w-[200px]">{selectedTask.address_note}</span>
