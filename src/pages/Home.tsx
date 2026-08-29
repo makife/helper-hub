@@ -196,6 +196,9 @@ const Home = () => {
           const coords: [number, number] = [pos.coords.latitude, pos.coords.longitude];
           setUserPos(coords);
           setMapCenter(coords);
+          try {
+            localStorage.setItem("bielat_last_location", JSON.stringify(coords));
+          } catch {}
         },
         () => {}, // silently fail
         { enableHighAccuracy: true, timeout: 8000, maximumAge: 30000 },
