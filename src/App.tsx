@@ -52,6 +52,8 @@ const App = () => (
             <Route path="/market" element={<Market />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="/task/:taskId" element={<ActiveTask />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

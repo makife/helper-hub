@@ -19,6 +19,9 @@ import {
   X,
   Check,
   Search,
+  FileText,
+  Shield,
+  ChevronRight,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
