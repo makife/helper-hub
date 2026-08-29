@@ -44,8 +44,20 @@ Deno.serve(async (req) => {
           token: row.token,
           notification: { title, body },
           data: { path },
-          android: { priority: 'HIGH', notification: { sound: 'default' } },
-          apns: { payload: { aps: { sound: 'default', badge: 1 } } },
+          android: {
+            priority: 'HIGH',
+            notification: {
+              sound: 'default',
+              channel_id: 'bielat_high',
+              notification_priority: 'PRIORITY_MAX',
+              default_vibrate_timings: true,
+              visibility: 'PUBLIC',
+            },
+          },
+          apns: {
+            headers: { 'apns-priority': '10' },
+            payload: { aps: { sound: 'default', badge: 1, 'interruption-level': 'time-sensitive' } },
+          },
         } }),
       });
       if (response.ok) sent++;
