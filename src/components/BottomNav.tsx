@@ -15,7 +15,7 @@ const BottomNav = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-30 flex items-end justify-between border-t border-border bg-card px-2 pb-6 pt-3 safe-bottom shadow-[0_-4px_20px_-5px_hsl(var(--foreground)/0.05)]">
+    <div className="fixed bottom-0 left-0 right-0 z-[500] flex items-end justify-between border-t border-border bg-card px-2 pb-6 pt-3 safe-bottom shadow-[0_-4px_20px_-5px_hsl(var(--foreground)/0.05)]">
       <button
         onClick={() => navigate("/home")}
         className="group flex flex-1 flex-col items-center gap-1 transition-all duration-200 active:scale-[0.96]"
