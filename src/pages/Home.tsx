@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Zap, MapPin, Bell, Crosshair } from "lucide-react";
+import logo from "@/assets/logo.png";
 import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
 import TaskMap from "@/components/TaskMap";
 import TaskDetailSheet from "@/components/TaskDetailSheet";
@@ -221,8 +222,13 @@ const Home = () => {
       {/* Header */}
       <div className="relative z-10 flex items-start justify-between px-5 pb-3 pt-4">
         <div>
-          <h1 className="text-xl font-black text-foreground">
-            Merhaba! 👋
+          <h1 className="flex items-center gap-1.5 text-xl font-black text-foreground">
+            Merhaba!
+            <img
+              src={logo}
+              alt="Bi' El At"
+              className="inline-block h-7 w-auto align-middle"
+            />
           </h1>
           <p className="text-xs text-muted-foreground font-semibold">
             Etrafındaki yardım çağrılarına göz at veya çağrıda bulun
