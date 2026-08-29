@@ -14,6 +14,7 @@ type TaskPin = {
   distance?: string;
   estimatedMinutes?: number;
   ownerName?: string;
+  ownerAvatar?: string | null;
   filled?: number;
   personCount?: number;
 };
@@ -135,18 +136,38 @@ const TaskMap = ({ tasks, center = [40.9903, 29.0297], userPos = null, onTaskCli
           icon={createEmojiIcon(task.emoji, task.urgent)}
         >
           <Popup>
-            <div className="min-w-[160px] text-center">
+            <div className="min-w-[170px] text-center">
               {task.urgent && (
                 <p className="mb-1 text-[10px] font-bold text-destructive">🔥 ACİL YARDIM</p>
               )}
+
+              <div className="mb-2 flex items-center justify-center gap-2">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-lg">
+                  {task.emoji}
+                </div>
+                {task.ownerAvatar ? (
+                  <img
+                    src={task.ownerAvatar}
+                    alt={task.ownerName || "Profil"}
+                    className="h-9 w-9 rounded-full object-cover ring-2 ring-primary/20"
+                  />
+                ) : (
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted ring-2 ring-primary/20">
+                    <span className="text-xs font-bold text-muted-foreground">
+                      {(task.ownerName || "?").charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                )}
+              </div>
+
               <p className="font-bold">{task.title}</p>
               {task.ownerName && (
-                <p className="text-xs text-muted-foreground">👤 {task.ownerName}</p>
+                <p className="text-xs text-muted-foreground">{task.ownerName}</p>
               )}
               {typeof task.estimatedMinutes === "number" && (
                 <p className="text-xs text-muted-foreground">~{task.estimatedMinutes} dk</p>
               )}
-              <p className="mt-0.5 text-primary font-black">{task.price} ₺</p>
+              <p className="mt-0.5 font-black text-primary">{task.price} ₺</p>
               {(task.personCount ?? 1) > 1 && (
                 <p className="text-xs font-bold text-muted-foreground">
                   👥 {task.filled ?? 0}/{task.personCount} dolu
