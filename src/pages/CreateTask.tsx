@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Camera, MapPin, Flame, Clock, X, Edit3, Grid, Users, Image as ImageIcon } from "lucide-react";
+import { ArrowLeft, Camera, MapPin, Flame, Clock, X, Edit3, Grid, Users, Image as ImageIcon, Search as SearchIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { TASK_CATEGORIES, type TaskBaseCategory } from "@/lib/taskCategories";
+import { ALL_TASK_CATEGORIES, type TaskBaseCategory } from "@/lib/taskCategories";
 
 const PERSON_OPTIONS = [
   { value: 1, label: "1 Kişi", multiplier: 1 },
@@ -14,7 +14,18 @@ const PERSON_OPTIONS = [
   { value: 4, label: "4+ Kişi", multiplier: 4 },
 ];
 
-const categories = TASK_CATEGORIES;
+const categories = ALL_TASK_CATEGORIES;
+
+const normalize = (value: string) =>
+  value
+    .toLocaleLowerCase("tr-TR")
+    .replace(/ı/g, "i")
+    .replace(/ş/g, "s")
+    .replace(/ğ/g, "g")
+    .replace(/ü/g, "u")
+    .replace(/ö/g, "o")
+    .replace(/ç/g, "c")
+    .trim();
 
 const durations = [15, 30, 45, 60];
 
@@ -23,6 +34,7 @@ const CreateTask = () => {
   const editTaskId = searchParams.get("edit");
 
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+  const [categoryQuery, setCategoryQuery] = useState("");
   const [isCustomCategory, setIsCustomCategory] = useState(false);
   const [customCategoryText, setCustomCategoryText] = useState("");
 
@@ -266,8 +278,20 @@ const CreateTask = () => {
               autoFocus
             />
           ) : (
-            <div className="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto pr-1">
-              {categories.map((cat) => (
+            <>
+              <div className="mb-2 flex items-center gap-2 rounded-xl border-2 border-border bg-card px-3 py-2.5 focus-within:border-primary">
+                <SearchIcon size={16} className="text-muted-foreground" />
+                <input
+                  value={categoryQuery}
+                  onChange={(e) => setCategoryQuery(e.target.value)}
+                  placeholder="Kategori ara... (300+ seçenek)"
+                  className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground/50"
+                />
+              </div>
+              <div className="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto pr-1">
+              {categories
+                .filter((cat) => !categoryQuery || normalize(cat.label).includes(normalize(categoryQuery)))
+                .map((cat) => (
                 <button
                   key={cat.id}
                   type="button"
@@ -284,7 +308,8 @@ const CreateTask = () => {
                   </span>
                 </button>
               ))}
-            </div>
+              </div>
+            </>
           )}
         </motion.div>
 
