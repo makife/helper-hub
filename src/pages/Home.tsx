@@ -55,7 +55,11 @@ const Home = () => {
   useEffect(() => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
-        (pos) => setUserPos([pos.coords.latitude, pos.coords.longitude]),
+        (pos) => {
+          const coords: [number, number] = [pos.coords.latitude, pos.coords.longitude];
+          setUserPos(coords);
+          setMapCenter(coords);
+        },
         () => {} // silently fail
       );
     }
