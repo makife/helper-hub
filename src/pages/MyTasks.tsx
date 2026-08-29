@@ -678,33 +678,46 @@ const MyTasks = () => {
                   </div>
 
                   {(ownedTaskers[task.id] || []).length > 0 && (
-                    <div className="mt-3 rounded-xl bg-muted/40 p-3">
-                      <p className="mb-2 text-[10px] font-black uppercase tracking-wide text-muted-foreground">
-                        İşi Kabul Eden / El Atan
-                      </p>
-                      <div className="flex flex-wrap items-center gap-2">
-                        {(ownedTaskers[task.id] || []).map((tp) => (
+                    <div className="mt-2 flex items-center gap-2">
+                      <span className="text-[10px] font-black uppercase tracking-wide text-muted-foreground">
+                        El atan:
+                      </span>
+                      <div className="flex -space-x-1.5">
+                        {(ownedTaskers[task.id] || []).slice(0, 3).map((tp) => (
                           <button
                             key={tp.user_id}
                             onClick={(e) => {
                               e.stopPropagation();
                               navigate(`/profile/${tp.user_id}`);
                             }}
-                            className="flex items-center gap-1.5 rounded-full bg-primary/10 py-1 pl-1 pr-2.5 text-[11px] font-bold text-primary"
+                            className="relative inline-block h-6 w-6 rounded-full border-2 border-card overflow-hidden"
+                            title={tp.full_name}
                           >
                             {tp.avatar_url ? (
-                              <img src={tp.avatar_url} alt={tp.full_name} className="h-5 w-5 rounded-full object-cover" />
+                              <img src={tp.avatar_url} alt={tp.full_name} className="h-full w-full object-cover" />
                             ) : (
-                              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/20">
-                                <User size={11} />
+                              <span className="flex h-full w-full items-center justify-center bg-primary/20 text-primary">
+                                <User size={12} />
                               </span>
                             )}
-                            {tp.full_name}
                           </button>
                         ))}
                       </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const first = (ownedTaskers[task.id] || [])[0];
+                          if (first) navigate(`/profile/${first.user_id}`);
+                        }}
+                        className="text-[11px] font-bold text-primary truncate"
+                      >
+                        {(ownedTaskers[task.id] || []).slice(0, 2).map((tp) => tp.full_name).join(", ")}
+                        {(ownedTaskers[task.id] || []).length > 2 &&
+                          ` +${(ownedTaskers[task.id] || []).length - 2}`}
+                      </button>
                     </div>
                   )}
+
 
                   <div className="mt-3 flex flex-wrap items-center gap-3 text-[10px] font-semibold text-muted-foreground">
                     <span className="flex items-center gap-1">
