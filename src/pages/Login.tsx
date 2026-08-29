@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
-import { lovable } from "@/integrations/lovable";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -49,8 +48,9 @@ const Login = () => {
         setPending(null);
         return;
       }
-      const { error } = await lovable.auth.signInWithOAuth(provider, {
-        redirect_uri: `${window.location.origin}/login`,
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo: `${window.location.origin}/login` },
       });
       if (error) {
         toast.error("Giriş yapılamadı. Lütfen tekrar deneyin.");
