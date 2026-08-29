@@ -30,6 +30,7 @@ const Home = () => {
   const [tasks, setTasks] = useState<TaskWithUI[]>([]);
   const [selectedTask, setSelectedTask] = useState<TaskWithUI | null>(null);
   const [ownerNames, setOwnerNames] = useState<Record<string, string>>({});
+  const [ownerAvatars, setOwnerAvatars] = useState<Record<string, string | null>>({});
   const [fillCounts, setFillCounts] = useState<Record<string, number>>({});
   const [userPos, setUserPos] = useState<[number, number] | null>(() => {
     try {
@@ -87,15 +88,18 @@ const Home = () => {
 
       setFillCounts(await fetchAssignmentCounts(mapped.map((t) => t.id)));
 
-      // Fetch owner names for map pin popups
+      // Fetch owner names and avatars for map pin popups
       const ownerIds = [...new Set(mapped.map((t) => t.owner_id))];
       if (ownerIds.length > 0) {
-        const { data: profiles } = await supabase.from("profiles").select("user_id, full_name").in("user_id", ownerIds);
+        const { data: profiles } = await supabase.from("profiles").select("user_id, full_name, avatar_url").in("user_id", ownerIds);
         const names: Record<string, string> = {};
+        const avatars: Record<string, string | null> = {};
         (profiles || []).forEach((p) => {
           names[p.user_id] = p.full_name || "İsimsiz Kullanıcı";
+          avatars[p.user_id] = p.avatar_url || null;
         });
         setOwnerNames(names);
+        setOwnerAvatars(avatars);
       }
     };
     fetchTasks();
@@ -111,13 +115,17 @@ const Home = () => {
               if (prev[newTask.owner_id]) return prev;
               supabase
                 .from("profiles")
-                .select("full_name")
+                .select("full_name, avatar_url")
                 .eq("user_id", newTask.owner_id)
                 .maybeSingle()
                 .then(({ data }) => {
                   setOwnerNames((p) => ({
                     ...p,
                     [newTask.owner_id]: data?.full_name || "İsimsiz Kullanıcı",
+                  }));
+                  setOwnerAvatars((p) => ({
+                    ...p,
+                    [newTask.owner_id]: data?.avatar_url || null,
                   }));
                 });
               return prev;
@@ -228,6 +236,7 @@ const Home = () => {
     urgent: t.urgency === "urgent",
     estimatedMinutes: t.estimated_minutes ?? undefined,
     ownerName: ownerNames[t.owner_id],
+    ownerAvatar: ownerAvatars[t.owner_id],
     filled: fillCounts[t.id] ?? 0,
     personCount: t.person_count ?? 1,
   }));
