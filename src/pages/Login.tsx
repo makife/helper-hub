@@ -130,8 +130,21 @@ const Login = () => {
         )}
 
         <p className="mt-4 text-center text-xs text-muted-foreground">
-          Devam ederek <span className="font-semibold text-primary">Kullanım Şartları</span> ve{" "}
-          <span className="font-semibold text-primary">Gizlilik Politikası</span>'nı kabul etmiş olursunuz.
+          Devam ederek{" "}
+          <button
+            onClick={() => navigate("/terms")}
+            className="font-semibold text-primary underline-offset-2 hover:underline"
+          >
+            Kullanım Koşulları
+          </button>{" "}
+          ve{" "}
+          <button
+            onClick={() => navigate("/privacy")}
+            className="font-semibold text-primary underline-offset-2 hover:underline"
+          >
+            Gizlilik Politikası
+          </button>
+          'nı kabul etmiş olursunuz.
         </p>
       </motion.div>
     </div>
