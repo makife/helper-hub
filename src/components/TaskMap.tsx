@@ -108,7 +108,7 @@ const TaskMap = ({ tasks, center = [40.9903, 29.0297], userPos = null, onTaskCli
     <MapContainer
       center={mapCenter}
       zoom={14}
-      className="h-full w-full rounded-2xl"
+      className="h-full w-full rounded-t-none"
       zoomControl={false}
       attributionControl={false}
     >
