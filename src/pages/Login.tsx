@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { isNativePlatform, signInNativeOAuth } from "@/lib/nativeAuth";
-import { lovable } from "@/integrations/lovable";
+
 import logo from "@/assets/logo.png";
 
 const getPlatform = () => {
