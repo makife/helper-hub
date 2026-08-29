@@ -178,6 +178,19 @@ const Home = () => {
     }
   };
 
+  const handleLocateMe = () => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const coords: [number, number] = [pos.coords.latitude, pos.coords.longitude];
+          setUserPos(coords);
+          setMapCenter(coords);
+        },
+        () => {} // silently fail
+      );
+    }
+  };
+
   // URL'deki ?task= parametresine göre detay sayfasını aç/kapat
   useEffect(() => {
     const taskId = searchParams.get("task");
