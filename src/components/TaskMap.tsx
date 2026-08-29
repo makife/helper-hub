@@ -34,6 +34,8 @@ const ensurePulseStyles = () => {
     .leaflet-container { background: #1a2418; }
     .leaflet-tile { opacity: 0; transition: opacity 0.35s ease-in; will-change: opacity; }
     .leaflet-tile.leaflet-tile-loaded { opacity: 1; }
+    .leaflet-popup-content-wrapper { padding: 0; border-radius: 12px; }
+    .leaflet-popup-content { margin: 8px 10px !important; line-height: 1; }
     .task-pulse-wrap { position: relative; width: 40px; height: 40px; }
     .task-pulse-ring {
       position: absolute; inset: 0; border-radius: 50%;
