@@ -278,8 +278,20 @@ const CreateTask = () => {
               autoFocus
             />
           ) : (
-            <div className="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto pr-1">
-              {categories.map((cat) => (
+            <>
+              <div className="mb-2 flex items-center gap-2 rounded-xl border-2 border-border bg-card px-3 py-2.5 focus-within:border-primary">
+                <SearchIcon size={16} className="text-muted-foreground" />
+                <input
+                  value={categoryQuery}
+                  onChange={(e) => setCategoryQuery(e.target.value)}
+                  placeholder="Kategori ara... (300+ seçenek)"
+                  className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground/50"
+                />
+              </div>
+              <div className="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto pr-1">
+              {categories
+                .filter((cat) => !categoryQuery || normalize(cat.label).includes(normalize(categoryQuery)))
+                .map((cat) => (
                 <button
                   key={cat.id}
                   type="button"
