@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
@@ -21,7 +21,31 @@ const Login = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const [pending, setPending] = useState<"google" | "apple" | null>(null);
+  const oauthLaunchStarted = useRef(false);
   const platform = getPlatform();
+
+  const signInWeb = async (provider: "google" | "apple") => {
+    const result = await lovable.auth.signInWithOAuth(provider, {
+      redirect_uri: window.location.origin,
+      extraParams: provider === "google" ? { prompt: "select_account" } : undefined,
+    });
+    if (result.error) throw result.error;
+    if (!result.redirected) setPending(null);
+  };
+
+  useEffect(() => {
+    const provider = new URLSearchParams(window.location.search).get("oauth");
+    if ((provider !== "google" && provider !== "apple") || oauthLaunchStarted.current) return;
+
+    oauthLaunchStarted.current = true;
+    window.history.replaceState({}, "", window.location.pathname);
+    setPending(provider);
+    void signInWeb(provider).catch((error) => {
+      console.error("OAuth error:", error);
+      toast.error("Giriş yapılamadı. Lütfen tekrar deneyin.");
+      setPending(null);
+    });
+  }, []);
 
   useEffect(() => {
     if (authLoading || !user) return;
@@ -49,19 +73,16 @@ const Login = () => {
         setPending(null);
         return;
       }
-      // Web/preview: yönetilen OAuth aracısı editör iframe'ini güvenli biçimde
-      // aşar. Doğrudan backend OAuth çağrısı Google tarafından engellenir.
-      const result = await lovable.auth.signInWithOAuth(provider, {
-        redirect_uri: window.location.origin,
-        extraParams: provider === "google" ? { prompt: "select_account" } : undefined,
-      });
-      if (result.error) {
-        toast.error("Giriş yapılamadı. Lütfen tekrar deneyin.");
-        console.error("OAuth error:", result.error);
-        setPending(null);
+
+      // Mobil web önizlemesi bir iframe içindeyken Google, açılan OAuth
+      // sayfasını gömülü bağlam olarak reddeder. Önce uygulamayı aynı sekmede
+      // üst seviyeye çıkar; ardından yukarıdaki effect OAuth'u başlatır.
+      if (window.self !== window.top && platform !== "web") {
+        window.open(`${window.location.origin}/login?oauth=${provider}`, "_top");
         return;
       }
-      if (!result.redirected) setPending(null);
+
+      await signInWeb(provider);
     } catch (err) {
       console.error("OAuth error:", err);
       toast.error("Giriş yapılamadı. Lütfen tekrar deneyin.");
