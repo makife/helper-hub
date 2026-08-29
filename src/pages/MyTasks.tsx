@@ -231,6 +231,7 @@ const MyTasks = () => {
   const [viewCounts, setViewCounts] = useState<Record<string, number>>({});
   const [viewers, setViewers] = useState<{ id: string; full_name: string; avatar_url: string | null; viewed_at: string }[]>([]);
   const [ownedArrivals, setOwnedArrivals] = useState<Record<string, string | null>>({});
+  const [ownedTaskers, setOwnedTaskers] = useState<Record<string, { user_id: string; full_name: string; avatar_url: string | null }[]>>({});
   const [, setPriceTick] = useState(0);
 
   useEffect(() => {
@@ -264,7 +265,7 @@ const MyTasks = () => {
 
       const { data: assigns } = await supabase
         .from("task_assignments")
-        .select("task_id, arrived_at")
+        .select("task_id, arrived_at, tasker_id")
         .in("task_id", ownedIds)
         .eq("status", "accepted");
       const arrivals: Record<string, string | null> = {};
@@ -274,6 +275,27 @@ const MyTasks = () => {
         }
       });
       setOwnedArrivals(arrivals);
+
+      const taskerIds = [...new Set((assigns || []).map((a) => a.tasker_id))];
+      if (taskerIds.length > 0) {
+        const { data: taskerProfiles } = await supabase
+          .from("profiles")
+          .select("user_id, full_name, avatar_url")
+          .in("user_id", taskerIds);
+        const taskerMap: Record<string, { user_id: string; full_name: string; avatar_url: string | null }[]> = {};
+        (assigns || []).forEach((a) => {
+          const p = (taskerProfiles || []).find((tp) => tp.user_id === a.tasker_id);
+          if (p) {
+            taskerMap[a.task_id] = taskerMap[a.task_id] || [];
+            if (!taskerMap[a.task_id].some((x) => x.user_id === p.user_id)) {
+              taskerMap[a.task_id].push(p);
+            }
+          }
+        });
+        setOwnedTaskers(taskerMap);
+      } else {
+        setOwnedTaskers({});
+      }
     }
   };
 
@@ -643,6 +665,29 @@ const MyTasks = () => {
                       )}
                     </div>
                     <p className={`text-xs font-semibold ${status.color}`}>{status.label}</p>
+                    {(ownedTaskers[task.id] || []).length > 0 && (
+                      <div className="mt-1 flex flex-wrap items-center gap-2">
+                        {(ownedTaskers[task.id] || []).map((tp) => (
+                          <button
+                            key={tp.user_id}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/profile/${tp.user_id}`);
+                            }}
+                            className="flex items-center gap-1 rounded-full bg-primary/10 py-0.5 pl-0.5 pr-2 text-[10px] font-bold text-primary"
+                          >
+                            {tp.avatar_url ? (
+                              <img src={tp.avatar_url} alt={tp.full_name} className="h-4 w-4 rounded-full object-cover" />
+                            ) : (
+                              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary/20">
+                                <User size={9} />
+                              </span>
+                            )}
+                            {tp.full_name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                     <div className="mt-1 flex flex-wrap items-center gap-3 text-[10px] font-semibold text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <Calendar size={11} className="text-primary" />
