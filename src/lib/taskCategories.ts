@@ -66,7 +66,61 @@ export const TASK_CATEGORIES: TaskCategoryDefinition[] = [
   { id: "cesitli_isler", emoji: "✨", label: "Çeşitli Genel İşler", baseEnum: "kucuk_tamir" },
 ];
 
-const categoryById = new Map(TASK_CATEGORIES.map((category) => [category.id, category]));
+// --- Genişletilmiş kategori kataloğu: beceri kataloğundaki tüm beceriler ---
+import { SKILL_GROUPS } from "./skillCatalog";
+
+const groupBaseEnum: Record<string, TaskBaseCategory> = {
+  elektrik: "ampul_takma",
+  tesisat: "kucuk_tamir",
+  mobilya: "mobilya_monte",
+  tamir: "duvar_tamir",
+  boya: "duvar_tamir",
+  "beyaz-esya": "kucuk_tamir",
+  tasima: "tasima_yardimi",
+  temizlik: "kucuk_tamir",
+  bahce: "kucuk_tamir",
+  arac: "tasima_yardimi",
+  usta: "duvar_tamir",
+  etkinlik: "tasima_yardimi",
+  kisisel: "tasima_yardimi",
+  egitim: "kucuk_tamir",
+  ofis: "kucuk_tamir",
+};
+
+const slugify = (value: string) =>
+  value
+    .toLocaleLowerCase("tr-TR")
+    .replace(/ı/g, "i")
+    .replace(/ş/g, "s")
+    .replace(/ğ/g, "g")
+    .replace(/ü/g, "u")
+    .replace(/ö/g, "o")
+    .replace(/ç/g, "c")
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+
+const existingLabels = new Set(
+  TASK_CATEGORIES.map((c) => c.label.toLocaleLowerCase("tr-TR")),
+);
+
+export const SKILL_CATEGORIES: TaskCategoryDefinition[] = SKILL_GROUPS.flatMap((group) =>
+  group.skills
+    .filter((skill) => !existingLabels.has(skill.toLocaleLowerCase("tr-TR")))
+    .map((skill) => ({
+      id: `skill_${group.id}_${slugify(skill)}`,
+      emoji: group.emoji,
+      label: skill,
+      baseEnum: groupBaseEnum[group.id] ?? "kucuk_tamir",
+    })),
+);
+
+/** Oluşturma ekranında kullanılan tam liste (~300 hazır kategori) */
+export const ALL_TASK_CATEGORIES: TaskCategoryDefinition[] = [
+  ...TASK_CATEGORIES,
+  ...SKILL_CATEGORIES,
+];
+
+const categoryById = new Map(ALL_TASK_CATEGORIES.map((category) => [category.id, category]));
 
 export function getTaskCategory(category: string, subcategory?: string | null, title?: string) {
   if (subcategory) {
