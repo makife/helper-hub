@@ -18,7 +18,6 @@ import { computePrice } from "@/lib/dynamicPricing";
 import { fetchAssignmentCounts } from "@/lib/assignments";
 import { distanceMeters } from "@/lib/taskLifecycle";
 
-
 type TaskWithUI = Tables<"tasks"> & {
   emoji: string;
   lat: number;
@@ -45,7 +44,6 @@ const Home = () => {
     return distanceMeters(userPos[0], userPos[1], lat, lng) <= RADIUS_M;
   };
 
-
   const mapTask = (t: Tables<"tasks">): TaskWithUI => ({
     ...t,
     emoji: getTaskEmoji(t.category, t.subcategory, t.title),
@@ -61,7 +59,7 @@ const Home = () => {
           setUserPos(coords);
           setMapCenter(coords);
         },
-        () => {} // silently fail
+        () => {}, // silently fail
       );
     }
   }, []);
@@ -82,10 +80,7 @@ const Home = () => {
       // Fetch owner names for map pin popups
       const ownerIds = [...new Set(mapped.map((t) => t.owner_id))];
       if (ownerIds.length > 0) {
-        const { data: profiles } = await supabase
-          .from("profiles")
-          .select("user_id, full_name")
-          .in("user_id", ownerIds);
+        const { data: profiles } = await supabase.from("profiles").select("user_id, full_name").in("user_id", ownerIds);
         const names: Record<string, string> = {};
         (profiles || []).forEach((p) => {
           names[p.user_id] = p.full_name || "İsimsiz Kullanıcı";
@@ -151,7 +146,6 @@ const Home = () => {
     };
   }, [user, userPos]);
 
-
   // Canlı fiyat düşüşü: her 15 sn'de bir yeniden hesapla, değişince DB'ye yaz (sadece iş sahibi)
   const [priceTick, setPriceTick] = useState(0);
   useEffect(() => {
@@ -165,7 +159,11 @@ const Home = () => {
       if (t.owner_id !== user.id) return;
       const { price } = computePrice(t);
       if (price !== (t.current_price ?? t.price)) {
-        supabase.from("tasks").update({ current_price: price }).eq("id", t.id).then(() => {});
+        supabase
+          .from("tasks")
+          .update({ current_price: price })
+          .eq("id", t.id)
+          .then(() => {});
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -187,7 +185,7 @@ const Home = () => {
           setUserPos(coords);
           setMapCenter(coords);
         },
-        () => {} // silently fail
+        () => {}, // silently fail
       );
     }
   };
@@ -224,15 +222,9 @@ const Home = () => {
         <div>
           <h1 className="flex items-center gap-1.5 text-xl font-black text-foreground">
             Merhaba!
-            <img
-              src={logo}
-              alt="Bi' El At"
-              className="inline-block h-7 w-auto align-middle"
-            />
+            <img src={logo} alt="Bi' El At" className="inline-block h-7 w-auto align-middle" />
           </h1>
-          <p className="text-xs text-muted-foreground font-semibold">
-            Etrafındaki yardım çağrılarına göz at veya çağrıda bulun
-          </p>
+          <p className="text-xs text-muted-foreground font-semibold">Yardım çağrılarına el at veya çağrıda bulun</p>
         </div>
         <button
           onClick={() => navigate("/notifications")}
@@ -252,7 +244,7 @@ const Home = () => {
         <TaskMap tasks={mapPins} onTaskClick={handleTaskClick} center={mapCenter || undefined} userPos={userPos} />
 
         {/* Stats overlay, floating on top of the map */}
-        {(
+        {
           <div className="pointer-events-none absolute inset-x-3 top-3 flex justify-end gap-2">
             <div className="flex items-center gap-1.5 rounded-full bg-card/95 px-3 py-1.5 shadow-card backdrop-blur">
               <Zap size={12} className="text-primary" />
@@ -263,7 +255,7 @@ const Home = () => {
               <p className="text-[11px] font-black text-foreground">100 km yakınında</p>
             </div>
           </div>
-        )}
+        }
 
         {/* Locate me button */}
         <button
@@ -290,7 +282,9 @@ const Home = () => {
 
       <ReviewDialog
         review={pendingReviews[0] || null}
-        onDone={async () => { await refreshPendingReviews(); }}
+        onDone={async () => {
+          await refreshPendingReviews();
+        }}
       />
 
       <BottomNav />
