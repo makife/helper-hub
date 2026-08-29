@@ -49,16 +49,18 @@ const Login = () => {
         setPending(null);
         return;
       }
-      const result = await lovable.auth.signInWithOAuth(provider, {
-        redirect_uri: `${window.location.origin}/login`,
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/login`,
+          queryParams: provider === "google" ? { prompt: "select_account" } : undefined,
+        },
       });
-      if (result.error) {
+      if (error) {
         toast.error("Giriş yapılamadı. Lütfen tekrar deneyin.");
-        console.error("OAuth error:", result.error);
+        console.error("OAuth error:", error);
         setPending(null);
-        return;
       }
-      if (!result.redirected) setPending(null);
     } catch (err) {
       console.error("OAuth error:", err);
       toast.error("Giriş yapılamadı. Lütfen tekrar deneyin.");
