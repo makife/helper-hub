@@ -49,8 +49,9 @@ const Login = () => {
         setPending(null);
         return;
       }
-      const { error } = await lovable.auth.signInWithOAuth(provider, {
-        redirect_uri: `${window.location.origin}/login`,
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo: `${window.location.origin}/login` },
       });
       if (error) {
         toast.error("Giriş yapılamadı. Lütfen tekrar deneyin.");
