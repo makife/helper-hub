@@ -141,29 +141,30 @@ const TaskMap = ({ tasks, center = [40.9903, 29.0297], userPos = null, onTaskCli
                 <p className="mb-1 text-[10px] font-bold text-destructive">🔥 ACİL YARDIM</p>
               )}
 
-              <div className="mb-2 flex items-center justify-center gap-2">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-lg">
-                  {task.emoji}
-                </div>
-                {task.ownerAvatar ? (
-                  <img
-                    src={task.ownerAvatar}
-                    alt={task.ownerName || "Profil"}
-                    className="h-9 w-9 rounded-full object-cover ring-2 ring-primary/20"
-                  />
-                ) : (
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted ring-2 ring-primary/20">
-                    <span className="text-xs font-bold text-muted-foreground">
-                      {(task.ownerName || "?").charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                )}
+              <div className="mb-1 flex items-center justify-center gap-1.5">
+                <span className="text-base leading-none">{task.emoji}</span>
+                <p className="line-clamp-1 font-bold">{task.title}</p>
               </div>
 
-              <p className="font-bold">{task.title}</p>
               {task.ownerName && (
-                <p className="text-xs text-muted-foreground">{task.ownerName}</p>
+                <div className="mb-1 flex items-center justify-center gap-1.5">
+                  {task.ownerAvatar ? (
+                    <img
+                      src={task.ownerAvatar}
+                      alt={task.ownerName}
+                      className="h-5 w-5 rounded-full object-cover ring-1 ring-primary/20"
+                    />
+                  ) : (
+                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-muted ring-1 ring-primary/20">
+                      <span className="text-[10px] font-bold text-muted-foreground">
+                        {task.ownerName.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                  )}
+                  <p className="text-xs text-muted-foreground">{task.ownerName}</p>
+                </div>
               )}
+
               {typeof task.estimatedMinutes === "number" && (
                 <p className="text-xs text-muted-foreground">~{task.estimatedMinutes} dk</p>
               )}
