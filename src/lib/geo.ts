@@ -63,7 +63,6 @@ export const ensureLocationPermission = async (): Promise<"granted" | "denied"> 
 export const installNativeGeolocation = () => {
   if (!Capacitor.isNativePlatform()) return;
 
-  const shim: Partial<Geolocation> = {};
   const watchIds = new Map<number, string>();
   let nextId = 1;
 
@@ -138,8 +137,6 @@ export const installNativeGeolocation = () => {
       }
     },
   };
-
-  void shim;
 
   try {
     Object.defineProperty(navigator, "geolocation", {
