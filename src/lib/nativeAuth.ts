@@ -43,7 +43,7 @@ export const signInNativeOAuth = async (provider: "google" | "apple") => {
       : { provider: "apple", options: { scopes: ["email", "name"] } },
   );
 
-  const result = res.result as Record<string, unknown> | undefined;
+  const result = res.result as unknown as Record<string, unknown> | undefined;
   const idToken =
     (result?.idToken as string | undefined) ??
     ((result?.authenticationToken as string | undefined) ?? undefined);
