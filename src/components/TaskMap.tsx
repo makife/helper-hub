@@ -136,27 +136,27 @@ const TaskMap = ({ tasks, center = [40.9903, 29.0297], userPos = null, onTaskCli
           icon={createEmojiIcon(task.emoji, task.urgent)}
         >
           <Popup>
-            <div className="min-w-[170px] text-center">
+            <div className="min-w-[170px] text-center leading-tight">
               {task.urgent && (
-                <p className="mb-1 text-[10px] font-bold text-destructive">🔥 ACİL YARDIM</p>
+                <p className="mb-0.5 text-[10px] font-bold text-destructive">🔥 ACİL YARDIM</p>
               )}
 
-              <div className="mb-1 flex items-center justify-center gap-1.5">
+              <div className="flex items-center justify-center gap-1">
                 <span className="text-base leading-none">{task.emoji}</span>
                 <p className="line-clamp-1 font-bold">{task.title}</p>
               </div>
 
               {task.ownerName && (
-                <div className="mb-1 flex items-center justify-center gap-1.5">
+                <div className="flex items-center justify-center gap-1">
                   {task.ownerAvatar ? (
                     <img
                       src={task.ownerAvatar}
                       alt={task.ownerName}
-                      className="h-5 w-5 rounded-full object-cover ring-1 ring-primary/20"
+                      className="h-4 w-4 rounded-full object-cover ring-1 ring-primary/20"
                     />
                   ) : (
-                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-muted ring-1 ring-primary/20">
-                      <span className="text-[10px] font-bold text-muted-foreground">
+                    <div className="flex h-4 w-4 items-center justify-center rounded-full bg-muted ring-1 ring-primary/20">
+                      <span className="text-[9px] font-bold text-muted-foreground">
                         {task.ownerName.charAt(0).toUpperCase()}
                       </span>
                     </div>
@@ -168,7 +168,7 @@ const TaskMap = ({ tasks, center = [40.9903, 29.0297], userPos = null, onTaskCli
               {typeof task.estimatedMinutes === "number" && (
                 <p className="text-xs text-muted-foreground">~{task.estimatedMinutes} dk</p>
               )}
-              <p className="mt-0.5 font-black text-primary">{task.price} ₺</p>
+              <p className="font-black text-primary">{task.price} ₺</p>
               {(task.personCount ?? 1) > 1 && (
                 <p className="text-xs font-bold text-muted-foreground">
                   👥 {task.filled ?? 0}/{task.personCount} dolu
@@ -178,7 +178,7 @@ const TaskMap = ({ tasks, center = [40.9903, 29.0297], userPos = null, onTaskCli
               {onTaskClick && (
                 <button
                   onClick={() => onTaskClick(task)}
-                  className="mt-2 w-full rounded-lg bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground"
+                  className="mt-1.5 w-full rounded-lg bg-primary px-3 py-1 text-xs font-bold text-primary-foreground"
                 >
                   Detayları Gör
                 </button>
