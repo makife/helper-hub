@@ -21,6 +21,24 @@ export async function initializePushNotifications(userId: string) {
     : permission;
   if (result.receive !== 'granted') return;
 
+  if (Capacitor.getPlatform() === 'android') {
+    try {
+      await FirebaseMessaging.createChannel({
+        id: 'bielat_high',
+        name: "Bi' El At Bildirimleri",
+        description: 'Yeni mesaj ve yardım çağrısı bildirimleri',
+        importance: 5,
+        visibility: 1,
+        sound: 'default',
+        vibration: true,
+        lights: true,
+      });
+    } catch (e) {
+      console.warn('Notification channel could not be created', e);
+    }
+  }
+
+
   await FirebaseMessaging.removeAllListeners();
   await FirebaseMessaging.addListener('tokenReceived', ({ token }) => void saveToken(userId, token));
   await FirebaseMessaging.addListener('notificationReceived', (notification) => {
