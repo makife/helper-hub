@@ -138,18 +138,20 @@ const TaskMap = ({ tasks, center = [40.9903, 29.0297], userPos = null, onTaskCli
           icon={createEmojiIcon(task.emoji, task.urgent)}
         >
           <Popup>
-            <div className="flex min-w-[150px] flex-col items-center gap-0.5 text-center leading-none">
+            <div className="flex min-w-[150px] flex-col gap-0.5 leading-none">
               {task.urgent && (
-                <p className="m-0 text-[10px] font-bold text-destructive">🔥 ACİL YARDIM</p>
+                <p className="m-0 text-center text-[10px] font-bold text-destructive">🔥 ACİL YARDIM</p>
               )}
 
-              <div className="flex w-full items-center justify-center gap-1">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] font-semibold text-muted-foreground">Kategori:</span>
                 <span className="text-base leading-none">{task.emoji}</span>
-                <p className="m-0 line-clamp-1 font-bold">{task.title}</p>
+                <span className="line-clamp-1 font-bold">{task.title}</span>
               </div>
 
               {task.ownerName && (
-                <div className="flex items-center justify-center gap-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] font-semibold text-muted-foreground">Çağrı yapan:</span>
                   {task.ownerAvatar ? (
                     <img
                       src={task.ownerAvatar}
@@ -163,14 +165,22 @@ const TaskMap = ({ tasks, center = [40.9903, 29.0297], userPos = null, onTaskCli
                       </span>
                     </div>
                   )}
-                  <p className="m-0 text-xs text-muted-foreground">{task.ownerName}</p>
+                  <span className="text-xs text-muted-foreground">{task.ownerName}</span>
                 </div>
               )}
 
               {typeof task.estimatedMinutes === "number" && (
-                <p className="m-0 text-xs text-muted-foreground">~{task.estimatedMinutes} dk</p>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] font-semibold text-muted-foreground">Süre:</span>
+                  <span className="text-xs text-muted-foreground">~{task.estimatedMinutes} dk</span>
+                </div>
               )}
-              <p className="m-0 font-black text-primary">{task.price} ₺</p>
+
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] font-semibold text-muted-foreground">Fiyat:</span>
+                <span className="font-black text-primary">{task.price} ₺</span>
+              </div>
+
               {(task.personCount ?? 1) > 1 && (
                 <p className="m-0 text-xs font-bold text-muted-foreground">
                   👥 {task.filled ?? 0}/{task.personCount} dolu
