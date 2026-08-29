@@ -1,89 +1,63 @@
 import { Capacitor } from "@capacitor/core";
-import { Browser } from "@capacitor/browser";
-import { App } from "@capacitor/app";
+import { SocialLogin } from "@capgo/capacitor-social-login";
 import { supabase } from "@/integrations/supabase/client";
-
-const NATIVE_SCHEME = "com.ergan.bielat";
-const NATIVE_CALLBACK = `${NATIVE_SCHEME}://auth/callback`;
+import {
+  GOOGLE_WEB_CLIENT_ID,
+  APPLE_CLIENT_ID,
+  APPLE_REDIRECT_URL,
+} from "@/config/socialAuth";
 
 export const isNativePlatform = () => Capacitor.isNativePlatform();
 
+let initialized = false;
+
+const ensureInit = async () => {
+  if (initialized) return;
+  await SocialLogin.initialize({
+    google: GOOGLE_WEB_CLIENT_ID ? { webClientId: GOOGLE_WEB_CLIENT_ID } : undefined,
+    apple: APPLE_CLIENT_ID
+      ? { clientId: APPLE_CLIENT_ID, redirectUrl: APPLE_REDIRECT_URL || undefined }
+      : undefined,
+  });
+  initialized = true;
+};
+
 /**
- * Native (Android/iOS) Google/Apple girişi (doğrudan Supabase Auth):
- * 1) supabase.auth.signInWithOAuth ile yetkilendirme URL'si alınır (PKCE)
- * 2) URL sistem tarayıcısında açılır
- * 3) Giriş bitince Supabase, com.ergan.bielat://auth/callback?code=... adresine yönlendirir
- * 4) appUrlOpen dinleyicisi code'u alıp oturuma çevirir
+ * Native (Android/iOS) Google/Apple girişi.
+ * Tarayıcı açılmaz: sistemin hesap seçici ekranı gelir, dönen ID token
+ * doğrudan Supabase oturumuna çevrilir.
  */
 export const signInNativeOAuth = async (provider: "google" | "apple") => {
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider,
-    options: {
-      redirectTo: NATIVE_CALLBACK,
-      skipBrowserRedirect: true,
-    },
+  if (provider === "google" && !GOOGLE_WEB_CLIENT_ID) {
+    throw new Error("Google Web Client ID tanımlı değil (src/config/socialAuth.ts)");
+  }
+  if (provider === "apple" && !APPLE_CLIENT_ID) {
+    throw new Error("Apple Client ID tanımlı değil (src/config/socialAuth.ts)");
+  }
+
+  await ensureInit();
+
+  const res = await SocialLogin.login(
+    provider === "google"
+      ? { provider: "google", options: { scopes: ["email", "profile"] } }
+      : { provider: "apple", options: { scopes: ["email", "name"] } },
+  );
+
+  const result = res.result as unknown as Record<string, unknown> | undefined;
+  const idToken =
+    (result?.idToken as string | undefined) ??
+    ((result?.authenticationToken as string | undefined) ?? undefined);
+
+  if (!idToken) {
+    throw new Error("Kimlik doğrulama anahtarı alınamadı");
+  }
+
+  const { error } = await supabase.auth.signInWithIdToken({
+    provider: provider === "google" ? "google" : "apple",
+    token: idToken,
   });
-  if (error || !data?.url) {
-    throw error ?? new Error("OAuth URL alınamadı");
-  }
-  await Browser.open({ url: data.url });
+  if (error) throw error;
 };
 
-const parseParams = (url: string) => {
-  const params = new URLSearchParams();
-  const hashIndex = url.indexOf("#");
-  const queryIndex = url.indexOf("?");
-  if (queryIndex !== -1) {
-    const end = hashIndex !== -1 ? hashIndex : url.length;
-    new URLSearchParams(url.slice(queryIndex + 1, end)).forEach((v, k) => params.set(k, v));
-  }
-  if (hashIndex !== -1) {
-    new URLSearchParams(url.slice(hashIndex + 1)).forEach((v, k) => params.set(k, v));
-  }
-  return params;
-};
-
-/** Uygulama açılışında bir kez çağrılır; OAuth deep-link geri dönüşünü yakalar. */
-export const setupNativeAuthListener = () => {
-  if (!isNativePlatform()) return;
-  App.addListener("appUrlOpen", async ({ url }) => {
-    if (!url.startsWith(NATIVE_CALLBACK)) return;
-    try {
-      await Browser.close();
-    } catch {
-      // tarayıcı zaten kapalı olabilir
-    }
-    const params = parseParams(url);
-    const error = params.get("error");
-    if (error) {
-      console.error("OAuth error:", params.get("error_description") ?? error);
-      return;
-    }
-
-    // PKCE akışı: code'u oturuma çevir
-    const code = params.get("code");
-    if (code) {
-      const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
-      if (exchangeError) {
-        console.error("Code exchange error:", exchangeError);
-      }
-      return;
-    }
-
-    // Implicit akış yedeği: token'lar hash'te gelebilir
-    const accessToken = params.get("access_token");
-    const refreshToken = params.get("refresh_token");
-    if (accessToken && refreshToken) {
-      const { error: sessionError } = await supabase.auth.setSession({
-        access_token: accessToken,
-        refresh_token: refreshToken,
-      });
-      if (sessionError) {
-        console.error("Session error:", sessionError);
-      }
-      return;
-    }
-
-    console.error("OAuth callback missing code/tokens");
-  });
-};
+/** Geriye dönük uyumluluk: artık deep-link dinleyicisine gerek yok. */
+export const setupNativeAuthListener = () => {};
