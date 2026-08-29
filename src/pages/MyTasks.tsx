@@ -665,6 +665,29 @@ const MyTasks = () => {
                       )}
                     </div>
                     <p className={`text-xs font-semibold ${status.color}`}>{status.label}</p>
+                    {(ownedTaskers[task.id] || []).length > 0 && (
+                      <div className="mt-1 flex flex-wrap items-center gap-2">
+                        {(ownedTaskers[task.id] || []).map((tp) => (
+                          <button
+                            key={tp.user_id}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/profile/${tp.user_id}`);
+                            }}
+                            className="flex items-center gap-1 rounded-full bg-primary/10 py-0.5 pl-0.5 pr-2 text-[10px] font-bold text-primary"
+                          >
+                            {tp.avatar_url ? (
+                              <img src={tp.avatar_url} alt={tp.full_name} className="h-4 w-4 rounded-full object-cover" />
+                            ) : (
+                              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary/20">
+                                <User size={9} />
+                              </span>
+                            )}
+                            {tp.full_name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                     <div className="mt-1 flex flex-wrap items-center gap-3 text-[10px] font-semibold text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <Calendar size={11} className="text-primary" />
