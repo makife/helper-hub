@@ -31,8 +31,15 @@ const Home = () => {
   const [selectedTask, setSelectedTask] = useState<TaskWithUI | null>(null);
   const [ownerNames, setOwnerNames] = useState<Record<string, string>>({});
   const [fillCounts, setFillCounts] = useState<Record<string, number>>({});
-  const [userPos, setUserPos] = useState<[number, number] | null>(null);
-  const [mapCenter, setMapCenter] = useState<[number, number] | null>(null);
+  const [userPos, setUserPos] = useState<[number, number] | null>(() => {
+    try {
+      const cached = localStorage.getItem("bielat_last_location");
+      return cached ? (JSON.parse(cached) as [number, number]) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [mapCenter, setMapCenter] = useState<[number, number] | null>(userPos);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const unreadMessages = useUnreadNotifications();
