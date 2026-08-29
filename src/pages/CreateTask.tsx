@@ -34,6 +34,7 @@ const CreateTask = () => {
   const editTaskId = searchParams.get("edit");
 
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+  const [categoryQuery, setCategoryQuery] = useState("");
   const [isCustomCategory, setIsCustomCategory] = useState(false);
   const [customCategoryText, setCustomCategoryText] = useState("");
 
