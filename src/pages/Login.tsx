@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { isNativePlatform, signInNativeOAuth } from "@/lib/nativeAuth";
@@ -43,24 +44,24 @@ const Login = () => {
     setPending(provider);
     try {
       if (isNativePlatform()) {
-        // Native APK: giriş sistem tarayıcısında açılır, deep-link ile geri dönülür.
-        // appUrlOpen dinleyicisi (App.tsx) oturumu kurunca pending AuthCallback üzerinden çözülür.
+        // Native APK: platformun kendi hesap seçicisini kullanır.
         await signInNativeOAuth(provider);
         setPending(null);
         return;
       }
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: `${window.location.origin}/login`,
-          queryParams: provider === "google" ? { prompt: "select_account" } : undefined,
-        },
+      // Web/preview: yönetilen OAuth aracısı editör iframe'ini güvenli biçimde
+      // aşar. Doğrudan backend OAuth çağrısı Google tarafından engellenir.
+      const result = await lovable.auth.signInWithOAuth(provider, {
+        redirect_uri: window.location.origin,
+        extraParams: provider === "google" ? { prompt: "select_account" } : undefined,
       });
-      if (error) {
+      if (result.error) {
         toast.error("Giriş yapılamadı. Lütfen tekrar deneyin.");
-        console.error("OAuth error:", error);
+        console.error("OAuth error:", result.error);
         setPending(null);
+        return;
       }
+      if (!result.redirected) setPending(null);
     } catch (err) {
       console.error("OAuth error:", err);
       toast.error("Giriş yapılamadı. Lütfen tekrar deneyin.");
