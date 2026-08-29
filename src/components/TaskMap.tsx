@@ -67,10 +67,12 @@ const createEmojiIcon = (emoji: string, urgent?: boolean) => {
 const LocationUpdater = ({ center }: { center: [number, number] }) => {
   const map = useMap();
   useEffect(() => {
-    map.setView(center, 14);
+    const zoom = Math.max(map.getZoom() ?? 14, 14);
+    map.flyTo(center, zoom, { animate: true, duration: 0.8 });
   }, [center, map]);
   return null;
 };
+
 
 type Props = {
   tasks: TaskPin[];
