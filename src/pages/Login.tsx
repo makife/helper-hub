@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { isNativePlatform, signInNativeOAuth } from "@/lib/nativeAuth";
+import { lovable } from "@/integrations/lovable";
 import logo from "@/assets/logo.png";
 
 const getPlatform = () => {
@@ -48,15 +49,16 @@ const Login = () => {
         setPending(null);
         return;
       }
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: { redirectTo: `${window.location.origin}/login` },
+      const result = await lovable.auth.signInWithOAuth(provider, {
+        redirect_uri: `${window.location.origin}/login`,
       });
-      if (error) {
+      if (result.error) {
         toast.error("Giriş yapılamadı. Lütfen tekrar deneyin.");
-        console.error("OAuth error:", error);
+        console.error("OAuth error:", result.error);
         setPending(null);
+        return;
       }
+      if (!result.redirected) setPending(null);
     } catch (err) {
       console.error("OAuth error:", err);
       toast.error("Giriş yapılamadı. Lütfen tekrar deneyin.");
