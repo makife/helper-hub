@@ -21,6 +21,8 @@ import Market from "./pages/Market";
 import Messages from "./pages/Messages";
 import ActiveTask from "./pages/ActiveTask";
 import NotFound from "./pages/NotFound";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
 
 const queryClient = new QueryClient();
 
