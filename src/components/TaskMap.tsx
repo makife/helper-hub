@@ -30,6 +30,9 @@ const ensurePulseStyles = () => {
       70% { transform: scale(1.8); opacity: 0; }
       100% { transform: scale(1.8); opacity: 0; }
     }
+    .leaflet-container { background: #1a2418; }
+    .leaflet-tile { opacity: 0; transition: opacity 0.35s ease-in; will-change: opacity; }
+    .leaflet-tile.leaflet-tile-loaded { opacity: 1; }
     .task-pulse-wrap { position: relative; width: 40px; height: 40px; }
     .task-pulse-ring {
       position: absolute; inset: 0; border-radius: 50%;
@@ -105,8 +108,22 @@ const TaskMap = ({ tasks, center = [40.9903, 29.0297], userPos = null, onTaskCli
       zoomControl={false}
       attributionControl={false}
     >
-      <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}" />
-      <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}" />
+      <TileLayer
+        url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+        maxZoom={19}
+        maxNativeZoom={19}
+        keepBuffer={4}
+        updateWhenIdle={false}
+        crossOrigin
+      />
+      <TileLayer
+        url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
+        maxZoom={19}
+        maxNativeZoom={19}
+        keepBuffer={4}
+        updateWhenIdle={false}
+        crossOrigin
+      />
       <LocationUpdater center={mapCenter} />
 
       {userPos && <Marker position={userPos} icon={userIcon} />}
