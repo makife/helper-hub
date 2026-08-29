@@ -266,7 +266,7 @@ const Home = () => {
       </div>
 
       {/* Map — fills all remaining space edge-to-edge, bottom nav floats on top */}
-      <div className="relative flex-1 overflow-hidden">
+      <div className="relative z-0 flex-1 overflow-hidden">
         <TaskMap tasks={mapPins} onTaskClick={handleTaskClick} center={mapCenter || undefined} userPos={userPos} />
 
         {/* Stats overlay, floating on top of the map */}
