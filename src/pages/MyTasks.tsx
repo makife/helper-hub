@@ -231,6 +231,7 @@ const MyTasks = () => {
   const [viewCounts, setViewCounts] = useState<Record<string, number>>({});
   const [viewers, setViewers] = useState<{ id: string; full_name: string; avatar_url: string | null; viewed_at: string }[]>([]);
   const [ownedArrivals, setOwnedArrivals] = useState<Record<string, string | null>>({});
+  const [ownedTaskers, setOwnedTaskers] = useState<Record<string, { user_id: string; full_name: string; avatar_url: string | null }[]>>({});
   const [, setPriceTick] = useState(0);
 
   useEffect(() => {
