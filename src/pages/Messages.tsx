@@ -128,7 +128,7 @@ const Messages = () => {
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: i * 0.06 }}
                 onClick={() => navigate(`/task/${conv.task_id}`)}
-                className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card p-4 text-left shadow-card transition-all active:scale-[0.98]"
+                className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card p-4 text-left shadow-card transition-shadow active:scale-[0.98]"
               >
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
                   {conv.other_user_avatar ? (
