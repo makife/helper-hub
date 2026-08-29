@@ -678,33 +678,46 @@ const MyTasks = () => {
                   </div>
 
                   {(ownedTaskers[task.id] || []).length > 0 && (
-                    <div className="mt-3 rounded-xl bg-muted/40 p-3">
-                      <p className="mb-2 text-[10px] font-black uppercase tracking-wide text-muted-foreground">
-                        İşi Kabul Eden / El Atan
-                      </p>
-                      <div className="flex flex-wrap items-center gap-2">
-                        {(ownedTaskers[task.id] || []).map((tp) => (
+                    <div className="mt-2 flex items-center gap-2">
+                      <span className="text-[10px] font-black uppercase tracking-wide text-muted-foreground">
+                        El atan:
+                      </span>
+                      <div className="flex -space-x-1.5">
+                        {(ownedTaskers[task.id] || []).slice(0, 3).map((tp) => (
                           <button
                             key={tp.user_id}
                             onClick={(e) => {
                               e.stopPropagation();
                               navigate(`/profile/${tp.user_id}`);
                             }}
-                            className="flex items-center gap-1.5 rounded-full bg-primary/10 py-1 pl-1 pr-2.5 text-[11px] font-bold text-primary"
+                            className="relative inline-block h-6 w-6 rounded-full border-2 border-card overflow-hidden"
+                            title={tp.full_name}
                           >
                             {tp.avatar_url ? (
-                              <img src={tp.avatar_url} alt={tp.full_name} className="h-5 w-5 rounded-full object-cover" />
+                              <img src={tp.avatar_url} alt={tp.full_name} className="h-full w-full object-cover" />
                             ) : (
-                              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/20">
-                                <User size={11} />
+                              <span className="flex h-full w-full items-center justify-center bg-primary/20 text-primary">
+                                <User size={12} />
                               </span>
                             )}
-                            {tp.full_name}
                           </button>
                         ))}
                       </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const first = (ownedTaskers[task.id] || [])[0];
+                          if (first) navigate(`/profile/${first.user_id}`);
+                        }}
+                        className="text-[11px] font-bold text-primary truncate"
+                      >
+                        {(ownedTaskers[task.id] || []).slice(0, 2).map((tp) => tp.full_name).join(", ")}
+                        {(ownedTaskers[task.id] || []).length > 2 &&
+                          ` +${(ownedTaskers[task.id] || []).length - 2}`}
+                      </button>
                     </div>
                   )}
+
 
                   <div className="mt-3 flex flex-wrap items-center gap-3 text-[10px] font-semibold text-muted-foreground">
                     <span className="flex items-center gap-1">
@@ -848,8 +861,35 @@ const MyTasks = () => {
                   </div>
                 )}
 
-                
+                {/* İşi kabul edenler (sadece iş veren) */}
+                {selectedTask.owner_id === user?.id && (ownedTaskers[selectedTask.id] || []).length > 0 && (
+                  <div className="border-t pt-2">
+                    <span className="text-muted-foreground text-xs font-semibold flex items-center gap-1 mb-2">
+                      <UserCheck size={14} className="text-primary" /> İşi Kabul Eden / El Atan
+                    </span>
+                    <div className="space-y-1.5">
+                      {(ownedTaskers[selectedTask.id] || []).map((tp) => (
+                        <button
+                          key={tp.user_id}
+                          onClick={() => { setSelectedTask(null); navigate(`/profile/${tp.user_id}`); }}
+                          className="flex w-full items-center gap-2.5 rounded-xl bg-muted/40 p-2 text-left hover:bg-muted/70"
+                        >
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted overflow-hidden">
+                            {tp.avatar_url ? (
+                              <img src={tp.avatar_url} alt={tp.full_name} className="h-full w-full object-cover" />
+                            ) : (
+                              <User size={14} className="text-muted-foreground" />
+                            )}
+                          </div>
+                          <span className="flex-1 text-xs font-bold text-foreground truncate">{tp.full_name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {selectedTask.address_note && (
+
                   <div className="flex justify-between py-1 border-t pt-2">
                     <span className="text-muted-foreground">Adres Notu:</span>
                     <span className="font-medium text-right max-w-[200px]">{selectedTask.address_note}</span>
