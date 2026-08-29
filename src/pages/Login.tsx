@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
@@ -21,7 +21,6 @@ const Login = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const [pending, setPending] = useState<"google" | "apple" | null>(null);
-  const oauthLaunchStarted = useRef(false);
   const platform = getPlatform();
 
   const signInWeb = async (provider: "google" | "apple") => {
@@ -30,22 +29,8 @@ const Login = () => {
       extraParams: provider === "google" ? { prompt: "select_account" } : undefined,
     });
     if (result.error) throw result.error;
-    if (!result.redirected) setPending(null);
+    setPending(null);
   };
-
-  useEffect(() => {
-    const provider = new URLSearchParams(window.location.search).get("oauth");
-    if ((provider !== "google" && provider !== "apple") || oauthLaunchStarted.current) return;
-
-    oauthLaunchStarted.current = true;
-    window.history.replaceState({}, "", window.location.pathname);
-    setPending(provider);
-    void signInWeb(provider).catch((error) => {
-      console.error("OAuth error:", error);
-      toast.error("Giriş yapılamadı. Lütfen tekrar deneyin.");
-      setPending(null);
-    });
-  }, []);
 
   useEffect(() => {
     if (authLoading || !user) return;
@@ -71,14 +56,6 @@ const Login = () => {
         // Native APK: platformun kendi hesap seçicisini kullanır.
         await signInNativeOAuth(provider);
         setPending(null);
-        return;
-      }
-
-      // Mobil web önizlemesi bir iframe içindeyken Google, açılan OAuth
-      // sayfasını gömülü bağlam olarak reddeder. Önce uygulamayı aynı sekmede
-      // üst seviyeye çıkar; ardından yukarıdaki effect OAuth'u başlatır.
-      if (window.self !== window.top && platform !== "web") {
-        window.open(`${window.location.origin}/login?oauth=${provider}`, "_top");
         return;
       }
 
