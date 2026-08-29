@@ -131,11 +131,14 @@ const Notifications = () => {
         </div>
       ) : (
         <div className="flex-1 space-y-2 px-5 pb-24">
-          {items.map((n) => (
-            <button
+          {items.map((n, i) => (
+            <motion.button
               key={n.id}
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: i * 0.06 }}
               onClick={() => navigate(n.type === "message" ? "/messages" : n.taskId ? `/task/${n.taskId}` : "/my-tasks")}
-              className={`flex w-full items-start gap-3 rounded-2xl border p-3 text-left shadow-card ${
+              className={`flex w-full items-start gap-3 rounded-2xl border p-3 text-left shadow-card transition-shadow active:scale-[0.98] ${
                 n.unread ? "border-primary/40 bg-primary/5" : "border-border bg-card"
               }`}
             >
@@ -148,7 +151,7 @@ const Notifications = () => {
                   {dateLabel(n.at)}
                 </span>
               </div>
-            </button>
+            </motion.button>
           ))}
         </div>
       )}
