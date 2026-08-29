@@ -22,6 +22,7 @@ import {
   FileText,
   Shield,
   ChevronRight,
+  Info,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -638,6 +639,13 @@ const Profile = () => {
             <LogOut size={16} />
             Çıkış Yap
           </button>
+
+          <div className="mt-6 flex items-start gap-2 rounded-xl border border-border/60 bg-muted/30 p-3">
+            <Info size={14} className="mt-0.5 shrink-0 text-muted-foreground" />
+            <p className="text-[10px] leading-4 text-muted-foreground">
+              Harita verileri Esri, OpenStreetMap ve Leaflet katkılarıyla sunulmaktadır. Uydu görüntüleri ve yer isimleri ilgili sağlayıcıların lisanslarına tabidir.
+            </p>
+          </div>
         </div>
       )}
 
