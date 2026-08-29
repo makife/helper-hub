@@ -308,7 +308,8 @@ const CreateTask = () => {
                   </span>
                 </button>
               ))}
-            </div>
+              </div>
+            </>
           )}
         </motion.div>
 
