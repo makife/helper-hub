@@ -1,25 +1,29 @@
 import { useState } from "react";
 import { MapPin, CheckCircle2, XCircle } from "lucide-react";
 import { toast } from "sonner";
+import { ensureLocationPermission } from "@/lib/geo";
 
 /**
  * Drop this button into the profile page to let the user (re)grant
- * location permission. Add it wherever fits your profile layout, e.g.:
- *
- *   import LocationPermissionButton from "@/components/LocationPermissionButton";
- *   ...
- *   <LocationPermissionButton />
+ * location permission.
  */
 const LocationPermissionButton = () => {
   const [status, setStatus] = useState<"idle" | "granted" | "denied">("idle");
   const [checking, setChecking] = useState(false);
 
-  const requestLocation = () => {
+  const requestLocation = async () => {
     if (!("geolocation" in navigator)) {
       toast.error("Cihazınız konum özelliğini desteklemiyor.");
       return;
     }
     setChecking(true);
+    const perm = await ensureLocationPermission();
+    if (perm === "denied") {
+      setChecking(false);
+      setStatus("denied");
+      toast.error("Konum izni reddedildi. Telefon ayarlarından açabilirsin.");
+      return;
+    }
     navigator.geolocation.getCurrentPosition(
       () => {
         setChecking(false);
@@ -31,8 +35,10 @@ const LocationPermissionButton = () => {
         setStatus("denied");
         toast.error("Konum izni verilmedi. Tarayıcı/telefon ayarlarından açabilirsin.");
       },
+      { enableHighAccuracy: true, timeout: 15000 },
     );
   };
+
 
   return (
     <button
