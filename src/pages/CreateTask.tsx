@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Camera, MapPin, Flame, Clock, X, Edit3, Grid, Users, Image as ImageIcon, Search as SearchIcon } from "lucide-react";
+import { ArrowLeft, Camera, MapPin, Flame, Clock, X, Edit3, Grid, Users, Image as ImageIcon, Search as SearchIcon, Wrench, Check, Plus, UserCheck, Home } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { ALL_TASK_CATEGORIES, type TaskBaseCategory } from "@/lib/taskCategories";
+import { ALL_TOOLS, TOOL_GROUPS } from "@/lib/toolsList";
 
 const PERSON_OPTIONS = [
   { value: 1, label: "1 Kişi", multiplier: 1 },
@@ -44,6 +45,15 @@ const CreateTask = () => {
   const [duration, setDuration] = useState(30);
   const [urgency, setUrgency] = useState<"urgent" | "can_wait">("can_wait");
   const [addressNote, setAddressNote] = useState("");
+
+  // Alet-Edevat
+  const [needsTools, setNeedsTools] = useState(false);
+  const [toolProvider, setToolProvider] = useState<"helper" | "owner">("helper");
+  const [selectedTools, setSelectedTools] = useState<string[]>([]);
+  const [toolQuery, setToolQuery] = useState("");
+  const [customTools, setCustomTools] = useState<string[]>([]);
+  const [customToolInput, setCustomToolInput] = useState("");
+
   const [photos, setPhotos] = useState<File[]>([]);
   const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
   const [existingPhotoUrls, setExistingPhotoUrls] = useState<string[]>([]);
@@ -71,6 +81,10 @@ const CreateTask = () => {
         setDuration(data.estimated_minutes || 30);
         setUrgency((data.urgency as "urgent" | "can_wait") || "can_wait");
         setAddressNote(data.address_note || "");
+        setNeedsTools(Boolean(data.needs_tools));
+        setToolProvider((data.tool_provider as "helper" | "owner") || "helper");
+        setSelectedTools(data.required_tools || []);
+        setCustomTools(data.custom_tools || []);
         setExistingPhotoUrls(data.photo_urls || []);
         setPhotoPreviews(data.photo_urls || []);
 
@@ -111,6 +125,27 @@ const CreateTask = () => {
     setPhotoPreviews((prev) => prev.filter((_, i) => i !== index));
     setPhotos((prev) => prev.filter((_, i) => i !== index));
     setExistingPhotoUrls((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const toggleTool = (toolId: string) => {
+    setSelectedTools((prev) =>
+      prev.includes(toolId) ? prev.filter((id) => id !== toolId) : [...prev, toolId]
+    );
+  };
+
+  const addCustomTool = () => {
+    const value = customToolInput.trim();
+    if (!value) return;
+    if (customTools.some((t) => normalize(t) === normalize(value))) {
+      setCustomToolInput("");
+      return;
+    }
+    setCustomTools((prev) => [...prev, value]);
+    setCustomToolInput("");
+  };
+
+  const removeCustomTool = (index: number) => {
+    setCustomTools((prev) => prev.filter((_, i) => i !== index));
   };
 
   const isValidCategory = isCustomCategory
@@ -188,6 +223,10 @@ const CreateTask = () => {
         person_count: personCount,
         estimated_minutes: duration,
         address_note: addressNote || null,
+        needs_tools: needsTools,
+        tool_provider: needsTools ? toolProvider : null,
+        required_tools: needsTools ? selectedTools : [],
+        custom_tools: needsTools ? customTools : [],
         photo_urls: finalPhotoUrls,
         latitude,
         longitude,
@@ -422,7 +461,7 @@ const CreateTask = () => {
 
         {/* Süre */}
         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }}>
-          <label className="mb-2 block text-sm font-semibold text-foreground">Tahmini Süre</label>
+          <label className="mb-2 block text-sm font-semibold text-foreground">İşin Tahmini Bitiş Süresi</label>
           <div className="flex gap-2">
             {durations.map((d) => (
               <button
@@ -440,6 +479,157 @@ const CreateTask = () => {
               </button>
             ))}
           </div>
+        </motion.div>
+
+        {/* Alet-Edevat */}
+        <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.22 }} className="rounded-2xl border border-border bg-card p-4">
+          <button
+            type="button"
+            onClick={() => setNeedsTools((prev) => !prev)}
+            className="flex w-full items-center justify-between"
+          >
+            <span className="flex items-center gap-2 text-sm font-bold text-foreground">
+              <Wrench size={18} className="text-primary" />
+              İş İçin Alet/Edevat Gerekiyor mu?
+            </span>
+            <span
+              className={`flex h-6 w-6 items-center justify-center rounded-md border-2 transition-all ${
+                needsTools ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background"
+              }`}
+            >
+              {needsTools && <Check size={14} strokeWidth={3} />}
+            </span>
+          </button>
+
+          {needsTools && (
+            <div className="mt-4 space-y-4">
+              {/* Aletleri kim getirecek */}
+              <div>
+                <label className="mb-2 block text-xs font-bold text-muted-foreground">
+                  Alet/Edevatı Kim Getirecek?
+                </label>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setToolProvider("helper")}
+                    className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-xs font-bold transition-all active:scale-95 ${
+                      toolProvider === "helper"
+                        ? "gradient-warm text-primary-foreground shadow-soft"
+                        : "border border-border bg-background text-foreground"
+                    }`}
+                  >
+                    <UserCheck size={14} />
+                    El Atan Getirsin
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setToolProvider("owner")}
+                    className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-xs font-bold transition-all active:scale-95 ${
+                      toolProvider === "owner"
+                        ? "gradient-warm text-primary-foreground shadow-soft"
+                        : "border border-border bg-background text-foreground"
+                    }`}
+                  >
+                    <Home size={14} />
+                    Ben Sağlayacağım
+                  </button>
+                </div>
+              </div>
+
+              {/* Alet arama ve seçim */}
+              <div>
+                <label className="mb-2 block text-xs font-bold text-muted-foreground">
+                  Gereken Alet/Malzemeleri Seç {selectedTools.length > 0 && `(${selectedTools.length} seçili)`}
+                </label>
+                <div className="mb-2 flex items-center gap-2 rounded-xl border-2 border-border bg-background px-3 py-2.5 focus-within:border-primary">
+                  <SearchIcon size={16} className="text-muted-foreground" />
+                  <input
+                    value={toolQuery}
+                    onChange={(e) => setToolQuery(e.target.value)}
+                    placeholder="Alet ara... (100+ seçenek)"
+                    className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground/50"
+                  />
+                </div>
+                <div className="max-h-64 space-y-3 overflow-y-auto pr-1">
+                  {TOOL_GROUPS.map((group) => {
+                    const groupTools = ALL_TOOLS.filter(
+                      (tool) =>
+                        tool.group === group &&
+                        (!toolQuery || normalize(tool.label).includes(normalize(toolQuery)))
+                    );
+                    if (groupTools.length === 0) return null;
+                    return (
+                      <div key={group}>
+                        <p className="mb-1.5 text-[10px] font-bold uppercase tracking-wide text-muted-foreground/70">
+                          {group}
+                        </p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {groupTools.map((tool) => (
+                            <button
+                              key={tool.id}
+                              type="button"
+                              onClick={() => toggleTool(tool.id)}
+                              className={`rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition-all active:scale-95 ${
+                                selectedTools.includes(tool.id)
+                                  ? "bg-primary text-primary-foreground"
+                                  : "border border-border bg-background text-foreground"
+                              }`}
+                            >
+                              {tool.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Manuel alet ekleme */}
+              <div>
+                <label className="mb-2 block text-xs font-bold text-muted-foreground">
+                  Listede Yoksa Elle Ekle
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={customToolInput}
+                    onChange={(e) => setCustomToolInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        addCustomTool();
+                      }
+                    }}
+                    placeholder="Örn: Akvaryum pompası..."
+                    className="flex-1 rounded-xl border-2 border-border bg-background px-3 py-2.5 text-sm text-foreground outline-none focus:border-primary placeholder:text-muted-foreground/50"
+                  />
+                  <button
+                    type="button"
+                    onClick={addCustomTool}
+                    className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground active:scale-95"
+                  >
+                    <Plus size={18} />
+                  </button>
+                </div>
+                {customTools.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {customTools.map((tool, i) => (
+                      <span
+                        key={`${tool}-${i}`}
+                        className="flex items-center gap-1 rounded-lg bg-primary/10 px-2.5 py-1.5 text-[11px] font-semibold text-primary"
+                      >
+                        {tool}
+                        <button type="button" onClick={() => removeCustomTool(i)}>
+                          <X size={12} />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </motion.div>
 
         {/* Acillik */}
