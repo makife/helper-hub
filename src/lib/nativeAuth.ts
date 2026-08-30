@@ -44,7 +44,7 @@ export const signInNativeOAuth = async (provider: "google" | "apple") => {
         // Android eklentisi email/profile/openid kapsamlarını zaten varsayılan
         // olarak ekliyor. `scopes` göndermek özel kapsam akışını tetikleyip
         // değiştirilmiş bir MainActivity talep ediyor.
-        ? { provider: "google" }
+        ? { provider: "google", options: {} }
         : { provider: "apple", options: { scopes: ["email", "name"] } },
     );
   } catch (err) {
