@@ -28,7 +28,14 @@ const normalize = (value: string) =>
     .replace(/ç/g, "c")
     .trim();
 
-const durations = [15, 30, 45, 60];
+// Hazır süre seçenekleri (dakika cinsinden)
+const durationPresets = [
+  { label: "30 dk", minutes: 30 },
+  { label: "1 saat", minutes: 60 },
+  { label: "2 saat", minutes: 120 },
+  { label: "4 saat", minutes: 240 },
+  { label: "Tüm Gün", minutes: 480 },
+];
 
 const CreateTask = () => {
   const [searchParams] = useSearchParams();
@@ -43,6 +50,8 @@ const CreateTask = () => {
   const [personCount, setPersonCount] = useState<number>(1);
   const [basePrice, setBasePrice] = useState<number>(200);
   const [duration, setDuration] = useState(30);
+  const [isCustomDuration, setIsCustomDuration] = useState(false);
+  const [customDurationHours, setCustomDurationHours] = useState<string>("");
   const [urgency, setUrgency] = useState<"urgent" | "can_wait">("can_wait");
   const [addressNote, setAddressNote] = useState("");
 
@@ -78,7 +87,12 @@ const CreateTask = () => {
         setDescription(data.description || "");
         setBasePrice(data.price ? Math.round(data.price / (data.person_count || 1)) : 200);
         setPersonCount(data.person_count || 1);
-        setDuration(data.estimated_minutes || 30);
+        const loadedMinutes = data.estimated_minutes || 30;
+        setDuration(loadedMinutes);
+        if (!durationPresets.some((p) => p.minutes === loadedMinutes)) {
+          setIsCustomDuration(true);
+          setCustomDurationHours(String(Math.round((loadedMinutes / 60) * 10) / 10));
+        }
         setUrgency((data.urgency as "urgent" | "can_wait") || "can_wait");
         setAddressNote(data.address_note || "");
         setNeedsTools(Boolean(data.needs_tools));
@@ -152,7 +166,9 @@ const CreateTask = () => {
     ? customCategoryText.trim().length >= 3
     : Boolean(selectedCategoryId);
 
-  const isValid = isValidCategory && description.length >= 20 && totalPrice >= 50;
+  const isValidDuration = !isCustomDuration || (parseFloat(customDurationHours) > 0);
+
+  const isValid = isValidCategory && description.length >= 20 && totalPrice >= 50 && isValidDuration;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -462,23 +478,60 @@ const CreateTask = () => {
         {/* Süre */}
         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }}>
           <label className="mb-2 block text-sm font-semibold text-foreground">İşin Tahmini Bitiş Süresi</label>
-          <div className="flex gap-2">
-            {durations.map((d) => (
+          <div className="flex flex-wrap gap-2">
+            {durationPresets.map((d) => (
               <button
-                key={d}
+                key={d.minutes}
                 type="button"
-                onClick={() => setDuration(d)}
-                className={`flex flex-1 items-center justify-center gap-1 rounded-xl px-3 py-3 text-sm font-bold transition-all active:scale-95 ${
-                  duration === d
+                onClick={() => {
+                  setIsCustomDuration(false);
+                  setDuration(d.minutes);
+                }}
+                className={`flex flex-1 basis-[30%] items-center justify-center gap-1 rounded-xl px-3 py-3 text-sm font-bold transition-all active:scale-95 ${
+                  !isCustomDuration && duration === d.minutes
                     ? "gradient-warm text-primary-foreground shadow-soft"
                     : "border border-border bg-card text-foreground"
                 }`}
               >
                 <Clock size={14} />
-                {d} dk
+                {d.label}
               </button>
             ))}
+            <button
+              type="button"
+              onClick={() => setIsCustomDuration(true)}
+              className={`flex flex-1 basis-[30%] items-center justify-center gap-1 rounded-xl px-3 py-3 text-sm font-bold transition-all active:scale-95 ${
+                isCustomDuration
+                  ? "gradient-warm text-primary-foreground shadow-soft"
+                  : "border border-border bg-card text-foreground"
+              }`}
+            >
+              <Edit3 size={14} />
+              Diğer
+            </button>
           </div>
+
+          {isCustomDuration && (
+            <div className="mt-2 flex items-center gap-2">
+              <input
+                type="number"
+                min={0.5}
+                step={0.5}
+                value={customDurationHours}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setCustomDurationHours(value);
+                  const hours = parseFloat(value);
+                  if (!isNaN(hours) && hours > 0) {
+                    setDuration(Math.round(hours * 60));
+                  }
+                }}
+                placeholder="Örn: 10"
+                className="w-full rounded-xl border-2 border-border bg-card px-4 py-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:border-primary"
+              />
+              <span className="whitespace-nowrap text-sm font-bold text-muted-foreground">saat sürer</span>
+            </div>
+          )}
         </motion.div>
 
         {/* Alet-Edevat */}
@@ -687,7 +740,9 @@ const CreateTask = () => {
               ? "⬆️ Bir kategori seçin veya kategori adını girin"
               : description.length < 20
                 ? `⬆️ Açıklama en az 20 karakter olmalı. (${description.length}/20)`
-                : ""}
+                : !isValidDuration
+                  ? "⬆️ Süreyi saat cinsinden girin"
+                  : ""}
           </p>
         )}
         <button
