@@ -37,11 +37,17 @@ export const signInNativeOAuth = async (provider: "google" | "apple") => {
 
   await ensureInit();
 
-  const res = await SocialLogin.login(
-    provider === "google"
-      ? { provider: "google", options: { scopes: ["email", "profile"] } }
-      : { provider: "apple", options: { scopes: ["email", "name"] } },
-  );
+  let res: Awaited<ReturnType<typeof SocialLogin.login>>;
+  try {
+    res = await SocialLogin.login(
+      provider === "google"
+        ? { provider: "google", options: { scopes: ["email", "profile"] } }
+        : { provider: "apple", options: { scopes: ["email", "name"] } },
+    );
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    throw new Error(`Hesap seçici hatası: ${msg}`);
+  }
 
   const result = res.result as unknown as Record<string, unknown> | undefined;
   const idToken =
@@ -56,7 +62,7 @@ export const signInNativeOAuth = async (provider: "google" | "apple") => {
     provider: provider === "google" ? "google" : "apple",
     token: idToken,
   });
-  if (error) throw error;
+  if (error) throw new Error(`Oturum açılamadı: ${error.message}`);
 };
 
 /** Geriye dönük uyumluluk: artık deep-link dinleyicisine gerek yok. */
