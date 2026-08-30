@@ -17,6 +17,9 @@ type TaskPin = {
   ownerAvatar?: string | null;
   filled?: number;
   personCount?: number;
+  needsTools?: boolean;
+  toolProvider?: "helper" | "owner";
+  toolsCount?: number;
 };
 
 
@@ -160,6 +163,16 @@ const TaskMap = ({ tasks, center = [40.9903, 29.0297], userPos = null, onTaskCli
                 <div className="flex items-center justify-between border-b border-border/40 py-1">
                   <span className="text-[10px] font-semibold text-muted-foreground">Süre:</span>
                   <span className="text-right text-xs text-muted-foreground">~{task.estimatedMinutes} dk</span>
+                </div>
+              )}
+
+              {task.needsTools && (
+                <div className="flex items-center justify-between border-b border-border/40 py-1">
+                  <span className="text-[10px] font-semibold text-muted-foreground">🔧 Alet/Edevat:</span>
+                  <span className="line-clamp-1 max-w-[130px] text-right text-xs font-semibold text-primary">
+                    {task.toolProvider === "owner" ? "Ben Sağlıyorum" : "El Atan Getirsin"}
+                    {typeof task.toolsCount === "number" && task.toolsCount > 0 ? ` (${task.toolsCount})` : ""}
+                  </span>
                 </div>
               )}
 
