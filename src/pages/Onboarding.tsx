@@ -115,7 +115,7 @@ const Onboarding = () => {
         onClick={next}
         className="gradient-warm w-full rounded-2xl px-6 py-4 text-lg font-bold text-primary-foreground shadow-soft transition-transform active:scale-[0.98]"
       >
-        {current < slides.length - 1 ? "Devam" : "Hadi Başlayalım! 🚀"}
+        {current < slides.length - 1 ? "Devam" : "Hadi Başlayalım!"}
       </button>
     </div>
   );
