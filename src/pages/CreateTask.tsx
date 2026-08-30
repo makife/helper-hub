@@ -9,10 +9,9 @@ import { ALL_TASK_CATEGORIES, type TaskBaseCategory } from "@/lib/taskCategories
 import { ALL_TOOLS, TOOL_GROUPS } from "@/lib/toolsList";
 
 const PERSON_OPTIONS = [
-  { value: 1, label: "1 Kişi", multiplier: 1 },
-  { value: 2, label: "2 Kişi", multiplier: 2 },
-  { value: 3, label: "3 Kişi", multiplier: 3 },
-  { value: 4, label: "4+ Kişi", multiplier: 4 },
+  { value: 1, label: "1 Kişi" },
+  { value: 2, label: "2 Kişi" },
+  { value: 3, label: "3 Kişi" },
 ];
 
 const categories = ALL_TASK_CATEGORIES;
@@ -48,12 +47,16 @@ const CreateTask = () => {
 
   const [description, setDescription] = useState("");
   const [personCount, setPersonCount] = useState<number>(1);
+  const [isCustomPersonCount, setIsCustomPersonCount] = useState(false);
+  const [customPersonCountInput, setCustomPersonCountInput] = useState("");
   const [basePrice, setBasePrice] = useState<number>(200);
   const [duration, setDuration] = useState(30);
   const [isCustomDuration, setIsCustomDuration] = useState(false);
   const [customDurationHours, setCustomDurationHours] = useState<string>("");
   const [urgency, setUrgency] = useState<"urgent" | "can_wait">("can_wait");
   const [addressNote, setAddressNote] = useState("");
+  const [originalLat, setOriginalLat] = useState<number | null>(null);
+  const [originalLng, setOriginalLng] = useState<number | null>(null);
 
   // Alet-Edevat
   const [needsTools, setNeedsTools] = useState(false);
@@ -86,7 +89,12 @@ const CreateTask = () => {
       if (data && !error) {
         setDescription(data.description || "");
         setBasePrice(data.price ? Math.round(data.price / (data.person_count || 1)) : 200);
-        setPersonCount(data.person_count || 1);
+        const loadedPersonCount = data.person_count || 1;
+        setPersonCount(loadedPersonCount);
+        if (!PERSON_OPTIONS.some((p) => p.value === loadedPersonCount)) {
+          setIsCustomPersonCount(true);
+          setCustomPersonCountInput(String(loadedPersonCount));
+        }
         const loadedMinutes = data.estimated_minutes || 30;
         setDuration(loadedMinutes);
         if (!durationPresets.some((p) => p.minutes === loadedMinutes)) {
@@ -95,6 +103,8 @@ const CreateTask = () => {
         }
         setUrgency((data.urgency as "urgent" | "can_wait") || "can_wait");
         setAddressNote(data.address_note || "");
+        setOriginalLat(data.latitude ?? null);
+        setOriginalLng(data.longitude ?? null);
         setNeedsTools(Boolean(data.needs_tools));
         setToolProvider((data.tool_provider as "helper" | "owner") || "helper");
         setSelectedTools(data.required_tools || []);
@@ -167,8 +177,16 @@ const CreateTask = () => {
     : Boolean(selectedCategoryId);
 
   const isValidDuration = !isCustomDuration || (parseFloat(customDurationHours) > 0);
+  const isValidPersonCount = !isCustomPersonCount || (parseInt(customPersonCountInput, 10) > 0);
+  const isValidTools = !needsTools || selectedTools.length + customTools.length > 0;
 
-  const isValid = isValidCategory && description.length >= 20 && totalPrice >= 50 && isValidDuration;
+  const isValid =
+    isValidCategory &&
+    description.length >= 20 &&
+    totalPrice >= 50 &&
+    isValidDuration &&
+    isValidPersonCount &&
+    isValidTools;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -203,21 +221,31 @@ const CreateTask = () => {
 
       let latitude: number | null = null;
       let longitude: number | null = null;
-      try {
-        const pos = await new Promise<GeolocationPosition>((resolve, reject) =>
-          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 8000 })
-        );
-        latitude = pos.coords.latitude;
-        longitude = pos.coords.longitude;
-      } catch {
-        // Konum izni yoksa profildeki kayıtlı konuma düş
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("latitude, longitude")
-          .eq("user_id", user.id)
-          .maybeSingle();
-        latitude = profile?.latitude ?? null;
-        longitude = profile?.longitude ?? null;
+
+      if (editTaskId && originalLat != null && originalLng != null) {
+        // Düzenleme modunda konum sessizce değişmesin diye görevin
+        // mevcut konumu korunur; kullanıcı sadece açıklama/fiyat gibi
+        // alanları güncelliyor olabilir, o an nerede olduğu görevin
+        // konumunu etkilememeli.
+        latitude = originalLat;
+        longitude = originalLng;
+      } else {
+        try {
+          const pos = await new Promise<GeolocationPosition>((resolve, reject) =>
+            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 8000 })
+          );
+          latitude = pos.coords.latitude;
+          longitude = pos.coords.longitude;
+        } catch {
+          // Konum izni yoksa profildeki kayıtlı konuma düş
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("latitude, longitude")
+            .eq("user_id", user.id)
+            .maybeSingle();
+          latitude = profile?.latitude ?? null;
+          longitude = profile?.longitude ?? null;
+        }
       }
 
       if (latitude == null || longitude == null) {
@@ -397,9 +425,12 @@ const CreateTask = () => {
                 <button
                   key={opt.value}
                   type="button"
-                  onClick={() => setPersonCount(opt.value)}
+                  onClick={() => {
+                    setIsCustomPersonCount(false);
+                    setPersonCount(opt.value);
+                  }}
                   className={`flex flex-col items-center justify-center rounded-xl p-2.5 text-xs font-bold transition-all ${
-                    personCount === opt.value
+                    !isCustomPersonCount && personCount === opt.value
                       ? "bg-primary text-primary-foreground shadow-md scale-105"
                       : "bg-muted text-muted-foreground hover:bg-muted/80"
                   }`}
@@ -407,7 +438,40 @@ const CreateTask = () => {
                   <span>{opt.label}</span>
                 </button>
               ))}
+              <button
+                type="button"
+                onClick={() => setIsCustomPersonCount(true)}
+                className={`flex flex-col items-center justify-center rounded-xl p-2.5 text-xs font-bold transition-all ${
+                  isCustomPersonCount
+                    ? "bg-primary text-primary-foreground shadow-md scale-105"
+                    : "bg-muted text-muted-foreground hover:bg-muted/80"
+                }`}
+              >
+                <span>Diğer</span>
+              </button>
             </div>
+
+            {isCustomPersonCount && (
+              <div className="mt-2 flex items-center gap-2">
+                <input
+                  type="number"
+                  min={1}
+                  step={1}
+                  value={customPersonCountInput}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setCustomPersonCountInput(value);
+                    const count = parseInt(value, 10);
+                    if (!isNaN(count) && count > 0) {
+                      setPersonCount(count);
+                    }
+                  }}
+                  placeholder="Örn: 6"
+                  className="w-full rounded-xl border-2 border-border bg-background px-4 py-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:border-primary"
+                />
+                <span className="whitespace-nowrap text-sm font-bold text-muted-foreground">kişi lazım</span>
+              </div>
+            )}
           </div>
 
           <div>
@@ -681,6 +745,12 @@ const CreateTask = () => {
                   </div>
                 )}
               </div>
+
+              {selectedTools.length + customTools.length === 0 && (
+                <p className="text-[11px] font-semibold text-destructive">
+                  ⚠️ En az bir alet/malzeme seçmelisin ya da elle eklemelisin.
+                </p>
+              )}
             </div>
           )}
         </motion.div>
@@ -742,7 +812,11 @@ const CreateTask = () => {
                 ? `⬆️ Açıklama en az 20 karakter olmalı. (${description.length}/20)`
                 : !isValidDuration
                   ? "⬆️ Süreyi saat cinsinden girin"
-                  : ""}
+                  : !isValidPersonCount
+                    ? "⬆️ Kişi sayısını girin"
+                    : !isValidTools
+                      ? "⬆️ En az bir alet/malzeme seç ya da elle ekle"
+                      : ""}
           </p>
         )}
         <button
