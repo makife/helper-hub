@@ -41,7 +41,10 @@ export const signInNativeOAuth = async (provider: "google" | "apple") => {
   try {
     res = await SocialLogin.login(
       provider === "google"
-        ? { provider: "google", options: { scopes: ["email", "profile"] } }
+        // Android eklentisi email/profile/openid kapsamlarını zaten varsayılan
+        // olarak ekliyor. `scopes` göndermek özel kapsam akışını tetikleyip
+        // değiştirilmiş bir MainActivity talep ediyor.
+        ? { provider: "google", options: {} }
         : { provider: "apple", options: { scopes: ["email", "name"] } },
     );
   } catch (err) {
