@@ -20,10 +20,6 @@
             "package_name": "com.ergan.bielat",
             "certificate_hash": "b636a79da9d607e05ee6356112b55255932737ac"
           }
-        },
-        {
-          "client_id": "170480992927-atlomu65ucoqmm8htskmh28gh0ajttdg.apps.googleusercontent.com",
-          "client_type": 3
         }
       ],
       "api_key": [
@@ -35,7 +31,7 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "170480992927-atlomu65ucoqmm8htskmh28gh0ajttdg.apps.googleusercontent.com",
+              "client_id": "170480992927-jm8jia1hncqtckrs4c8dlql1iee1lfnv.apps.googleusercontent.com",
               "client_type": 3
             },
             {
