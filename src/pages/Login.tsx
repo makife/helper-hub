@@ -89,7 +89,15 @@ const Login = () => {
         animate={{ y: 0, opacity: 1 }}
         className="flex flex-1 flex-col items-center justify-center text-center"
       >
-        <img src={logo} alt="Bi' El At" width={88} height={88} className="mb-6" />
+        <motion.img
+          src={logo}
+          alt="Bi' El At"
+          width={88}
+          height={88}
+          className="mb-6 origin-bottom-left"
+          animate={{ rotate: [0, -20, 20, -20, 20, -20, 20, 0] }}
+          transition={{ duration: 1.8, ease: "easeInOut" }}
+        />
         <h1 className="mb-2 text-3xl font-black text-foreground">Giriş Yap</h1>
         <p className="text-base text-muted-foreground">
           Hesabınla saniyeler içinde giriş yap, hemen yardımlaşmaya başla.
