@@ -11,6 +11,7 @@ export type PriceTask = {
   urgency?: string | null;
   status?: string | null;
   price_drop_started_at?: string | null;
+  person_count?: number | null;
 };
 
 export type PriceState = {
@@ -32,6 +33,7 @@ export function computePrice(task: PriceTask, now: number = Date.now()): PriceSt
   const locked =
     task.urgency === "urgent" ||
     !task.price_drop_started_at ||
+    (task.person_count ?? 1) > 1 ||
     (task.status != null && task.status !== "open");
 
   if (locked || minPrice >= basePrice) {
@@ -84,6 +86,7 @@ export function useLivePrice(task: PriceTask | null | undefined): PriceState | n
     task?.urgency,
     task?.status,
     task?.price_drop_started_at,
+    task?.person_count,
   ]);
 
   return state;
