@@ -223,8 +223,12 @@ export type Database = {
           created_at: string
           credits: number | null
           custom_owned_tools: string[]
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
           full_name: string
           id: string
+          id_verification_note: string | null
+          id_verification_status: string
           is_available: boolean | null
           is_banned: boolean | null
           latitude: number | null
@@ -233,6 +237,8 @@ export type Database = {
           phone: string | null
           profession: string | null
           rating: number | null
+          referral_code: string | null
+          referred_by: string | null
           role: Database["public"]["Enums"]["user_role"]
           skill_tags: string[]
           skills: Database["public"]["Enums"]["task_category"][] | null
@@ -247,8 +253,12 @@ export type Database = {
           created_at?: string
           credits?: number | null
           custom_owned_tools?: string[]
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
           full_name: string
           id?: string
+          id_verification_note?: string | null
+          id_verification_status?: string
           is_available?: boolean | null
           is_banned?: boolean | null
           latitude?: number | null
@@ -257,6 +267,8 @@ export type Database = {
           phone?: string | null
           profession?: string | null
           rating?: number | null
+          referral_code?: string | null
+          referred_by?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           skill_tags?: string[]
           skills?: Database["public"]["Enums"]["task_category"][] | null
@@ -271,8 +283,12 @@ export type Database = {
           created_at?: string
           credits?: number | null
           custom_owned_tools?: string[]
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
           full_name?: string
           id?: string
+          id_verification_note?: string | null
+          id_verification_status?: string
           is_available?: boolean | null
           is_banned?: boolean | null
           latitude?: number | null
@@ -281,6 +297,8 @@ export type Database = {
           phone?: string | null
           profession?: string | null
           rating?: number | null
+          referral_code?: string | null
+          referred_by?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           skill_tags?: string[]
           skills?: Database["public"]["Enums"]["task_category"][] | null
@@ -288,7 +306,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_referred_by_fkey"
+            columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       push_config: {
         Row: {
@@ -339,6 +365,41 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "reviews_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sos_alerts: {
+        Row: {
+          created_at: string
+          id: string
+          latitude: number | null
+          longitude: number | null
+          task_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          task_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          task_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sos_alerts_task_id_fkey"
             columns: ["task_id"]
             isOneToOne: false
             referencedRelation: "tasks"
@@ -615,6 +676,7 @@ export type Database = {
         Args: { _body: string; _path: string; _title: string; _user_id: string }
         Returns: undefined
       }
+      generate_referral_code: { Args: never; Returns: string }
       grant_store_credits: {
         Args: {
           _credits: number
