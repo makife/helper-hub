@@ -31,6 +31,7 @@ import { toast } from "sonner";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { ALL_SKILLS, searchSkills } from "@/lib/skillCatalog";
 import MyToolsEditor from "@/components/MyToolsEditor";
+import ProfileBadges from "@/components/ProfileBadges";
 
 const LEGACY_SKILL_LABELS: Record<string, string> = {
   ampul_takma: "Ampul takma",
