@@ -43,9 +43,9 @@ const AvailabilityToggle = () => {
   return (
     <button
       onClick={toggle}
-      className="flex w-full items-center justify-between rounded-2xl border border-border bg-card p-4"
+      className="flex w-full items-center justify-between gap-3 overflow-hidden rounded-2xl border border-border bg-card p-4"
     >
-      <div className="flex items-center gap-3 text-left">
+      <div className="flex min-w-0 flex-1 items-center gap-3 text-left">
         <span
           className={`flex h-10 w-10 items-center justify-center rounded-full ${
             available ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"
@@ -53,21 +53,21 @@ const AvailabilityToggle = () => {
         >
           <Zap size={18} />
         </span>
-        <div>
-          <p className="text-sm font-bold text-foreground">Şu An Müsaitim</p>
-          <p className="text-xs text-muted-foreground">
+        <div className="min-w-0">
+          <p className="truncate text-sm font-bold text-foreground">Şu An Müsaitim</p>
+          <p className="text-xs leading-snug text-muted-foreground">
             {available ? "İş aramaya aktif olarak açıksın" : "Yeni iş bildirimlerinde öncelikli değilsin"}
           </p>
         </div>
       </div>
       <span
-        className={`relative h-7 w-12 flex-shrink-0 rounded-full transition-colors ${
+        className={`relative block h-7 w-12 shrink-0 rounded-full transition-colors ${
           available ? "bg-primary" : "bg-muted"
         }`}
       >
         <span
-          className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform ${
-            available ? "translate-x-6" : "translate-x-1"
+          className={`absolute left-1 top-1 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+            available ? "translate-x-5" : "translate-x-0"
           }`}
         />
       </span>
