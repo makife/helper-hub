@@ -457,6 +457,29 @@ const MyTasks = () => {
     setConfirmState(null);
   };
 
+  const handleStartPartial = async (taskId: string) => {
+    setIsUpdating(true);
+    const { error } = await supabase.rpc("start_task_with_partial_quota", { p_task_id: taskId });
+    if (error) {
+      toast.error(error.message || "İş başlatılamadı, tekrar dene.");
+    } else {
+      toast.success("İş mevcut kontenjanla başlatıldı.");
+      setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, status: "matched" } : t)));
+    }
+    setIsUpdating(false);
+  };
+
+  const handleCancelUnfilled = async (taskId: string) => {
+    setIsUpdating(true);
+    const { error } = await supabase.rpc("cancel_unfilled_task", { p_task_id: taskId });
+    if (error) {
+      toast.error(error.message || "İptal edilemedi, tekrar dene.");
+    } else {
+      toast.success("Görev iptal edildi, el atanlara kredi iadesi yapıldı.");
+      setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, status: "cancelled" } : t)));
+    }
+    setIsUpdating(false);
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-background safe-top safe-bottom">
@@ -738,6 +761,28 @@ const MyTasks = () => {
                       {viewCounts[task.id] || 0} görüntülenme
                     </span>
                   </div>
+
+                  {task.status === "open" &&
+                    (task.person_count || 1) > 1 &&
+                    task.wait_deadline &&
+                    new Date(task.wait_deadline).getTime() <= Date.now() && (
+                      <div className="mt-3 flex gap-2" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          onClick={() => handleCancelUnfilled(task.id)}
+                          disabled={isUpdating}
+                          className="flex-1 rounded-xl border border-border px-4 py-2 text-xs font-bold text-muted-foreground disabled:opacity-50"
+                        >
+                          Vazgeç
+                        </button>
+                        <button
+                          onClick={() => handleStartPartial(task.id)}
+                          disabled={isUpdating}
+                          className="gradient-warm flex-1 rounded-xl px-4 py-2 text-xs font-bold text-primary-foreground disabled:opacity-50"
+                        >
+                          İşi Başlat ({(ownedTaskers[task.id] || []).length}/{task.person_count})
+                        </button>
+                      </div>
+                    )}
                 </motion.div>
               );
             })}
@@ -944,38 +989,69 @@ const MyTasks = () => {
                   </>
                 )}
 
-                {selectedTask.status === "open" && selectedTask.owner_id === user?.id && (
-                  <>
-                    <button
-                      disabled={isUpdating}
-                      onClick={() =>
-                        setConfirmState({
-                          kind: "cancel",
-                          taskId: selectedTask.id,
-                          title: "Yardım çağrısını iptal et",
-                          description: "Bu çağrı kapatılacak ve haritadan kaldırılacak. Emin misin?",
-                          confirmLabel: "İptal Et",
-                        })
-                      }
+                {selectedTask.status === "open" &&
+                  selectedTask.owner_id === user?.id &&
+                  (selectedTask.person_count || 1) > 1 &&
+                  selectedTask.wait_deadline &&
+                  new Date(selectedTask.wait_deadline).getTime() <= Date.now() && (
+                    <>
+                      <button
+                        disabled={isUpdating}
+                        onClick={() => handleCancelUnfilled(selectedTask.id)}
+                        className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-destructive/10 text-destructive py-3 font-bold hover:bg-destructive/20 disabled:opacity-50"
+                      >
+                        <Trash2 size={18} />
+                        Vazgeç
+                      </button>
+                      <button
+                        disabled={isUpdating}
+                        onClick={() => handleStartPartial(selectedTask.id)}
+                        className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground py-3 font-bold hover:opacity-90 disabled:opacity-50"
+                      >
+                        <UserCheck size={18} />
+                        İşi Başlat
+                      </button>
+                    </>
+                  )}
 
-                      className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-destructive/10 text-destructive py-3 font-bold hover:bg-destructive/20"
-                    >
-                      <Trash2 size={18} />
-                      İptal Et
-                    </button>
-                    
-                    <button
-                      onClick={() => {
-                        setSelectedTask(null);
-                        navigate(`/create-task?edit=${selectedTask.id}`);
-                      }}
-                      className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground py-3 font-bold hover:opacity-90"
-                    >
-                      <Edit3 size={18} />
-                      Düzenle
-                    </button>
-                  </>
-                )}
+                {selectedTask.status === "open" &&
+                  selectedTask.owner_id === user?.id &&
+                  !(
+                    (selectedTask.person_count || 1) > 1 &&
+                    selectedTask.wait_deadline &&
+                    new Date(selectedTask.wait_deadline).getTime() <= Date.now()
+                  ) && (
+                    <>
+                      <button
+                        disabled={isUpdating}
+                        onClick={() =>
+                          setConfirmState({
+                            kind: "cancel",
+                            taskId: selectedTask.id,
+                            title: "Yardım çağrısını iptal et",
+                            description: "Bu çağrı kapatılacak ve haritadan kaldırılacak. Emin misin?",
+                            confirmLabel: "İptal Et",
+                          })
+                        }
+
+                        className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-destructive/10 text-destructive py-3 font-bold hover:bg-destructive/20"
+                      >
+                        <Trash2 size={18} />
+                        İptal Et
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setSelectedTask(null);
+                          navigate(`/create-task?edit=${selectedTask.id}`);
+                        }}
+                        className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground py-3 font-bold hover:opacity-90"
+                      >
+                        <Edit3 size={18} />
+                        Düzenle
+                      </button>
+                    </>
+                  )}
               </div>
             </motion.div>
           </div>

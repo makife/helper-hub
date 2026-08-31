@@ -14,6 +14,13 @@ const PERSON_OPTIONS = [
   { value: 3, label: "3 Kişi" },
 ];
 
+const WAIT_TIME_OPTIONS = [
+  { label: "1 saat", minutes: 60 },
+  { label: "2 saat", minutes: 120 },
+  { label: "3 saat", minutes: 180 },
+  { label: "Çağrı kapanana kadar (6 saat)", minutes: 360 },
+];
+
 const categories = ALL_TASK_CATEGORIES;
 
 const normalize = (value: string) =>
@@ -50,6 +57,7 @@ const CreateTask = () => {
   const [personCount, setPersonCount] = useState<number>(1);
   const [isCustomPersonCount, setIsCustomPersonCount] = useState(false);
   const [customPersonCountInput, setCustomPersonCountInput] = useState("");
+  const [waitMinutes, setWaitMinutes] = useState<number>(60);
   const [basePriceInput, setBasePriceInput] = useState<string>("200");
   const basePrice = Number(basePriceInput) || 0;
   const [duration, setDuration] = useState(30);
@@ -97,6 +105,7 @@ const CreateTask = () => {
           setIsCustomPersonCount(true);
           setCustomPersonCountInput(String(loadedPersonCount));
         }
+        setWaitMinutes(data.wait_minutes || 60);
         const loadedMinutes = data.estimated_minutes || 30;
         setDuration(loadedMinutes);
         if (!durationPresets.some((p) => p.minutes === loadedMinutes)) {
@@ -152,6 +161,7 @@ const CreateTask = () => {
           setIsCustomPersonCount(true);
           setCustomPersonCountInput(String(loadedPersonCount));
         }
+        setWaitMinutes(data.wait_minutes || 60);
         const loadedMinutes = data.estimated_minutes || 30;
         setDuration(loadedMinutes);
         if (!durationPresets.some((p) => p.minutes === loadedMinutes)) {
@@ -319,6 +329,7 @@ const CreateTask = () => {
         current_price: safeTotalPrice,
         min_price: safeMinPrice,
         person_count: personCount,
+        wait_minutes: personCount > 1 ? waitMinutes : null,
         estimated_minutes: duration,
         address_note: addressNote || null,
         needs_tools: needsTools,
@@ -537,6 +548,36 @@ const CreateTask = () => {
               </div>
             )}
           </div>
+
+          {personCount > 1 && (
+            <div>
+              <label className="mb-2 flex items-center gap-2 text-sm font-bold text-foreground">
+                <Clock size={18} className="text-primary" />
+                El atanların gelmesini ne kadar süre beklemeyi düşünüyorsun?
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {WAIT_TIME_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.minutes}
+                    type="button"
+                    onClick={() => setWaitMinutes(opt.minutes)}
+                    className={`rounded-xl border-2 px-4 py-2 text-xs font-bold transition-colors ${
+                      waitMinutes === opt.minutes
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border bg-card text-muted-foreground"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                Kontenjan bu süre dolmadan tamamlanırsa iş otomatik başlar. Dolmazsa,
+                süre bitiminde çağrıyı sonlandırma veya mevcut kişilerle başlatma
+                seçeneği sana sunulur.
+              </p>
+            </div>
+          )}
 
           <div>
             <label className="mb-1 block text-sm font-bold text-foreground">
