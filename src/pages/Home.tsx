@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Zap, MapPin, Bell, Crosshair } from "lucide-react";
+import { Zap, MapPin, Bell, Crosshair, SlidersHorizontal, X, Check } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
 import TaskMap from "@/components/TaskMap";
@@ -33,6 +33,14 @@ const Home = () => {
   const [ownerNames, setOwnerNames] = useState<Record<string, string>>({});
   const [ownerAvatars, setOwnerAvatars] = useState<Record<string, string | null>>({});
   const [fillCounts, setFillCounts] = useState<Record<string, number>>({});
+
+  // Filtreleme
+  const [showFilters, setShowFilters] = useState(false);
+  const [filterUrgency, setFilterUrgency] = useState<"all" | "urgent" | "can_wait">("all");
+  const [filterNoTools, setFilterNoTools] = useState(false);
+  const [filterMyTools, setFilterMyTools] = useState(false);
+  const [myOwnedTools, setMyOwnedTools] = useState<string[]>([]);
+  const [myCustomOwnedTools, setMyCustomOwnedTools] = useState<string[]>([]);
   const [userPos, setUserPos] = useState<[number, number] | null>(() => {
     try {
       const cached = localStorage.getItem("bielat_last_location");
@@ -188,6 +196,43 @@ const Home = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [priceTick, tasks, user]);
 
+  // Kullanıcının profiline kaydettiği aletleri çek (eşleştirme filtresi için)
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("owned_tools, custom_owned_tools")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        setMyOwnedTools(data?.owned_tools || []);
+        setMyCustomOwnedTools(data?.custom_owned_tools || []);
+      });
+  }, [user]);
+
+  // Bir görevin gereken aletlerinin tamamı elimdekilerde var mı?
+  const matchesMyTools = (t: TaskWithUI) => {
+    if (!t.needs_tools) return true;
+    // İş sahibi aletleri kendisi sağlıyorsa, "el atan"ın alet sahibi olması gerekmez
+    if (t.tool_provider === "owner") return true;
+    const required = t.required_tools || [];
+    const requiredCustom = (t.custom_tools || []).map((c) => c.toLocaleLowerCase("tr-TR").trim());
+    const ownedCustomNormalized = myCustomOwnedTools.map((c) => c.toLocaleLowerCase("tr-TR").trim());
+    const hasAllStandard = required.every((id) => myOwnedTools.includes(id));
+    const hasAllCustom = requiredCustom.every((c) => ownedCustomNormalized.includes(c));
+    return hasAllStandard && hasAllCustom;
+  };
+
+  const filteredTasks = tasks.filter((t) => {
+    if (filterUrgency !== "all" && t.urgency !== filterUrgency) return false;
+    if (filterNoTools && t.needs_tools) return false;
+    if (filterMyTools && !matchesMyTools(t)) return false;
+    return true;
+  });
+
+  const activeFilterCount =
+    (filterUrgency !== "all" ? 1 : 0) + (filterNoTools ? 1 : 0) + (filterMyTools ? 1 : 0);
+
   const handleTaskClick = (task: { id: string }) => {
     const matched = tasks.find((t) => t.id === task.id);
     if (matched) {
@@ -227,7 +272,7 @@ const Home = () => {
     if (matched) setSelectedTask(matched);
   }, [searchParams, tasks]);
 
-  const mapPins = tasks.map((t) => {
+  const mapPins = filteredTasks.map((t) => {
     const isOwn = t.owner_id === user?.id;
     // Kendi çağrısını gerçek konumuyla göster (kolayca bulabilsin), başkalarınınkini bulanıklaştır
     const { lat, lng } = isOwn
@@ -264,17 +309,30 @@ const Home = () => {
           </h1>
           <p className="text-xs text-muted-foreground font-semibold">Yardım çağrılarına el at veya çağrıda bulun</p>
         </div>
-        <button
-          onClick={() => navigate("/notifications")}
-          className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card"
-        >
-          {unreadMessages > 0 && (
-            <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[9px] font-black text-destructive-foreground">
-              {unreadMessages > 9 ? "9+" : unreadMessages}
-            </span>
-          )}
-          <Bell size={18} className="text-muted-foreground" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowFilters(true)}
+            className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card"
+          >
+            {activeFilterCount > 0 && (
+              <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-black text-primary-foreground">
+                {activeFilterCount}
+              </span>
+            )}
+            <SlidersHorizontal size={18} className="text-muted-foreground" />
+          </button>
+          <button
+            onClick={() => navigate("/notifications")}
+            className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card"
+          >
+            {unreadMessages > 0 && (
+              <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[9px] font-black text-destructive-foreground">
+                {unreadMessages > 9 ? "9+" : unreadMessages}
+              </span>
+            )}
+            <Bell size={18} className="text-muted-foreground" />
+          </button>
+        </div>
       </div>
 
       {/* Map — fills all remaining space edge-to-edge, bottom nav floats on top */}
@@ -286,7 +344,7 @@ const Home = () => {
           <div className="pointer-events-none absolute inset-x-3 top-3 flex justify-end gap-2">
             <div className="flex items-center gap-1.5 rounded-full bg-card/95 px-3 py-1.5 shadow-card backdrop-blur">
               <Zap size={12} className="text-primary" />
-              <p className="text-[11px] font-black text-foreground">{tasks.length} açık iş</p>
+              <p className="text-[11px] font-black text-foreground">{filteredTasks.length} açık iş</p>
             </div>
             <div className="flex items-center gap-1.5 rounded-full bg-card/95 px-3 py-1.5 shadow-card backdrop-blur">
               <MapPin size={12} className="text-primary" />
@@ -324,6 +382,95 @@ const Home = () => {
           await refreshPendingReviews();
         }}
       />
+
+      {/* Filtre paneli */}
+      <AnimatePresence>
+        {showFilters && (
+          <>
+            <div
+              className="fixed inset-0 z-[700] bg-black/40"
+              onClick={() => setShowFilters(false)}
+            />
+            <div className="fixed inset-x-0 bottom-0 z-[701] max-h-[80vh] overflow-y-auto rounded-t-3xl bg-background p-5 safe-bottom">
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-base font-black text-foreground">Filtrele</h2>
+                <button onClick={() => setShowFilters(false)}>
+                  <X size={20} className="text-muted-foreground" />
+                </button>
+              </div>
+
+              <div className="space-y-5">
+                <div>
+                  <p className="mb-2 text-xs font-bold text-muted-foreground">Aciliyet</p>
+                  <div className="flex gap-2">
+                    {[
+                      { value: "all" as const, label: "Tümü" },
+                      { value: "urgent" as const, label: "Acil" },
+                      { value: "can_wait" as const, label: "Bekleyebilir" },
+                    ].map((opt) => (
+                      <button
+                        key={opt.value}
+                        onClick={() => setFilterUrgency(opt.value)}
+                        className={`flex-1 rounded-xl px-3 py-2.5 text-xs font-bold transition-all active:scale-95 ${
+                          filterUrgency === opt.value
+                            ? "gradient-warm text-primary-foreground shadow-soft"
+                            : "border border-border bg-card text-foreground"
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setFilterNoTools((v) => !v)}
+                  className="flex w-full items-center justify-between rounded-xl border border-border bg-card p-3.5"
+                >
+                  <span className="text-sm font-semibold text-foreground">
+                    Sadece alet gerektirmeyen işler
+                  </span>
+                  <span
+                    className={`flex h-6 w-6 items-center justify-center rounded-md border-2 transition-all ${
+                      filterNoTools ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background"
+                    }`}
+                  >
+                    {filterNoTools && <Check size={14} strokeWidth={3} />}
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => setFilterMyTools((v) => !v)}
+                  className="flex w-full items-center justify-between rounded-xl border border-border bg-card p-3.5"
+                >
+                  <div className="text-left">
+                    <span className="block text-sm font-semibold text-foreground">
+                      Elimdeki aletlerle yapabileceğim işler
+                    </span>
+                    <span className="block text-[11px] text-muted-foreground">
+                      Profilinde işaretlediğin aletlere göre eşleştirir
+                    </span>
+                  </div>
+                  <span
+                    className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md border-2 transition-all ${
+                      filterMyTools ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background"
+                    }`}
+                  >
+                    {filterMyTools && <Check size={14} strokeWidth={3} />}
+                  </span>
+                </button>
+              </div>
+
+              <button
+                onClick={() => setShowFilters(false)}
+                className="mt-6 w-full rounded-xl gradient-warm py-3.5 text-sm font-bold text-primary-foreground shadow-soft active:scale-95"
+              >
+                Sonuçları Göster ({filteredTasks.length})
+              </button>
+            </div>
+          </>
+        )}
+      </AnimatePresence>
 
       <BottomNav />
     </div>
