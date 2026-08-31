@@ -30,6 +30,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import { toast } from "sonner";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { ALL_SKILLS, searchSkills } from "@/lib/skillCatalog";
+import MyToolsEditor from "@/components/MyToolsEditor";
 
 const LEGACY_SKILL_LABELS: Record<string, string> = {
   ampul_takma: "Ampul takma",
