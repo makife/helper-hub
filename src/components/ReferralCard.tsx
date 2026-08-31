@@ -26,25 +26,59 @@ const ReferralCard = () => {
 
   const shareText = `Bi' El At'ta yardım çağrısı açıp hızlıca el atacak birini buluyorum. Sen de dene, ${code} kodumla kaydolursan ikimize de kredi hediye: https://bielat.app/davet/${code}`;
 
-  const handleShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({ text: shareText });
-      } catch {
-        // kullanıcı paylaşımı iptal etti, sorun değil
+  const copyText = async (text: string) => {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+        return true;
       }
-    } else {
-      await navigator.clipboard.writeText(shareText);
-      toast.success("Davet metni kopyalandı!");
+    } catch {
+      // clipboard API engellenmiş olabilir (iframe / izin yok)
+    }
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      return ok;
+    } catch {
+      return false;
     }
   };
 
+  const handleShare = async () => {
+    const canShare = typeof navigator !== "undefined" && !!navigator.share;
+    if (canShare) {
+      try {
+        await navigator.share({ title: "Bi' El At", text: shareText });
+        return;
+      } catch (err: any) {
+        // Kullanıcı iptal ettiyse hiçbir şey yapma
+        if (err?.name === "AbortError") return;
+        // Diğer hatalarda kopyalamaya düş
+      }
+    }
+    const ok = await copyText(shareText);
+    if (ok) toast.success("Davet metni kopyalandı!");
+    else toast.error("Paylaşım yapılamadı, kodu elle kopyalayabilirsin.");
+  };
+
   const handleCopyCode = async () => {
-    await navigator.clipboard.writeText(code);
+    const ok = await copyText(code);
+    if (!ok) {
+      toast.error("Kod kopyalanamadı.");
+      return;
+    }
     setCopied(true);
     toast.success("Kod kopyalandı!");
     setTimeout(() => setCopied(false), 1500);
   };
+
 
   return (
     <div className="rounded-2xl border border-border bg-card p-4">
