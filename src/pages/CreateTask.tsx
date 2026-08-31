@@ -50,7 +50,8 @@ const CreateTask = () => {
   const [personCount, setPersonCount] = useState<number>(1);
   const [isCustomPersonCount, setIsCustomPersonCount] = useState(false);
   const [customPersonCountInput, setCustomPersonCountInput] = useState("");
-  const [basePrice, setBasePrice] = useState<number>(200);
+  const [basePriceInput, setBasePriceInput] = useState<string>("200");
+  const basePrice = Number(basePriceInput) || 0;
   const [duration, setDuration] = useState(30);
   const [isCustomDuration, setIsCustomDuration] = useState(false);
   const [customDurationHours, setCustomDurationHours] = useState<string>("");
@@ -89,7 +90,7 @@ const CreateTask = () => {
 
       if (data && !error) {
         setDescription(data.description || "");
-        setBasePrice(data.price ? Math.round(data.price / (data.person_count || 1)) : 200);
+        setBasePriceInput(String(data.price ? Math.round(data.price / (data.person_count || 1)) : 200));
         const loadedPersonCount = data.person_count || 1;
         setPersonCount(loadedPersonCount);
         if (!PERSON_OPTIONS.some((p) => p.value === loadedPersonCount)) {
@@ -144,7 +145,7 @@ const CreateTask = () => {
 
       if (data && !error) {
         setDescription(data.description || "");
-        setBasePrice(data.price ? Math.round(data.price / (data.person_count || 1)) : 200);
+        setBasePriceInput(String(data.price ? Math.round(data.price / (data.person_count || 1)) : 200));
         const loadedPersonCount = data.person_count || 1;
         setPersonCount(loadedPersonCount);
         if (!PERSON_OPTIONS.some((p) => p.value === loadedPersonCount)) {
@@ -543,10 +544,13 @@ const CreateTask = () => {
             </label>
             <div className="relative">
               <input
-                type="number"
-                min={50}
-                value={basePrice}
-                onChange={(e) => setBasePrice(Number(e.target.value))}
+                type="text"
+                inputMode="numeric"
+                value={basePriceInput}
+                onChange={(e) => {
+                  const digits = e.target.value.replace(/\D/g, "").replace(/^0+(?=\d)/, "");
+                  setBasePriceInput(digits);
+                }}
                 className="w-full rounded-xl border border-input bg-background p-3 text-base font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                 placeholder="200"
               />
