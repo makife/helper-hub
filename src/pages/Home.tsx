@@ -13,7 +13,7 @@ import { usePendingReviews } from "@/hooks/usePendingReviews";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
-import { getTaskEmoji } from "@/lib/taskCategories";
+import { getTaskEmoji, ALL_TASK_CATEGORIES, getTaskCategory } from "@/lib/taskCategories";
 import { computePrice } from "@/lib/dynamicPricing";
 import { fetchAssignmentCounts } from "@/lib/assignments";
 import { distanceMeters } from "@/lib/taskLifecycle";
@@ -27,6 +27,17 @@ type TaskWithUI = Tables<"tasks"> & {
 
 const RADIUS_M = 100_000;
 
+const normalize = (value: string) =>
+  value
+    .toLocaleLowerCase("tr-TR")
+    .replace(/ı/g, "i")
+    .replace(/ğ/g, "g")
+    .replace(/ü/g, "u")
+    .replace(/ş/g, "s")
+    .replace(/ö/g, "o")
+    .replace(/ç/g, "c")
+    .trim();
+
 const Home = () => {
   const [tasks, setTasks] = useState<TaskWithUI[]>([]);
   const [selectedTask, setSelectedTask] = useState<TaskWithUI | null>(null);
@@ -39,6 +50,8 @@ const Home = () => {
   const [filterUrgency, setFilterUrgency] = useState<"all" | "urgent" | "can_wait">("all");
   const [filterNoTools, setFilterNoTools] = useState(false);
   const [filterMyTools, setFilterMyTools] = useState(false);
+  const [filterCategoryIds, setFilterCategoryIds] = useState<string[]>([]);
+  const [categoryQuery, setCategoryQuery] = useState("");
   const [myOwnedTools, setMyOwnedTools] = useState<string[]>([]);
   const [myCustomOwnedTools, setMyCustomOwnedTools] = useState<string[]>([]);
   const [userPos, setUserPos] = useState<[number, number] | null>(() => {
@@ -227,11 +240,18 @@ const Home = () => {
     if (filterUrgency !== "all" && t.urgency !== filterUrgency) return false;
     if (filterNoTools && t.needs_tools) return false;
     if (filterMyTools && !matchesMyTools(t)) return false;
+    if (filterCategoryIds.length > 0) {
+      const catId = getTaskCategory(t.category as string, t.subcategory, t.title)?.id;
+      if (!catId || !filterCategoryIds.includes(catId)) return false;
+    }
     return true;
   });
 
   const activeFilterCount =
-    (filterUrgency !== "all" ? 1 : 0) + (filterNoTools ? 1 : 0) + (filterMyTools ? 1 : 0);
+    (filterUrgency !== "all" ? 1 : 0) +
+    (filterNoTools ? 1 : 0) +
+    (filterMyTools ? 1 : 0) +
+    (filterCategoryIds.length > 0 ? 1 : 0);
 
   const handleTaskClick = (task: { id: string }) => {
     const matched = tasks.find((t) => t.id === task.id);
@@ -394,12 +414,85 @@ const Home = () => {
             <div className="fixed inset-x-0 bottom-0 z-[701] max-h-[80vh] overflow-y-auto rounded-t-3xl bg-background p-5 safe-bottom">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-base font-black text-foreground">Filtrele</h2>
-                <button onClick={() => setShowFilters(false)}>
-                  <X size={20} className="text-muted-foreground" />
-                </button>
+                <div className="flex items-center gap-3">
+                  {activeFilterCount > 0 && (
+                    <button
+                      onClick={() => {
+                        setFilterUrgency("all");
+                        setFilterNoTools(false);
+                        setFilterMyTools(false);
+                        setFilterCategoryIds([]);
+                        setCategoryQuery("");
+                      }}
+                      className="text-xs font-bold text-primary"
+                    >
+                      Temizle
+                    </button>
+                  )}
+                  <button onClick={() => setShowFilters(false)}>
+                    <X size={20} className="text-muted-foreground" />
+                  </button>
+                </div>
               </div>
 
               <div className="space-y-5">
+                <div>
+                  <p className="mb-2 text-xs font-bold text-muted-foreground">
+                    Kategori {filterCategoryIds.length > 0 && `(${filterCategoryIds.length} seçili)`}
+                  </p>
+                  <div className="mb-2 flex items-center gap-2 rounded-xl border-2 border-border bg-card px-3 py-2.5 focus-within:border-primary">
+                    <SlidersHorizontal size={14} className="text-muted-foreground" />
+                    <input
+                      value={categoryQuery}
+                      onChange={(e) => setCategoryQuery(e.target.value)}
+                      placeholder="Kategori ara... (ör. temizlik, tesisat)"
+                      className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground/50"
+                    />
+                  </div>
+
+                  {filterCategoryIds.length > 0 && (
+                    <div className="mb-2 flex flex-wrap gap-1.5">
+                      {filterCategoryIds.map((id) => {
+                        const cat = ALL_TASK_CATEGORIES.find((c) => c.id === id);
+                        if (!cat) return null;
+                        return (
+                          <span
+                            key={id}
+                            className="flex items-center gap-1 rounded-lg bg-primary px-2.5 py-1.5 text-[11px] font-semibold text-primary-foreground"
+                          >
+                            {cat.emoji} {cat.label}
+                            <button onClick={() => setFilterCategoryIds((prev) => prev.filter((x) => x !== id))}>
+                              <X size={11} />
+                            </button>
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {categoryQuery.trim().length > 0 && (
+                    <div className="max-h-40 space-y-1.5 overflow-y-auto rounded-xl border border-border bg-card p-2">
+                      {ALL_TASK_CATEGORIES.filter(
+                        (c) => normalize(c.label).includes(normalize(categoryQuery)) && !filterCategoryIds.includes(c.id)
+                      )
+                        .slice(0, 20)
+                        .map((c) => (
+                          <button
+                            key={c.id}
+                            onClick={() => {
+                              setFilterCategoryIds((prev) => [...prev, c.id]);
+                              setCategoryQuery("");
+                            }}
+                            className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-xs font-semibold text-foreground hover:bg-muted"
+                          >
+                            <span>{c.emoji}</span>
+                            <span>{c.label}</span>
+                          </button>
+                        ))}
+                    </div>
+                  )}
+                </div>
+
                 <div>
                   <p className="mb-2 text-xs font-bold text-muted-foreground">Aciliyet</p>
                   <div className="flex gap-2">
