@@ -31,6 +31,8 @@ import { toast } from "sonner";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { ALL_SKILLS, searchSkills } from "@/lib/skillCatalog";
 import MyToolsEditor from "@/components/MyToolsEditor";
+import AvailabilityToggle from "@/components/AvailabilityToggle";
+import ReferralCard from "@/components/ReferralCard";
 import ProfileBadges from "@/components/ProfileBadges";
 
 const LEGACY_SKILL_LABELS: Record<string, string> = {
@@ -597,6 +599,14 @@ const Profile = () => {
               </p>
             </div>
           </button>
+
+          <div className="mb-5 space-y-3">
+            <AvailabilityToggle />
+            <MyToolsEditor />
+            <ReferralCard />
+          </div>
+
+
 
           <div className="mb-5 space-y-2.5 rounded-2xl border border-border bg-card p-2 shadow-card">
             <button
