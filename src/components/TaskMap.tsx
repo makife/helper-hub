@@ -135,7 +135,7 @@ const TaskMap = ({ tasks, center = [40.9903, 29.0297], userPos = null, onTaskCli
       <TileLayer
         url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
         maxZoom={19}
-        maxNativeZoom={19}
+        maxNativeZoom={17}
         keepBuffer={4}
         updateWhenIdle={false}
         crossOrigin
