@@ -278,12 +278,14 @@ const CreateTask = () => {
       };
 
       let error;
+      let newTaskId: string | null = null;
       if (editTaskId) {
         const res = await supabase.from("tasks").update(taskPayload).eq("id", editTaskId);
         error = res.error;
       } else {
-        const res = await supabase.from("tasks").insert(taskPayload);
+        const res = await supabase.from("tasks").insert(taskPayload).select("id").single();
         error = res.error;
+        newTaskId = res.data?.id ?? null;
       }
 
       setLoading(false);
@@ -299,6 +301,14 @@ const CreateTask = () => {
         }
         console.error(error);
         return;
+      }
+
+      // Yeni oluşturulan acil bir işse, yakındaki kullanıcılara push bildirimi gönder.
+      // Bu isteğin başarısız olması ana akışı bozmasın diye sessizce yutuluyor.
+      if (!editTaskId && newTaskId && urgency === "urgent") {
+        supabase.functions
+          .invoke("notify-nearby-urgent-task", { body: { task_id: newTaskId } })
+          .catch((err) => console.warn("Yakındakilere bildirim gönderilemedi:", err));
       }
 
       toast.success(editTaskId ? "Yardım çağrısı güncellendi!" : "Yardım çağrısı başarıyla oluşturuldu!");
