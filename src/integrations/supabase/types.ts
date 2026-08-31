@@ -222,12 +222,14 @@ export type Database = {
           cancel_count: number | null
           created_at: string
           credits: number | null
+          custom_owned_tools: string[]
           full_name: string
           id: string
           is_available: boolean | null
           is_banned: boolean | null
           latitude: number | null
           longitude: number | null
+          owned_tools: string[]
           phone: string | null
           profession: string | null
           rating: number | null
@@ -244,12 +246,14 @@ export type Database = {
           cancel_count?: number | null
           created_at?: string
           credits?: number | null
+          custom_owned_tools?: string[]
           full_name: string
           id?: string
           is_available?: boolean | null
           is_banned?: boolean | null
           latitude?: number | null
           longitude?: number | null
+          owned_tools?: string[]
           phone?: string | null
           profession?: string | null
           rating?: number | null
@@ -266,12 +270,14 @@ export type Database = {
           cancel_count?: number | null
           created_at?: string
           credits?: number | null
+          custom_owned_tools?: string[]
           full_name?: string
           id?: string
           is_available?: boolean | null
           is_banned?: boolean | null
           latitude?: number | null
           longitude?: number | null
+          owned_tools?: string[]
           phone?: string | null
           profession?: string | null
           rating?: number | null
@@ -465,6 +471,7 @@ export type Database = {
           completion_requested_by: string | null
           created_at: string
           current_price: number | null
+          custom_tools: string[]
           description: string
           dispute_reason: string | null
           disputed_at: string | null
@@ -477,18 +484,23 @@ export type Database = {
           longitude: number
           matched_at: string | null
           min_price: number | null
+          needs_tools: boolean
           owner_id: string
           person_count: number
           photo_urls: string[] | null
           price: number
           price_drop_started_at: string | null
           rejection_count: number
+          reminder_sent_at: string | null
+          required_tools: string[]
           status: Database["public"]["Enums"]["task_status"]
           subcategory: string | null
           tasker_id: string | null
           title: string
+          tool_provider: string | null
           updated_at: string
           urgency: Database["public"]["Enums"]["task_urgency"]
+          urgent_push_sent: boolean
         }
         Insert: {
           address_note?: string | null
@@ -499,6 +511,7 @@ export type Database = {
           completion_requested_by?: string | null
           created_at?: string
           current_price?: number | null
+          custom_tools?: string[]
           description: string
           dispute_reason?: string | null
           disputed_at?: string | null
@@ -511,18 +524,23 @@ export type Database = {
           longitude: number
           matched_at?: string | null
           min_price?: number | null
+          needs_tools?: boolean
           owner_id: string
           person_count?: number
           photo_urls?: string[] | null
           price: number
           price_drop_started_at?: string | null
           rejection_count?: number
+          reminder_sent_at?: string | null
+          required_tools?: string[]
           status?: Database["public"]["Enums"]["task_status"]
           subcategory?: string | null
           tasker_id?: string | null
           title: string
+          tool_provider?: string | null
           updated_at?: string
           urgency?: Database["public"]["Enums"]["task_urgency"]
+          urgent_push_sent?: boolean
         }
         Update: {
           address_note?: string | null
@@ -533,6 +551,7 @@ export type Database = {
           completion_requested_by?: string | null
           created_at?: string
           current_price?: number | null
+          custom_tools?: string[]
           description?: string
           dispute_reason?: string | null
           disputed_at?: string | null
@@ -545,18 +564,23 @@ export type Database = {
           longitude?: number
           matched_at?: string | null
           min_price?: number | null
+          needs_tools?: boolean
           owner_id?: string
           person_count?: number
           photo_urls?: string[] | null
           price?: number
           price_drop_started_at?: string | null
           rejection_count?: number
+          reminder_sent_at?: string | null
+          required_tools?: string[]
           status?: Database["public"]["Enums"]["task_status"]
           subcategory?: string | null
           tasker_id?: string | null
           title?: string
+          tool_provider?: string | null
           updated_at?: string
           urgency?: Database["public"]["Enums"]["task_urgency"]
+          urgent_push_sent?: boolean
         }
         Relationships: []
       }
@@ -583,6 +607,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      compute_task_current_price: {
+        Args: { _task_id: string }
+        Returns: number
+      }
       dispatch_push: {
         Args: { _body: string; _path: string; _title: string; _user_id: string }
         Returns: undefined
@@ -612,11 +640,23 @@ export type Database = {
         Args: { _distance_m: number; _task_id: string }
         Returns: boolean
       }
+      nearby_helper_ids: {
+        Args: {
+          _exclude_user_id: string
+          _lat: number
+          _lng: number
+          _radius_m: number
+        }
+        Returns: {
+          user_id: string
+        }[]
+      }
       process_task_lifecycle: { Args: never; Returns: undefined }
       reject_task_completion: {
         Args: { _reason?: string; _task_id: string }
         Returns: string
       }
+      remind_stale_open_tasks: { Args: never; Returns: undefined }
       request_task_completion: { Args: { _task_id: string }; Returns: string }
       resolve_dispute: { Args: { _task_id: string }; Returns: undefined }
     }
