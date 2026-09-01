@@ -20,6 +20,22 @@
             "package_name": "com.ergan.bielat",
             "certificate_hash": "b636a79da9d607e05ee6356112b55255932737ac"
           }
+        },
+        {
+          "client_id": "170480992927-gkbv1v67dft0vjrkpadkeov4btiptfjo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ergan.bielat",
+            "certificate_hash": "4740d5d78921936e182af35e2a9bc182cb05c2ea"
+          }
+        },
+        {
+          "client_id": "170480992927-h9t3ndqb7vv935to0p7v4pr80fa0mvnf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ergan.bielat",
+            "certificate_hash": "acc7611134dd746d968d4a87ee5b108a013e2301"
+          }
         }
       ],
       "api_key": [
