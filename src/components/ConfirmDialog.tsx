@@ -36,7 +36,7 @@ const ConfirmDialog = forwardRef<HTMLDivElement, Props>(({
           onClick={onCancel}
           className="fixed inset-0 z-[2000] bg-foreground/40 backdrop-blur-[2px]"
         />
-        <div className="fixed inset-0 z-[2001] flex items-center justify-center p-6 pointer-events-none">
+        <div ref={ref} className="fixed inset-0 z-[2001] flex items-center justify-center p-6 pointer-events-none">
           <motion.div
             initial={{ y: 24, opacity: 0, scale: 0.96 }}
             animate={{ y: 0, opacity: 1, scale: 1 }}
