@@ -1,10 +1,14 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Camera, MapPin, Check } from "lucide-react";
+import { Camera, MapPin, Check, X, UserPlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import {
+  getPendingReferralCode,
+  clearPendingReferralCode,
+} from "@/lib/nativeAuth";
 
 const skills = [
   { id: "ampul_takma" as const, label: "💡 Ampul Takma" },
