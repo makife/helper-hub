@@ -31,7 +31,7 @@ import { toast } from "sonner";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { ALL_SKILLS, searchSkills } from "@/lib/skillCatalog";
 import MyToolsEditor from "@/components/MyToolsEditor";
-import AvailabilityToggle from "@/components/AvailabilityToggle";
+
 import ReferralCard from "@/components/ReferralCard";
 import ProfileBadges from "@/components/ProfileBadges";
 
