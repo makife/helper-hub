@@ -87,7 +87,37 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [task.id, user?.id]);
 
+  useEffect(() => {
+    if (user?.id !== task.owner_id) return;
+    const loadViewers = async () => {
+      const { data } = await supabase
+        .from("task_views")
+        .select("viewer_id, viewed_at, profiles(user_id, full_name, avatar_url)")
+        .eq("task_id", task.id)
+        .order("viewed_at", { ascending: false });
+      const mapped = (data || []).map((v: any) => ({
+        viewer_id: v.viewer_id as string,
+        full_name: (v.profiles as { full_name?: string } | null)?.full_name || "Bilinmeyen",
+        avatar_url: (v.profiles as { avatar_url?: string | null } | null)?.avatar_url || null,
+        viewed_at: v.viewed_at as string,
+      }));
+      setViewers(mapped);
+    };
+    loadViewers();
+    const channel = supabase
+      .channel(`task-views-${task.id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "task_views", filter: `task_id=eq.${task.id}` },
+        () => loadViewers()
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [task.id, task.owner_id, user?.id]);
+
   const handleAccept = async () => {
+
     if (!user) return;
     setAccepting(true);
     const price = livePrice ? livePrice.price : task.current_price ?? task.price;
