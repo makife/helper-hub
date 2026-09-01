@@ -562,6 +562,9 @@ export type Database = {
           updated_at: string
           urgency: Database["public"]["Enums"]["task_urgency"]
           urgent_push_sent: boolean
+          wait_deadline: string | null
+          wait_decided: boolean
+          wait_minutes: number | null
         }
         Insert: {
           address_note?: string | null
@@ -602,6 +605,9 @@ export type Database = {
           updated_at?: string
           urgency?: Database["public"]["Enums"]["task_urgency"]
           urgent_push_sent?: boolean
+          wait_deadline?: string | null
+          wait_decided?: boolean
+          wait_minutes?: number | null
         }
         Update: {
           address_note?: string | null
@@ -642,6 +648,9 @@ export type Database = {
           updated_at?: string
           urgency?: Database["public"]["Enums"]["task_urgency"]
           urgent_push_sent?: boolean
+          wait_deadline?: string | null
+          wait_decided?: boolean
+          wait_minutes?: number | null
         }
         Relationships: []
       }
@@ -668,6 +677,11 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cancel_unfilled_task: { Args: { p_task_id: string }; Returns: undefined }
+      charge_employer_credit: {
+        Args: { p_description: string; p_owner_id: string; p_task_id: string }
+        Returns: undefined
+      }
       compute_task_current_price: {
         Args: { _task_id: string }
         Returns: number
@@ -721,6 +735,10 @@ export type Database = {
       remind_stale_open_tasks: { Args: never; Returns: undefined }
       request_task_completion: { Args: { _task_id: string }; Returns: string }
       resolve_dispute: { Args: { _task_id: string }; Returns: undefined }
+      start_task_with_partial_quota: {
+        Args: { p_task_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
