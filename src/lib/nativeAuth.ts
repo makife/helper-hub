@@ -71,5 +71,31 @@ export const signInNativeOAuth = async (provider: "google" | "apple") => {
   if (error) throw new Error(`Oturum açılamadı: ${error.message}`);
 };
 
-/** Geriye dönük uyumluluk: artık deep-link dinleyicisine gerek yok. */
-export const setupNativeAuthListener = () => {};
+/**
+ * Native deep-link dinleyicisi.
+ * com.ergan.bielat://davet?code=XXXX gibi davet linklerini yakalayıp
+ * localStorage'a kaydeder. ProfileSetup ekranı bu kodu okuyup popup gösterir.
+ */
+export const setupNativeAuthListener = () => {
+  if (!Capacitor.isNativePlatform()) return;
+
+  App.addListener("appUrlOpen", ({ url }) => {
+    try {
+      const parsed = new URL(url);
+      if (parsed.protocol !== "com.ergan.bielat:") return;
+
+      const code = parsed.searchParams.get("code");
+      if (code && parsed.hostname === "davet") {
+        localStorage.setItem(PENDING_REFERRAL_KEY, code.trim().toUpperCase());
+      }
+    } catch {
+      // Geçersiz URL'leri görmezden gel
+    }
+  });
+};
+
+export const getPendingReferralCode = () =>
+  localStorage.getItem(PENDING_REFERRAL_KEY);
+
+export const clearPendingReferralCode = () =>
+  localStorage.removeItem(PENDING_REFERRAL_KEY);
