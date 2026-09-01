@@ -219,7 +219,15 @@ type AcceptedItem = {
   owner?: { full_name: string; avatar_url: string | null; user_id: string } | null;
 };
 
+// Gizlilik: işi kabul etmemiş kişilerin adı baş harflerle gösterilir (ör. "M.A.")
+const initialsOf = (fullName?: string | null) => {
+  const parts = (fullName || "").trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "??";
+  return parts.map((p) => p.charAt(0).toLocaleUpperCase("tr-TR") + ".").join(" ");
+};
+
 const MyTasks = () => {
+
   const [tab, setTab] = useState<"owned" | "accepted">("owned");
   const [tasks, setTasks] = useState<Tables<"tasks">[]>([]);
   const [accepted, setAccepted] = useState<AcceptedItem[]>([]);
