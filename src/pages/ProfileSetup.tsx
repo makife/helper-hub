@@ -30,8 +30,76 @@ const ProfileSetup = () => {
   const [locationGranted, setLocationGranted] = useState(false);
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [loading, setLoading] = useState(false);
+  const [referralDialogOpen, setReferralDialogOpen] = useState(false);
+  const [pendingReferralCode, setPendingReferralCode] = useState<string | null>(null);
+  const [referralSubmitting, setReferralSubmitting] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
+
+  useEffect(() => {
+    if (!user) return;
+    const code = getPendingReferralCode();
+    if (!code) return;
+
+    supabase
+      .from("profiles")
+      .select("referred_by, referral_code")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!data) return;
+        // Kendi kodunla kendini davet edemez
+        if (data.referral_code?.toUpperCase() === code) {
+          clearPendingReferralCode();
+          return;
+        }
+        if (data.referred_by) {
+          clearPendingReferralCode();
+          return;
+        }
+        setPendingReferralCode(code);
+        setReferralDialogOpen(true);
+      });
+  }, [user]);
+
+  const handleAcceptReferral = async () => {
+    if (!pendingReferralCode || !user) return;
+    setReferralSubmitting(true);
+
+    const { data: referrer } = await supabase
+      .from("profiles")
+      .select("user_id")
+      .eq("referral_code", pendingReferralCode)
+      .maybeSingle();
+
+    if (!referrer) {
+      toast.error("Geçersiz davet kodu.");
+      setReferralSubmitting(false);
+      return;
+    }
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({ referred_by: referrer.user_id })
+      .eq("user_id", user.id);
+
+    setReferralSubmitting(false);
+
+    if (error) {
+      toast.error("Davet kodu kaydedilemedi.");
+      console.error(error);
+      return;
+    }
+
+    clearPendingReferralCode();
+    setReferralDialogOpen(false);
+    toast.success("Davet kodu kabul edildi! İkinize de 1'er kredi hediye edildi. 🎉");
+  };
+
+  const handleSkipReferral = () => {
+    clearPendingReferralCode();
+    setReferralDialogOpen(false);
+  };
 
   const handlePhotoUpload = () => {
     const input = document.createElement("input");
