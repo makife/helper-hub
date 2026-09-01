@@ -239,7 +239,7 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
 
         {needed > 1 && task.wait_deadline && (
           <div className="mb-4 rounded-xl bg-muted/50 p-3 text-xs leading-relaxed text-muted-foreground">
-            {new Date(task.wait_deadline).getTime() > Date.now() ? (
+            {new Date(task.wait_deadline).getTime() - Date.now() > 5 * 60 * 1000 ? (
               <>
                 Yardım çağrısı yapan, el atan kontenjanının dolmasını{" "}
                 <span className="font-bold text-foreground">
@@ -249,6 +249,12 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
                 Bekleme süresi tamamlandıktan sonra çağrı yapan dilerse çağrıyı
                 sonlandırır veya mevcut kontenjanla işi başlatabilir. Size süreç ile
                 ilgili bildirim gönderilecektir.
+              </>
+            ) : new Date(task.wait_deadline).getTime() > Date.now() ? (
+              <>
+                Bekleme süresi bitmek üzere, çağrı yapan şu anda dilerse çağrıyı
+                sonlandırabilir veya mevcut kontenjanla işi başlatabilir. Size süreç
+                ile ilgili bildirim gönderilecektir.
               </>
             ) : (
               <>Bekleme süresi doldu, çağrı yapan kararını verdiğinde bilgilendirileceksin.</>
