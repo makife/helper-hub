@@ -30,6 +30,14 @@
                 <data android:scheme="com.ergan.bielat" />
             </intent-filter>
 
+            <!-- Davet deep-link: com.ergan.bielat://davet?code=XXXX -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="com.ergan.bielat" android:host="davet" />
+            </intent-filter>
+
             <!-- OAuth HTTPS dönüşünü uygulama doğrudan yakalayabilirse web köprüsünü atla. -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
