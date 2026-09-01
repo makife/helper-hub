@@ -63,7 +63,9 @@ const Home = () => {
     }
   });
   const [mapCenter, setMapCenter] = useState<[number, number] | null>(userPos);
+  const [mapType, setMapType] = useState<"standard" | "satellite">("satellite");
   const navigate = useNavigate();
+
   const [searchParams, setSearchParams] = useSearchParams();
   const unreadMessages = useUnreadNotifications();
   const { user } = useAuth();
