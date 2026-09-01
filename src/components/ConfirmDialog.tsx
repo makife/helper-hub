@@ -15,7 +15,7 @@ type Props = {
 };
 
 /** Uygulamaya özgü onay penceresi (tarayıcı confirm() yerine) */
-const ConfirmDialog = ({
+const ConfirmDialog = forwardRef<HTMLDivElement, Props>(({
   open,
   title,
   description,
@@ -25,7 +25,7 @@ const ConfirmDialog = ({
   loading = false,
   onConfirm,
   onCancel,
-}: Props) => (
+}, ref) => (
   <AnimatePresence>
     {open && (
       <>
