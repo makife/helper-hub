@@ -219,7 +219,15 @@ type AcceptedItem = {
   owner?: { full_name: string; avatar_url: string | null; user_id: string } | null;
 };
 
+// Gizlilik: işi kabul etmemiş kişilerin adı baş harflerle gösterilir (ör. "M.A.")
+const initialsOf = (fullName?: string | null) => {
+  const parts = (fullName || "").trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "??";
+  return parts.map((p) => p.charAt(0).toLocaleUpperCase("tr-TR") + ".").join(" ");
+};
+
 const MyTasks = () => {
+
   const [tab, setTab] = useState<"owned" | "accepted">("owned");
   const [tasks, setTasks] = useState<Tables<"tasks">[]>([]);
   const [accepted, setAccepted] = useState<AcceptedItem[]>([]);
@@ -885,7 +893,11 @@ const MyTasks = () => {
                       </p>
                     ) : (
                       <div className="space-y-1.5 max-h-40 overflow-y-auto">
-                        {viewers.map((v) => (
+                        {viewers.map((v) => {
+                          const isAccepted = (ownedTaskers[selectedTask.id] || []).some(
+                            (tp) => tp.user_id === v.id
+                          );
+                          return (
                           <button
                             key={v.id}
                             onClick={() => { setSelectedTask(null); navigate(`/profile/${v.id}`); }}
@@ -898,12 +910,16 @@ const MyTasks = () => {
                                 <User size={14} className="text-muted-foreground" />
                 )}
               </div>
-                            <span className="flex-1 text-xs font-bold text-foreground truncate">{v.full_name}</span>
+                            <span className="flex-1 text-xs font-bold text-foreground truncate">
+                              {isAccepted ? v.full_name : initialsOf(v.full_name)}
+                            </span>
+
                             <span className="text-[10px] text-muted-foreground">
                               {new Date(v.viewed_at).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}
                             </span>
                           </button>
-                        ))}
+                          );
+                        })}
                       </div>
                     )}
                   </div>
