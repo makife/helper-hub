@@ -26,6 +26,7 @@ import {
   isClosedStatus,
   requestCompletion,
   confirmCompletion,
+  cancelTask,
   rejectCompletion,
   markArrival,
   completionUnlockMs,
