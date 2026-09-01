@@ -34,6 +34,10 @@ import {
 } from "@/lib/taskLifecycle";
 import { formatDateTime } from "@/lib/dateFormat";
 
+const WAIT_DECISION_WINDOW_MS = 5 * 60 * 1000;
+const isWaitDecisionWindowOpen = (waitDeadline?: string | null) =>
+  !!waitDeadline && Date.now() >= new Date(waitDeadline).getTime() - WAIT_DECISION_WINDOW_MS;
+
 
 export const SUB_CATEGORIES = [
   { id: "ampul_takma", emoji: "💡", label: "Ampul Takma", baseEnum: "ampul_takma" },
@@ -764,8 +768,7 @@ const MyTasks = () => {
 
                   {task.status === "open" &&
                     (task.person_count || 1) > 1 &&
-                    task.wait_deadline &&
-                    new Date(task.wait_deadline).getTime() <= Date.now() && (
+                    isWaitDecisionWindowOpen(task.wait_deadline) && (
                       <div className="mt-3 flex gap-2" onClick={(e) => e.stopPropagation()}>
                         <button
                           onClick={() => handleCancelUnfilled(task.id)}
@@ -992,8 +995,7 @@ const MyTasks = () => {
                 {selectedTask.status === "open" &&
                   selectedTask.owner_id === user?.id &&
                   (selectedTask.person_count || 1) > 1 &&
-                  selectedTask.wait_deadline &&
-                  new Date(selectedTask.wait_deadline).getTime() <= Date.now() && (
+                  isWaitDecisionWindowOpen(selectedTask.wait_deadline) && (
                     <>
                       <button
                         disabled={isUpdating}
@@ -1018,8 +1020,7 @@ const MyTasks = () => {
                   selectedTask.owner_id === user?.id &&
                   !(
                     (selectedTask.person_count || 1) > 1 &&
-                    selectedTask.wait_deadline &&
-                    new Date(selectedTask.wait_deadline).getTime() <= Date.now()
+                    isWaitDecisionWindowOpen(selectedTask.wait_deadline)
                   ) && (
                     <>
                       <button
