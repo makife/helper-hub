@@ -146,23 +146,37 @@ const TaskMap = ({ tasks, center = [40.9903, 29.0297], userPos = null, onTaskCli
       zoomControl={false}
       attributionControl={false}
     >
-      <TileLayer
-        url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-        maxZoom={19}
-        maxNativeZoom={17}
-        keepBuffer={4}
-        updateWhenIdle={false}
-        crossOrigin
-      />
-      <TileLayer
-        url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
-        maxZoom={19}
-        maxNativeZoom={19}
-        keepBuffer={4}
-        updateWhenIdle={false}
-        crossOrigin
-      />
+      {mapType === "satellite" ? (
+        <>
+          <TileLayer
+            url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+            maxZoom={19}
+            maxNativeZoom={17}
+            keepBuffer={4}
+            updateWhenIdle={false}
+            crossOrigin
+          />
+          <TileLayer
+            url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
+            maxZoom={19}
+            maxNativeZoom={19}
+            keepBuffer={4}
+            updateWhenIdle={false}
+            crossOrigin
+          />
+        </>
+      ) : (
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          maxZoom={19}
+          maxNativeZoom={19}
+          keepBuffer={4}
+          updateWhenIdle={false}
+          crossOrigin
+        />
+      )}
       <LocationUpdater center={mapCenter} />
+
 
       {userPos && <Marker position={userPos} icon={userIcon} />}
 
