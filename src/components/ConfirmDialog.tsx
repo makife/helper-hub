@@ -78,6 +78,8 @@ const ConfirmDialog = forwardRef<HTMLDivElement, Props>(({
       </>
     )}
   </AnimatePresence>
-);
+));
+
+ConfirmDialog.displayName = "ConfirmDialog";
 
 export default ConfirmDialog;
