@@ -27,6 +27,8 @@ const MyToolsEditor = () => {
   const [customOwnedTools, setCustomOwnedTools] = useState<string[]>([]);
   const [toolQuery, setToolQuery] = useState("");
   const [customInput, setCustomInput] = useState("");
+  const [expanded, setExpanded] = useState(false);
+
 
   useEffect(() => {
     if (!user) return;
