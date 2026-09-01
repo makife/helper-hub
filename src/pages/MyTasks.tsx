@@ -918,7 +918,8 @@ const MyTasks = () => {
                               {new Date(v.viewed_at).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}
                             </span>
                           </button>
-                        ))}
+                          );
+                        })}
                       </div>
                     )}
                   </div>
