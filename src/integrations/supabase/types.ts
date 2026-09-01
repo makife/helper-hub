@@ -684,6 +684,7 @@ export type Database = {
         Args: { p_action: string; p_auto: boolean; p_task_id: string }
         Returns: undefined
       }
+      cancel_task: { Args: { _task_id: string }; Returns: boolean }
       cancel_unfilled_task: { Args: { p_task_id: string }; Returns: undefined }
       charge_employer_credit: {
         Args: { p_description: string; p_owner_id: string; p_task_id: string }
@@ -693,6 +694,7 @@ export type Database = {
         Args: { _task_id: string }
         Returns: number
       }
+      confirm_task_completion: { Args: { _task_id: string }; Returns: boolean }
       dispatch_push: {
         Args: { _body: string; _path: string; _title: string; _user_id: string }
         Returns: undefined
@@ -736,6 +738,7 @@ export type Database = {
       }
       process_task_lifecycle: { Args: never; Returns: undefined }
       process_wait_deadlines: { Args: never; Returns: undefined }
+      profile_system_snapshot: { Args: { _user_id: string }; Returns: Json }
       reject_task_completion: {
         Args: { _reason?: string; _task_id: string }
         Returns: string
@@ -747,6 +750,7 @@ export type Database = {
         Args: { p_task_id: string }
         Returns: undefined
       }
+      task_lifecycle_snapshot: { Args: { _task_id: string }; Returns: Json }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"

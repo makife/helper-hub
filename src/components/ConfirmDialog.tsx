@@ -1,3 +1,4 @@
+import { forwardRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertTriangle } from "lucide-react";
 
@@ -14,7 +15,7 @@ type Props = {
 };
 
 /** Uygulamaya özgü onay penceresi (tarayıcı confirm() yerine) */
-const ConfirmDialog = ({
+const ConfirmDialog = forwardRef<HTMLDivElement, Props>(({
   open,
   title,
   description,
@@ -24,7 +25,7 @@ const ConfirmDialog = ({
   loading = false,
   onConfirm,
   onCancel,
-}: Props) => (
+}, ref) => (
   <AnimatePresence>
     {open && (
       <>
@@ -35,7 +36,7 @@ const ConfirmDialog = ({
           onClick={onCancel}
           className="fixed inset-0 z-[2000] bg-foreground/40 backdrop-blur-[2px]"
         />
-        <div className="fixed inset-0 z-[2001] flex items-center justify-center p-6 pointer-events-none">
+        <div ref={ref} className="fixed inset-0 z-[2001] flex items-center justify-center p-6 pointer-events-none">
           <motion.div
             initial={{ y: 24, opacity: 0, scale: 0.96 }}
             animate={{ y: 0, opacity: 1, scale: 1 }}
@@ -77,6 +78,8 @@ const ConfirmDialog = ({
       </>
     )}
   </AnimatePresence>
-);
+));
+
+ConfirmDialog.displayName = "ConfirmDialog";
 
 export default ConfirmDialog;

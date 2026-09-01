@@ -107,16 +107,18 @@ export const requestCompletion = async (taskId: string): Promise<CompletionResul
   }
 };
 
-/** İş veren: onaylar ve işi tamamlar */
+/** İş veren: onaylar ve işi tamamlar (sunucu tarafında doğrulanır) */
 export const confirmCompletion = async (taskId: string) => {
-  const { error } = await supabase
-    .from("tasks")
-    .update({
-      status: "completed",
-      completed_at: new Date().toISOString(),
-    } as never)
-    .eq("id", taskId);
-  return !error;
+  const { data, error } = await supabase.rpc("confirm_task_completion", {
+    _task_id: taskId,
+  });
+  return !error && data === true;
+};
+
+/** İş veren: yardım çağrısını iptal eder (sunucu tarafında doğrulanır) */
+export const cancelTask = async (taskId: string) => {
+  const { data, error } = await supabase.rpc("cancel_task", { _task_id: taskId });
+  return !error && data === true;
 };
 
 /** İş veren: "İş yapılmadı" itirazı */

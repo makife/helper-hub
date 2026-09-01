@@ -26,6 +26,7 @@ import {
   isClosedStatus,
   requestCompletion,
   confirmCompletion,
+  cancelTask,
   rejectCompletion,
   markArrival,
   completionUnlockMs,
@@ -454,12 +455,9 @@ const MyTasks = () => {
 
   const handleCancelTask = async (taskId: string) => {
     setIsUpdating(true);
-    const { error } = await supabase
-      .from("tasks")
-      .update({ status: "cancelled", cancelled_at: new Date().toISOString() })
-      .eq("id", taskId);
+    const ok = await cancelTask(taskId);
 
-    if (!error) {
+    if (ok) {
       setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, status: "cancelled" } : t)));
       setSelectedTask(null);
     } else {
