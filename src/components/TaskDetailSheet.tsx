@@ -269,7 +269,39 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
           </span>
         </div>
 
+        {user?.id === task.owner_id && viewers.length > 0 && (
+          <div className="mb-4 rounded-xl bg-muted/50 p-3">
+            <div className="mb-2 flex items-center gap-2 text-sm text-muted-foreground">
+              <Eye size={14} className="text-primary" />
+              <span>Görüntüleyenler</span>
+              <span className="ml-auto text-xs font-black text-foreground">{viewers.length}</span>
+            </div>
+            <div className="flex -space-x-2 overflow-x-auto pb-1 scrollbar-hide">
+              {viewers.slice(0, 8).map((v) => (
+                <button
+                  key={v.viewer_id}
+                  onClick={() => navigate(`/profile/${v.viewer_id}`)}
+                  className="relative inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-card bg-muted"
+                  title={v.full_name}
+                >
+                  {v.avatar_url ? (
+                    <img src={v.avatar_url} alt="" className="h-full w-full rounded-full object-cover" />
+                  ) : (
+                    <User size={14} className="text-muted-foreground" />
+                  )}
+                </button>
+              ))}
+              {viewers.length > 8 && (
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-card bg-muted text-xs font-bold text-muted-foreground">
+                  +{viewers.length - 8}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {needed > 1 && task.wait_deadline && (
+
           <div className="mb-4 rounded-xl bg-muted/50 p-3 text-xs leading-relaxed text-muted-foreground">
             {new Date(task.wait_deadline).getTime() - Date.now() > 5 * 60 * 1000 ? (
               <>
