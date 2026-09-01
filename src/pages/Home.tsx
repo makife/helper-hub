@@ -364,7 +364,13 @@ const Home = () => {
 
       {/* Map — fills all remaining space edge-to-edge, bottom nav floats on top */}
       <div className="relative z-0 flex-1 overflow-hidden">
-        <TaskMap tasks={mapPins} onTaskClick={handleTaskClick} center={mapCenter || undefined} userPos={userPos} />
+        <TaskMap
+          tasks={mapPins}
+          onTaskClick={handleTaskClick}
+          center={mapCenter || undefined}
+          userPos={userPos}
+          mapType={mapType}
+        />
 
         {/* Stats overlay, floating on top of the map */}
         {
@@ -380,6 +386,15 @@ const Home = () => {
           </div>
         }
 
+        {/* Map type toggle */}
+        <button
+          onClick={() => setMapType((t) => (t === "satellite" ? "standard" : "satellite"))}
+          className="fixed bottom-36 right-4 z-[600] flex h-8 w-8 items-center justify-center rounded-full bg-card text-foreground shadow-card pointer-events-auto"
+          aria-label={mapType === "satellite" ? "Normal harita" : "Uydu görünümü"}
+        >
+          {mapType === "satellite" ? <Map size={18} /> : <Satellite size={18} />}
+        </button>
+
         {/* Locate me button */}
         <button
           onClick={handleLocateMe}
@@ -389,6 +404,7 @@ const Home = () => {
           <Crosshair size={22} className="text-sky-700" />
         </button>
       </div>
+
 
       {/* Task Detail Sheet */}
       <AnimatePresence>
