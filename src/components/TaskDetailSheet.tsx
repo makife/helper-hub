@@ -30,6 +30,8 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
   const [accepting, setAccepting] = useState(false);
   const [acceptedCount, setAcceptedCount] = useState(0);
   const [iAccepted, setIAccepted] = useState(false);
+  const [viewers, setViewers] = useState<{ viewer_id: string; full_name: string; avatar_url: string | null; viewed_at: string }[]>([]);
+
   const livePrice = useLivePrice(task);
   const needed = task.person_count ?? 1;
 
