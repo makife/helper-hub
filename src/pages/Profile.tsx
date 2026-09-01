@@ -601,7 +601,6 @@ const Profile = () => {
           </button>
 
           <div className="mb-5 space-y-3">
-            <AvailabilityToggle />
             <MyToolsEditor />
             <ReferralCard />
           </div>
