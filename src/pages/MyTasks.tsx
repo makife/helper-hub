@@ -893,7 +893,11 @@ const MyTasks = () => {
                       </p>
                     ) : (
                       <div className="space-y-1.5 max-h-40 overflow-y-auto">
-                        {viewers.map((v) => (
+                        {viewers.map((v) => {
+                          const isAccepted = (ownedTaskers[selectedTask.id] || []).some(
+                            (tp) => tp.user_id === v.id
+                          );
+                          return (
                           <button
                             key={v.id}
                             onClick={() => { setSelectedTask(null); navigate(`/profile/${v.id}`); }}
@@ -906,7 +910,10 @@ const MyTasks = () => {
                                 <User size={14} className="text-muted-foreground" />
                 )}
               </div>
-                            <span className="flex-1 text-xs font-bold text-foreground truncate">{v.full_name}</span>
+                            <span className="flex-1 text-xs font-bold text-foreground truncate">
+                              {isAccepted ? v.full_name : initialsOf(v.full_name)}
+                            </span>
+
                             <span className="text-[10px] text-muted-foreground">
                               {new Date(v.viewed_at).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}
                             </span>
