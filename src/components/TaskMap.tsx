@@ -1,7 +1,9 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { Map, Satellite } from "lucide-react";
+
 
 type TaskPin = {
   id: string;
@@ -116,9 +118,11 @@ type Props = {
   center?: [number, number];
   userPos?: [number, number] | null;
   onTaskClick?: (task: TaskPin) => void;
+  mapType?: "standard" | "satellite";
 };
 
-const TaskMap = ({ tasks, center = [40.9903, 29.0297], userPos = null, onTaskClick }: Props) => {
+const TaskMap = ({ tasks, center = [40.9903, 29.0297], userPos = null, onTaskClick, mapType = "satellite" }: Props) => {
+
   const mapCenter = center || userPos || [40.9903, 29.0297];
 
   const userIcon = useMemo(() => L.divIcon({
@@ -142,23 +146,37 @@ const TaskMap = ({ tasks, center = [40.9903, 29.0297], userPos = null, onTaskCli
       zoomControl={false}
       attributionControl={false}
     >
-      <TileLayer
-        url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-        maxZoom={19}
-        maxNativeZoom={17}
-        keepBuffer={4}
-        updateWhenIdle={false}
-        crossOrigin
-      />
-      <TileLayer
-        url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
-        maxZoom={19}
-        maxNativeZoom={19}
-        keepBuffer={4}
-        updateWhenIdle={false}
-        crossOrigin
-      />
+      {mapType === "satellite" ? (
+        <>
+          <TileLayer
+            url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+            maxZoom={19}
+            maxNativeZoom={17}
+            keepBuffer={4}
+            updateWhenIdle={false}
+            crossOrigin
+          />
+          <TileLayer
+            url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
+            maxZoom={19}
+            maxNativeZoom={19}
+            keepBuffer={4}
+            updateWhenIdle={false}
+            crossOrigin
+          />
+        </>
+      ) : (
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          maxZoom={19}
+          maxNativeZoom={19}
+          keepBuffer={4}
+          updateWhenIdle={false}
+          crossOrigin
+        />
+      )}
       <LocationUpdater center={mapCenter} />
+
 
       {userPos && <Marker position={userPos} icon={userIcon} />}
 
