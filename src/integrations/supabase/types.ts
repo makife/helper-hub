@@ -565,6 +565,7 @@ export type Database = {
           wait_deadline: string | null
           wait_decided: boolean
           wait_minutes: number | null
+          wait_reminder_sent_at: string | null
         }
         Insert: {
           address_note?: string | null
@@ -608,6 +609,7 @@ export type Database = {
           wait_deadline?: string | null
           wait_decided?: boolean
           wait_minutes?: number | null
+          wait_reminder_sent_at?: string | null
         }
         Update: {
           address_note?: string | null
@@ -651,6 +653,7 @@ export type Database = {
           wait_deadline?: string | null
           wait_decided?: boolean
           wait_minutes?: number | null
+          wait_reminder_sent_at?: string | null
         }
         Relationships: []
       }
@@ -677,6 +680,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      _settle_unfilled_task: {
+        Args: { p_action: string; p_auto: boolean; p_task_id: string }
+        Returns: undefined
+      }
       cancel_unfilled_task: { Args: { p_task_id: string }; Returns: undefined }
       charge_employer_credit: {
         Args: { p_description: string; p_owner_id: string; p_task_id: string }
@@ -728,6 +735,7 @@ export type Database = {
         }[]
       }
       process_task_lifecycle: { Args: never; Returns: undefined }
+      process_wait_deadlines: { Args: never; Returns: undefined }
       reject_task_completion: {
         Args: { _reason?: string; _task_id: string }
         Returns: string
