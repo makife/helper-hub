@@ -118,9 +118,11 @@ type Props = {
   center?: [number, number];
   userPos?: [number, number] | null;
   onTaskClick?: (task: TaskPin) => void;
+  mapType?: "standard" | "satellite";
 };
 
-const TaskMap = ({ tasks, center = [40.9903, 29.0297], userPos = null, onTaskClick }: Props) => {
+const TaskMap = ({ tasks, center = [40.9903, 29.0297], userPos = null, onTaskClick, mapType = "satellite" }: Props) => {
+
   const mapCenter = center || userPos || [40.9903, 29.0297];
 
   const userIcon = useMemo(() => L.divIcon({
