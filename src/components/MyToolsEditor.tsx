@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Wrench, Check, Plus, X, Search as SearchIcon, Loader2 } from "lucide-react";
+import { Wrench, Check, Plus, X, Search as SearchIcon, Loader2, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -27,6 +27,8 @@ const MyToolsEditor = () => {
   const [customOwnedTools, setCustomOwnedTools] = useState<string[]>([]);
   const [toolQuery, setToolQuery] = useState("");
   const [customInput, setCustomInput] = useState("");
+  const [expanded, setExpanded] = useState(false);
+
 
   useEffect(() => {
     if (!user) return;
@@ -85,15 +87,51 @@ const MyToolsEditor = () => {
   }
 
   const totalCount = ownedTools.length + customOwnedTools.length;
+  const selectedLabels = [
+    ...ownedTools.map((id) => ALL_TOOLS.find((t) => t.id === id)?.label || id),
+    ...customOwnedTools,
+  ];
 
   return (
     <div className="rounded-2xl border border-border bg-card p-4">
-      <div className="mb-3 flex items-center justify-between">
+      <div className="mb-3 flex items-center justify-between gap-2">
         <span className="flex items-center gap-2 text-sm font-bold text-foreground">
           <Wrench size={18} className="text-primary" />
           Aletlerim {totalCount > 0 && `(${totalCount})`}
         </span>
+        <button
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          className="flex items-center gap-1 rounded-lg border border-border bg-background px-2.5 py-1.5 text-[11px] font-bold text-foreground active:scale-95"
+        >
+          {expanded ? "Kapat" : totalCount > 0 ? "Düzenle" : "Alet Ekle"}
+          <ChevronDown size={13} className={expanded ? "rotate-180 transition-transform" : "transition-transform"} />
+        </button>
       </div>
+
+      {!expanded && (
+        <>
+          {totalCount === 0 ? (
+            <p className="text-xs text-muted-foreground">
+              Henüz alet eklemedin. Alet gerektiren işlerle eşleşmek için aletlerini ekle.
+            </p>
+          ) : (
+            <div className="flex flex-wrap gap-1.5">
+              {selectedLabels.map((label, i) => (
+                <span
+                  key={`${label}-${i}`}
+                  className="rounded-lg bg-primary/10 px-2.5 py-1.5 text-[11px] font-semibold text-primary"
+                >
+                  {label}
+                </span>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {expanded && (
+        <>
       <p className="mb-3 text-xs text-muted-foreground">
         Sahip olduğun aletleri işaretle. Alet gerektiren işler haritada senin aletlerinle uyumluysa öne çıkar.
       </p>
@@ -140,6 +178,7 @@ const MyToolsEditor = () => {
           );
         })}
       </div>
+
 
       <div className="mt-4">
         <label className="mb-2 block text-xs font-bold text-muted-foreground">Listede Yoksa Elle Ekle</label>
@@ -190,7 +229,10 @@ const MyToolsEditor = () => {
       >
         {saving ? "Kaydediliyor..." : "Kaydet"}
       </button>
+        </>
+      )}
     </div>
+
   );
 };
 
