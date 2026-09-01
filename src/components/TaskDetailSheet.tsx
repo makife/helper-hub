@@ -90,17 +90,32 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
   useEffect(() => {
     if (user?.id !== task.owner_id) return;
     const loadViewers = async () => {
-      const { data } = await supabase
+      const { data: viewRows, error: viewsError } = await supabase
         .from("task_views")
-        .select("viewer_id, viewed_at, profiles(user_id, full_name, avatar_url)")
+        .select("viewer_id, viewed_at")
         .eq("task_id", task.id)
         .order("viewed_at", { ascending: false });
-      const mapped = (data || []).map((v: any) => ({
-        viewer_id: v.viewer_id as string,
-        full_name: (v.profiles as { full_name?: string } | null)?.full_name || "Bilinmeyen",
-        avatar_url: (v.profiles as { avatar_url?: string | null } | null)?.avatar_url || null,
-        viewed_at: v.viewed_at as string,
-      }));
+
+      if (viewsError || !viewRows?.length) {
+        setViewers([]);
+        return;
+      }
+
+      const viewerIds = [...new Set(viewRows.map((view) => view.viewer_id))];
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("user_id, full_name, avatar_url")
+        .in("user_id", viewerIds);
+      const profilesById = new Map((profiles || []).map((profile) => [profile.user_id, profile]));
+      const mapped = viewRows.map((view) => {
+        const profile = profilesById.get(view.viewer_id);
+        return {
+          viewer_id: view.viewer_id,
+          full_name: profile?.full_name || "Bilinmeyen",
+          avatar_url: profile?.avatar_url || null,
+          viewed_at: view.viewed_at,
+        };
+      });
       setViewers(mapped);
     };
     loadViewers();
