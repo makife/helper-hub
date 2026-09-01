@@ -87,15 +87,20 @@ const Home = () => {
         (pos) => {
           const coords: [number, number] = [pos.coords.latitude, pos.coords.longitude];
           setUserPos(coords);
-          setMapCenter(coords);
+          // Konum neredeyse aynıysa haritayı yeniden ortalama (titremeyi önler)
+          setMapCenter((prev) =>
+            prev && distanceMeters(prev[0], prev[1], coords[0], coords[1]) < 40 ? prev : coords,
+          );
           try {
             localStorage.setItem("bielat_last_location", JSON.stringify(coords));
           } catch {}
         },
         () => {}, // silently fail
+        { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 },
       );
     }
   }, []);
+
 
   useEffect(() => {
     const fetchTasks = async () => {

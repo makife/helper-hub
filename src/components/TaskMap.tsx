@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -93,12 +93,22 @@ const createEmojiIcon = (emoji: string, urgent?: boolean, isOwn?: boolean) => {
 
 const LocationUpdater = ({ center }: { center: [number, number] }) => {
   const map = useMap();
+  const firstRun = useRef(true);
   useEffect(() => {
     const zoom = Math.max(map.getZoom() ?? 14, 14);
+    if (firstRun.current) {
+      // İlk yerleşimde animasyon yok: sayfaya dönünce titreme olmasın
+      firstRun.current = false;
+      map.setView(center, zoom, { animate: false });
+      return;
+    }
+    // Çok küçük GPS oynamalarında haritayı zıplatma (~40m eşik)
+    if (map.getCenter().distanceTo(L.latLng(center)) < 40) return;
     map.flyTo(center, zoom, { animate: true, duration: 0.8 });
   }, [center, map]);
   return null;
 };
+
 
 
 type Props = {
