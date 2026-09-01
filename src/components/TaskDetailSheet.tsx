@@ -89,42 +89,20 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
 
   useEffect(() => {
     if (user?.id !== task.owner_id) return;
-    const loadViewers = async () => {
-      const { data: viewRows, error: viewsError } = await supabase
+    const loadViewerCount = async () => {
+      const { count } = await supabase
         .from("task_views")
-        .select("viewer_id, viewed_at")
-        .eq("task_id", task.id)
-        .order("viewed_at", { ascending: false });
-
-      if (viewsError || !viewRows?.length) {
-        setViewers([]);
-        return;
-      }
-
-      const viewerIds = [...new Set(viewRows.map((view) => view.viewer_id))];
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("user_id, full_name, avatar_url")
-        .in("user_id", viewerIds);
-      const profilesById = new Map((profiles || []).map((profile) => [profile.user_id, profile]));
-      const mapped = viewRows.map((view) => {
-        const profile = profilesById.get(view.viewer_id);
-        return {
-          viewer_id: view.viewer_id,
-          full_name: profile?.full_name || "Bilinmeyen",
-          avatar_url: profile?.avatar_url || null,
-          viewed_at: view.viewed_at,
-        };
-      });
-      setViewers(mapped);
+        .select("*", { count: "exact", head: true })
+        .eq("task_id", task.id);
+      setViewerCount(count ?? 0);
     };
-    loadViewers();
+    loadViewerCount();
     const channel = supabase
       .channel(`task-views-${task.id}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "task_views", filter: `task_id=eq.${task.id}` },
-        () => loadViewers()
+        () => loadViewerCount()
       )
       .subscribe();
     return () => { supabase.removeChannel(channel); };
