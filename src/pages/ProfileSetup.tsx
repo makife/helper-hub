@@ -263,6 +263,55 @@ const ProfileSetup = () => {
       >
         {loading ? "Kaydediliyor..." : "Profili Tamamla 🎉"}
       </motion.button>
+
+      <AnimatePresence>
+        {referralDialogOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-6"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="w-full max-w-sm overflow-hidden rounded-3xl bg-card p-6 shadow-xl"
+            >
+              <div className="mb-4 flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                  <UserPlus size={24} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-foreground">Arkadaşın seni davet etti</h3>
+                  <p className="text-xs text-muted-foreground">Davet kodunu kabul edersen ikinize de 1'er kredi hediye.</p>
+                </div>
+              </div>
+
+              <div className="mb-5 rounded-2xl border-2 border-dashed border-primary/40 bg-primary/5 px-4 py-4 text-center">
+                <p className="text-xs font-semibold text-muted-foreground">Davet kodu</p>
+                <p className="text-2xl font-black tracking-widest text-primary">{pendingReferralCode}</p>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={handleSkipReferral}
+                  className="flex-1 rounded-2xl border-2 border-border bg-card py-3 text-sm font-bold text-foreground transition-all active:scale-[0.98]"
+                >
+                  Sonra
+                </button>
+                <button
+                  onClick={handleAcceptReferral}
+                  disabled={referralSubmitting}
+                  className="flex-1 rounded-2xl bg-primary py-3 text-sm font-bold text-primary-foreground transition-all active:scale-[0.98] disabled:opacity-50"
+                >
+                  {referralSubmitting ? "Kaydediliyor..." : "Kabul Et"}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
