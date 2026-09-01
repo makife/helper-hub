@@ -1,10 +1,14 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Camera, MapPin, Check } from "lucide-react";
+import { Camera, MapPin, Check, X, UserPlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import {
+  getPendingReferralCode,
+  clearPendingReferralCode,
+} from "@/lib/nativeAuth";
 
 const skills = [
   { id: "ampul_takma" as const, label: "💡 Ampul Takma" },
@@ -26,8 +30,76 @@ const ProfileSetup = () => {
   const [locationGranted, setLocationGranted] = useState(false);
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [loading, setLoading] = useState(false);
+  const [referralDialogOpen, setReferralDialogOpen] = useState(false);
+  const [pendingReferralCode, setPendingReferralCode] = useState<string | null>(null);
+  const [referralSubmitting, setReferralSubmitting] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
+
+  useEffect(() => {
+    if (!user) return;
+    const code = getPendingReferralCode();
+    if (!code) return;
+
+    supabase
+      .from("profiles")
+      .select("referred_by, referral_code")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!data) return;
+        // Kendi kodunla kendini davet edemez
+        if (data.referral_code?.toUpperCase() === code) {
+          clearPendingReferralCode();
+          return;
+        }
+        if (data.referred_by) {
+          clearPendingReferralCode();
+          return;
+        }
+        setPendingReferralCode(code);
+        setReferralDialogOpen(true);
+      });
+  }, [user]);
+
+  const handleAcceptReferral = async () => {
+    if (!pendingReferralCode || !user) return;
+    setReferralSubmitting(true);
+
+    const { data: referrer } = await supabase
+      .from("profiles")
+      .select("user_id")
+      .eq("referral_code", pendingReferralCode)
+      .maybeSingle();
+
+    if (!referrer) {
+      toast.error("Geçersiz davet kodu.");
+      setReferralSubmitting(false);
+      return;
+    }
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({ referred_by: referrer.user_id })
+      .eq("user_id", user.id);
+
+    setReferralSubmitting(false);
+
+    if (error) {
+      toast.error("Davet kodu kaydedilemedi.");
+      console.error(error);
+      return;
+    }
+
+    clearPendingReferralCode();
+    setReferralDialogOpen(false);
+    toast.success("Davet kodu kabul edildi! İkinize de 1'er kredi hediye edildi. 🎉");
+  };
+
+  const handleSkipReferral = () => {
+    clearPendingReferralCode();
+    setReferralDialogOpen(false);
+  };
 
   const handlePhotoUpload = () => {
     const input = document.createElement("input");
@@ -191,6 +263,55 @@ const ProfileSetup = () => {
       >
         {loading ? "Kaydediliyor..." : "Profili Tamamla 🎉"}
       </motion.button>
+
+      <AnimatePresence>
+        {referralDialogOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-6"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="w-full max-w-sm overflow-hidden rounded-3xl bg-card p-6 shadow-xl"
+            >
+              <div className="mb-4 flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                  <UserPlus size={24} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-foreground">Arkadaşın seni davet etti</h3>
+                  <p className="text-xs text-muted-foreground">Davet kodunu kabul edersen ikinize de 1'er kredi hediye.</p>
+                </div>
+              </div>
+
+              <div className="mb-5 rounded-2xl border-2 border-dashed border-primary/40 bg-primary/5 px-4 py-4 text-center">
+                <p className="text-xs font-semibold text-muted-foreground">Davet kodu</p>
+                <p className="text-2xl font-black tracking-widest text-primary">{pendingReferralCode}</p>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={handleSkipReferral}
+                  className="flex-1 rounded-2xl border-2 border-border bg-card py-3 text-sm font-bold text-foreground transition-all active:scale-[0.98]"
+                >
+                  Sonra
+                </button>
+                <button
+                  onClick={handleAcceptReferral}
+                  disabled={referralSubmitting}
+                  className="flex-1 rounded-2xl bg-primary py-3 text-sm font-bold text-primary-foreground transition-all active:scale-[0.98] disabled:opacity-50"
+                >
+                  {referralSubmitting ? "Kaydediliyor..." : "Kabul Et"}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

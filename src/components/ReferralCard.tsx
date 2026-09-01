@@ -3,10 +3,10 @@ import { Gift, Share2, Copy, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { isNativePlatform } from "@/lib/nativeAuth";
 
-// Profil sayfasına gömülecek "Arkadaşını Davet Et" kartı. Kullanıcının
-// referral_code'unu gösterir, paylaşma/kopyalama sağlar. Ödül mantığı
-// (referred_by kaydı + kredi verilmesi) migration'daki trigger'da.
+const PUBLISHED_URL = "https://task-hand-shake.lovable.app";
+
 const ReferralCard = () => {
   const { user } = useAuth();
   const [code, setCode] = useState<string | null>(null);
@@ -24,7 +24,11 @@ const ReferralCard = () => {
 
   if (!code) return null;
 
-  const shareText = `Bi' El At'ta yardım çağrısı açıp hızlıca el atacak birini buluyorum. Sen de dene, ${code} kodumla kaydolursan ikimize de kredi hediye: https://bielat.app/davet/${code}`;
+  const deepLink = `com.ergan.bielat://davet?code=${code}`;
+  const webLink = `${PUBLISHED_URL}/davet/${code}`;
+  const shareText = isNativePlatform()
+    ? `Bi' El At'ta yardım çağrısı açıp hızlıca el atacak birini buluyorum. Sen de dene, ${code} kodumla kaydolursan ikimize de kredi hediye: ${deepLink}`
+    : `Bi' El At'ta yardım çağrısı açıp hızlıca el atacak birini buluyorum. Sen de dene, ${code} kodumla kaydolursan ikimize de kredi hediye: ${webLink}`;
 
   const copyText = async (text: string) => {
     try {
@@ -58,9 +62,7 @@ const ReferralCard = () => {
         await navigator.share({ title: "Bi' El At", text: shareText });
         return;
       } catch (err: any) {
-        // Kullanıcı iptal ettiyse hiçbir şey yapma
         if (err?.name === "AbortError") return;
-        // Diğer hatalarda kopyalamaya düş
       }
     }
     const ok = await copyText(shareText);
@@ -79,7 +81,6 @@ const ReferralCard = () => {
     setTimeout(() => setCopied(false), 1500);
   };
 
-
   return (
     <div className="rounded-2xl border border-border bg-card p-4">
       <div className="mb-2 flex items-center gap-2 text-sm font-bold text-foreground">
@@ -87,7 +88,7 @@ const ReferralCard = () => {
         Arkadaşını Davet Et
       </div>
       <p className="mb-3 text-xs text-muted-foreground">
-        Kodunla kaydolan arkadaşın ilk işini tamamlayınca ikinize de 1'er kredi hediye.
+        Kodunla kaydolan arkadaşın uygulamaya katılınca ikinize de 1'er kredi hediye.
       </p>
 
       <button

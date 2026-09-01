@@ -8,6 +8,7 @@ import Welcome from "./pages/Welcome";
 import Onboarding from "./pages/Onboarding";
 import Login from "./pages/Login";
 import AuthCallback from "./pages/AuthCallback";
+import InviteLanding from "./pages/InviteLanding";
 import { setupNativeAuthListener } from "@/lib/nativeAuth";
 import ProfileSetup from "./pages/ProfileSetup";
 import Home from "./pages/Home";
@@ -41,6 +42,7 @@ const App = () => (
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/login" element={<Login />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
+            <Route path="/davet/:code" element={<InviteLanding />} />
             <Route path="/profile-setup" element={<ProfileSetup />} />
             <Route path="/home" element={<Home />} />
             <Route path="/create-task" element={<CreateTask />} />
