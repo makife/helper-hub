@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { X, Clock, MapPin, Star, User, Users, TrendingDown, Wrench, UserCheck, Home, BadgeCheck } from "lucide-react";
+import { X, Clock, MapPin, Star, User, Users, TrendingDown, Wrench, UserCheck, Home, BadgeCheck, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -30,6 +30,8 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
   const [accepting, setAccepting] = useState(false);
   const [acceptedCount, setAcceptedCount] = useState(0);
   const [iAccepted, setIAccepted] = useState(false);
+  const [viewers, setViewers] = useState<{ viewer_id: string; full_name: string; avatar_url: string | null; viewed_at: string }[]>([]);
+
   const livePrice = useLivePrice(task);
   const needed = task.person_count ?? 1;
 
@@ -85,7 +87,37 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [task.id, user?.id]);
 
+  useEffect(() => {
+    if (user?.id !== task.owner_id) return;
+    const loadViewers = async () => {
+      const { data } = await supabase
+        .from("task_views")
+        .select("viewer_id, viewed_at, profiles(user_id, full_name, avatar_url)")
+        .eq("task_id", task.id)
+        .order("viewed_at", { ascending: false });
+      const mapped = (data || []).map((v: any) => ({
+        viewer_id: v.viewer_id as string,
+        full_name: (v.profiles as { full_name?: string } | null)?.full_name || "Bilinmeyen",
+        avatar_url: (v.profiles as { avatar_url?: string | null } | null)?.avatar_url || null,
+        viewed_at: v.viewed_at as string,
+      }));
+      setViewers(mapped);
+    };
+    loadViewers();
+    const channel = supabase
+      .channel(`task-views-${task.id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "task_views", filter: `task_id=eq.${task.id}` },
+        () => loadViewers()
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [task.id, task.owner_id, user?.id]);
+
   const handleAccept = async () => {
+
     if (!user) return;
     setAccepting(true);
     const price = livePrice ? livePrice.price : task.current_price ?? task.price;
@@ -237,7 +269,39 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
           </span>
         </div>
 
+        {user?.id === task.owner_id && viewers.length > 0 && (
+          <div className="mb-4 rounded-xl bg-muted/50 p-3">
+            <div className="mb-2 flex items-center gap-2 text-sm text-muted-foreground">
+              <Eye size={14} className="text-primary" />
+              <span>Görüntüleyenler</span>
+              <span className="ml-auto text-xs font-black text-foreground">{viewers.length}</span>
+            </div>
+            <div className="flex -space-x-2 overflow-x-auto pb-1 scrollbar-hide">
+              {viewers.slice(0, 8).map((v) => (
+                <button
+                  key={v.viewer_id}
+                  onClick={() => navigate(`/profile/${v.viewer_id}`)}
+                  className="relative inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-card bg-muted"
+                  title={v.full_name}
+                >
+                  {v.avatar_url ? (
+                    <img src={v.avatar_url} alt="" className="h-full w-full rounded-full object-cover" />
+                  ) : (
+                    <User size={14} className="text-muted-foreground" />
+                  )}
+                </button>
+              ))}
+              {viewers.length > 8 && (
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-card bg-muted text-xs font-bold text-muted-foreground">
+                  +{viewers.length - 8}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {needed > 1 && task.wait_deadline && (
+
           <div className="mb-4 rounded-xl bg-muted/50 p-3 text-xs leading-relaxed text-muted-foreground">
             {new Date(task.wait_deadline).getTime() - Date.now() > 5 * 60 * 1000 ? (
               <>
