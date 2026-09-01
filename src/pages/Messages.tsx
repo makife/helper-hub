@@ -27,7 +27,6 @@ const Messages = () => {
     if (!user) return;
 
     const fetchConversations = async () => {
-      // Get all messages where user is sender or receiver
       const { data: messages } = await supabase
         .from("messages")
         .select("*")
@@ -35,44 +34,44 @@ const Messages = () => {
         .order("created_at", { ascending: false });
 
       if (!messages || messages.length === 0) {
+        setConversations([]);
         setLoading(false);
         return;
       }
 
-      // Group by task_id
+      // Group by task_id first, then resolve related records in two batch queries.
       const taskMap = new Map<string, typeof messages>();
       for (const msg of messages) {
         if (!taskMap.has(msg.task_id)) taskMap.set(msg.task_id, []);
         taskMap.get(msg.task_id)!.push(msg);
       }
 
+      const taskIds = [...taskMap.keys()];
+      const otherIds = [...new Set([...taskMap.values()].map((msgs) => {
+        const last = msgs[0];
+        return last.sender_id === user.id ? last.receiver_id : last.sender_id;
+      }))];
+      const [{ data: profiles }, { data: tasks }] = await Promise.all([
+        supabase.from("profiles").select("user_id, full_name, avatar_url").in("user_id", otherIds),
+        supabase.from("tasks").select("id, title").in("id", taskIds),
+      ]);
+      const profileById = new Map((profiles ?? []).map((profile) => [profile.user_id, profile]));
+      const taskById = new Map((tasks ?? []).map((task) => [task.id, task]));
+
       const convos: Conversation[] = [];
       for (const [taskId, msgs] of taskMap) {
         const lastMsg = msgs[0];
         const otherId = lastMsg.sender_id === user.id ? lastMsg.receiver_id : lastMsg.sender_id;
-        const unread = msgs.filter((m) => m.receiver_id === user.id && !m.is_read).length;
-
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("full_name, avatar_url")
-          .eq("user_id", otherId)
-          .maybeSingle();
-
-        const { data: task } = await supabase
-          .from("tasks")
-          .select("title")
-          .eq("id", taskId)
-          .maybeSingle();
-
+        const profile = profileById.get(otherId);
         convos.push({
           task_id: taskId,
-          task_title: task?.title || "İş",
+          task_title: taskById.get(taskId)?.title || "İş",
           other_user_id: otherId,
           other_user_name: profile?.full_name || "Kullanıcı",
           other_user_avatar: profile?.avatar_url || null,
           last_message: lastMsg.content,
           last_message_at: lastMsg.created_at,
-          unread_count: unread,
+          unread_count: msgs.filter((m) => m.receiver_id === user.id && !m.is_read).length,
         });
       }
 

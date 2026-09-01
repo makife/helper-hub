@@ -113,7 +113,7 @@ const ActiveTask = () => {
         filter: `task_id=eq.${taskId}`,
       }, (payload) => {
         const msg = payload.new as Tables<"messages">;
-        setMessages((prev) => [...prev, msg]);
+        setMessages((prev) => prev.some((item) => item.id === msg.id) ? prev : [...prev, msg]);
         if (msg.receiver_id === user.id) {
           supabase.from("messages").update({ is_read: true }).eq("id", msg.id).then(() => {});
         }
@@ -127,9 +127,18 @@ const ActiveTask = () => {
       }, () => fetchTask())
       .subscribe();
 
+    // RPC veya otomatik kapanma sonrası ekrandaki görev durumu anında güncellensin.
+    const taskChannel = supabase
+      .channel(`task-status-page-${taskId}`)
+      .on("postgres_changes", {
+        event: "UPDATE", schema: "public", table: "tasks", filter: `id=eq.${taskId}`,
+      }, () => fetchTask())
+      .subscribe();
+
     return () => {
       supabase.removeChannel(channel);
       supabase.removeChannel(assignmentChannel);
+      supabase.removeChannel(taskChannel);
     };
   }, [taskId, user]);
 
