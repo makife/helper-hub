@@ -1,79 +1,105 @@
-import { Capacitor } from '@capacitor/core';
-import { FirebaseMessaging } from '@capacitor-firebase/messaging';
-import { supabase } from '@/integrations/supabase/client';
+import { Capacitor } from "@capacitor/core";
+import { FirebaseMessaging } from "@capacitor-firebase/messaging";
+import type { PluginListenerHandle } from "@capacitor/core";
+import { supabase } from "@/integrations/supabase/client";
 
 const isNative = () => Capacitor.isNativePlatform();
-const LAST_TOKEN_KEY = 'bielat_push_token';
+const LAST_TOKEN_KEY = "bielat_push_token";
 
 let listenersReady = false;
+let listenerHandles: PluginListenerHandle[] = [];
 let currentUserId: string | null = null;
+let initialization: Promise<void> | null = null;
 
 async function saveToken(token: string) {
-  if (!currentUserId) return;
+  if (!currentUserId || !token) return;
   localStorage.setItem(LAST_TOKEN_KEY, token);
-  const { error } = await supabase.from('device_tokens').upsert(
-    { user_id: currentUserId, token, platform: Capacitor.getPlatform(), updated_at: new Date().toISOString() },
-    { onConflict: 'token' },
+  const { error } = await supabase.from("device_tokens").upsert(
+    {
+      user_id: currentUserId,
+      token,
+      platform: Capacitor.getPlatform(),
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "token" },
   );
-  if (error) console.error('Device token could not be saved:', error.message);
+  if (error) console.error("Device token could not be saved:", error.message);
 }
 
-function navigateTo(path: unknown) {
-  if (typeof path !== 'string' || !path.startsWith('/')) return;
-  window.history.pushState({}, '', path);
-  window.dispatchEvent(new PopStateEvent('popstate'));
+function navigateFromPayload(payload: unknown) {
+  if (!payload || typeof payload !== "object") return;
+  const data = payload as Record<string, unknown>;
+  const taskId = data.task_id ?? data.taskId;
+  const path = typeof data.path === "string"
+    ? data.path
+    : typeof taskId === "string" && taskId
+      ? `/task/${taskId}`
+      : data.type === "message"
+        ? "/messages"
+        : "/notifications";
+
+  if (!path.startsWith("/")) return;
+  window.history.pushState({}, "", path);
+  window.dispatchEvent(new PopStateEvent("popstate"));
 }
 
-export async function initializePushNotifications(userId: string) {
+async function registerListeners() {
+  if (listenersReady) return;
+  listenersReady = true;
+
+  listenerHandles = await Promise.all([
+    FirebaseMessaging.addListener("tokenReceived", ({ token }) => void saveToken(token)),
+    FirebaseMessaging.addListener("notificationReceived", (notification) => {
+      window.dispatchEvent(new CustomEvent("native-push-received", { detail: notification }));
+    }),
+    FirebaseMessaging.addListener("notificationActionPerformed", ({ notification }) => {
+      navigateFromPayload(notification.data);
+    }),
+  ]);
+}
+
+async function initialize(userId: string) {
   if (!isNative()) return;
   currentUserId = userId;
 
   const permission = await FirebaseMessaging.checkPermissions();
-  const result = permission.receive === 'prompt'
+  const result = permission.receive === "prompt"
     ? await FirebaseMessaging.requestPermissions()
     : permission;
-  if (result.receive !== 'granted') return;
+  if (result.receive !== "granted") return;
 
-  if (Capacitor.getPlatform() === 'android') {
+  if (Capacitor.getPlatform() === "android") {
     try {
       await FirebaseMessaging.createChannel({
-        id: 'bielat_high',
+        id: "bielat_high",
         name: "Bi' El At Bildirimleri",
-        description: 'Yeni mesaj ve yardım çağrısı bildirimleri',
+        description: "Yeni mesaj ve yardım çağrısı bildirimleri",
         importance: 5,
         visibility: 1,
-        sound: 'default',
+        sound: "default",
         vibration: true,
         lights: true,
       });
-    } catch (e) {
-      console.warn('Notification channel could not be created', e);
+    } catch (error) {
+      console.warn("Notification channel could not be created", error);
     }
   }
 
-  if (!listenersReady) {
-    listenersReady = true;
-    await FirebaseMessaging.addListener('tokenReceived', ({ token }) => void saveToken(token));
-    await FirebaseMessaging.addListener('notificationReceived', (notification) => {
-      window.dispatchEvent(new CustomEvent('native-push-received', { detail: notification }));
-    });
-    await FirebaseMessaging.addListener('notificationActionPerformed', ({ notification }) => {
-      const data = notification.data;
-      navigateTo(typeof data === 'object' && data !== null ? (data as { path?: unknown }).path : undefined);
-    });
-  }
-
-  // Uygulama kapalıyken bildirime dokunularak açıldıysa yönlendirmeyi kaçırma
-  try {
-    const launch = await FirebaseMessaging.getDeliveredNotifications();
-    const pending = launch.notifications?.[0]?.data as { path?: unknown } | undefined;
-    if (pending?.path) navigateTo(pending.path);
-  } catch {
-    // sessizce geç: bazı platformlarda desteklenmiyor
-  }
+  await registerListeners();
 
   const { token } = await FirebaseMessaging.getToken();
   if (token) await saveToken(token);
+}
+
+export async function initializePushNotifications(userId: string) {
+  currentUserId = userId;
+  if (!isNative()) return;
+  if (!initialization) {
+    initialization = initialize(userId).catch((error) => {
+      console.error("Push notifications could not be initialized:", error);
+    });
+  }
+  await initialization;
 }
 
 export async function unregisterPushNotifications() {
@@ -82,12 +108,13 @@ export async function unregisterPushNotifications() {
 
   const token = localStorage.getItem(LAST_TOKEN_KEY);
   if (token) {
-    await supabase.from('device_tokens').delete().eq('token', token);
+    await supabase.from("device_tokens").delete().eq("token", token);
     localStorage.removeItem(LAST_TOKEN_KEY);
   }
+
   try {
     await FirebaseMessaging.deleteToken();
   } catch {
-    // token zaten yoksa sorun değil
+    // Token zaten yoksa çıkış işlemi yine tamamlanmalı.
   }
 }
