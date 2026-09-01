@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { forwardRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,7 +12,7 @@ type Props = {
 };
 
 /** Zorunlu değerlendirme penceresi — puan verilmeden kapanmaz */
-const ReviewDialog = ({ review, onDone }: Props) => {
+const ReviewDialog = forwardRef<HTMLDivElement, Props>(({ review, onDone }, ref) => {
   const { user } = useAuth();
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
@@ -39,7 +39,7 @@ const ReviewDialog = ({ review, onDone }: Props) => {
   return (
     <AnimatePresence>
       {review && (
-        <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/60 p-5">
+        <div ref={ref} className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/60 p-5">
           <motion.div
             initial={{ scale: 0.94, opacity: 0, y: 16 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -90,6 +90,8 @@ const ReviewDialog = ({ review, onDone }: Props) => {
       )}
     </AnimatePresence>
   );
-};
+});
+
+ReviewDialog.displayName = "ReviewDialog";
 
 export default ReviewDialog;
