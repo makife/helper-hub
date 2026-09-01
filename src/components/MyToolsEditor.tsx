@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Wrench, Check, Plus, X, Search as SearchIcon, Loader2 } from "lucide-react";
+import { Wrench, Check, Plus, X, Search as SearchIcon, Loader2, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
