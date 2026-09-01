@@ -1,4 +1,5 @@
 import { Capacitor } from "@capacitor/core";
+import { App } from "@capacitor/app";
 import { SocialLogin } from "@capgo/capacitor-social-login";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -6,6 +7,8 @@ import {
   APPLE_CLIENT_ID,
   APPLE_REDIRECT_URL,
 } from "@/config/socialAuth";
+
+const PENDING_REFERRAL_KEY = "bielat_pending_referral_code";
 
 export const isNativePlatform = () => Capacitor.isNativePlatform();
 
