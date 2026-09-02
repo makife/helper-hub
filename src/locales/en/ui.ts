@@ -189,6 +189,7 @@ export const UI: Record<string, string> = {
   "Kredin birkaç dakika içinde hesabına yansıyacak.": "Your credits will appear in your account within a few minutes.",
   "Mağaza paketleri yüklenemedi. Bağlantını kontrol edip tekrar dene.": "Store packs could not be loaded. Check your connection and try again.",
   "Satın alma tamamlanamadı.": "Purchase could not be completed.",
+  "Kredi satın alma yalnızca mobil uygulamada yapılabilir.": "Credit purchases are only available in the mobile app.",
   "Satın almaların kontrol edildi.": "Your purchases were checked.",
   "Satın almalar geri yüklenemedi.": "Purchases could not be restored.",
   "Giriş tamamlandı": "Sign-in complete",

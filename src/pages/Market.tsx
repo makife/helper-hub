@@ -1,5 +1,5 @@
 import { getLang, useT } from "@/lib/i18n";
-import { formatPrice } from "@/lib/currency";
+import { formatPackPrice } from "@/lib/currency";
 import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -25,6 +25,7 @@ type Pack = {
   productId: string;
   credits: number;
   price: number;
+  eurPrice: number;
   priceLabel?: string;
   bonus?: number;
   badge?: string;
@@ -32,11 +33,12 @@ type Pack = {
 };
 
 export const CREDIT_PACKS: Pack[] = [
-  { id: "starter", productId: "credits_5", credits: 5, price: 49 },
-  { id: "standard", productId: "credits_15", credits: 15, price: 129, bonus: 2, badge: "Popüler" },
-  { id: "pro", productId: "credits_40", credits: 40, price: 299, bonus: 8, badge: "En Avantajlı" },
-  { id: "mega", productId: "credits_100", credits: 100, price: 649, bonus: 25 },
+  { id: "starter", productId: "credits_5", credits: 5, price: 49, eurPrice: 1.49 },
+  { id: "standard", productId: "credits_15", credits: 15, price: 129, eurPrice: 3.99, bonus: 2, badge: "Popüler" },
+  { id: "pro", productId: "credits_40", credits: 40, price: 299, eurPrice: 8.99, bonus: 8, badge: "En Avantajlı" },
+  { id: "mega", productId: "credits_100", credits: 100, price: 649, eurPrice: 18.99, bonus: 25 },
 ];
+
 
 const Market = () => {
   const t = useT();
@@ -87,6 +89,7 @@ const Market = () => {
               productId: sp.productId,
               credits: base?.credits ?? sp.credits,
               price: base?.price ?? 0,
+              eurPrice: base?.eurPrice ?? 0,
               priceLabel: sp.priceString,
               bonus: base?.bonus,
               badge: base?.badge,
@@ -94,6 +97,7 @@ const Market = () => {
             };
           }),
         );
+
       } catch (e) {
         console.error("Mağaza paketleri alınamadı", e);
       }
@@ -154,29 +158,12 @@ const Market = () => {
       return;
     }
 
-    // Web (test modu)
-    const { error: txErr } = await supabase.from("credit_transactions").insert({
-      user_id: user.id,
-      amount: total,
-      kind: "purchase",
-      description: `${selected.credits} kredi paketi (test modu)`,
-    });
-
-    const { error: upErr } = await supabase
-      .from("profiles")
-      .update({ credits: credits + total })
-      .eq("user_id", user.id);
-
+    // Web: krediler güvenlik nedeniyle yalnızca mağaza satın alması sonrası sunucu tarafında yüklenir
     setBuying(false);
     setSelected(null);
-
-    if (txErr || upErr) {
-      toast.error(t("Satın alma tamamlanamadı."));
-      return;
-    }
-    toast.success(t("{total} kredi hesabına eklendi 🎉", { total }));
-    load();
+    toast.info(t("Kredi satın alma yalnızca mobil uygulamada yapılabilir."));
   };
+
 
   const handleRestore = async () => {
     setRestoring(true);
@@ -248,7 +235,7 @@ const Market = () => {
                   </span>
                 )}
               </div>
-              <p className="text-lg font-black text-primary">{pack.priceLabel ?? formatPrice(pack.price)}</p>
+              <p className="text-lg font-black text-primary">{pack.priceLabel ?? formatPackPrice(pack.price, pack.eurPrice)}</p>
             </motion.button>
           ))}
         </div>
@@ -256,7 +243,7 @@ const Market = () => {
         <p className="text-center text-[11px] text-muted-foreground">
           {native
             ? t("Ödemeler App Store / Google Play üzerinden alınır. Krediler onaydan hemen sonra yüklenir.")
-            : t("Web sürümünde satın alma test modundadır. Gerçek ödeme mobil uygulamada yapılır.")}
+            : t("Kredi satın alma yalnızca mobil uygulamada yapılabilir.")}
         </p>
 
         <div className="rounded-2xl bg-card p-4 shadow-card">
@@ -287,7 +274,7 @@ const Market = () => {
       <ConfirmDialog
         open={!!selected}
         title={t("{count} kredi yükle", { count: selected ? selected.credits + (selected.bonus || 0) : 0 })}
-        description={t("{price} karşılığında kredi hesabına eklenecek.", { price: selected?.priceLabel ?? formatPrice(selected?.price ?? 0) })}
+        description={t("{price} karşılığında kredi hesabına eklenecek.", { price: selected?.priceLabel ?? formatPackPrice(selected?.price ?? 0, selected?.eurPrice) })}
         confirmLabel={t("Satın Al")}
         loading={buying}
         onConfirm={purchase}
