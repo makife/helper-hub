@@ -1,4 +1,4 @@
-import { useT } from "@/lib/i18n";
+import { useI18n } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
@@ -27,7 +27,7 @@ const initials = (name?: string | null) => {
 };
 
 const UserProfile = () => {
-  const t = useT();
+  const { t, lang } = useI18n();
   const { userId } = useParams<{ userId: string }>();
   const [profile, setProfile] = useState<Tables<"profiles"> | null>(null);
   const [credentials, setCredentials] = useState<Tables<"credentials">[]>([]);
