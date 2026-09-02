@@ -405,7 +405,7 @@ const Profile = () => {
 
                   {skillTags.length > 0 && (
                     <button type="button" onClick={() => setSkillTags([])} className="text-xs font-bold text-muted-foreground">
-                      Temizle
+                      {t("Temizle")}
                     </button>
                   )}
                 </div>
@@ -499,7 +499,7 @@ const Profile = () => {
               {((profile?.skill_tags?.length ?? 0) > 0 || (profile?.skills?.length ?? 0) > 0) && (
                 <div className="mb-5 rounded-xl bg-card p-4 shadow-card">
                   <p className="mb-2 text-xs font-semibold text-muted-foreground">
-                    Becerilerim ({profile?.skill_tags?.length || profile?.skills?.length})
+                    {t("Becerilerim")} ({profile?.skill_tags?.length || profile?.skills?.length})
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {(profile?.skill_tags?.length ? profile.skill_tags : (profile?.skills || []).map((skill) => LEGACY_SKILL_LABELS[skill] || skill)).map((skill) => (
@@ -642,7 +642,7 @@ const Profile = () => {
                 </div>
                 <div>
                   <p className="text-sm font-bold text-foreground">{t("Kullanım Koşulları")}</p>
-                  <p className="text-[11px] text-muted-foreground">Hizmet şartları ve sorumluluklar</p>
+                  <p className="text-[11px] text-muted-foreground">{t("Hizmet şartları ve sorumluluklar")}</p>
                 </div>
               </div>
               <ChevronRight size={18} className="text-muted-foreground" />
@@ -660,7 +660,7 @@ const Profile = () => {
                 </div>
                 <div>
                   <p className="text-sm font-bold text-foreground">{t("Gizlilik Politikası")}</p>
-                  <p className="text-[11px] text-muted-foreground">Kişisel verilerin korunması</p>
+                  <p className="text-[11px] text-muted-foreground">{t("Kişisel verilerin korunması")}</p>
                 </div>
               </div>
               <ChevronRight size={18} className="text-muted-foreground" />
@@ -672,13 +672,13 @@ const Profile = () => {
             className="flex w-full items-center justify-center gap-2 rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3.5 text-sm font-bold text-destructive transition-all active:scale-[0.98]"
           >
             <LogOut size={16} />
-            Çıkış Yap
+            {t("Çıkış Yap")}
           </button>
 
           <div className="mt-6 flex items-start gap-2 rounded-xl border border-border/60 bg-muted/30 p-3">
             <Info size={14} className="mt-0.5 shrink-0 text-muted-foreground" />
             <p className="text-[10px] leading-4 text-muted-foreground">
-              Harita verileri Esri, OpenStreetMap ve Leaflet katkılarıyla sunulmaktadır. Uydu görüntüleri ve yer isimleri ilgili sağlayıcıların lisanslarına tabidir.
+              {t("Harita verileri Esri, OpenStreetMap ve Leaflet katkılarıyla sunulmaktadır. Uydu görüntüleri ve yer isimleri ilgili sağlayıcıların lisanslarına tabidir.")}
             </p>
           </div>
         </div>
@@ -743,7 +743,7 @@ const Profile = () => {
             onClick={(e) => e.stopPropagation()}
             className="w-full max-w-md rounded-t-3xl bg-card p-5 pb-8 safe-bottom"
           >
-            <h3 className="mb-4 text-center text-base font-black text-foreground">Profil Fotoğrafı</h3>
+            <h3 className="mb-4 text-center text-base font-black text-foreground">{t("Profil Fotoğrafı")}</h3>
             <div className="flex flex-col gap-2">
               <button
                 onClick={() => { setAvatarSheetOpen(false); pickImage(uploadAvatar, true); }}
@@ -783,7 +783,7 @@ const Profile = () => {
       <ConfirmDialog
         open={!!credToDelete}
         title={t("Belgeyi sil")}
-        description={`"${credToDelete?.title ?? ""}" belgesini silmek istediğine emin misin?`}
+        description={t('"{title}" belgesini silmek istediğine emin misin?', { title: credToDelete?.title ?? "" })}
         confirmLabel={t("Sil")}
         onConfirm={deleteCredential}
         onCancel={() => setCredToDelete(null)}

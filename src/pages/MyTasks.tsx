@@ -448,7 +448,7 @@ const MyTasks = () => {
             const p = (profiles || []).find((pr) => pr.user_id === v.viewer_id);
             return {
               id: v.viewer_id,
-              full_name: p?.full_name || "Kullanıcı",
+              full_name: p?.full_name || t("Kullanıcı"),
               avatar_url: p?.avatar_url || null,
               viewed_at: v.viewed_at,
             };
@@ -475,7 +475,7 @@ const MyTasks = () => {
     setIsUpdating(true);
     const { error } = await supabase.rpc("start_task_with_partial_quota", { p_task_id: taskId });
     if (error) {
-      toast.error(error.message || "İş başlatılamadı, tekrar dene.");
+      toast.error(error.message || t("İş başlatılamadı, tekrar dene."));
     } else {
       toast.success(t("İş mevcut kontenjanla başlatıldı."));
       setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, status: "matched" } : t)));
@@ -487,7 +487,7 @@ const MyTasks = () => {
     setIsUpdating(true);
     const { error } = await supabase.rpc("cancel_unfilled_task", { p_task_id: taskId });
     if (error) {
-      toast.error(error.message || "İptal edilemedi, tekrar dene.");
+      toast.error(error.message || t("İptal edilemedi, tekrar dene."));
     } else {
       toast.success(t("Görev iptal edildi, el atanlara kredi iadesi yapıldı."));
       setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, status: "cancelled" } : t)));
@@ -696,7 +696,7 @@ const MyTasks = () => {
                         <h3 className="truncate text-sm font-bold text-foreground">{task.title}</h3>
                         {task.urgency === "urgent" && (
                           <span className="flex items-center text-[10px] font-bold text-red-500 bg-red-100 px-1.5 py-0.5 rounded-full">
-                            <Zap size={10} className="fill-red-500 mr-0.5" /> Acil
+                            <Zap size={10} className="fill-red-500 mr-0.5" /> {t("Acil")}
                           </span>
                         )}
                       </div>
@@ -715,7 +715,7 @@ const MyTasks = () => {
                   {(ownedTaskers[task.id] || []).length > 0 && (
                     <div className="mt-2 flex items-center gap-2">
                       <span className="text-[10px] font-black uppercase tracking-wide text-muted-foreground">
-                        El atan:
+                        {t("El atan:")}
                       </span>
                       <div className="flex -space-x-1.5">
                         {(ownedTaskers[task.id] || []).slice(0, 3).map((tp) => (
@@ -770,7 +770,7 @@ const MyTasks = () => {
                     )}
                     <span className="flex items-center gap-1">
                       <Eye size={11} className="text-primary" />
-                      {viewCounts[task.id] || 0} görüntülenme
+                      {viewCounts[task.id] || 0} {t("görüntülenme")}
                     </span>
                   </div>
 
@@ -783,14 +783,14 @@ const MyTasks = () => {
                           disabled={isUpdating}
                           className="flex-1 rounded-xl border border-border px-4 py-2 text-xs font-bold text-muted-foreground disabled:opacity-50"
                         >
-                          Vazgeç
+                          {t("Vazgeç")}
                         </button>
                         <button
                           onClick={() => handleStartPartial(task.id)}
                           disabled={isUpdating}
                           className="gradient-warm flex-1 rounded-xl px-4 py-2 text-xs font-bold text-primary-foreground disabled:opacity-50"
                         >
-                          İşi Başlat ({(ownedTaskers[task.id] || []).length}/{task.person_count})
+                          {t("İşi Başlat ({filled}/{total})", { filled: (ownedTaskers[task.id] || []).length, total: task.person_count || 0 })}
                         </button>
                       </div>
                     )}
@@ -823,14 +823,14 @@ const MyTasks = () => {
 
               <div className="space-y-3 text-sm text-foreground">
                 <div className="flex justify-between items-center bg-muted/30 p-2.5 rounded-xl">
-                  <span className="text-xs text-muted-foreground font-semibold">Acillik Durumu:</span>
+                  <span className="text-xs text-muted-foreground font-semibold">{t("Acillik Durumu:")}</span>
                   {selectedTask.urgency === "urgent" ? (
                     <span className="flex items-center gap-1 font-bold text-xs text-red-600 bg-red-100 px-2.5 py-1 rounded-lg">
-                      <Zap size={14} className="fill-red-600" /> Acil (Hemen Lazım)
+                      <Zap size={14} className="fill-red-600" /> {t("Acil (Hemen Lazım)")}
                     </span>
                   ) : (
                     <span className="font-semibold text-xs text-slate-600 bg-slate-100 px-2.5 py-1 rounded-lg">
-                      Esnek / Bekleyebilir
+                      {t("Esnek / Bekleyebilir")}
                     </span>
                   )}
                 </div>
@@ -843,7 +843,7 @@ const MyTasks = () => {
                 {selectedTask.photo_urls && selectedTask.photo_urls.length > 0 && (
                   <div>
                     <span className="font-semibold text-muted-foreground text-xs flex items-center gap-1 mb-1.5">
-                      <ImageIcon size={14} /> Eklenen Fotoğraflar ({selectedTask.photo_urls.length})
+                      <ImageIcon size={14} /> {t("Eklenen Fotoğraflar")} ({selectedTask.photo_urls.length})
                     </span>
                     <div className="flex gap-2 overflow-x-auto pb-1">
                       {selectedTask.photo_urls.map((url, idx) => (
@@ -866,7 +866,7 @@ const MyTasks = () => {
                 {/* Yayında geçen süre */}
                 <div className="flex justify-between items-center py-1 border-t pt-2">
                   <span className="text-muted-foreground flex items-center gap-1">
-                    <Timer size={14} className="text-primary" /> Yayında:
+                    <Timer size={14} className="text-primary" /> {t("Yayında:")}
                   </span>
                   <span className="font-bold text-foreground tabular-nums">
                     {formatElapsed(selectedTask.created_at, Date.now())}
@@ -885,11 +885,11 @@ const MyTasks = () => {
                 {selectedTask.owner_id === user?.id && (
                   <div className="border-t pt-2">
                     <span className="text-muted-foreground flex items-center gap-1 mb-2">
-                      <Eye size={14} className="text-primary" /> Görüntüleyenler ({viewers.length})
+                      <Eye size={14} className="text-primary" /> {t("Görüntüleyenler")} ({viewers.length})
                     </span>
                     {viewers.length === 0 ? (
                       <p className="text-xs text-muted-foreground bg-muted/40 p-2.5 rounded-xl">
-                        Henüz kimse görüntülemedi.
+                        {t("Henüz kimse görüntülemedi.")}
                       </p>
                     ) : (
                       <div className="space-y-1.5 max-h-40 overflow-y-auto">
@@ -929,7 +929,7 @@ const MyTasks = () => {
                 {selectedTask.owner_id === user?.id && (ownedTaskers[selectedTask.id] || []).length > 0 && (
                   <div className="border-t pt-2">
                     <span className="text-muted-foreground text-xs font-semibold flex items-center gap-1 mb-2">
-                      <UserCheck size={14} className="text-primary" /> İşi Kabul Eden / El Atan
+                      <UserCheck size={14} className="text-primary" /> {t("İşi Kabul Eden / El Atan")}
                     </span>
                     <div className="space-y-1.5">
                       {(ownedTaskers[selectedTask.id] || []).map((tp) => (
@@ -955,7 +955,7 @@ const MyTasks = () => {
                 {selectedTask.address_note && (
 
                   <div className="flex justify-between py-1 border-t pt-2">
-                    <span className="text-muted-foreground">Adres Notu:</span>
+                    <span className="text-muted-foreground">{t("Adres Notu:")}</span>
                     <span className="font-medium text-right max-w-[200px]">{selectedTask.address_note}</span>
                   </div>
                 )}
@@ -972,7 +972,7 @@ const MyTasks = () => {
                       className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground py-3 font-bold hover:opacity-90"
                     >
                       <Copy size={18} />
-                      Tekrar Oluştur
+                      {t("Tekrar Oluştur")}
                     </button>
                   )}
 
@@ -984,26 +984,26 @@ const MyTasks = () => {
                       className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground py-3 font-bold disabled:opacity-50"
                     >
                       <CheckCircle2 size={18} />
-                      Onayla
+                      {t("Onayla")}
                     </button>
                     <button
                       onClick={() =>
                         setConfirmState({
                           kind: "reject",
                           taskId: selectedTask.id,
-                          title: "İş yapılmadı mı?",
+                          title: t("İş yapılmadı mı?"),
                           description:
                             (selectedTask.rejection_count ?? 0) >= 1
-                              ? "Bu ikinci itirazın. Anlaşmazlık olarak değerlendirilecek ve varış kaydına göre tarafsız sonuçlandırılacak."
-                              : "El atan kişiye bildirilecek, işi tamamlayıp tekrar bildirebilecek. Haksız itirazlar sicilinize işlenir.",
-                          confirmLabel: "İtiraz Et",
+                              ? t("Bu ikinci itirazın. Anlaşmazlık olarak değerlendirilecek ve varış kaydına göre tarafsız sonuçlandırılacak.")
+                              : t("El atan kişiye bildirilecek, işi tamamlayıp tekrar bildirebilecek. Haksız itirazlar sicilinize işlenir."),
+                          confirmLabel: t("İtiraz Et"),
                         })
                       }
                       disabled={isUpdating}
                       className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-destructive/10 text-destructive py-3 font-bold disabled:opacity-50"
                     >
                       <X size={18} />
-                      İş Yapılmadı
+                      {t("İş Yapılmadı")}
                     </button>
                   </>
                 )}
@@ -1019,7 +1019,7 @@ const MyTasks = () => {
                         className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-destructive/10 text-destructive py-3 font-bold hover:bg-destructive/20 disabled:opacity-50"
                       >
                         <Trash2 size={18} />
-                        Vazgeç
+                        {t("Vazgeç")}
                       </button>
                       <button
                         disabled={isUpdating}
@@ -1027,7 +1027,7 @@ const MyTasks = () => {
                         className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground py-3 font-bold hover:opacity-90 disabled:opacity-50"
                       >
                         <UserCheck size={18} />
-                        İşi Başlat
+                        {t("İşi Başlat")}
                       </button>
                     </>
                   )}
@@ -1045,16 +1045,16 @@ const MyTasks = () => {
                           setConfirmState({
                             kind: "cancel",
                             taskId: selectedTask.id,
-                            title: "Yardım çağrısını iptal et",
-                            description: "Bu çağrı kapatılacak ve haritadan kaldırılacak. Emin misin?",
-                            confirmLabel: "İptal Et",
+                            title: t("Yardım çağrısını iptal et"),
+                            description: t("Bu çağrı kapatılacak ve haritadan kaldırılacak. Emin misin?"),
+                            confirmLabel: t("İptal Et"),
                           })
                         }
 
                         className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-destructive/10 text-destructive py-3 font-bold hover:bg-destructive/20"
                       >
                         <Trash2 size={18} />
-                        İptal Et
+                        {t("İptal Et")}
                       </button>
 
                       <button
@@ -1065,7 +1065,7 @@ const MyTasks = () => {
                         className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground py-3 font-bold hover:opacity-90"
                       >
                         <Edit3 size={18} />
-                        Düzenle
+                        {t("Düzenle")}
                       </button>
                     </>
                   )}

@@ -365,7 +365,7 @@ const CreateTask = () => {
             duration: 6000,
           });
         } else {
-          toast.error(editTaskId ? "Yardım çağrısı güncellenemedi." : "Yardım çağrısı oluşturulamadı.");
+          toast.error(editTaskId ? t("Yardım çağrısı güncellenemedi.") : t("Yardım çağrısı oluşturulamadı."));
         }
         console.error(error);
         return;
@@ -379,7 +379,7 @@ const CreateTask = () => {
           .catch((err) => console.warn("Yakındakilere bildirim gönderilemedi:", err));
       }
 
-      toast.success(editTaskId ? "Yardım çağrısı güncellendi!" : "Yardım çağrısı başarıyla oluşturuldu!");
+      toast.success(editTaskId ? t("Yardım çağrısı güncellendi!") : t("Yardım çağrısı başarıyla oluşturuldu!"));
       navigate("/my-tasks");
     } catch (err) {
       setLoading(false);

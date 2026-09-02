@@ -4,6 +4,7 @@ import { X, Clock, MapPin, Star, User, Users, TrendingDown, Wrench, UserCheck, H
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useT } from "@/lib/i18n";
 import { toast } from "sonner";
 import { useLivePrice, formatCountdown } from "@/lib/dynamicPricing";
 import { acceptTask, leaveTask } from "@/lib/assignments";
@@ -26,6 +27,7 @@ type Props = {
 const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const t = useT();
   const [owner, setOwner] = useState<Tables<"profiles"> | null>(null);
   const [accepting, setAccepting] = useState(false);
   const [acceptedCount, setAcceptedCount] = useState(0);
@@ -217,13 +219,13 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
                 <span>{owner.total_completed || 0} iş</span>
               </div>
             </div>
-            <span className="text-xs text-primary font-semibold">Profili Gör →</span>
+            <span className="text-xs text-primary font-semibold">{t("Profili Gör →")}</span>
           </button>
         )}
 
         <div className="mb-4 rounded-xl bg-muted/50 p-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Ücret</span>
+            <span className="text-sm text-muted-foreground">{t("Ücret")}</span>
             <div className="text-right">
               {livePrice && livePrice.price < livePrice.basePrice && (
                 <span className="mr-2 text-sm font-semibold text-muted-foreground line-through">
@@ -248,14 +250,14 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
             </p>
           )}
           {task.urgency === "urgent" && (
-            <p className="mt-1 text-xs font-semibold text-destructive">🔥 Acil iş — hemen başlaman bekleniyor</p>
+            <p className="mt-1 text-xs font-semibold text-destructive">{t("🔥 Acil iş — hemen başlaman bekleniyor")}</p>
           )}
         </div>
         {/* Kişi kontenjanı */}
         <div className="mb-4 flex items-center justify-between rounded-xl bg-muted/50 p-3">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Users size={14} className="text-primary" />
-            <span>Kişi kontenjanı</span>
+            <span>{t("Kişi kontenjanı")}</span>
           </div>
           <span className="text-sm font-black text-foreground">
             {acceptedCount}/{needed} dolu
@@ -266,7 +268,7 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
           <div className="mb-4 flex items-center justify-between rounded-xl bg-muted/50 p-3">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Eye size={14} className="text-primary" />
-              <span>Görüntüleyenler</span>
+              <span>{t("Görüntüleyenler")}</span>
             </div>
             <span className="text-sm font-black text-foreground">{viewerCount}</span>
           </div>
@@ -293,7 +295,7 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
                 ile ilgili bildirim gönderilecektir.
               </>
             ) : (
-              <>Bekleme süresi doldu, çağrı yapan kararını verdiğinde bilgilendirileceksin.</>
+              <>{t("Bekleme süresi doldu, çağrı yapan kararını verdiğinde bilgilendirileceksin.")}</>
             )}
           </div>
         )}

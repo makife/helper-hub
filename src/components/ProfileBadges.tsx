@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Rocket, Flame, Trophy, Star, ShieldCheck, Wrench, CalendarCheck, Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useT } from "@/lib/i18n";
 
 type Props = { userId: string };
 
@@ -86,6 +87,7 @@ const BADGES: BadgeDef[] = [
 ];
 
 const ProfileBadges = ({ userId }: Props) => {
+  const t = useT();
   const [data, setData] = useState<BadgeData | null>(null);
 
   useEffect(() => {
@@ -140,7 +142,7 @@ const ProfileBadges = ({ userId }: Props) => {
   return (
     <div className="rounded-2xl border border-border bg-card p-4">
       <p className="mb-3 text-sm font-bold text-foreground">
-        Rozetler <span className="text-muted-foreground">({unlockedCount}/{BADGES.length})</span>
+        {t("Rozetler")} <span className="text-muted-foreground">({unlockedCount}/{BADGES.length})</span>
       </p>
       <div className="grid grid-cols-2 gap-2.5">
         {BADGES.map((badge) => {
@@ -164,9 +166,9 @@ const ProfileBadges = ({ userId }: Props) => {
                 </span>
               </div>
               <p className={`text-xs font-bold ${unlocked ? "text-foreground" : "text-muted-foreground"}`}>
-                {badge.label}
+                {t(badge.label)}
               </p>
-              <p className="mt-0.5 text-[10px] text-muted-foreground">{badge.description}</p>
+              <p className="mt-0.5 text-[10px] text-muted-foreground">{t(badge.description)}</p>
               {!unlocked && (
                 <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-muted">
                   <div

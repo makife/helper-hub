@@ -80,7 +80,7 @@ const Welcome = () => {
         transition={{ delay: 1, duration: 0.5 }}
         className="mt-8 text-center text-xs text-muted-foreground"
       >
-        Devam ederek{" "}
+        {t("Devam ederek")} {" "}
         <button
           onClick={() => navigate("/terms")}
           className="font-semibold text-primary underline-offset-2 hover:underline"
@@ -94,7 +94,7 @@ const Welcome = () => {
         >
           {t("Gizlilik Politikası")}
         </button>
-        'nı kabul etmiş olursunuz.
+        {t("nı kabul etmiş olursunuz.")}
       </motion.p>
     </div>
   );

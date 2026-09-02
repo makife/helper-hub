@@ -202,7 +202,7 @@ const Market = () => {
             disabled={restoring}
             className="ml-auto flex items-center gap-1.5 rounded-xl bg-card px-3 py-2 text-[11px] font-black text-foreground shadow-card disabled:opacity-50"
           >
-            <RotateCcw size={13} /> Geri Yükle
+            <RotateCcw size={13} /> {t("Geri Yükle")}
           </button>
         )}
       </div>
@@ -215,11 +215,11 @@ const Market = () => {
         >
           <Coins size={30} />
           <div>
-            <p className="text-xs opacity-90">Mevcut kredin</p>
+            <p className="text-xs opacity-90">{t("Mevcut kredin")}</p>
             <p className="text-3xl font-black leading-tight">{credits}</p>
           </div>
           <p className="ml-auto max-w-[45%] text-right text-[11px] font-semibold opacity-90">
-            Her yardım çağrısı kabulü 1 kredi harcar
+            {t("Her yardım çağrısı kabulü 1 kredi harcar")}
           </p>
         </motion.div>
 
@@ -238,12 +238,12 @@ const Market = () => {
               </div>
               <div className="flex-1">
                 <p className="text-base font-black text-foreground">
-                  {pack.credits} Kredi
-                  {pack.bonus ? <span className="ml-1.5 text-xs font-bold text-success">+{pack.bonus} hediye</span> : null}
+                  {pack.credits} {t("Kredi")}
+                  {pack.bonus ? <span className="ml-1.5 text-xs font-bold text-success">+{pack.bonus} {t("hediye")}</span> : null}
                 </p>
                 {pack.badge && (
                   <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-black text-accent">
-                    <Sparkles size={10} /> {pack.badge}
+                    <Sparkles size={10} /> {t(pack.badge)}
                   </span>
                 )}
               </div>
