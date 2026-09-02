@@ -1,5 +1,5 @@
 import type { Tables } from "@/integrations/supabase/types";
-import { getLang, useT } from "@/lib/i18n";
+import { getLang, translate, useT } from "@/lib/i18n";
 
 type Step = {
   label: string;

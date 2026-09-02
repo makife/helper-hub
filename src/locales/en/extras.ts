@@ -89,6 +89,7 @@ export const EXTRAS: Record<string, string> = {
   "El atan bitirdiğini belirtti, sizden onay bekliyor": "The helper marked it finished and is awaiting your confirmation",
   "Anlaşmazlık sistem kurallarıyla çözüldü": "The dispute was resolved by system rules",
   "Kredi Yükle": "Top up credits",
+  "İş veren itiraz etti ({rejection_count}/2)": "The requester objected ({rejection_count}/2)",
   "İptal edilemedi, tekrar dene.": "Could not cancel. Try again.",
   "İşten ayrıldın.": "You left the task.",
   "İşten ayrılamadın, tekrar dene.": "Could not leave the task. Try again.",
