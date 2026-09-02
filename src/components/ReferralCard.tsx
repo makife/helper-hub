@@ -56,6 +56,20 @@ const ReferralCard = () => {
   };
 
   const handleShare = async () => {
+    // Native platformda alttan açılan sistem paylaşım penceresi
+    if (isNativePlatform()) {
+      try {
+        const { Share } = await import("@capacitor/share");
+        await Share.share({
+          title: "Bi' El At",
+          text: shareText,
+          dialogTitle: "Davet linkini paylaş",
+        });
+        return;
+      } catch (err: any) {
+        if (err?.message?.includes("cancel")) return;
+      }
+    }
     const canShare = typeof navigator !== "undefined" && !!navigator.share;
     if (canShare) {
       try {

@@ -9,6 +9,7 @@ import TaskDetailSheet from "@/components/TaskDetailSheet";
 import BottomNav from "@/components/BottomNav";
 import RouteMap from "@/components/RouteMap";
 import ReviewDialog from "@/components/ReviewDialog";
+import ReferralPrompt from "@/components/ReferralPrompt";
 import { usePendingReviews } from "@/hooks/usePendingReviews";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -588,6 +589,7 @@ const Home = () => {
         )}
       </AnimatePresence>
 
+      <ReferralPrompt />
       <BottomNav />
     </div>
   );
