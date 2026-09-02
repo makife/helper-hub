@@ -17,6 +17,14 @@ const SKILL_LABELS: Record<string, string> = {
 
 type ReviewRow = Tables<"reviews"> & { reviewer?: { full_name: string; avatar_url: string | null } | null };
 
+const initials = (name?: string | null) => {
+  if (!name) return "?";
+  const parts = name.trim().split(/\s+/);
+  const first = parts[0]?.[0] || "";
+  const last = parts.length > 1 ? parts[parts.length - 1][0] : "";
+  return (first + last).toUpperCase();
+};
+
 const UserProfile = () => {
   const t = useT();
   const { userId } = useParams<{ userId: string }>();
