@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { formatPrice } from "@/lib/currency";
+import { formatPrice, getTaskCurrency } from "@/lib/currency";
 import { motion } from "framer-motion";
 import { X, Clock, MapPin, Star, User, Users, TrendingDown, Wrench, UserCheck, Home, BadgeCheck, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";

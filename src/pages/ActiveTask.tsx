@@ -1,5 +1,5 @@
 import { getLang, useT } from "@/lib/i18n";
-import { formatPrice } from "@/lib/currency";
+import { formatPrice, getTaskCurrency } from "@/lib/currency";
 import { getTaskStatusLabel } from "@/lib/taskLifecycle";
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";

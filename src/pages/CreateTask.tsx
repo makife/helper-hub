@@ -1,5 +1,5 @@
 import { useT } from "@/lib/i18n";
-import { formatPrice } from "@/lib/currency";
+import { CURRENCIES, CURRENCY_LABELS, currencySymbol, formatPrice, type CurrencyCode } from "@/lib/currency";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";

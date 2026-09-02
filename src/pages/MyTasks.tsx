@@ -1,5 +1,5 @@
 import { useT, translate } from "@/lib/i18n";
-import { formatPrice } from "@/lib/currency";
+import { formatPrice, getTaskCurrency } from "@/lib/currency";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";

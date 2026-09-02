@@ -20,6 +20,9 @@ export const CURRENCY_LABELS: Record<CurrencyCode, string> = {
 export const currencySymbol = (currency?: string | null) =>
   CURRENCY_SYMBOLS[(currency as CurrencyCode) ?? "TRY"] ?? "₺";
 
+export const getTaskCurrency = (task: { currency?: string | null } | null | undefined) =>
+  task?.currency ?? "TRY";
+
 /**
  * Tek noktadan para birimi biçimlendirme.
  * TR: "1.250 ₺"  |  EN: "₺1,250"
