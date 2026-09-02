@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useT } from "@/lib/i18n";
 import { AnimatePresence } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Zap, MapPin, Bell, Crosshair, SlidersHorizontal, X, Check, Map, Satellite } from "lucide-react";

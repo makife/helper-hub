@@ -320,7 +320,7 @@ const Profile = () => {
 
             {!editing && (
               <>
-                <h2 className="mt-3 text-lg font-black text-foreground">{profile?.full_name || "İsimsiz Kullanıcı"}</h2>
+                <h2 className="mt-3 text-lg font-black text-foreground">{profile?.full_name || t("İsimsiz Kullanıcı")}</h2>
                 {profile?.profession && (
                   <p className="mt-0.5 text-sm font-bold text-primary">{profile.profession}</p>
                 )}
@@ -339,7 +339,7 @@ const Profile = () => {
             <div className="flex flex-1 flex-col items-center rounded-xl bg-card p-3 shadow-card">
               <Star size={18} className="text-accent" />
               <p className="mt-1 text-lg font-black text-foreground">{Number(profile?.rating || 0).toFixed(1)}</p>
-              <p className="text-[10px] text-muted-foreground">Puan ({reviews.length})</p>
+              <p className="text-[10px] text-muted-foreground">{t("Puan")} ({reviews.length})</p>
             </div>
             <div className="flex flex-1 flex-col items-center rounded-xl bg-card p-3 shadow-card">
               <CheckCircle size={18} className="text-primary" />
@@ -485,14 +485,14 @@ const Profile = () => {
                 className="gradient-warm flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold text-primary-foreground disabled:opacity-50"
               >
                 <Check size={16} />
-                {saving ? "Kaydediliyor..." : "Kaydet"}
+                {saving ? t("Kaydediliyor...") : t("Kaydet")}
               </button>
             </div>
           ) : (
             <>
               {profile?.bio && (
                 <div className="mb-5 rounded-xl bg-card p-4 shadow-card">
-                  <p className="text-xs font-semibold text-muted-foreground">Hakkında</p>
+                  <p className="text-xs font-semibold text-muted-foreground">{t("Hakkında")}</p>
                   <p className="mt-1 text-sm text-foreground">{profile.bio}</p>
                 </div>
               )}
@@ -557,12 +557,12 @@ const Profile = () => {
 
           {/* Değerlendirmeler */}
           <div className="mb-5 rounded-2xl bg-card p-4 shadow-card">
-            <p className="mb-3 flex items-center gap-1.5 text-sm font-black text-foreground">
-              <Star size={16} className="text-accent" />
-              Değerlendirmeler
-            </p>
-            {reviews.length === 0 ? (
-              <p className="text-xs text-muted-foreground">Henüz değerlendirme yok.</p>
+              <p className="mb-3 flex items-center gap-1.5 text-sm font-black text-foreground">
+                <Star size={16} className="text-accent" />
+                {t("Değerlendirmeler")}
+              </p>
+              {reviews.length === 0 ? (
+                <p className="text-xs text-muted-foreground">{t("Henüz değerlendirme yok.")}</p>
             ) : (
               <div className="space-y-3">
                 {reviews.map((r) => (
