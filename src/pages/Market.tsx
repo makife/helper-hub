@@ -1,5 +1,5 @@
 import { getLang, useT } from "@/lib/i18n";
-import { formatPrice } from "@/lib/currency";
+import { formatPackPrice } from "@/lib/currency";
 import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -235,7 +235,7 @@ const Market = () => {
                   </span>
                 )}
               </div>
-              <p className="text-lg font-black text-primary">{pack.priceLabel ?? formatPrice(pack.price)}</p>
+              <p className="text-lg font-black text-primary">{pack.priceLabel ?? formatPackPrice(pack.price, pack.eurPrice)}</p>
             </motion.button>
           ))}
         </div>
@@ -243,7 +243,7 @@ const Market = () => {
         <p className="text-center text-[11px] text-muted-foreground">
           {native
             ? t("Ödemeler App Store / Google Play üzerinden alınır. Krediler onaydan hemen sonra yüklenir.")
-            : t("Web sürümünde satın alma test modundadır. Gerçek ödeme mobil uygulamada yapılır.")}
+            : t("Kredi satın alma yalnızca mobil uygulamada yapılabilir.")}
         </p>
 
         <div className="rounded-2xl bg-card p-4 shadow-card">
@@ -274,7 +274,7 @@ const Market = () => {
       <ConfirmDialog
         open={!!selected}
         title={t("{count} kredi yükle", { count: selected ? selected.credits + (selected.bonus || 0) : 0 })}
-        description={t("{price} karşılığında kredi hesabına eklenecek.", { price: selected?.priceLabel ?? formatPrice(selected?.price ?? 0) })}
+        description={t("{price} karşılığında kredi hesabına eklenecek.", { price: selected?.priceLabel ?? formatPackPrice(selected?.price ?? 0, selected?.eurPrice) })}
         confirmLabel={t("Satın Al")}
         loading={buying}
         onConfirm={purchase}
