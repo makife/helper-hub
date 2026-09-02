@@ -25,6 +25,7 @@ type Pack = {
   productId: string;
   credits: number;
   price: number;
+  eurPrice: number;
   priceLabel?: string;
   bonus?: number;
   badge?: string;
@@ -32,11 +33,12 @@ type Pack = {
 };
 
 export const CREDIT_PACKS: Pack[] = [
-  { id: "starter", productId: "credits_5", credits: 5, price: 49 },
-  { id: "standard", productId: "credits_15", credits: 15, price: 129, bonus: 2, badge: "Popüler" },
-  { id: "pro", productId: "credits_40", credits: 40, price: 299, bonus: 8, badge: "En Avantajlı" },
-  { id: "mega", productId: "credits_100", credits: 100, price: 649, bonus: 25 },
+  { id: "starter", productId: "credits_5", credits: 5, price: 49, eurPrice: 1.49 },
+  { id: "standard", productId: "credits_15", credits: 15, price: 129, eurPrice: 3.99, bonus: 2, badge: "Popüler" },
+  { id: "pro", productId: "credits_40", credits: 40, price: 299, eurPrice: 8.99, bonus: 8, badge: "En Avantajlı" },
+  { id: "mega", productId: "credits_100", credits: 100, price: 649, eurPrice: 18.99, bonus: 25 },
 ];
+
 
 const Market = () => {
   const t = useT();
