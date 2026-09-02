@@ -230,11 +230,11 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
             <div className="text-right">
               {livePrice && livePrice.price < livePrice.basePrice && (
                 <span className="mr-2 text-sm font-semibold text-muted-foreground line-through">
-                  {formatPrice(livePrice.basePrice)}
+                  {formatPrice(livePrice.basePrice, getTaskCurrency(task))}
                 </span>
               )}
               <span className="text-2xl font-black text-primary">
-                {formatPrice(livePrice ? livePrice.price : task.current_price || task.price)}
+                {formatPrice(livePrice ? livePrice.price : task.current_price || task.price, getTaskCurrency(task))}
               </span>
             </div>
           </div>
@@ -242,12 +242,12 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
             <p className="mt-1 flex items-center gap-1 text-xs font-semibold text-primary">
               <TrendingDown size={12} />
               {t("Fiyat düşüyor — sonraki düşüşe")} {formatCountdown(livePrice.msToNextDrop)}
-              <span className="text-muted-foreground">({t("alt sınır")} {formatPrice(livePrice.minPrice)})</span>
+              <span className="text-muted-foreground">({t("alt sınır")} {formatPrice(livePrice.minPrice, getTaskCurrency(task))})</span>
             </p>
           )}
           {livePrice?.atFloor && (
             <p className="mt-1 text-xs font-semibold text-muted-foreground">
-              {t("En düşük ücrete ulaşıldı")} ({formatPrice(livePrice.minPrice)})
+              {t("En düşük ücrete ulaşıldı")} ({formatPrice(livePrice.minPrice, getTaskCurrency(task))})
             </p>
           )}
           {task.urgency === "urgent" && (

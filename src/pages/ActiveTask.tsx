@@ -216,7 +216,7 @@ const ActiveTask = () => {
             {needed > 1 && ` · 👥 ${taskers.length}/${needed} ${t("kişi")}`}
           </p>
         </div>
-        <span className="text-lg font-black text-primary">{formatPrice(task.current_price || task.price)}</span>
+        <span className="text-lg font-black text-primary">{formatPrice(task.current_price || task.price, getTaskCurrency(task))}</span>
       </div>
 
       {/* Task & Location Info */}
