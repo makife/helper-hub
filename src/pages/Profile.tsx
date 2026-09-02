@@ -35,7 +35,7 @@ import MyToolsEditor from "@/components/MyToolsEditor";
 
 import ReferralCard from "@/components/ReferralCard";
 import ProfileBadges from "@/components/ProfileBadges";
-import { timeAgo } from "@/lib/dateFormat";
+import { timeAgoIn } from "@/lib/dateFormat";
 
 const LEGACY_SKILL_LABELS: Record<string, string> = {
   ampul_takma: "Ampul takma",
@@ -595,9 +595,9 @@ const Profile = () => {
                           </div>
                           <div className="min-w-0 flex-1">
                             <p className="truncate text-xs font-bold text-foreground">
-                              {r.reviewer?.full_name || t("Kullanıcı")}
+                              {initials(r.reviewer?.full_name)}
                             </p>
-                            <p className="text-[10px] text-muted-foreground">{timeAgo(r.created_at)}</p>
+                            <p className="text-[10px] text-muted-foreground">{timeAgoIn(r.created_at, lang)}</p>
                           </div>
                         </div>
                         <div className="mb-2 flex items-center gap-0.5 text-accent">
