@@ -191,7 +191,7 @@ const TaskMap = ({ tasks, center = [40.9903, 29.0297], userPos = null, onTaskCli
           <Popup>
             <div className="flex min-w-[200px] flex-col leading-none">
               {task.urgent && (
-                <p className="m-0 pb-1 text-center text-[10px] font-bold text-destructive">🔥 ACİL YARDIM</p>
+                <p className="m-0 pb-1 text-center text-[10px] font-bold text-destructive">{t("🔥 ACİL YARDIM")}</p>
               )}
 
               <div className="flex items-center justify-between border-b border-border/40 py-1">
@@ -209,7 +209,7 @@ const TaskMap = ({ tasks, center = [40.9903, 29.0297], userPos = null, onTaskCli
               {typeof task.estimatedMinutes === "number" && (
                 <div className="flex items-center justify-between border-b border-border/40 py-1">
                   <span className="text-[10px] font-semibold text-muted-foreground">{t("Süre:")}</span>
-                  <span className="text-right text-xs text-muted-foreground">~{task.estimatedMinutes} dk</span>
+                  <span className="text-right text-xs text-muted-foreground">~{task.estimatedMinutes} {t("dk")}</span>
                 </div>
               )}
 
@@ -230,7 +230,7 @@ const TaskMap = ({ tasks, center = [40.9903, 29.0297], userPos = null, onTaskCli
 
               {(task.personCount ?? 1) > 1 && (
                 <p className="m-0 py-1 text-right text-xs font-bold text-muted-foreground">
-                  👥 {task.filled ?? 0}/{task.personCount} dolu
+                  👥 {task.filled ?? 0}/{task.personCount} {t("dolu")}
                 </p>
               )}
 
