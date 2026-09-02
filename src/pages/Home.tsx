@@ -246,22 +246,12 @@ const Home = () => {
 
   // Bir görevin gereken aletlerinin tamamı elimdekilerde var mı?
   const matchesMyTools = (t: TaskWithUI) => {
-    // GEÇİCİ DEBUG - sorunu bulunca silinecek
-    console.log("[matchesMyTools]", {
-      title: t.title,
-      needs_tools: t.needs_tools,
-      needs_tools_type: typeof t.needs_tools,
-      tool_provider: t.tool_provider,
-      required_tools: t.required_tools,
-      myOwnedTools,
-      myCustomOwnedTools,
-    });
     if (!t.needs_tools) return true;
     // İş sahibi aletleri kendisi sağlıyorsa, "el atan"ın alet sahibi olması gerekmez
     if (t.tool_provider === "owner") return true;
     const required = t.required_tools || [];
-    const requiredCustom = (t.custom_tools || []).map((c) => c.toLocaleLowerCase("tr-TR").trim());
-    const ownedCustomNormalized = myCustomOwnedTools.map((c) => c.toLocaleLowerCase("tr-TR").trim());
+    const requiredCustom = (t.custom_tools || []).map((c) => normalize(c));
+    const ownedCustomNormalized = myCustomOwnedTools.map((c) => normalize(c));
     const hasAllStandard = required.every((id) => myOwnedTools.includes(id));
     const hasAllCustom = requiredCustom.every((c) => ownedCustomNormalized.includes(c));
     return hasAllStandard && hasAllCustom;
