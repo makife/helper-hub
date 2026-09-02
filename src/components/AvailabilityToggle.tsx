@@ -3,12 +3,14 @@ import { Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { useT } from "@/lib/i18n";
 
 // Profil sayfasına gömülebilen "Şu an müsaitim" anahtarı.
 // Açıkken hem haritada (varsa) hem de acil iş push bildirimlerinde
 // önceliklendirme için kullanılabilir.
 const AvailabilityToggle = () => {
   const { user } = useAuth();
+  const t = useT();
   const [available, setAvailable] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -32,10 +34,10 @@ const AvailabilityToggle = () => {
     const { error } = await supabase.from("profiles").update({ is_available: next }).eq("user_id", user.id);
     if (error) {
       setAvailable(!next);
-      toast.error("Güncellenemedi, tekrar dene.");
+      toast.error(t("Güncellenemedi, tekrar dene."));
       return;
     }
-    toast.success(next ? "Artık müsait görünüyorsun!" : "Müsait değil olarak işaretlendin.");
+    toast.success(next ? t("Artık müsait görünüyorsun!") : t("Müsait değil olarak işaretlendin."));
   };
 
   if (loading) return null;
@@ -54,9 +56,9 @@ const AvailabilityToggle = () => {
           <Zap size={18} />
         </span>
         <div className="min-w-0">
-          <p className="truncate text-sm font-bold text-foreground">Şu An Müsaitim</p>
+          <p className="truncate text-sm font-bold text-foreground">{t("Şu An Müsaitim")}</p>
           <p className="text-xs leading-snug text-muted-foreground">
-            {available ? "İş aramaya aktif olarak açıksın" : "Yeni iş bildirimlerinde öncelikli değilsin"}
+            {available ? t("İş aramaya aktif olarak açıksın") : t("Yeni iş bildirimlerinde öncelikli değilsin")}
           </p>
         </div>
       </div>

@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import type { PendingReview } from "@/hooks/usePendingReviews";
+import { useT } from "@/lib/i18n";
 
 type Props = {
   review: PendingReview | null;
@@ -14,6 +15,7 @@ type Props = {
 /** Zorunlu değerlendirme penceresi — puan verilmeden kapanmaz */
 const ReviewDialog = forwardRef<HTMLDivElement, Props>(({ review, onDone }, ref) => {
   const { user } = useAuth();
+  const t = useT();
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [saving, setSaving] = useState(false);
@@ -29,8 +31,8 @@ const ReviewDialog = forwardRef<HTMLDivElement, Props>(({ review, onDone }, ref)
       comment: comment.trim() || null,
     });
     setSaving(false);
-    if (error) { toast.error("Değerlendirme kaydedilemedi, tekrar dene."); return; }
-    toast.success("Değerlendirmen kaydedildi. Teşekkürler!");
+    if (error) { toast.error(t("Değerlendirme kaydedilemedi, tekrar dene.")); return; }
+    toast.success(t("Değerlendirmen kaydedildi. Teşekkürler!"));
     setRating(0);
     setComment("");
     onDone();
@@ -46,11 +48,11 @@ const ReviewDialog = forwardRef<HTMLDivElement, Props>(({ review, onDone }, ref)
             exit={{ scale: 0.94, opacity: 0, y: 16 }}
             className="w-full max-w-sm rounded-3xl border border-border bg-card p-6 shadow-xl"
           >
-            <p className="text-xs font-bold uppercase tracking-wide text-primary">İş tamamlandı</p>
+            <p className="text-xs font-bold uppercase tracking-wide text-primary">{t("İş tamamlandı")}</p>
             <h2 className="mt-1 text-lg font-black text-foreground">{review.taskTitle}</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              <span className="font-bold text-foreground">{review.revieweeName}</span> için puanın nedir?
-              Devam etmek için değerlendirmen gerekiyor.
+              <span className="font-bold text-foreground">{review.revieweeName}</span> {t("için puanın nedir?")}{" "}
+              {t("Devam etmek için değerlendirmen gerekiyor.")}
             </p>
 
             <div className="mt-4 flex justify-center gap-1.5">
@@ -59,7 +61,7 @@ const ReviewDialog = forwardRef<HTMLDivElement, Props>(({ review, onDone }, ref)
                   key={n}
                   onClick={() => setRating(n)}
                   className="p-1 active:scale-90 transition-transform"
-                  aria-label={`${n} yıldız`}
+                  aria-label={`${n} ${t("Yıldız")}`}
                 >
                   <Star
                     size={34}
@@ -74,7 +76,7 @@ const ReviewDialog = forwardRef<HTMLDivElement, Props>(({ review, onDone }, ref)
               onChange={(e) => setComment(e.target.value)}
               maxLength={300}
               rows={3}
-              placeholder="Kısa bir yorum (isteğe bağlı)"
+              placeholder={t("Kısa bir yorum (isteğe bağlı)")}
               className="mt-4 w-full resize-none rounded-2xl border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
 
@@ -83,7 +85,7 @@ const ReviewDialog = forwardRef<HTMLDivElement, Props>(({ review, onDone }, ref)
               disabled={rating === 0 || saving}
               className="gradient-warm mt-4 w-full rounded-2xl py-3.5 font-bold text-primary-foreground shadow-soft disabled:opacity-50 active:scale-[0.98]"
             >
-              {saving ? "Kaydediliyor..." : "Değerlendirmeyi Gönder"}
+              {saving ? t("Kaydediliyor...") : t("Değerlendirmeyi Gönder")}
             </button>
           </motion.div>
         </div>

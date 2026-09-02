@@ -30,7 +30,7 @@ const BottomNav = () => {
           />
         </div>
         <span className={`text-[11px] ${isActive("/home") ? "font-semibold text-primary" : "font-medium text-muted-foreground group-hover:text-primary"}`}>
-          Keşfet
+          {t("Keşfet")}
         </span>
       </button>
 
@@ -51,7 +51,7 @@ const BottomNav = () => {
           />
         </div>
         <span className={`text-[11px] ${isActive("/my-tasks") ? "font-semibold text-primary" : "font-medium text-muted-foreground group-hover:text-primary"}`}>
-          İşlerim
+          {t("İşlerim")}
         </span>
       </button>
 
@@ -89,7 +89,7 @@ const BottomNav = () => {
           />
         </div>
         <span className={`text-[11px] ${isActive("/messages") ? "font-semibold text-primary" : "font-medium text-muted-foreground group-hover:text-primary"}`}>
-          Mesajlar
+          {t("Mesajlar")}
         </span>
       </button>
 
@@ -105,7 +105,7 @@ const BottomNav = () => {
           />
         </div>
         <span className={`text-[11px] ${isActive("/profile") ? "font-semibold text-primary" : "font-medium text-muted-foreground group-hover:text-primary"}`}>
-          Profil
+          {t("Profil")}
         </span>
       </button>
     </div>

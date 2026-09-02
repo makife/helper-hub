@@ -112,7 +112,7 @@ const Notifications = () => {
         <button onClick={() => navigate(-1)} className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card">
           <ArrowLeft size={20} className="text-foreground" />
         </button>
-        <h1 className="text-xl font-black text-foreground">Bildirimler</h1>
+        <h1 className="text-xl font-black text-foreground">{t("Bildirimler")}</h1>
       </div>
 
       {loading ? (
@@ -127,7 +127,7 @@ const Notifications = () => {
             </div>
             <p className="text-lg font-bold text-foreground">{t("Henüz bildirim yok")}</p>
             <p className="text-center text-sm text-muted-foreground">
-              Çağrına başvuru geldiğinde, biri işi bıraktığında ve yeni mesaj aldığında burada görünecek.
+              {t("Çağrına başvuru geldiğinde, biri işi bıraktığında ve yeni mesaj aldığında burada görünecek.")}
             </p>
           </motion.div>
         </div>
