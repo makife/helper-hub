@@ -33,18 +33,39 @@ const Welcome = () => {
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-background px-6 safe-top safe-bottom">
-      <div className="absolute right-4 top-4 flex items-center gap-0.5 rounded-full border border-border bg-card p-0.5">
-        {(["tr", "en"] as const).map((l) => (
-          <button
-            key={l}
-            onClick={() => setLang(l)}
-            className={`min-w-[2rem] rounded-full px-2 py-0.5 text-[10px] font-black transition-colors ${
-              lang === l ? "gradient-warm text-primary-foreground" : "text-muted-foreground"
-            }`}
-          >
-            {l.toUpperCase()}
-          </button>
-        ))}
+      <div className="absolute right-4 top-4 z-20">
+        <button
+          onClick={() => setLangOpen((v) => !v)}
+          className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-black text-foreground shadow-sm"
+        >
+          <span>{lang === "tr" ? "🇹🇷" : "🇬🇧"}</span>
+          <span>{lang.toUpperCase()}</span>
+          <ChevronDown
+            size={14}
+            className={`transition-transform ${langOpen ? "rotate-180" : ""}`}
+          />
+        </button>
+        {langOpen && (
+          <div className="absolute right-0 top-full mt-1 flex w-36 flex-col rounded-xl border border-border bg-card p-1 shadow-lg">
+            {langOptions.map((o) => (
+              <button
+                key={o.code}
+                onClick={() => {
+                  setLang(o.code);
+                  setLangOpen(false);
+                }}
+                className={`flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold transition-colors ${
+                  lang === o.code
+                    ? "gradient-warm text-primary-foreground"
+                    : "text-foreground hover:bg-muted"
+                }`}
+              >
+                <span className="text-base">{o.flag}</span>
+                <span>{o.label}</span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       <motion.div
