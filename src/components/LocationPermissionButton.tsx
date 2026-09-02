@@ -2,18 +2,20 @@ import { useState } from "react";
 import { MapPin, CheckCircle2, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { ensureLocationPermission } from "@/lib/geo";
+import { useT } from "@/lib/i18n";
 
 /**
  * Drop this button into the profile page to let the user (re)grant
  * location permission.
  */
 const LocationPermissionButton = () => {
+  const t = useT();
   const [status, setStatus] = useState<"idle" | "granted" | "denied">("idle");
   const [checking, setChecking] = useState(false);
 
   const requestLocation = async () => {
     if (!("geolocation" in navigator)) {
-      toast.error("Cihazınız konum özelliğini desteklemiyor.");
+      toast.error(t("Cihazınız konum özelliğini desteklemiyor."));
       return;
     }
     setChecking(true);
@@ -21,19 +23,19 @@ const LocationPermissionButton = () => {
     if (perm === "denied") {
       setChecking(false);
       setStatus("denied");
-      toast.error("Konum izni reddedildi. Telefon ayarlarından açabilirsin.");
+      toast.error(t("Konum izni reddedildi. Telefon ayarlarından açabilirsin."));
       return;
     }
     navigator.geolocation.getCurrentPosition(
       () => {
         setChecking(false);
         setStatus("granted");
-        toast.success("Konum izni verildi 📍");
+        toast.success(t("Konum izni verildi 📍"));
       },
       () => {
         setChecking(false);
         setStatus("denied");
-        toast.error("Konum izni verilmedi. Tarayıcı/telefon ayarlarından açabilirsin.");
+        toast.error(t("Konum izni verilmedi. Tarayıcı/telefon ayarlarından açabilirsin."));
       },
       { enableHighAccuracy: true, timeout: 15000 },
     );
@@ -50,15 +52,15 @@ const LocationPermissionButton = () => {
         <MapPin size={18} className="text-primary" />
       </div>
       <div className="flex-1">
-        <p className="text-sm font-bold text-foreground">Konum İzni</p>
+        <p className="text-sm font-bold text-foreground">{t("Konum İzni")}</p>
         <p className="text-xs text-muted-foreground">
           {checking
-            ? "Kontrol ediliyor..."
+            ? t("Kontrol ediliyor...")
             : status === "granted"
-              ? "İzin verildi"
+              ? t("İzin verildi")
               : status === "denied"
-                ? "İzin verilmedi"
-                : "Yakınındaki çağrıları görebilmek için izin ver"}
+                ? t("İzin verilmedi")
+                : t("Yakınındaki çağrıları görebilmek için izin ver")}
         </p>
       </div>
       {status === "granted" && <CheckCircle2 size={18} className="text-primary" />}

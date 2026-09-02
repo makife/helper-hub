@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Star, CheckCircle2, Wrench, Calendar } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useT } from "@/lib/i18n";
 
 type Props = { userId: string };
 
@@ -62,7 +63,7 @@ const ProfileStats = ({ userId }: Props) => {
       <div className="rounded-2xl border border-border bg-card p-4">
         <div className="mb-1 flex items-center gap-1.5 text-muted-foreground">
           <Star size={14} className="text-accent" />
-          <span className="text-[11px] font-bold">Puan</span>
+          <span className="text-[11px] font-bold">{t("Puan")}</span>
         </div>
         <p className="text-xl font-black text-foreground">{stats.rating.toFixed(1)}</p>
       </div>
@@ -70,7 +71,7 @@ const ProfileStats = ({ userId }: Props) => {
       <div className="rounded-2xl border border-border bg-card p-4">
         <div className="mb-1 flex items-center gap-1.5 text-muted-foreground">
           <CheckCircle2 size={14} className="text-primary" />
-          <span className="text-[11px] font-bold">Toplam Tamamlanan</span>
+          <span className="text-[11px] font-bold">{t("Toplam Tamamlanan")}</span>
         </div>
         <p className="text-xl font-black text-foreground">{stats.totalCompleted}</p>
       </div>
@@ -78,7 +79,7 @@ const ProfileStats = ({ userId }: Props) => {
       <div className="rounded-2xl border border-border bg-card p-4">
         <div className="mb-1 flex items-center gap-1.5 text-muted-foreground">
           <Wrench size={14} className="text-primary" />
-          <span className="text-[11px] font-bold">El Atarak Tamamladığı</span>
+          <span className="text-[11px] font-bold">{t("El Atarak Tamamladığı")}</span>
         </div>
         <p className="text-xl font-black text-foreground">{stats.asTaskerCompleted}</p>
       </div>
@@ -86,7 +87,7 @@ const ProfileStats = ({ userId }: Props) => {
       <div className="rounded-2xl border border-border bg-card p-4">
         <div className="mb-1 flex items-center gap-1.5 text-muted-foreground">
           <Calendar size={14} className="text-muted-foreground" />
-          <span className="text-[11px] font-bold">Üyelik</span>
+          <span className="text-[11px] font-bold">{t("Üyelik")}</span>
         </div>
         <p className="text-sm font-black text-foreground">{memberSinceLabel || "—"}</p>
       </div>
