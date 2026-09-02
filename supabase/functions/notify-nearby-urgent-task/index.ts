@@ -75,7 +75,7 @@ Deno.serve(async (req) => {
 
     const { data: tokenRows, error: tokenError } = await admin
       .from('device_tokens')
-      .select('id, token')
+      .select('id, token, user_id')
       .in('user_id', userIds);
     if (tokenError) return json({ error: 'Cihaz tokenları okunamadı' }, 500);
     if (!tokenRows?.length) {
@@ -84,8 +84,11 @@ Deno.serve(async (req) => {
     }
 
     const price = task.current_price ?? task.price;
-    const title = '🔥 Yakınında acil bir iş var!';
-    const body = `${task.title} — ₺${price}`;
+    const { data: recipientProfiles } = await admin
+      .from('profiles')
+      .select('user_id, language')
+      .in('user_id', userIds);
+    const languages = new Map((recipientProfiles ?? []).map((profile: { user_id: string; language: string | null }) => [profile.user_id, profile.language]));
     const headers = {
       Authorization: `Bearer ${lovableApiKey}`,
       'X-Connection-Api-Key': connectionKey,
@@ -101,7 +104,10 @@ Deno.serve(async (req) => {
         body: JSON.stringify({
           message: {
             token: row.token,
-            notification: { title, body },
+            notification: {
+              title: languages.get(row.user_id) === 'en' ? '🔥 An urgent task is nearby!' : '🔥 Yakınında acil bir iş var!',
+              body: languages.get(row.user_id) === 'en' ? `${task.title} — ₺${price}` : `${task.title} — ₺${price}`,
+            },
             data: { path: `/?task=${taskId}` },
             android: {
               priority: 'HIGH',

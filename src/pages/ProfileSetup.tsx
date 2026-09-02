@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useT } from "@/lib/i18n";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Camera, MapPin, Check, X, UserPlus } from "lucide-react";
@@ -22,6 +23,7 @@ const skills = [
 type SkillId = typeof skills[number]["id"];
 
 const ProfileSetup = () => {
+  const t = useT();
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -73,7 +75,7 @@ const ProfileSetup = () => {
       .maybeSingle();
 
     if (!referrer) {
-      toast.error("Geçersiz davet kodu.");
+      toast.error(t("Geçersiz davet kodu."));
       setReferralSubmitting(false);
       return;
     }
@@ -86,14 +88,14 @@ const ProfileSetup = () => {
     setReferralSubmitting(false);
 
     if (error) {
-      toast.error("Davet kodu kaydedilemedi.");
+      toast.error(t("Davet kodu kaydedilemedi."));
       console.error(error);
       return;
     }
 
     clearPendingReferralCode();
     setReferralDialogOpen(false);
-    toast.success("Davet kodu kabul edildi! İkinize de 1'er kredi hediye edildi. 🎉");
+    toast.success(t("Davet kodu kabul edildi! İkinize de 1'er kredi hediye edildi. 🎉"));
   };
 
   const handleSkipReferral = () => {
@@ -129,7 +131,7 @@ const ProfileSetup = () => {
           setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
         },
         () => {
-          toast.error("Konum izni reddedildi");
+          toast.error(t("Konum izni reddedildi"));
           setLocationGranted(false);
         }
       );
@@ -176,20 +178,20 @@ const ProfileSetup = () => {
     setLoading(false);
 
     if (error) {
-      toast.error("Profil kaydedilemedi.");
+      toast.error(t("Profil kaydedilemedi."));
       console.error(error);
       return;
     }
 
-    toast.success("Profil oluşturuldu! 🎉");
+    toast.success(t("Profil oluşturuldu! 🎉"));
     navigate("/home");
   };
 
   return (
     <div className="flex min-h-screen flex-col bg-background px-6 pb-8 pt-12 safe-top safe-bottom">
       <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
-        <h1 className="mb-2 text-3xl font-black text-foreground">Profilini Oluştur</h1>
-        <p className="mb-6 text-base text-muted-foreground">İnsanlar seni tanısın, güvensin.</p>
+        <h1 className="mb-2 text-3xl font-black text-foreground">{t("Profilini Oluştur")}</h1>
+        <p className="mb-6 text-base text-muted-foreground">{t("İnsanlar seni tanısın, güvensin.")}</p>
       </motion.div>
 
       <div className="flex-1 space-y-5 overflow-y-auto">
@@ -198,7 +200,7 @@ const ProfileSetup = () => {
           <button onClick={handlePhotoUpload} className="relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-primary/40 bg-primary/5 transition-colors active:bg-primary/10">
             {avatarPreview ? (
               <>
-                <img src={avatarPreview} alt="Profil" className="h-full w-full object-cover" />
+                <img src={avatarPreview} alt={t("Profil")} className="h-full w-full object-cover" />
                 <div className="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full bg-primary">
                   <Check size={14} className="text-primary-foreground" />
                 </div>
@@ -206,7 +208,7 @@ const ProfileSetup = () => {
             ) : (
               <div className="flex flex-col items-center gap-1">
                 <Camera size={24} className="text-primary" />
-                <span className="text-[10px] font-bold text-primary">Fotoğraf *</span>
+                <span className="text-[10px] font-bold text-primary">{t("Fotoğraf *")}</span>
               </div>
             )}
           </button>
@@ -224,7 +226,7 @@ const ProfileSetup = () => {
             Kısa Bio
             <span className="text-xs text-muted-foreground">{bio.length}/150</span>
           </label>
-          <textarea value={bio} onChange={(e) => setBio(e.target.value.slice(0, 150))} placeholder="Kendini kısaca tanıt..." rows={2} className="w-full resize-none rounded-xl border-2 border-border bg-card px-4 py-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:border-primary" />
+          <textarea value={bio} onChange={(e) => setBio(e.target.value.slice(0, 150))} placeholder={t("Kendini kısaca tanıt...")} rows={2} className="w-full resize-none rounded-xl border-2 border-border bg-card px-4 py-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:border-primary" />
         </motion.div>
 
         {/* Skills */}

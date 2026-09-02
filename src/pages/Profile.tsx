@@ -150,25 +150,25 @@ const Profile = () => {
       const { error } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
       if (error) {
         setAvatarUploading(false);
-        toast.error("Fotoğraf yüklenemedi.");
+        toast.error(t("Fotoğraf yüklenemedi."));
         return;
       }
       const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(path);
       const { error: upErr } = await supabase.from("profiles").update({ avatar_url: publicUrl }).eq("user_id", user.id);
       setAvatarUploading(false);
       if (upErr) {
-        toast.error("Profil güncellenemedi.");
+        toast.error(t("Profil güncellenemedi."));
         return;
       }
       setProfile((prev) => (prev ? { ...prev, avatar_url: publicUrl } : prev));
-      toast.success("Profil fotoğrafı güncellendi ✓");
+      toast.success(t("Profil fotoğrafı güncellendi ✓"));
     })();
   };
 
   const saveProfile = async () => {
     if (!user) return;
     if (name.trim().length < 2) {
-      toast.error("İsim en az 2 karakter olmalı.");
+      toast.error(t("İsim en az 2 karakter olmalı."));
       return;
     }
     setSaving(true);
@@ -183,7 +183,7 @@ const Profile = () => {
       .eq("user_id", user.id);
     setSaving(false);
     if (error) {
-      toast.error("Kaydedilemedi.");
+      toast.error(t("Kaydedilemedi."));
       return;
     }
     setProfile((prev) =>
@@ -192,7 +192,7 @@ const Profile = () => {
         : prev
     );
     setEditing(false);
-    toast.success("Profil güncellendi ✓");
+    toast.success(t("Profil güncellendi ✓"));
   };
 
   const filteredSkillGroups = searchSkills(skillQuery);
@@ -203,7 +203,7 @@ const Profile = () => {
     setSkillTags((prev) => {
       if (prev.includes(skill)) return prev.filter((item) => item !== skill);
       if (prev.length >= MAX_SKILLS) {
-        toast.error(`En fazla ${MAX_SKILLS} beceri ekleyebilirsin`);
+        toast.error(t("En fazla {max} beceri ekleyebilirsin", { max: MAX_SKILLS }));
         return prev;
       }
       return [...prev, skill];
@@ -229,7 +229,7 @@ const Profile = () => {
       .single();
     setCredSaving(false);
     if (error || !data) {
-      toast.error("Belge eklenemedi.");
+      toast.error(t("Belge eklenemedi."));
       return;
     }
     setCredentials((prev) => [data, ...prev]);
@@ -237,19 +237,19 @@ const Profile = () => {
     setCredTitle("");
     setCredFile(null);
     setCredPreview(null);
-    toast.success("Belge eklendi ✓");
+    toast.success(t("Belge eklendi ✓"));
   };
 
   const deleteCredential = async () => {
     if (!credToDelete) return;
     const { error } = await supabase.from("credentials").delete().eq("id", credToDelete.id);
     if (error) {
-      toast.error("Silinemedi.");
+      toast.error(t("Silinemedi."));
       return;
     }
     setCredentials((prev) => prev.filter((c) => c.id !== credToDelete.id));
     setCredToDelete(null);
-    toast.success("Belge silindi");
+    toast.success(t("Belge silindi"));
   };
 
   const requestLocation = () => {
@@ -261,15 +261,15 @@ const Profile = () => {
         const { error } = await supabase.from("profiles").update({ latitude, longitude }).eq("user_id", user.id);
         setLocationLoading(false);
         if (error) {
-          toast.error("Konum kaydedilemedi.");
+          toast.error(t("Konum kaydedilemedi."));
           return;
         }
         setProfile((prev) => (prev ? { ...prev, latitude, longitude } : prev));
-        toast.success("Konum güncellendi ✓");
+        toast.success(t("Konum güncellendi ✓"));
       },
       () => {
         setLocationLoading(false);
-        toast.error("Konum izni reddedildi");
+        toast.error(t("Konum izni reddedildi"));
       }
     );
   };
@@ -393,14 +393,14 @@ const Profile = () => {
                   value={bio}
                   onChange={(e) => setBio(e.target.value.slice(0, 300))}
                   rows={3}
-                  placeholder="Kendinden kısaca bahset..."
+                  placeholder={t("Kendinden kısaca bahset...")}
                   className="w-full resize-none rounded-xl border-2 border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary placeholder:text-muted-foreground/50"
                 />
               </div>
               <div>
                 <div className="mb-2 flex items-center justify-between">
                   <label className="block text-xs font-bold text-muted-foreground">
-                    Becerilerim ({skillTags.length}/10)
+                    {t("Becerilerim ({count}/10)", { count: skillTags.length })}
                   </label>
 
                   {skillTags.length > 0 && (
@@ -445,13 +445,13 @@ const Profile = () => {
                     }}
                     className="mb-2 flex w-full items-center gap-2 rounded-xl border-2 border-dashed border-border px-3 py-2.5 text-xs font-bold text-foreground"
                   >
-                    <Plus size={14} />"{skillQuery.trim()}" becerisini ekle
+                    <Plus size={14} />"{skillQuery.trim()}" {t("becerisini ekle")}
                   </button>
                 )}
 
                 <div className="max-h-64 space-y-3 overflow-y-auto rounded-xl border-2 border-border bg-background p-3">
                   {filteredSkillGroups.length === 0 && (
-                    <p className="py-4 text-center text-xs text-muted-foreground">Sonuç yok, kendin ekleyebilirsin.</p>
+                    <p className="py-4 text-center text-xs text-muted-foreground">{t("Sonuç yok, kendin ekleyebilirsin.")}</p>
                   )}
                   {filteredSkillGroups.map((g) => (
                     <div key={g.id}>
@@ -524,12 +524,12 @@ const Profile = () => {
                 onClick={() => setCredOpen(true)}
                 className="flex items-center gap-1 rounded-lg bg-primary/10 px-2.5 py-1.5 text-xs font-bold text-primary"
               >
-                <Plus size={13} /> Ekle
+                <Plus size={13} /> {t("Ekle")}
               </button>
             </div>
             {credentials.length === 0 ? (
               <p className="text-xs text-muted-foreground">
-                Henüz belge yok. Sertifikanı ekle, güvenilirliğini artır.
+                {t("Henüz belge yok. Sertifikanı ekle, güvenilirliğini artır.")}
               </p>
             ) : (
               <div className="grid grid-cols-2 gap-3">
@@ -693,19 +693,19 @@ const Profile = () => {
             className="w-full rounded-t-3xl bg-card p-5 safe-bottom"
           >
             <div className="mb-4 flex items-center justify-between">
-              <p className="text-base font-black text-foreground">Yetkinlik Belgesi Ekle</p>
+              <p className="text-base font-black text-foreground">{t("Yetkinlik Belgesi Ekle")}</p>
               <button onClick={() => setCredOpen(false)} className="text-muted-foreground">
                 <X size={20} />
               </button>
             </div>
-            <label className="mb-1 block text-xs font-bold text-muted-foreground">Başlık</label>
+            <label className="mb-1 block text-xs font-bold text-muted-foreground">{t("Başlık")}</label>
             <input
               value={credTitle}
               onChange={(e) => setCredTitle(e.target.value)}
-              placeholder="Örn: Elektrikçi Ustalık Belgesi"
+              placeholder={t("Örn: Elektrikçi Ustalık Belgesi")}
               className="mb-3 w-full rounded-xl border-2 border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary placeholder:text-muted-foreground/50"
             />
-            <label className="mb-1 block text-xs font-bold text-muted-foreground">Görsel</label>
+            <label className="mb-1 block text-xs font-bold text-muted-foreground">{t("Görsel")}</label>
             <div className="mb-4 flex gap-2">
               {credPreview && (
                 <img src={credPreview} alt="" className="h-20 w-20 rounded-xl object-cover" />
@@ -720,7 +720,7 @@ const Profile = () => {
                 className="flex h-20 w-20 flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-muted/50"
               >
                 <Camera size={18} className="text-muted-foreground" />
-                <span className="text-[10px] text-muted-foreground">Seç</span>
+                <span className="text-[10px] text-muted-foreground">{t("Seç")}</span>
               </button>
             </div>
             <button
@@ -728,7 +728,7 @@ const Profile = () => {
               disabled={credSaving || credTitle.trim().length < 2}
               className="gradient-warm w-full rounded-xl py-3 text-sm font-bold text-primary-foreground disabled:opacity-40"
             >
-              {credSaving ? "Ekleniyor..." : "Belgeyi Ekle"}
+              {credSaving ? t("Ekleniyor...") : t("Belgeyi Ekle")}
             </button>
           </motion.div>
         </div>
@@ -773,7 +773,7 @@ const Profile = () => {
                 onClick={() => setAvatarSheetOpen(false)}
                 className="mt-1 w-full rounded-2xl bg-muted py-3 text-sm font-bold text-muted-foreground transition-all active:scale-[0.98]"
               >
-                Vazgeç
+                {t("Vazgeç")}
               </button>
             </div>
           </motion.div>
@@ -782,9 +782,9 @@ const Profile = () => {
 
       <ConfirmDialog
         open={!!credToDelete}
-        title="Belgeyi sil"
+        title={t("Belgeyi sil")}
         description={`"${credToDelete?.title ?? ""}" belgesini silmek istediğine emin misin?`}
-        confirmLabel="Sil"
+        confirmLabel={t("Sil")}
         onConfirm={deleteCredential}
         onCancel={() => setCredToDelete(null)}
       />

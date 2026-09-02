@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Star, CheckCircle2, Wrench, Calendar } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useT } from "@/lib/i18n";
+import { useI18n } from "@/lib/i18n";
 
 type Props = { userId: string };
 
@@ -16,6 +16,7 @@ type Stats = {
 // Herhangi bir kullanıcının profilinde gösterilebilecek özet istatistik kartı.
 // Hem kendi profilinde hem başkasının profilinde kullanılabilir (userId parametresiyle).
 const ProfileStats = ({ userId }: Props) => {
+  const { t, lang } = useI18n();
   const [stats, setStats] = useState<Stats | null>(null);
 
   useEffect(() => {
@@ -55,7 +56,7 @@ const ProfileStats = ({ userId }: Props) => {
   if (!stats) return null;
 
   const memberSinceLabel = stats.memberSince
-    ? new Date(stats.memberSince).toLocaleDateString("tr-TR", { month: "long", year: "numeric" })
+    ? new Date(stats.memberSince).toLocaleDateString(lang === "en" ? "en-US" : "tr-TR", { month: "long", year: "numeric" })
     : null;
 
   return (

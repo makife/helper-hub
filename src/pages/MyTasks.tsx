@@ -24,6 +24,7 @@ import { usePendingReviews } from "@/hooks/usePendingReviews";
 import TaskTimeline from "@/components/TaskTimeline";
 import {
   taskStatusLabels as statusLabels,
+  getTaskStatusLabel,
   isClosedStatus,
   requestCompletion,
   confirmCompletion,
@@ -35,6 +36,7 @@ import {
   formatRemaining,
 } from "@/lib/taskLifecycle";
 import { formatDateTime } from "@/lib/dateFormat";
+import { getLang } from "@/lib/i18n";
 
 const WAIT_DECISION_WINDOW_MS = 5 * 60 * 1000;
 const isWaitDecisionWindowOpen = (waitDeadline?: string | null) =>
@@ -535,11 +537,11 @@ const MyTasks = () => {
           ) : (
             <div className="space-y-3">
               {accepted.map((item, i) => {
-                const t = item.task;
-                const status = statusLabels[t.status] || statusLabels.open;
-                const isDone = isClosedStatus(t.status);
+                const task = item.task;
+                const status = { ...(statusLabels[task.status] || statusLabels.open), label: getTaskStatusLabel(task.status) };
+                const isDone = isClosedStatus(task.status);
                 const isMyCompletionRequest =
-                  t.status === "pending_confirm" && t.completion_requested_by === user?.id;
+                  task.status === "pending_confirm" && task.completion_requested_by === user?.id;
                 return (
                   <motion.div
                     key={item.assignment_id}
@@ -550,17 +552,17 @@ const MyTasks = () => {
                   >
                     <div className="flex items-center gap-3">
                       <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted text-2xl">
-                        {getTaskEmoji(t.category, t.subcategory, t.title)}
+                        {getTaskEmoji(task.category, task.subcategory, task.title)}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <h3 className="truncate text-sm font-bold text-foreground">{t.title}</h3>
+                        <h3 className="truncate text-sm font-bold text-foreground">{task.title}</h3>
                         <p className={`text-xs font-semibold ${status.color}`}>{status.label}</p>
                         <button
-                          onClick={() => navigate(`/profile/${t.owner_id}`)}
+                          onClick={() => navigate(`/profile/${task.owner_id}`)}
                           className="mt-0.5 flex items-center gap-1 text-[10px] font-semibold text-muted-foreground"
                         >
                           <User size={11} className="text-primary" />
-                          {item.owner?.full_name || "İş veren"}
+                          {item.owner?.full_name || t("İş veren")}
                         </button>
                         <span className="mt-1 flex items-center gap-1 text-[10px] font-semibold text-muted-foreground">
                           <Calendar size={11} className="text-primary" />
@@ -569,7 +571,7 @@ const MyTasks = () => {
                       </div>
                       <div className="text-right">
                         <p className="text-base font-black text-primary">
-                          {item.agreed_price ?? t.current_price ?? t.price} ₺
+                          {item.agreed_price ?? task.current_price ?? task.price} ₺
                         </p>
                         <span className="text-[10px] text-muted-foreground">{t("Anlaşılan")}</span>
                       </div>
@@ -577,25 +579,25 @@ const MyTasks = () => {
 
                     <div className="mt-3 rounded-xl bg-muted/40 p-3">
                       <p className="text-[10px] font-black uppercase tracking-wide text-muted-foreground">
-                        İş Akışı
+                        {t("İş Akışı")}
                       </p>
-                      <TaskTimeline task={t} arrivedAt={item.arrived_at} />
+                      <TaskTimeline task={task} arrivedAt={item.arrived_at} />
                     </div>
 
-                    {t.status === "pending_confirm" && (
+                    {task.status === "pending_confirm" && (
                       <p className="mt-3 rounded-xl bg-muted/60 p-2.5 text-xs font-semibold text-muted-foreground">
                         {isMyCompletionRequest
-                          ? "El atan bitirdiğini belirtti, sizden onay bekliyor. 24 saat içinde otomatik tamamlanır."
-                          : `İşi tamamlamak için kalan süre: ${formatRemaining(confirmDeadlineMs(t.completion_requested_at))}`}
+                          ? t("El atan bitirdiğini belirtti, sizden onay bekliyor. 24 saat içinde otomatik tamamlanır.")
+                          : `${t("İşi tamamlamak için kalan süre:")} ${formatRemaining(confirmDeadlineMs(task.completion_requested_at))}`}
                       </p>
                     )}
-                    {!isDone && t.status !== "pending_confirm" && (
+                    {!isDone && task.status !== "pending_confirm" && (
                       <div className="mt-3 flex gap-2">
                         <button
-                          onClick={() => navigate(`/task/${t.id}`)}
+                          onClick={() => navigate(`/task/${task.id}`)}
                           className="flex-1 rounded-xl bg-primary py-2.5 text-xs font-bold text-primary-foreground"
                         >
-                          İşi Aç 💬
+                          {t("İşi Aç 💬")}
                         </button>
                         {!item.arrived_at ? (
                           <button
@@ -603,57 +605,55 @@ const MyTasks = () => {
                             disabled={isUpdating}
                             className="flex-1 rounded-xl bg-accent py-2.5 text-xs font-bold text-accent-foreground disabled:opacity-50"
                           >
-                            <User size={14} className="mr-1 inline" /> Vardım
+                            <User size={14} className="mr-1 inline" /> {t("Vardım")}
                           </button>
                         ) : (
                           <button
-                            onClick={() => handleRequestCompletion(t.id)}
-                            disabled={isUpdating || (completionUnlockMs(item.arrived_at, t.estimated_minutes) ?? 0) > 0}
+                            onClick={() => handleRequestCompletion(task.id)}
+                            disabled={isUpdating || (completionUnlockMs(item.arrived_at, task.estimated_minutes) ?? 0) > 0}
                             className="flex-1 rounded-xl bg-accent py-2.5 text-xs font-bold text-accent-foreground disabled:opacity-50"
                           >
                             <CheckCircle2 size={14} className="mr-1 inline" />
-                            {(completionUnlockMs(item.arrived_at, t.estimated_minutes) ?? 0) > 0
-                              ? formatRemaining(completionUnlockMs(item.arrived_at, t.estimated_minutes) ?? 0)
-                              : "Bitirdim"}
+                            {(completionUnlockMs(item.arrived_at, task.estimated_minutes) ?? 0) > 0
+                              ? formatRemaining(completionUnlockMs(item.arrived_at, task.estimated_minutes) ?? 0)
+                              : t("Bitirdim")}
                           </button>
                         )}
                       </div>
                     )}
-                    {!isDone && t.status !== "pending_confirm" && !item.arrived_at && (
-                      <p className="mt-2 text-[10px] text-muted-foreground">
-                        İş konumuna 300 m yaklaşınca "Vardım" de; "Bitirdim" bundan sonra açılır.
-                      </p>
+                    {!isDone && task.status !== "pending_confirm" && !item.arrived_at && (
+                      <p className="mt-2 text-[10px] text-muted-foreground">{t('İş konumuna 300 m yaklaşınca "Vardım" de; "Bitirdim" bundan sonra açılır.')}</p>
                     )}
-                    {t.rejection_count ? (
+                    {task.rejection_count ? (
                       <p className="mt-2 rounded-xl bg-destructive/10 p-2 text-[10px] font-semibold text-destructive">
-                        İş veren itiraz etti ({t.rejection_count}/2). Tamamlayıp tekrar bildir.
+                        {t("İş veren itiraz etti ({rejection_count}/2). Tamamlayıp tekrar bildir.", { rejection_count: task.rejection_count })}
                       </p>
                     ) : null}
 
-                    {!isDone && t.status === "pending_confirm" && !isMyCompletionRequest && (
+                    {!isDone && task.status === "pending_confirm" && !isMyCompletionRequest && (
                       <button
-                        onClick={() => handleConfirmCompletion(t.id)}
+                        onClick={() => handleConfirmCompletion(task.id)}
                         disabled={isUpdating}
                         className="mt-3 w-full rounded-xl bg-primary py-2.5 text-xs font-bold text-primary-foreground disabled:opacity-50"
                       >
-                        <CheckCircle2 size={14} className="mr-1 inline" /> İşi Onayla ve Tamamla
+                        <CheckCircle2 size={14} className="mr-1 inline" /> {t("İşi Onayla ve Tamamla")}
                       </button>
                     )}
-                    {!isDone && t.status !== "pending_confirm" && (
+                    {!isDone && task.status !== "pending_confirm" && (
                       <button
                         disabled={isUpdating}
                         onClick={() =>
                           setConfirmState({
                             kind: "leave",
-                            taskId: t.id,
-                            title: "İşten ayrılmak üzeresin",
-                            description: "Bu yardım çağrısındaki yerini bırakacaksın. Emin misin?",
-                            confirmLabel: "Ayrıl",
+                            taskId: task.id,
+                            title: t("İşten ayrılmak üzeresin"),
+                            description: t("Bu yardım çağrısındaki yerini bırakacaksın. Emin misin?"),
+                            confirmLabel: t("Ayrıl"),
                           })
                         }
                         className="mt-2 w-full rounded-xl border border-border py-2.5 text-xs font-bold text-muted-foreground disabled:opacity-50"
                       >
-                        İşten Ayrıl
+                        {t("İşten Ayrıl")}
                       </button>
                     )}
                   </motion.div>
@@ -672,7 +672,7 @@ const MyTasks = () => {
           <div className="space-y-3">
 
             {tasks.map((task, i) => {
-              const status = statusLabels[task.status] || statusLabels.open;
+              const status = { ...(statusLabels[task.status] || statusLabels.open), label: getTaskStatusLabel(task.status) };
               const isFaded = isClosedStatus(task.status);
 
               return (
@@ -708,7 +708,7 @@ const MyTasks = () => {
                       {computePrice(task).isDropping && (
                         <p className="text-[10px] font-semibold text-primary">↓ {formatCountdown(computePrice(task).msToNextDrop)}</p>
                       )}
-                      <span className="text-[10px] text-muted-foreground">Detay →</span>
+                      <span className="text-[10px] text-muted-foreground">{t("Detayları Gör")} →</span>
                     </div>
                   </div>
 
@@ -761,11 +761,11 @@ const MyTasks = () => {
                     </span>
                     <span className="flex items-center gap-1">
                       <Timer size={11} className="text-primary" />
-                      {task.status === "open" ? `Yayında ${formatElapsed(task.created_at, Date.now())}` : ""}
+                      {task.status === "open" ? `${t("Yayında:")} ${formatElapsed(task.created_at, Date.now())}` : ""}
                     </span>
                     {task.status === "pending_confirm" && (
                       <span className="flex items-center gap-1">
-                        El atan bitirdi, onay için {formatRemaining(confirmDeadlineMs(task.completion_requested_at))}
+                        {t("El atan bitirdi, onay için")} {formatRemaining(confirmDeadlineMs(task.completion_requested_at))}
                       </span>
                     )}
                     <span className="flex items-center gap-1">
@@ -859,7 +859,7 @@ const MyTasks = () => {
                 )}
 
                 <div className="flex justify-between py-1 border-t pt-2">
-                  <span className="text-muted-foreground">Fiyat:</span>
+                  <span className="text-muted-foreground">{t("Fiyat:")}</span>
                   <span className="font-bold text-primary">{selectedTask.price} ₺</span>
                 </div>
 
@@ -915,7 +915,7 @@ const MyTasks = () => {
                             </span>
 
                             <span className="text-[10px] text-muted-foreground">
-                              {new Date(v.viewed_at).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}
+                              {new Date(v.viewed_at).toLocaleTimeString(getLang() === "en" ? "en-US" : "tr-TR", { hour: "2-digit", minute: "2-digit" })}
                             </span>
                           </button>
                           );

@@ -1,4 +1,4 @@
-import { useT } from "@/lib/i18n";
+import { getLang, useT } from "@/lib/i18n";
 import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -134,13 +134,13 @@ const Market = () => {
       setBuying(false);
       setSelected(null);
       if (result.ok === false) {
-        if (!result.cancelled) toast.error(result.message);
+        if (!result.cancelled) toast.error(t(result.message));
         return;
       }
 
       toast.success(t("Satın alma alındı, kredin yükleniyor…"));
       const arrived = await waitForCredits(before);
-      if (arrived) toast.success(`${total} kredi hesabına eklendi 🎉`);
+      if (arrived) toast.success(t("{total} kredi hesabına eklendi 🎉", { total }));
       else toast.info(t("Kredin birkaç dakika içinde hesabına yansıyacak."));
       load();
       return;
@@ -173,7 +173,7 @@ const Market = () => {
       toast.error(t("Satın alma tamamlanamadı."));
       return;
     }
-    toast.success(`${total} kredi hesabına eklendi 🎉`);
+    toast.success(t("{total} kredi hesabına eklendi 🎉", { total }));
     load();
   };
 
@@ -254,8 +254,8 @@ const Market = () => {
 
         <p className="text-center text-[11px] text-muted-foreground">
           {native
-            ? "Ödemeler App Store / Google Play üzerinden alınır. Krediler onaydan hemen sonra yüklenir."
-            : "Web sürümünde satın alma test modundadır. Gerçek ödeme mobil uygulamada yapılır."}
+            ? t("Ödemeler App Store / Google Play üzerinden alınır. Krediler onaydan hemen sonra yüklenir.")
+            : t("Web sürümünde satın alma test modundadır. Gerçek ödeme mobil uygulamada yapılır.")}
         </p>
 
         <div className="rounded-2xl bg-card p-4 shadow-card">
@@ -267,9 +267,9 @@ const Market = () => {
               {history.map((h) => (
                 <div key={h.id} className="flex items-center justify-between border-b border-border pb-2.5 last:border-0 last:pb-0">
                   <div>
-                    <p className="text-xs font-bold text-foreground">{h.description || (h.amount > 0 ? "Kredi yükleme" : "Kredi harcaması")}</p>
+                    <p className="text-xs font-bold text-foreground">{h.description || (h.amount > 0 ? t("Kredi yükleme") : t("Kredi harcaması"))}</p>
                     <p className="text-[10px] text-muted-foreground">
-                      {new Date(h.created_at).toLocaleString("tr-TR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
+                      {new Date(h.created_at).toLocaleString(getLang() === "en" ? "en-US" : "tr-TR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
                     </p>
                   </div>
                   <p className={`text-sm font-black ${h.amount > 0 ? "text-success" : "text-destructive"}`}>

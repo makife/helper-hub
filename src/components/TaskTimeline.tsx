@@ -1,4 +1,5 @@
 import type { Tables } from "@/integrations/supabase/types";
+import { getLang, useT } from "@/lib/i18n";
 
 type Step = {
   label: string;
@@ -10,7 +11,7 @@ type Step = {
 const fmt = (iso?: string | null) => {
   if (!iso) return "";
   const d = new Date(iso);
-  return d.toLocaleString("tr-TR", {
+  return d.toLocaleString(getLang() === "en" ? "en-US" : "tr-TR", {
     day: "2-digit",
     month: "2-digit",
     hour: "2-digit",
@@ -107,24 +108,25 @@ const TaskTimeline = ({
   arrivedAt?: string | null;
   compact?: boolean;
 }) => {
+  const t = useT();
   const steps = buildTaskSteps(task, arrivedAt);
   const shown = compact ? steps.slice(-3) : steps;
 
   return (
     <ol className="mt-3 space-y-2">
       {shown.map((s, i) => (
-        <li key={`${s.label}-${i}`} className="flex gap-2">
+        <li key={`${t(s.label)}-${i}`} className="flex gap-2">
           <div className="flex flex-col items-center">
             <span className={`mt-1 h-2 w-2 rounded-full ${toneClass(s.tone)}`} />
             {i < shown.length - 1 && <span className="w-px flex-1 bg-border" />}
           </div>
           <div className="pb-1">
-            <p className="text-[11px] font-semibold text-foreground">{s.label}</p>
+            <p className="text-[11px] font-semibold text-foreground">{t(s.label)}</p>
             {s.at && (
               <p className="text-[10px] text-muted-foreground">{fmt(s.at)}</p>
             )}
             {s.note && (
-              <p className="text-[10px] text-muted-foreground">{s.note}</p>
+              <p className="text-[10px] text-muted-foreground">{t(s.note)}</p>
             )}
           </div>
         </li>

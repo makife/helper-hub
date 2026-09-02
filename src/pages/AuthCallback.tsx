@@ -26,14 +26,14 @@ const AuthCallback = () => {
       <div>
         <h1 className="text-2xl font-black text-foreground">{t("Giriş tamamlandı")}</h1>
         <p className="mt-2 text-base text-muted-foreground">
-          Uygulamaya yönlendiriliyorsunuz...
+          {t("Yönlendiriliyorsunuz...")}
         </p>
       </div>
       <button
         onClick={openApp}
         className="rounded-2xl bg-primary px-8 py-4 text-lg font-bold text-primary-foreground"
       >
-        Uygulamaya dön
+        {t("Uygulamaya dön")}
       </button>
     </div>
   );
