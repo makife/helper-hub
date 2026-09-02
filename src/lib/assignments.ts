@@ -1,3 +1,4 @@
+import { translate } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 
 export type AssignmentRow = {
@@ -56,15 +57,15 @@ export const acceptTask = async (
 
   const msg = `${error.message} ${error.details ?? ""}`;
   if (msg.includes("Yetersiz kredi")) {
-    return { ok: false, reason: "credits", message: "Kredin yetersiz. Kredi Marketi'nden kredi yükleyebilirsin." };
+    return { ok: false, reason: "credits", message: translate("Kredin yetersiz. Kredi Marketi'nden kredi yükleyebilirsin.") };
   }
   if (msg.includes("aktif bir isin var")) {
-    return { ok: false, reason: "busy", message: "Zaten aktif bir işin var. Önce onu tamamla veya bırak." };
+    return { ok: false, reason: "busy", message: translate("Zaten aktif bir işin var. Önce onu tamamla veya bırak.") };
   }
   if (error.code === "23505") {
-    return { ok: false, reason: "already", message: "Bu işi zaten kabul ettin." };
+    return { ok: false, reason: "already", message: translate("Bu işi zaten kabul ettin.") };
   }
-  return { ok: false, reason: "error", message: "İş kabul edilemedi. Kontenjan dolmuş olabilir." };
+  return { ok: false, reason: "error", message: translate("İş kabul edilemedi. Kontenjan dolmuş olabilir.") };
 };
 
 export const leaveTask = async (taskId: string, taskerId: string) => {

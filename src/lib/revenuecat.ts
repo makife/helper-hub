@@ -1,3 +1,4 @@
+import { translate } from "@/lib/i18n";
 import { Capacitor } from "@capacitor/core";
 import {
   Purchases,
@@ -109,7 +110,7 @@ export const purchaseStorePack = async (pack: StorePack): Promise<PurchaseOutcom
     return {
       ok: false,
       cancelled,
-      message: cancelled ? "Satın alma iptal edildi." : err.message || "Satın alma tamamlanamadı.",
+      message: cancelled ? translate("Satın alma iptal edildi.") : err.message || translate("Satın alma tamamlanamadı."),
     };
   }
 };
