@@ -184,6 +184,7 @@ const ProfileSetup = () => {
     }
 
     toast.success(t("Profil oluşturuldu! 🎉"));
+    toast.success(t("Hoş geldin hediyesi: 5 kredi hesabına yüklendi! 🎁"));
     navigate("/home");
   };
 
