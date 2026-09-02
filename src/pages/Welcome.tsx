@@ -26,12 +26,12 @@ const Welcome = () => {
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-background px-6 safe-top safe-bottom">
-      <div className="absolute right-5 top-5 flex items-center gap-1 rounded-full border border-border bg-card p-1 safe-top">
+      <div className="absolute right-4 top-4 flex items-center gap-0.5 rounded-full border border-border bg-card p-0.5">
         {(["tr", "en"] as const).map((l) => (
           <button
             key={l}
             onClick={() => setLang(l)}
-            className={`rounded-full px-3 py-1 text-xs font-black transition-colors ${
+            className={`min-w-[2rem] rounded-full px-2 py-0.5 text-[10px] font-black transition-colors ${
               lang === l ? "gradient-warm text-primary-foreground" : "text-muted-foreground"
             }`}
           >
