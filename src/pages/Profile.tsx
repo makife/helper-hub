@@ -626,8 +626,8 @@ const Profile = () => {
                 <p className="text-xs text-muted-foreground">{t("Dil / Language")}</p>
               </div>
               <div className="flex rounded-xl bg-muted p-1">
-                <button type="button" onClick={() => void changeLanguage("tr")} className={`rounded-lg px-3 py-2 text-xs font-bold ${lang === "tr" ? "bg-card text-primary shadow-card" : "text-muted-foreground"}`}>TR</button>
-                <button type="button" onClick={() => void changeLanguage("en")} className={`rounded-lg px-3 py-2 text-xs font-bold ${lang === "en" ? "bg-card text-primary shadow-card" : "text-muted-foreground"}`}>EN</button>
+                <button type="button" onClick={() => setPendingLang("tr")} className={`rounded-lg px-3 py-2 text-xs font-bold ${lang === "tr" ? "bg-card text-primary shadow-card" : "text-muted-foreground"}`}>TR</button>
+                <button type="button" onClick={() => setPendingLang("en")} className={`rounded-lg px-3 py-2 text-xs font-bold ${lang === "en" ? "bg-card text-primary shadow-card" : "text-muted-foreground"}`}>EN</button>
               </div>
             </div>
           </div>
