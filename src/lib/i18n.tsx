@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, ReactNode } from "react";
-import { EN } from "@/locales/en";
+import { EN } from "@/locales/en/index";
 
 export type Lang = "tr" | "en";
 
