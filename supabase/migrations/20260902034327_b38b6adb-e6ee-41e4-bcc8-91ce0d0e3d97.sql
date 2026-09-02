@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION public.profile_system_snapshot(uuid) TO authenticated;
