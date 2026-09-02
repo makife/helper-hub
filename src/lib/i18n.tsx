@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, ReactNode } from "react";
 import { EN } from "@/locales/en/index";
+import { supabase } from "@/integrations/supabase/client";
 
 export type Lang = "tr" | "en";
 
@@ -60,6 +61,24 @@ export const I18nProvider = ({ children }: { children: ReactNode }) => {
     }
     if (typeof document !== "undefined") document.documentElement.lang = lang;
   }, [lang]);
+
+  useEffect(() => {
+    let cancelled = false;
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session?.user) return;
+      const { data } = await supabase
+        .from("profiles")
+        .select("language")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
+      if (!cancelled && (data?.language === "tr" || data?.language === "en")) {
+        setLangState(data.language);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const setLang = useCallback((l: Lang) => setLangState(l), []);
 

@@ -25,6 +25,6 @@ export const UI: Record<string, string> = {
   "Acil": "Urgent", "Bekleyebilir": "Can wait", "Açık": "Open", "İptal edildi": "Cancelled", "Tamamlandı": "Completed",
   "İşi kabul et": "Accept task", "İşi Bitir": "Finish task", "Mesaj gönder": "Send message", "Gönder": "Send",
   "Yardım çağrısı oluşturuldu": "Help request created", "El atan bulundu": "A helper was found", "İş tamamlandı": "Task completed",
-  "Süresi doldu, kredi iade edildi": "Expired, credits refunded", "İptal edildi": "Cancelled", "Anlaşmazlık": "Dispute",
+  "Süresi doldu, kredi iade edildi": "Expired, credits refunded", "İptal Edildi": "Cancelled", "İptal edildi": "Cancelled", "Anlaşmazlık": "Dispute",
   "Dil / Language": "Language", "Türkçe": "Turkish", "İngilizce": "English", "Uygulama Dili": "App language",
 };
