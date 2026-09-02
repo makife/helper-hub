@@ -35,6 +35,7 @@ import MyToolsEditor from "@/components/MyToolsEditor";
 
 import ReferralCard from "@/components/ReferralCard";
 import ProfileBadges from "@/components/ProfileBadges";
+import { timeAgo } from "@/lib/dateFormat";
 
 const LEGACY_SKILL_LABELS: Record<string, string> = {
   ampul_takma: "Ampul takma",
