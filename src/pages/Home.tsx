@@ -94,9 +94,7 @@ const Home = () => {
           const coords: [number, number] = [pos.coords.latitude, pos.coords.longitude];
           setUserPos(coords);
           // Konum neredeyse aynıysa haritayı yeniden ortalama (titremeyi önler)
-          setMapCenter((prev) =>
-            prev && distanceMeters(prev[0], prev[1], coords[0], coords[1]) < 40 ? prev : coords,
-          );
+          setMapCenter((prev) => (prev && distanceMeters(prev[0], prev[1], coords[0], coords[1]) < 40 ? prev : coords));
           try {
             localStorage.setItem("bielat_last_location", JSON.stringify(coords));
           } catch {}
@@ -106,7 +104,6 @@ const Home = () => {
       );
     }
   }, []);
-
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -124,7 +121,10 @@ const Home = () => {
       // Fetch owner names and avatars for map pin popups
       const ownerIds = [...new Set(mapped.map((t) => t.owner_id))];
       if (ownerIds.length > 0) {
-        const { data: profiles } = await supabase.from("profiles").select("user_id, full_name, avatar_url").in("user_id", ownerIds);
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("user_id, full_name, avatar_url")
+          .in("user_id", ownerIds);
         const names: Record<string, string> = {};
         const avatars: Record<string, string | null> = {};
         (profiles || []).forEach((p) => {
@@ -221,18 +221,28 @@ const Home = () => {
   }, [priceTick, tasks, user]);
 
   // Kullanıcının profiline kaydettiği aletleri çek (eşleştirme filtresi için)
-  useEffect(() => {
+  const fetchMyTools = async () => {
     if (!user) return;
-    supabase
+    const { data } = await supabase
       .from("profiles")
       .select("owned_tools, custom_owned_tools")
       .eq("user_id", user.id)
-      .maybeSingle()
-      .then(({ data }) => {
-        setMyOwnedTools(data?.owned_tools || []);
-        setMyCustomOwnedTools(data?.custom_owned_tools || []);
-      });
+      .maybeSingle();
+    setMyOwnedTools(data?.owned_tools || []);
+    setMyCustomOwnedTools(data?.custom_owned_tools || []);
+  };
+
+  useEffect(() => {
+    fetchMyTools();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
+
+  // Kullanıcı Profil'de aletlerini güncelleyip Home'a dönebilir; filtre panelini
+  // her açtığında taze veri çekerek "eski alet listesiyle filtreleme" sorununu önle
+  useEffect(() => {
+    if (showFilters) fetchMyTools();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showFilters]);
 
   // Bir görevin gereken aletlerinin tamamı elimdekilerde var mı?
   const matchesMyTools = (t: TaskWithUI) => {
@@ -291,7 +301,6 @@ const Home = () => {
     }
   };
 
-
   // URL'deki ?task= parametresine göre detay sayfasını aç/kapat
   useEffect(() => {
     const taskId = searchParams.get("task");
@@ -306,9 +315,7 @@ const Home = () => {
   const mapPins = filteredTasks.map((t) => {
     const isOwn = t.owner_id === user?.id;
     // Kendi çağrısını gerçek konumuyla göster (kolayca bulabilsin), başkalarınınkini bulanıklaştır
-    const { lat, lng } = isOwn
-      ? { lat: t.lat, lng: t.lng }
-      : getFuzzedLocation(t.lat, t.lng, t.id, 500);
+    const { lat, lng } = isOwn ? { lat: t.lat, lng: t.lng } : getFuzzedLocation(t.lat, t.lng, t.id, 500);
     return {
       id: t.id,
       title: t.title,
@@ -339,7 +346,9 @@ const Home = () => {
             {t("Merhaba!")}
             <img src={logo} alt="Bi' El At" className="inline-block h-7 w-auto align-middle" />
           </h1>
-          <p className="text-xs text-muted-foreground font-semibold">{t("Yardım çağrılarına el at veya çağrıda bulun")}</p>
+          <p className="text-xs text-muted-foreground font-semibold">
+            {t("Yardım çağrılarına el at veya çağrıda bulun")}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -382,7 +391,9 @@ const Home = () => {
           <div className="pointer-events-none absolute inset-x-3 top-3 flex justify-end gap-2">
             <div className="flex items-center gap-1.5 rounded-full bg-card/95 px-3 py-1.5 shadow-card backdrop-blur">
               <Zap size={12} className="text-primary" />
-              <p className="text-[11px] font-black text-foreground">{filteredTasks.length} {t("açık iş")}</p>
+              <p className="text-[11px] font-black text-foreground">
+                {filteredTasks.length} {t("açık iş")}
+              </p>
             </div>
             <div className="flex items-center gap-1.5 rounded-full bg-card/95 px-3 py-1.5 shadow-card backdrop-blur">
               <MapPin size={12} className="text-primary" />
@@ -410,7 +421,6 @@ const Home = () => {
         </button>
       </div>
 
-
       {/* Task Detail Sheet */}
       <AnimatePresence>
         {selectedTask && (
@@ -435,10 +445,7 @@ const Home = () => {
       <AnimatePresence>
         {showFilters && (
           <>
-            <div
-              className="fixed inset-0 z-[700] bg-black/40"
-              onClick={() => setShowFilters(false)}
-            />
+            <div className="fixed inset-0 z-[700] bg-black/40" onClick={() => setShowFilters(false)} />
             <div className="fixed inset-x-0 bottom-0 z-[701] max-h-[80vh] overflow-y-auto rounded-t-3xl bg-background p-5 safe-bottom">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-base font-black text-foreground">{t("Filtrele")}</h2>
@@ -501,7 +508,8 @@ const Home = () => {
                   {categoryQuery.trim().length > 0 && (
                     <div className="max-h-40 space-y-1.5 overflow-y-auto rounded-xl border border-border bg-card p-2">
                       {ALL_TASK_CATEGORIES.filter(
-                        (c) => normalize(c.label).includes(normalize(categoryQuery)) && !filterCategoryIds.includes(c.id)
+                        (c) =>
+                          normalize(c.label).includes(normalize(categoryQuery)) && !filterCategoryIds.includes(c.id),
                       )
                         .slice(0, 20)
                         .map((c) => (
@@ -548,12 +556,12 @@ const Home = () => {
                   onClick={() => setFilterNoTools((v) => !v)}
                   className="flex w-full items-center justify-between rounded-xl border border-border bg-card p-3.5"
                 >
-                  <span className="text-sm font-semibold text-foreground">
-                    {t("Sadece alet gerektirmeyen işler")}
-                  </span>
+                  <span className="text-sm font-semibold text-foreground">{t("Sadece alet gerektirmeyen işler")}</span>
                   <span
                     className={`flex h-6 w-6 items-center justify-center rounded-md border-2 transition-all ${
-                      filterNoTools ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background"
+                      filterNoTools
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-background"
                     }`}
                   >
                     {filterNoTools && <Check size={14} strokeWidth={3} />}
@@ -574,7 +582,9 @@ const Home = () => {
                   </div>
                   <span
                     className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md border-2 transition-all ${
-                      filterMyTools ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background"
+                      filterMyTools
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-background"
                     }`}
                   >
                     {filterMyTools && <Check size={14} strokeWidth={3} />}
