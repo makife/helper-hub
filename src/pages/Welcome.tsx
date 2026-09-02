@@ -61,7 +61,7 @@ const Welcome = () => {
           onClick={() => setLangOpen((v) => !v)}
           className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-black text-foreground shadow-sm"
         >
-          <span>{lang === "tr" ? "🇹🇷" : "🇬🇧"}</span>
+          <span className="flex items-center">{flags[lang]}</span>
           <span>{lang.toUpperCase()}</span>
           <ChevronDown
             size={14}
