@@ -158,29 +158,12 @@ const Market = () => {
       return;
     }
 
-    // Web (test modu)
-    const { error: txErr } = await supabase.from("credit_transactions").insert({
-      user_id: user.id,
-      amount: total,
-      kind: "purchase",
-      description: `${selected.credits} kredi paketi (test modu)`,
-    });
-
-    const { error: upErr } = await supabase
-      .from("profiles")
-      .update({ credits: credits + total })
-      .eq("user_id", user.id);
-
+    // Web: krediler güvenlik nedeniyle yalnızca mağaza satın alması sonrası sunucu tarafında yüklenir
     setBuying(false);
     setSelected(null);
-
-    if (txErr || upErr) {
-      toast.error(t("Satın alma tamamlanamadı."));
-      return;
-    }
-    toast.success(t("{total} kredi hesabına eklendi 🎉", { total }));
-    load();
+    toast.info(t("Kredi satın alma yalnızca mobil uygulamada yapılabilir."));
   };
+
 
   const handleRestore = async () => {
     setRestoring(true);
