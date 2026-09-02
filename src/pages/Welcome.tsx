@@ -1,6 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { ChevronDown } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/logo.png";
 import { useI18n } from "@/lib/i18n";
@@ -9,6 +10,35 @@ const Welcome = () => {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
   const { t, lang, setLang } = useI18n();
+  const [langOpen, setLangOpen] = useState(false);
+
+  const flags: Record<string, ReactNode> = {
+    tr: (
+      <svg viewBox="0 0 640 480" className="h-4 w-auto rounded-sm">
+        <rect width="640" height="480" fill="#E30A17" />
+        <circle cx="220" cy="240" r="120" fill="#FFFFFF" />
+        <circle cx="256" cy="240" r="96" fill="#E30A17" />
+        <path
+          d="M520.6,240 L483.8,266.8 L497.9,310.2 L461.1,283.4 L424.3,310.2 L438.4,266.8 L401.6,240 L447.1,240 L461.1,196.6 L475.2,240 Z"
+          fill="#FFFFFF"
+        />
+      </svg>
+    ),
+    en: (
+      <svg viewBox="0 0 640 480" className="h-4 w-auto rounded-sm">
+        <rect width="640" height="480" fill="#012169" />
+        <path d="M0 0 L640 480 M640 0 L0 480" stroke="#FFFFFF" strokeWidth="60" />
+        <path d="M0 0 L640 480 M640 0 L0 480" stroke="#C8102E" strokeWidth="40" />
+        <path d="M320 0 V480 M0 240 H640" stroke="#FFFFFF" strokeWidth="100" />
+        <path d="M320 0 V480 M0 240 H640" stroke="#C8102E" strokeWidth="60" />
+      </svg>
+    ),
+  };
+
+  const langOptions = [
+    { code: "tr" as const, label: "Türkçe" },
+    { code: "en" as const, label: "English" },
+  ];
 
   useEffect(() => {
     if (!loading && user) {
@@ -26,18 +56,39 @@ const Welcome = () => {
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-background px-6 safe-top safe-bottom">
-      <div className="absolute right-4 top-4 flex items-center gap-0.5 rounded-full border border-border bg-card p-0.5">
-        {(["tr", "en"] as const).map((l) => (
-          <button
-            key={l}
-            onClick={() => setLang(l)}
-            className={`min-w-[2rem] rounded-full px-2 py-0.5 text-[10px] font-black transition-colors ${
-              lang === l ? "gradient-warm text-primary-foreground" : "text-muted-foreground"
-            }`}
-          >
-            {l.toUpperCase()}
-          </button>
-        ))}
+      <div className="absolute right-4 top-4 z-20">
+        <button
+          onClick={() => setLangOpen((v) => !v)}
+          className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-black text-foreground shadow-sm"
+        >
+          <span className="flex items-center">{flags[lang]}</span>
+          <span>{lang.toUpperCase()}</span>
+          <ChevronDown
+            size={14}
+            className={`transition-transform ${langOpen ? "rotate-180" : ""}`}
+          />
+        </button>
+        {langOpen && (
+          <div className="absolute right-0 top-full mt-1 flex w-36 flex-col rounded-xl border border-border bg-card p-1 shadow-lg">
+            {langOptions.map((o) => (
+              <button
+                key={o.code}
+                onClick={() => {
+                  setLang(o.code);
+                  setLangOpen(false);
+                }}
+                className={`flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold transition-colors ${
+                  lang === o.code
+                    ? "gradient-warm text-primary-foreground"
+                    : "text-foreground hover:bg-muted"
+                }`}
+              >
+                <span className="flex items-center">{flags[o.code]}</span>
+                <span>{o.label}</span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       <motion.div
