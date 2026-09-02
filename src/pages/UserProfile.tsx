@@ -1,3 +1,4 @@
+import { useT } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
@@ -17,6 +18,7 @@ const SKILL_LABELS: Record<string, string> = {
 type ReviewRow = Tables<"reviews"> & { reviewer?: { full_name: string; avatar_url: string | null } | null };
 
 const UserProfile = () => {
+  const t = useT();
   const { userId } = useParams<{ userId: string }>();
   const [profile, setProfile] = useState<Tables<"profiles"> | null>(null);
   const [credentials, setCredentials] = useState<Tables<"credentials">[]>([]);

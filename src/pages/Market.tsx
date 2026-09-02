@@ -1,3 +1,4 @@
+import { useT } from "@/lib/i18n";
 import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -37,6 +38,7 @@ export const CREDIT_PACKS: Pack[] = [
 ];
 
 const Market = () => {
+  const t = useT();
   const navigate = useNavigate();
   const { user } = useAuth();
   const native = isNativePlatform();

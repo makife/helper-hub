@@ -1,3 +1,4 @@
+import { useT } from "@/lib/i18n";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, Lock, UserCircle, MapPin, MessageSquare, CreditCard, Eye, Trash2, Mail } from "lucide-react";
@@ -83,6 +84,7 @@ const sections = [
 ];
 
 const Privacy = () => {
+  const t = useT();
   const navigate = useNavigate();
 
   return (
@@ -93,7 +95,7 @@ const Privacy = () => {
           className="flex h-10 w-20 items-center justify-center gap-1 rounded-full p-0 text-sm font-bold leading-none text-foreground transition-all active:scale-[0.98]"
         >
           <ChevronLeft size={18} className="text-primary" />
-          <span className="leading-none">Geri</span>
+          <span className="leading-none">{t("Geri")}</span>
         </button>
       </div>
 
@@ -104,7 +106,7 @@ const Privacy = () => {
       >
         <h1 className="mb-2 text-2xl font-black text-foreground">{t("Gizlilik Politikası")}</h1>
         <p className="text-sm text-muted-foreground">
-          Kişisel verilerinizin gizliliği ve güvenliği bizim için önemli.
+          {t("Kişisel verilerinizin gizliliği ve güvenliği bizim için önemli.")}
         </p>
       </motion.div>
 
@@ -123,13 +125,13 @@ const Privacy = () => {
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <section.icon size={18} />
               </div>
-              <h2 className="text-base font-black text-foreground">{section.title}</h2>
+              <h2 className="text-base font-black text-foreground">{t(section.title)}</h2>
             </div>
             <ul className="space-y-2">
               {section.content.map((item, i) => (
                 <li key={i} className="flex gap-2 text-sm leading-relaxed text-muted-foreground">
                   <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
-                  <span>{item}</span>
+                  <span>{t(item)}</span>
                 </li>
               ))}
             </ul>
@@ -138,7 +140,7 @@ const Privacy = () => {
 
         <div className="rounded-2xl bg-secondary/5 p-4 text-center">
           <p className="text-xs font-medium text-muted-foreground">
-            Son güncelleme: {new Date().toLocaleDateString("tr-TR")}
+            {t("Son güncelleme")}: {new Date().toLocaleDateString("tr-TR")}
           </p>
           <p className="text-xs text-muted-foreground">
             © {new Date().getFullYear()} Ergan Game&App — Bi' El At

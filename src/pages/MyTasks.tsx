@@ -1,3 +1,4 @@
+import { useT } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -228,6 +229,7 @@ const initialsOf = (fullName?: string | null) => {
 };
 
 const MyTasks = () => {
+  const t = useT();
 
   const [tab, setTab] = useState<"owned" | "accepted">("owned");
   const [tasks, setTasks] = useState<Tables<"tasks">[]>([]);

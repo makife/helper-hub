@@ -1,3 +1,4 @@
+import { useT } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -44,6 +45,7 @@ const durationPresets = [
 ];
 
 const CreateTask = () => {
+  const t = useT();
   const [searchParams] = useSearchParams();
   const editTaskId = searchParams.get("edit");
   const duplicateTaskId = searchParams.get("duplicate");

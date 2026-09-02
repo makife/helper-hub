@@ -1,3 +1,4 @@
+import { useT } from "@/lib/i18n";
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useParams, useNavigate } from "react-router-dom";
@@ -13,6 +14,7 @@ import { confirmCompletion, confirmDeadlineMs, formatRemaining, requestCompletio
 type TaskerEntry = { tasker_id: string; profile: Tables<"profiles"> | null };
 
 const ActiveTask = () => {
+  const t = useT();
   const { taskId } = useParams<{ taskId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();

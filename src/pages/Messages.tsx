@@ -1,3 +1,4 @@
+import { useT } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -18,6 +19,7 @@ type Conversation = {
 };
 
 const Messages = () => {
+  const t = useT();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -65,9 +67,9 @@ const Messages = () => {
         const profile = profileById.get(otherId);
         convos.push({
           task_id: taskId,
-          task_title: taskById.get(taskId)?.title || "İş",
+          task_title: taskById.get(taskId)?.title || t("İş"),
           other_user_id: otherId,
-          other_user_name: profile?.full_name || "Kullanıcı",
+          other_user_name: profile?.full_name || t("Kullanıcı"),
           other_user_avatar: profile?.avatar_url || null,
           last_message: lastMsg.content,
           last_message_at: lastMsg.created_at,

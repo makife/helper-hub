@@ -1,3 +1,4 @@
+import { useT } from "@/lib/i18n";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -13,6 +14,7 @@ const categories = [
 ];
 
 const Search = () => {
+  const t = useT();
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
 

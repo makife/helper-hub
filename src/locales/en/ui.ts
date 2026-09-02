@@ -31,7 +31,7 @@ export const UI: Record<string, string> = {
   "100 km yakınında": "Within 100 km", "Normal harita": "Standard map", "Uydu görünümü": "Satellite view",
   "Kategori ara... (ör. temizlik, tesisat)": "Search categories... (e.g. cleaning, plumbing)",
   "Tümü": "All", "Kategori": "Category", "seçili": "selected", "Sonuçları Göster": "Show results",
-  "İsimsiz Kullanıcı": "Unnamed user", "Açık iş": "open tasks", "İşler": "Tasks",
+  "Açık iş": "open tasks", "İşler": "Tasks",
   "1 Kişi": "1 person", "2 Kişi": "2 people", "3 Kişi": "3 people", "1 saat": "1 hour", "2 saat": "2 hours", "3 saat": "3 hours",
   "Çağrı kapanana kadar (6 saat)": "Until the request closes (6 hours)", "Tüm Gün": "All day", "dk": "min", "sa": "h",
   "Önceki görevin bilgileriyle dolduruldu, gözden geçirip yayınlayabilirsin.": "Filled with the previous task's details. Review and publish it.",
