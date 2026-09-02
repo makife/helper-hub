@@ -110,6 +110,7 @@ export const UI: Record<string, string> = {
   "Anlaşmazlık": "Dispute",
   "Dil / Language": "Language",
   "Türkçe": "Turkish",
+  "Hesabından çıkış yapmak istediğine emin misin?": "Are you sure you want to sign out?",
   "İngilizce": "English",
   "Uygulama Dili": "App language",
   "Yardım çağrılarına el at veya çağrıda bulun": "Help with requests or create your own",

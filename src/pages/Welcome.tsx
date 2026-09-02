@@ -3,12 +3,12 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/logo.png";
-import { useT } from "@/lib/i18n";
+import { useI18n } from "@/lib/i18n";
 
 const Welcome = () => {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
-  const t = useT();
+  const { t, lang, setLang } = useI18n();
 
   useEffect(() => {
     if (!loading && user) {
@@ -25,7 +25,21 @@ const Welcome = () => {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6 safe-top safe-bottom">
+    <div className="relative flex min-h-screen flex-col items-center justify-center bg-background px-6 safe-top safe-bottom">
+      <div className="absolute right-5 top-5 flex items-center gap-1 rounded-full border border-border bg-card p-1 safe-top">
+        {(["tr", "en"] as const).map((l) => (
+          <button
+            key={l}
+            onClick={() => setLang(l)}
+            className={`rounded-full px-3 py-1 text-xs font-black transition-colors ${
+              lang === l ? "gradient-warm text-primary-foreground" : "text-muted-foreground"
+            }`}
+          >
+            {l.toUpperCase()}
+          </button>
+        ))}
+      </div>
+
       <motion.div
         initial={{ scale: 0.5, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
