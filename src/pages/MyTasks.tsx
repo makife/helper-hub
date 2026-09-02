@@ -1,4 +1,4 @@
-import { useT } from "@/lib/i18n";
+import { useT, translate } from "@/lib/i18n";
 import { formatPrice } from "@/lib/currency";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
