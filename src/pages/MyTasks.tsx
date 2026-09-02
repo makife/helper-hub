@@ -35,6 +35,7 @@ import {
   formatRemaining,
 } from "@/lib/taskLifecycle";
 import { formatDateTime } from "@/lib/dateFormat";
+import { getLang } from "@/lib/i18n";
 
 const WAIT_DECISION_WINDOW_MS = 5 * 60 * 1000;
 const isWaitDecisionWindowOpen = (waitDeadline?: string | null) =>
@@ -915,7 +916,7 @@ const MyTasks = () => {
                             </span>
 
                             <span className="text-[10px] text-muted-foreground">
-                              {new Date(v.viewed_at).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}
+                              {new Date(v.viewed_at).toLocaleTimeString(getLang() === "en" ? "en-US" : "tr-TR", { hour: "2-digit", minute: "2-digit" })}
                             </span>
                           </button>
                           );
