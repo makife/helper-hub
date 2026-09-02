@@ -210,7 +210,7 @@ const ActiveTask = () => {
           <ArrowLeft size={20} className="text-foreground" />
         </button>
         <div className="min-w-0 flex-1">
-          <h1 className="truncate text-base font-black text-foreground">{task.title}</h1>
+          <h1 className="truncate text-base font-black text-foreground">{t(task.title)}</h1>
           <p className="text-xs text-muted-foreground">
             {getTaskStatusLabel(task.status)}
             {needed > 1 && ` · 👥 ${taskers.length}/${needed} ${t("kişi")}`}
