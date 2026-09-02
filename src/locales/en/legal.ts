@@ -62,6 +62,19 @@ const pairs: Record<string, string> = {
   "Güvenilirlik puanlaması, dolandırıcılık önleme ve platform güvenliği.": "Trust ratings, fraud prevention and platform security.", "Ödeme/kredi işlemlerinin kaydedilmesi ve faturalandırma desteği.": "Recording payment/credit transactions and supporting billing.",
   "Profil adı, fotoğrafı, becerileri ve puanı, diğer kullanıcılar tarafından görülebilir.": "Your profile name, photo, skills and rating may be visible to other users.",
   "Hesap verileri: hesabın silinmesine kadar saklanır.": "Account data: retained until the account is deleted.", "Gizlilik politikası, çerez kullanımı veya veri talepleri için: makifergan@gmail.com": "For privacy, cookie or data requests: makifergan@gmail.com",
+  "Konum verisi üçüncü taraflarla paylaşılmaz; harita sağlayıcıları (örn. OpenStreetMap, OSRM) yalnızca görselleştirme ve rota hesaplama amacıyla anonim istek alabilir.": "Location data is not shared with third parties; map providers (e.g. OpenStreetMap, OSRM) may only receive anonymous requests for rendering and route calculation.",
+  "Yasal yükümlülüklerin yerine getirilmesi ve resmi mercilerle paylaşım (yalnızca zorunlu hallerde).": "Meeting legal obligations and sharing with authorities (only when mandatory).",
+  "Kredi satın alma işlemleri, uygulama mağazası ödeme altyapısı (RevenueCat / App Store / Google Play) üzerinden yürütülür.": "Credit purchases are handled through app store payment infrastructure (RevenueCat / App Store / Google Play).",
+  "Platform, kullanıcıların banka kartı veya hesap bilgilerini doğrudan saklamaz.": "The platform does not directly store users' card or bank account details.",
+  "Satın alma geçmişi, iade ve destek süreçleri için gerekli süre boyunca saklanır.": "Purchase history is retained as long as needed for refunds and support.",
+  "Telefon numarası ve e-posta adresi, yalnızca platform yönetimi ve yasal zorunluluklar dışında paylaşılmaz.": "Phone numbers and email addresses are not shared except with platform administration or where legally required.",
+  "Mesaj içerikleri şifrelenmiş veya en azından yetkisiz erişime karşı korunan altyapılarda saklanır.": "Message content is stored encrypted or at least on infrastructure protected against unauthorised access.",
+  "Üçüncü taraf analiz veya reklam sağlayıcılarıyla kişisel veri paylaşılmaz.": "No personal data is shared with third-party analytics or advertising providers.",
+  "Tamamlanan iş ve mesaj geçmişi: yasal süreler ve uyuşmazlık çözümü için 3 yıl boyunca saklanabilir.": "Completed task and message history: may be kept for 3 years for legal periods and dispute resolution.",
+  "KVKK kapsamında verilerinize erişme, düzeltme, silme ve işlemeye itiraz etme hakkınız vardır.": "Under KVKK you have the right to access, correct, delete and object to the processing of your data.",
+  "Taleplerinizi makifergan@gmail.com adresine iletebilirsiniz; en kısa sürede yanıtlanacaktır.": "You can send your requests to makifergan@gmail.com; they will be answered as soon as possible.",
+  "Politika zaman zaman güncellenebilir; güncel versiyon uygulama içinde yayımlanır.": "This policy may be updated from time to time; the current version is published in the app.",
 };
+
 
 Object.assign(LEGAL, TERMS, PRIVACY, pairs);
