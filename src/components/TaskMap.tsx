@@ -198,7 +198,7 @@ const TaskMap = ({ tasks, center = [40.9903, 29.0297], userPos = null, onTaskCli
 
               <div className="flex items-center justify-between border-b border-border/40 py-1">
                 <span className="text-[10px] font-semibold text-muted-foreground">{t("Kategori:")}</span>
-                <span className="line-clamp-1 max-w-[120px] text-right text-xs font-bold">{task.title}</span>
+                <span className="line-clamp-1 max-w-[120px] text-right text-xs font-bold">{t(task.title)}</span>
               </div>
 
               {task.ownerName && (
@@ -241,7 +241,7 @@ const TaskMap = ({ tasks, center = [40.9903, 29.0297], userPos = null, onTaskCli
                   onClick={() => onTaskClick(task)}
                   className="mt-1 w-full rounded-md bg-primary px-3 py-1 text-xs font-bold text-primary-foreground"
                 >
-                  Detayları Gör
+                  {t("Detayları Gör")}
                 </button>
               )}
             </div>
