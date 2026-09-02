@@ -31,8 +31,8 @@ export const formatDate = (iso: string) => {
   return en ? `${month} ${day}, ${year}` : `${day} ${month} ${year}`;
 };
 
-export const timeAgo = (date: string) => {
-  const en = getLang() === "en";
+export const timeAgoIn = (date: string, lang: "tr" | "en") => {
+  const en = lang === "en";
   const diff = Date.now() - new Date(date).getTime();
   const mins = Math.floor(diff / 60000);
   if (mins < 1) return en ? "now" : "şimdi";
@@ -41,5 +41,14 @@ export const timeAgo = (date: string) => {
   if (hours < 24) return en ? `${hours} h` : `${hours} sa`;
   const days = Math.floor(hours / 24);
   if (days < 7) return en ? `${days} d` : `${days} gün`;
-  return formatDate(date);
+  const d = new Date(date);
+  const day = d.getDate();
+  const month = (en ? MONTHS_EN : MONTHS_TR)[d.getMonth()];
+  const year = d.getFullYear();
+  const isThisYear = year === new Date().getFullYear();
+  if (isThisYear) return en ? `${month} ${day}` : `${day} ${month}`;
+  return en ? `${month} ${day}, ${year}` : `${day} ${month} ${year}`;
 };
+
+export const timeAgo = (date: string) => timeAgoIn(date, getLang());
+
