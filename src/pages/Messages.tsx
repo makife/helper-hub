@@ -117,7 +117,7 @@ const Messages = () => {
             </div>
             <p className="mt-3 text-lg font-bold text-foreground">{t("Henüz mesaj yok")}</p>
             <p className="mt-1 text-center text-sm text-muted-foreground">
-              Bir iş kabul ettiğinizde mesajlaşma başlayacak.
+              {t("Bir iş kabul ettiğinizde mesajlaşma başlayacak.")}
             </p>
           </div>
         ) : (
