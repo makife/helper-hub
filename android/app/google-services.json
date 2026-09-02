@@ -36,6 +36,14 @@
             "package_name": "com.ergan.bielat",
             "certificate_hash": "acc7611134dd746d968d4a87ee5b108a013e2301"
           }
+        },
+        {
+          "client_id": "170480992927-jfk898ajdm2fch04p4595f93n0l1ipec.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ergan.bielat",
+            "certificate_hash": "f6e221d2d7b13ee757b040cb9f53a764ff1cc95c"
+          }
         }
       ],
       "api_key": [
