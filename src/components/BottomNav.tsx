@@ -3,6 +3,7 @@ import { MapPin, Briefcase, MessageCircle, User, Plus } from "lucide-react";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
 import { useTaskBadge } from "@/hooks/useTaskBadge";
+import { useT } from "@/lib/i18n";
 
 const BottomNav = () => {
   const navigate = useNavigate();
@@ -11,6 +12,7 @@ const BottomNav = () => {
   const pendingConfirmCount = useTaskBadge();
   const unreadNotifications = useUnreadNotifications();
   const pulseTasks = pendingConfirmCount > 0 || unreadNotifications > 0;
+  const t = useT();
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -67,7 +69,7 @@ const BottomNav = () => {
         >
           <Plus size={28} className="text-white drop-shadow-sm" strokeWidth={3} />
         </div>
-        <span className="text-[10px] font-bold text-[#E5600A]">Yardım Çağrısı</span>
+        <span className="text-[10px] font-bold text-[#E5600A]">{t("Yardım Çağrısı")}</span>
       </button>
 
       <button
