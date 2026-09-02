@@ -186,7 +186,7 @@ const ActiveTask = () => {
       <RouteMap
         taskLat={task.latitude}
         taskLng={task.longitude}
-        taskTitle={task.title}
+        taskTitle={t(task.title)}
         onClose={() => setShowRoute(false)}
       />
     );
