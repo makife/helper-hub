@@ -536,10 +536,10 @@ const MyTasks = () => {
             <div className="space-y-3">
               {accepted.map((item, i) => {
                 const task = item.task;
-                const status = statusLabels[t.status] || statusLabels.open;
-                const isDone = isClosedStatus(t.status);
+                const status = statusLabels[task.status] || statusLabels.open;
+                const isDone = isClosedStatus(task.status);
                 const isMyCompletionRequest =
-                  t.status === "pending_confirm" && t.completion_requested_by === user?.id;
+                  task.status === "pending_confirm" && task.completion_requested_by === user?.id;
                 return (
                   <motion.div
                     key={item.assignment_id}
@@ -550,17 +550,17 @@ const MyTasks = () => {
                   >
                     <div className="flex items-center gap-3">
                       <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted text-2xl">
-                        {getTaskEmoji(t.category, t.subcategory, t.title)}
+                        {getTaskEmoji(task.category, task.subcategory, task.title)}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <h3 className="truncate text-sm font-bold text-foreground">{t.title}</h3>
+                        <h3 className="truncate text-sm font-bold text-foreground">{task.title}</h3>
                         <p className={`text-xs font-semibold ${status.color}`}>{status.label}</p>
                         <button
-                          onClick={() => navigate(`/profile/${t.owner_id}`)}
+                          onClick={() => navigate(`/profile/${task.owner_id}`)}
                           className="mt-0.5 flex items-center gap-1 text-[10px] font-semibold text-muted-foreground"
                         >
                           <User size={11} className="text-primary" />
-                          {item.owner?.full_name || "İş veren"}
+                          {item.owner?.full_name || t("İş veren")}
                         </button>
                         <span className="mt-1 flex items-center gap-1 text-[10px] font-semibold text-muted-foreground">
                           <Calendar size={11} className="text-primary" />
@@ -569,7 +569,7 @@ const MyTasks = () => {
                       </div>
                       <div className="text-right">
                         <p className="text-base font-black text-primary">
-                          {item.agreed_price ?? t.current_price ?? t.price} ₺
+                          {item.agreed_price ?? task.current_price ?? task.price} ₺
                         </p>
                         <span className="text-[10px] text-muted-foreground">{t("Anlaşılan")}</span>
                       </div>
@@ -577,16 +577,16 @@ const MyTasks = () => {
 
                     <div className="mt-3 rounded-xl bg-muted/40 p-3">
                       <p className="text-[10px] font-black uppercase tracking-wide text-muted-foreground">
-                        İş Akışı
+                        {t("İş Akışı")}
                       </p>
-                      <TaskTimeline task={t} arrivedAt={item.arrived_at} />
+                      <TaskTimeline task={task} arrivedAt={item.arrived_at} />
                     </div>
 
-                    {t.status === "pending_confirm" && (
+                    {task.status === "pending_confirm" && (
                       <p className="mt-3 rounded-xl bg-muted/60 p-2.5 text-xs font-semibold text-muted-foreground">
                         {isMyCompletionRequest
-                          ? "El atan bitirdiğini belirtti, sizden onay bekliyor. 24 saat içinde otomatik tamamlanır."
-                          : `İşi tamamlamak için kalan süre: ${formatRemaining(confirmDeadlineMs(t.completion_requested_at))}`}
+                          ? t("El atan bitirdiğini belirtti, sizden onay bekliyor. 24 saat içinde otomatik tamamlanır.")
+                          : `${t("İşi tamamlamak için kalan süre:")} ${formatRemaining(confirmDeadlineMs(task.completion_requested_at))}`}
                       </p>
                     )}
                     {!isDone && t.status !== "pending_confirm" && (
