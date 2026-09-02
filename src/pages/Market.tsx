@@ -89,6 +89,7 @@ const Market = () => {
               productId: sp.productId,
               credits: base?.credits ?? sp.credits,
               price: base?.price ?? 0,
+              eurPrice: base?.eurPrice ?? 0,
               priceLabel: sp.priceString,
               bonus: base?.bonus,
               badge: base?.badge,
@@ -96,6 +97,7 @@ const Market = () => {
             };
           }),
         );
+
       } catch (e) {
         console.error("Mağaza paketleri alınamadı", e);
       }
