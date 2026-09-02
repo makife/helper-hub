@@ -422,5 +422,5 @@ export const UI: Record<string, string> = {
   "İş başlatılamadı, tekrar dene.": "The task could not be started. Try again.",
   "🔥 Acil iş — hemen başlaman bekleniyor": "🔥 Urgent task — you are expected to start immediately",
   "Bekleme süresi doldu, çağrı yapan kararını verdiğinde bilgilendirileceksin.": "The waiting period has ended. You will be notified when the requester decides.",  "Kategori:": "Category:",
-  "Alet/Edevat:": "Tools:",
+  "Alet/Edevat:": "Tools:",  "Yardım çağrısı başarıyla oluşturuldu!": "Help request created successfully!",  "Yardım çağrısı güncellendi!": "Help request updated!",  "Yardım çağrısı güncellenemedi.": "Help request could not be updated.",  "Yardım çağrısı oluşturulamadı.": "Help request could not be created.",
 };
