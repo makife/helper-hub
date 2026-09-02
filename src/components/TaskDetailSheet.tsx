@@ -123,7 +123,7 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
     if (result.ok !== true) {
       if (result.reason === "credits") {
         toast.error(result.message, {
-          action: { label: "Kredi Al", onClick: () => { onClose(); navigate("/market"); } },
+          action: { label: t("Kredi Al"), onClick: () => { onClose(); navigate("/market"); } },
         });
         return;
       }
@@ -138,8 +138,8 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
 
     toast.success(
       needed > 1
-        ? `İş kabul edildi! (${acceptedCount + 1}/${needed} kişi) 🎉`
-        : "İş kabul edildi! 🎉"
+        ? t("İş kabul edildi! ({count}/{needed} kişi) 🎉", { count: acceptedCount + 1, needed })
+        : t("İş kabul edildi! 🎉")
     );
     onAccepted?.(task);
     onClose();
@@ -151,8 +151,8 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
     setAccepting(true);
     const ok = await leaveTask(task.id, user.id);
     setAccepting(false);
-    if (!ok) { toast.error("İşten ayrılamadın, tekrar dene."); return; }
-    toast.success("İşten ayrıldın.");
+    if (!ok) { toast.error(t("İşten ayrılamadın, tekrar dene.")); return; }
+    toast.success(t("İşten ayrıldın."));
     loadAssignments();
   };
 
@@ -179,7 +179,7 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
               {task.emoji}
             </div>
             <div>
-              <h3 className="text-lg font-black text-foreground">{task.title}</h3>
+              <h3 className="text-lg font-black text-foreground">{t(task.title)}</h3>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <Clock size={12} />
                 <span>~{task.estimated_minutes} {t("dk")}</span>
@@ -210,14 +210,14 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
               <p className="flex items-center gap-1 text-sm font-bold text-foreground">
                 {owner.full_name}
                 {owner.id_verification_status === "verified" && (
-                  <BadgeCheck size={14} className="text-primary" aria-label="Kimliği doğrulanmış" />
+                  <BadgeCheck size={14} className="text-primary" aria-label={t("Kimliği doğrulanmış")} />
                 )}
               </p>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <Star size={10} className="text-accent" />
                 <span>{owner.rating || "0.0"}</span>
                 <span>·</span>
-                <span>{owner.total_completed || 0} iş</span>
+                <span>{t("{count} iş", { count: owner.total_completed || 0 })}</span>
               </div>
             </div>
             <span className="text-xs text-primary font-semibold">{t("Profili Gör →")}</span>
@@ -261,7 +261,7 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
             <span>{t("Kişi kontenjanı")}</span>
           </div>
           <span className="text-sm font-black text-foreground">
-            {acceptedCount}/{needed} dolu
+            {acceptedCount}/{needed} {t("dolu")}
           </span>
         </div>
 
@@ -279,22 +279,12 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
 
           <div className="mb-4 rounded-xl bg-muted/50 p-3 text-xs leading-relaxed text-muted-foreground">
             {new Date(task.wait_deadline).getTime() - Date.now() > 5 * 60 * 1000 ? (
-              <>
-                Yardım çağrısı yapan, el atan kontenjanının dolmasını{" "}
-                <span className="font-bold text-foreground">
-                  {formatCountdown(new Date(task.wait_deadline).getTime() - Date.now())}
-                </span>{" "}
-                daha beklemektedir. Bu süre zarfından önce ilgili işe başlanamayacak.
-                Bekleme süresi tamamlandıktan sonra çağrı yapan dilerse çağrıyı
-                sonlandırır veya mevcut kontenjanla işi başlatabilir. Size süreç ile
-                ilgili bildirim gönderilecektir.
-              </>
+              t(
+                "Yardım çağrısı yapan, el atan kontenjanının dolmasını {time} daha beklemektedir. Bu süreden önce işe başlanamayacak. Süre dolunca çağrı yapan dilerse çağrıyı sonlandırır veya mevcut kontenjanla işi başlatabilir. Süreçle ilgili bildirim gönderilecektir.",
+                { time: formatCountdown(new Date(task.wait_deadline).getTime() - Date.now()) }
+              )
             ) : new Date(task.wait_deadline).getTime() > Date.now() ? (
-              <>
-                Bekleme süresi bitmek üzere, çağrı yapan şu anda dilerse çağrıyı
-                sonlandırabilir veya mevcut kontenjanla işi başlatabilir. Size süreç
-                ile ilgili bildirim gönderilecektir.
-              </>
+              t("Bekleme süresi bitmek üzere; çağrı yapan şu anda dilerse çağrıyı sonlandırabilir veya mevcut kontenjanla işi başlatabilir. Süreçle ilgili bildirim gönderilecektir.")
             ) : (
               <>{t("Bekleme süresi doldu, çağrı yapan kararını verdiğinde bilgilendirileceksin.")}</>
             )}
@@ -306,16 +296,16 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
             <div className="mb-2 flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Wrench size={14} className="text-primary" />
-                <span>Alet/Edevat Gerekiyor</span>
+                <span>{t("Alet/Edevat Gerekiyor")}</span>
               </div>
               <span className="flex items-center gap-1 text-xs font-bold text-primary">
                 {task.tool_provider === "owner" ? (
                   <>
-                    <Home size={12} /> Ben Sağlıyorum
+                    <Home size={12} /> {t("Ben Sağlıyorum")}
                   </>
                 ) : (
                   <>
-                    <UserCheck size={12} /> El Atan Getirsin
+                    <UserCheck size={12} /> {t("El Atan Getirsin")}
                   </>
                 )}
               </span>
@@ -327,7 +317,7 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
                     key={`${label}-${i}`}
                     className="rounded-lg bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary"
                   >
-                    {label}
+                    {t(label)}
                   </span>
                 ))}
               </div>
@@ -349,19 +339,19 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
                 onClick={() => { onClose(); navigate(`/task/${task.id}`); }}
                 className="gradient-warm w-full rounded-2xl px-6 py-4 text-lg font-bold text-primary-foreground shadow-soft transition-transform active:scale-[0.98]"
               >
-                İşi Aç 💬
+                {t("İşi Aç 💬")}
               </button>
               <button
                 onClick={handleLeave}
                 disabled={accepting}
                 className="w-full rounded-2xl border border-border px-6 py-3 text-sm font-bold text-muted-foreground disabled:opacity-50"
               >
-                İşten Ayrıl
+                {t("İşten Ayrıl")}
               </button>
             </div>
           ) : acceptedCount >= needed ? (
             <div className="w-full rounded-2xl bg-muted px-6 py-4 text-center text-sm font-bold text-muted-foreground">
-              Kontenjan doldu ({needed}/{needed})
+              {t("Kontenjan doldu ({count}/{needed})", { count: needed, needed })}
             </div>
           ) : (
             <div className="space-y-2">
@@ -371,13 +361,13 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
                 className="gradient-warm w-full rounded-2xl px-6 py-4 text-lg font-bold text-primary-foreground shadow-soft transition-transform active:scale-[0.98] disabled:opacity-50"
               >
                 {accepting
-                  ? "Kabul ediliyor..."
+                  ? t("Kabul ediliyor...")
                   : needed > 1
-                    ? `Kabul Et ✋ (${acceptedCount}/${needed})`
-                    : "Kabul Et ✋"}
+                    ? t("Kabul Et ✋ ({count}/{needed})", { count: acceptedCount, needed })
+                    : t("Kabul Et ✋")}
               </button>
               <p className="text-center text-[11px] leading-snug text-muted-foreground">
-                Ödeme taraflar arasında elden yapılır. Bi' El At, ödeme anlaşmazlıklarında taraf olmaz.
+                {t("Ödeme taraflar arasında elden yapılır. Bi' El At, ödeme anlaşmazlıklarında taraf olmaz.")}
               </p>
             </div>
           )
