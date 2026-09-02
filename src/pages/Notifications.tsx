@@ -1,4 +1,4 @@
-import { useT } from "@/lib/i18n";
+import { translate, useT } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -18,6 +18,26 @@ type Notif = {
 };
 
 const dateLabel = (date: string) => formatDateTime(date);
+
+const localizeNotificationText = (text: string, t: (value: string) => string) => {
+  const suffixes: Array<[string, string]> = [
+    [" çağrını kabul etti", " çağrını kabul etti"],
+    [" işi bıraktı", " işi bıraktı"],
+  ];
+  for (const [sourceSuffix, keySuffix] of suffixes) {
+    if (text.endsWith(sourceSuffix)) {
+      return `${text.slice(0, -sourceSuffix.length)}${t(keySuffix)}`;
+    }
+  }
+
+  return text
+    .replace("İş bitti olarak işaretlendi", t("İş bitti olarak işaretlendi"))
+    .replace("Yardım çağrının süresi doldu", t("Yardım çağrının süresi doldu"))
+    .replace("Anlaşmazlık lehine sonuçlandı", t("Anlaşmazlık lehine sonuçlandı"))
+    .replace("Anlaşmazlık aleyhine sonuçlandı", t("Anlaşmazlık aleyhine sonuçlandı"))
+    .replace("İtiraz yapıldı", t("İtiraz yapıldı"))
+    .replace("İtirazın iletildi", t("İtirazın iletildi"));
+};
 
 const Notifications = () => {
   const t = useT();
@@ -43,8 +63,8 @@ const Notifications = () => {
         list.push({
           id: `n-${n.id}`,
           type: n.type === "assignment_left" ? "assignment_left" : "assignment_accepted",
-          title: n.title,
-          body: n.body ?? "",
+          title: localizeNotificationText(n.title, t),
+          body: localizeNotificationText(n.body ?? "", t),
           at: n.created_at,
           taskId: n.task_id,
           unread: !n.is_read,
@@ -98,7 +118,7 @@ const Notifications = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user]);
+  }, [user, t]);
 
   const iconFor = (t: Notif["type"]) => {
     if (t === "message") return <MessageCircle size={18} className="text-primary" />;
