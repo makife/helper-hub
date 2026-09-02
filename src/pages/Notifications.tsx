@@ -19,25 +19,51 @@ type Notif = {
 
 const dateLabel = (date: string) => formatDateTime(date);
 
-const localizeNotificationText = (text: string, t: (value: string) => string) => {
-  const suffixes: Array<[string, string]> = [
-    [" çağrını kabul etti", "çağrını kabul etti"],
-    [" işi bıraktı", "işi bıraktı"],
-  ];
-  for (const [sourceSuffix, keySuffix] of suffixes) {
-    if (text.endsWith(sourceSuffix)) {
-      return `${text.slice(0, -sourceSuffix.length)} ${t(keySuffix)}`;
+const TITLE_SUFFIXES = [
+  "çağrını kabul etti",
+  "cagrini kabul etti",
+  "işi bıraktı",
+  "isi birakti",
+];
+
+const AUTO_CANCEL_RE =
+  /^Süre dolduğunda bir işlem yapmadığın için (.+) otomatik olarak iptal edildi\.$/;
+const QUOTA_RE = /^(.+) kontenjan henüz dolmadı\.\s*(.+)$/;
+
+const localizeNotificationText = (
+  text: string,
+  t: (value: string, vars?: Record<string, string | number>) => string,
+) => {
+  if (!text) return text;
+
+  for (const suffix of TITLE_SUFFIXES) {
+    if (text.endsWith(` ${suffix}`)) {
+      return `${text.slice(0, -suffix.length - 1)} ${t(suffix)}`;
     }
   }
 
-  return text
-    .replace("İş bitti olarak işaretlendi", t("İş bitti olarak işaretlendi"))
-    .replace("Yardım çağrının süresi doldu", t("Yardım çağrının süresi doldu"))
-    .replace("Anlaşmazlık lehine sonuçlandı", t("Anlaşmazlık lehine sonuçlandı"))
-    .replace("Anlaşmazlık aleyhine sonuçlandı", t("Anlaşmazlık aleyhine sonuçlandı"))
-    .replace("İtiraz yapıldı", t("İtiraz yapıldı"))
-    .replace("İtirazın iletildi", t("İtirazın iletildi"));
+  for (const sep of [" - ", " — ", " – "]) {
+    const idx = text.indexOf(sep);
+    if (idx > 0) {
+      return `${t(text.slice(0, idx))}${sep}${t(text.slice(idx + sep.length))}`;
+    }
+  }
+
+  const autoCancel = AUTO_CANCEL_RE.exec(text);
+  if (autoCancel) {
+    return t("Süre dolduğunda bir işlem yapmadığın için {title} otomatik olarak iptal edildi.", {
+      title: t(autoCancel[1]),
+    });
+  }
+
+  const quota = QUOTA_RE.exec(text);
+  if (quota) {
+    return `${t("{title} kontenjan henüz dolmadı.", { title: t(quota[1]) })} ${t(quota[2])}`;
+  }
+
+  return t(text);
 };
+
 
 const Notifications = () => {
   const t = useT();
