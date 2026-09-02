@@ -50,7 +50,9 @@ export const buildTaskSteps = (
 
   if (task.rejection_count) {
     steps.push({
-      label: `İş veren itiraz etti (${task.rejection_count}/2)`,
+      label: translate("İş veren itiraz etti ({rejection_count}/2)", {
+        rejection_count: task.rejection_count,
+      }),
       at: task.last_rejected_at,
       tone: "danger",
       note:
