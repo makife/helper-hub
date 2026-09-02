@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { formatPrice } from "@/lib/currency";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -225,7 +226,7 @@ const TaskMap = ({ tasks, center = [40.9903, 29.0297], userPos = null, onTaskCli
 
               <div className="flex items-center justify-between border-b border-border/40 py-1">
                 <span className="text-[10px] font-semibold text-muted-foreground">{t("Fiyat:")}</span>
-                <span className="text-right font-black text-primary">{task.price} ₺</span>
+                <span className="text-right font-black text-primary">{formatPrice(task.price)}</span>
               </div>
 
               {(task.personCount ?? 1) > 1 && (

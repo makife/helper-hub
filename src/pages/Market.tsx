@@ -1,4 +1,5 @@
 import { getLang, useT } from "@/lib/i18n";
+import { formatPrice } from "@/lib/currency";
 import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -247,7 +248,7 @@ const Market = () => {
                   </span>
                 )}
               </div>
-              <p className="text-lg font-black text-primary">{pack.priceLabel ?? `${pack.price} ₺`}</p>
+              <p className="text-lg font-black text-primary">{pack.priceLabel ?? formatPrice(pack.price)}</p>
             </motion.button>
           ))}
         </div>
@@ -285,8 +286,8 @@ const Market = () => {
 
       <ConfirmDialog
         open={!!selected}
-        title={`${selected ? selected.credits + (selected.bonus || 0) : 0} kredi yükle`}
-        description={`${selected?.priceLabel ?? `${selected?.price ?? 0} ₺`} karşılığında kredi hesabına eklenecek.`}
+        title={t("{count} kredi yükle", { count: selected ? selected.credits + (selected.bonus || 0) : 0 })}
+        description={t("{price} karşılığında kredi hesabına eklenecek.", { price: selected?.priceLabel ?? formatPrice(selected?.price ?? 0) })}
         confirmLabel={t("Satın Al")}
         loading={buying}
         onConfirm={purchase}

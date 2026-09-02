@@ -1,4 +1,5 @@
 import { getLang, useT } from "@/lib/i18n";
+import { formatPrice } from "@/lib/currency";
 import { getTaskStatusLabel } from "@/lib/taskLifecycle";
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -215,7 +216,7 @@ const ActiveTask = () => {
             {needed > 1 && ` · 👥 ${taskers.length}/${needed} ${t("kişi")}`}
           </p>
         </div>
-        <span className="text-lg font-black text-primary">{task.current_price || task.price} ₺</span>
+        <span className="text-lg font-black text-primary">{formatPrice(task.current_price || task.price)}</span>
       </div>
 
       {/* Task & Location Info */}
