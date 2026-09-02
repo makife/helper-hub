@@ -70,6 +70,7 @@ export const UI: Record<string, string> = {
   "Henüz belge yok. Sertifikanı ekle, güvenilirliğini artır.": "No documents yet. Add a certificate to build trust.",
   "Değerlendirmeler": "Reviews",
   "Henüz değerlendirme yok.": "No reviews yet.",
+  "Yorum yapılmamış": "No comment",
   "Konumunu aç": "Enable your location",
   "Konum aktif ✓": "Location active ✓",
   "Konum alınıyor...": "Getting location...",
