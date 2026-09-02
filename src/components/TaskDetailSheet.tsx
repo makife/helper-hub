@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { formatPrice } from "@/lib/currency";
 import { motion } from "framer-motion";
 import { X, Clock, MapPin, Star, User, Users, TrendingDown, Wrench, UserCheck, Home, BadgeCheck, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -181,7 +182,7 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
               <h3 className="text-lg font-black text-foreground">{task.title}</h3>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <Clock size={12} />
-                <span>~{task.estimated_minutes} dk</span>
+                <span>~{task.estimated_minutes} {t("dk")}</span>
               </div>
             </div>
           </div>
@@ -229,24 +230,24 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
             <div className="text-right">
               {livePrice && livePrice.price < livePrice.basePrice && (
                 <span className="mr-2 text-sm font-semibold text-muted-foreground line-through">
-                  {livePrice.basePrice} ₺
+                  {formatPrice(livePrice.basePrice)}
                 </span>
               )}
               <span className="text-2xl font-black text-primary">
-                {livePrice ? livePrice.price : task.current_price || task.price} ₺
+                {formatPrice(livePrice ? livePrice.price : task.current_price || task.price)}
               </span>
             </div>
           </div>
           {livePrice?.isDropping && (
             <p className="mt-1 flex items-center gap-1 text-xs font-semibold text-primary">
               <TrendingDown size={12} />
-              Fiyat düşüyor — sonraki düşüşe {formatCountdown(livePrice.msToNextDrop)}
-              <span className="text-muted-foreground">(alt sınır {livePrice.minPrice} ₺)</span>
+              {t("Fiyat düşüyor — sonraki düşüşe")} {formatCountdown(livePrice.msToNextDrop)}
+              <span className="text-muted-foreground">({t("alt sınır")} {formatPrice(livePrice.minPrice)})</span>
             </p>
           )}
           {livePrice?.atFloor && (
             <p className="mt-1 text-xs font-semibold text-muted-foreground">
-              En düşük ücrete ulaşıldı ({livePrice.minPrice} ₺)
+              {t("En düşük ücrete ulaşıldı")} ({formatPrice(livePrice.minPrice)})
             </p>
           )}
           {task.urgency === "urgent" && (

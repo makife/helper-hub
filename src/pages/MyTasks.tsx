@@ -1,4 +1,5 @@
-import { useT } from "@/lib/i18n";
+import { useT, translate } from "@/lib/i18n";
+import { formatPrice } from "@/lib/currency";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -210,7 +211,7 @@ const formatElapsed = (createdAt: string, now: number) => {
   const h = Math.floor(total / 3600);
   const m = Math.floor((total % 3600) / 60);
   const s = total % 60;
-  if (h > 0) return `${h}sa ${String(m).padStart(2, "0")}dk`;
+  if (h > 0) return translate("{h}sa {m}dk", { h, m: String(m).padStart(2, "0") });
   return `${m}:${String(s).padStart(2, "0")}`;
 };
 
@@ -571,7 +572,7 @@ const MyTasks = () => {
                       </div>
                       <div className="text-right">
                         <p className="text-base font-black text-primary">
-                          {item.agreed_price ?? task.current_price ?? task.price} ₺
+                          {formatPrice(item.agreed_price ?? task.current_price ?? task.price)}
                         </p>
                         <span className="text-[10px] text-muted-foreground">{t("Anlaşılan")}</span>
                       </div>
@@ -704,7 +705,7 @@ const MyTasks = () => {
                     </div>
 
                     <div className="text-right">
-                      <p className="text-base font-black text-primary">{computePrice(task).price} ₺</p>
+                      <p className="text-base font-black text-primary">{formatPrice(computePrice(task).price)}</p>
                       {computePrice(task).isDropping && (
                         <p className="text-[10px] font-semibold text-primary">↓ {formatCountdown(computePrice(task).msToNextDrop)}</p>
                       )}
@@ -860,7 +861,7 @@ const MyTasks = () => {
 
                 <div className="flex justify-between py-1 border-t pt-2">
                   <span className="text-muted-foreground">{t("Fiyat:")}</span>
-                  <span className="font-bold text-primary">{selectedTask.price} ₺</span>
+                  <span className="font-bold text-primary">{formatPrice(selectedTask.price)}</span>
                 </div>
 
                 {/* Yayında geçen süre */}

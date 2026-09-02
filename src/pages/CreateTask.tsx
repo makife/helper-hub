@@ -1,4 +1,5 @@
 import { useT } from "@/lib/i18n";
+import { formatPrice } from "@/lib/currency";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -603,7 +604,7 @@ const CreateTask = () => {
           {personCount > 1 && (
             <div className="flex justify-between items-center rounded-xl bg-primary/10 p-3 text-xs font-bold text-primary">
               <span>{t("{count} Kişi için Toplam Bütçe:", { count: personCount })}</span>
-              <span className="text-base font-black">{totalPrice} ₺</span>
+              <span className="text-base font-black">{formatPrice(totalPrice)}</span>
             </div>
           )}
         </motion.div>
