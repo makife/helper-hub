@@ -279,10 +279,13 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
 
           <div className="mb-4 rounded-xl bg-muted/50 p-3 text-xs leading-relaxed text-muted-foreground">
             {new Date(task.wait_deadline).getTime() - Date.now() > 5 * 60 * 1000 ? (
-              t(
-                "Yardım çağrısı yapan, el atan kontenjanının dolmasını {time} daha beklemektedir. Bu süreden önce işe başlanamayacak. Süre dolunca çağrı yapan dilerse çağrıyı sonlandırır veya mevcut kontenjanla işi başlatabilir. Süreçle ilgili bildirim gönderilecektir.",
-                { time: formatCountdown(new Date(task.wait_deadline).getTime() - Date.now()) }
-              )
+              <>
+                {t("Yardım çağrısı yapan, el atan kontenjanının dolmasını ")}
+                <span className="font-black text-foreground">
+                  {formatCountdown(new Date(task.wait_deadline).getTime() - Date.now())}
+                </span>
+                {t(" daha beklemektedir. Bu süreden önce işe başlanamayacak. Süre dolunca çağrı yapan dilerse çağrıyı sonlandırır veya mevcut kontenjanla işi başlatabilir. Süreçle ilgili bildirim gönderilecektir.")}
+              </>
             ) : new Date(task.wait_deadline).getTime() > Date.now() ? (
               t("Bekleme süresi bitmek üzere; çağrı yapan şu anda dilerse çağrıyı sonlandırabilir veya mevcut kontenjanla işi başlatabilir. Süreçle ilgili bildirim gönderilecektir.")
             ) : (
