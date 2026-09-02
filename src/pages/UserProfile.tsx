@@ -58,7 +58,13 @@ const UserProfile = () => {
           row.reviewer = rp ? { full_name: rp.full_name, avatar_url: rp.avatar_url } : null;
         });
       }
-      setReviews(rows);
+      const sorted = [...rows].sort((a, b) => {
+        const aHasComment = a.comment ? 1 : 0;
+        const bHasComment = b.comment ? 1 : 0;
+        if (aHasComment !== bHasComment) return bHasComment - aHasComment;
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
+      setReviews(sorted);
       setLoading(false);
     };
     load();
