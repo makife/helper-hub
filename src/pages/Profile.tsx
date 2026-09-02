@@ -35,6 +35,7 @@ import MyToolsEditor from "@/components/MyToolsEditor";
 
 import ReferralCard from "@/components/ReferralCard";
 import ProfileBadges from "@/components/ProfileBadges";
+import { timeAgo } from "@/lib/dateFormat";
 
 const LEGACY_SKILL_LABELS: Record<string, string> = {
   ampul_takma: "Ampul takma",
@@ -46,6 +47,14 @@ const LEGACY_SKILL_LABELS: Record<string, string> = {
 };
 type Credential = Tables<"credentials">;
 type ReviewRow = Tables<"reviews"> & { reviewer?: { full_name: string; avatar_url: string | null } | null };
+
+const initials = (name?: string | null) => {
+  if (!name) return "?";
+  const parts = name.trim().split(/\s+/);
+  const first = parts[0]?.[0] || "";
+  const last = parts.length > 1 ? parts[parts.length - 1][0] : "";
+  return (first + last).toUpperCase();
+};
 
 const Profile = () => {
   const [profile, setProfile] = useState<Tables<"profiles"> | null>(null);
@@ -100,7 +109,14 @@ const Profile = () => {
         row.reviewer = rp ? { full_name: rp.full_name, avatar_url: rp.avatar_url } : null;
       });
     }
-    setReviews(reviewRows);
+    setReviews(
+      [...reviewRows].sort((a, b) => {
+        const aHasComment = a.comment ? 1 : 0;
+        const bHasComment = b.comment ? 1 : 0;
+        if (aHasComment !== bHasComment) return bHasComment - aHasComment;
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      })
+    );
 
     if (p) {
       setName(p.full_name || "");
@@ -557,42 +573,56 @@ const Profile = () => {
           </div>
 
           {/* Değerlendirmeler */}
-          <div className="mb-5 rounded-2xl bg-card p-4 shadow-card">
-              <p className="mb-3 flex items-center gap-1.5 text-sm font-black text-foreground">
-                <Star size={16} className="text-accent" />
-                {t("Değerlendirmeler")}
-              </p>
-              {reviews.length === 0 ? (
-                <p className="text-xs text-muted-foreground">{t("Henüz değerlendirme yok.")}</p>
+          <div className="mb-5">
+            <p className="mb-3 flex items-center gap-1.5 text-sm font-black text-foreground">
+              <Star size={16} className="text-accent" />
+              {t("Değerlendirmeler")}
+            </p>
+            {reviews.length === 0 ? (
+              <p className="text-xs text-muted-foreground">{t("Henüz değerlendirme yok.")}</p>
             ) : (
-              <div className="space-y-3">
-                {reviews.map((r) => (
-                  <div key={r.id} className="flex gap-3 border-b border-border pb-3 last:border-0 last:pb-0">
-                    <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full bg-muted">
-                      {r.reviewer?.avatar_url ? (
-                        <img src={r.reviewer.avatar_url} alt="" className="h-full w-full object-cover" />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center">
-                          <User size={16} className="text-muted-foreground" />
+              <div className="-mx-5 overflow-x-auto px-5 scrollbar-hide">
+                <div className="flex gap-3 pb-2">
+                  {reviews.map((r) => (
+                    <div
+                      key={r.id}
+                      className="flex min-w-[260px] max-w-[260px] flex-col justify-between rounded-2xl bg-card p-4 shadow-card"
+                    >
+                      <div>
+                        <div className="mb-3 flex items-center gap-2.5">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-black text-primary">
+                            {initials(r.reviewer?.full_name)}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-xs font-bold text-foreground">
+                              {r.reviewer?.full_name || t("Kullanıcı")}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground">{timeAgo(r.created_at)}</p>
+                          </div>
                         </div>
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <p className="text-xs font-bold text-foreground">{r.reviewer?.full_name || "Kullanıcı"}</p>
-                        <div className="flex items-center gap-0.5 text-accent">
-                          {Array.from({ length: r.rating }).map((_, i) => (
-                            <Star key={i} size={11} fill="currentColor" />
+                        <div className="mb-2 flex items-center gap-0.5 text-accent">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <Star
+                              key={i}
+                              size={12}
+                              fill={i < r.rating ? "currentColor" : "transparent"}
+                              className={i < r.rating ? "text-accent" : "text-muted-foreground/40"}
+                            />
                           ))}
                         </div>
+                        {r.comment ? (
+                          <p className="line-clamp-4 text-xs leading-relaxed text-foreground">{r.comment}</p>
+                        ) : (
+                          <p className="text-xs italic text-muted-foreground">{t("Yorum yapılmamış")}</p>
+                        )}
                       </div>
-                      {r.comment && <p className="mt-0.5 text-xs text-muted-foreground">{r.comment}</p>}
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             )}
           </div>
+
 
           <button
             onClick={requestLocation}
