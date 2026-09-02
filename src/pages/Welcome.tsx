@@ -12,7 +12,7 @@ const Welcome = () => {
   const { t, lang, setLang } = useI18n();
   const [langOpen, setLangOpen] = useState(false);
 
-  const flags: Record<string, React.ReactNode> = {
+  const flags: Record<string, ReactNode> = {
     tr: (
       <svg viewBox="0 0 640 480" className="h-4 w-auto rounded-sm">
         <rect width="640" height="480" fill="#E30A17" />
