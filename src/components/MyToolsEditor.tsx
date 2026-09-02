@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useT } from "@/lib/i18n";
 import { Wrench, Check, Plus, X, Search as SearchIcon, Loader2, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -21,6 +22,7 @@ const normalize = (value: string) =>
 // görevlerle eşleştirip "elindeki aletlerle yapabileceğin işler" filtresinde kullanır.
 const MyToolsEditor = () => {
   const { user } = useAuth();
+  const t = useT();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [ownedTools, setOwnedTools] = useState<string[]>([]);
@@ -72,10 +74,10 @@ const MyToolsEditor = () => {
       .eq("user_id", user.id);
     setSaving(false);
     if (error) {
-      toast.error("Aletlerin kaydedilemedi.");
+      toast.error(t("Aletlerin kaydedilemedi."));
       return;
     }
-    toast.success("Aletlerin güncellendi!");
+    toast.success(t("Aletleri güncellendi!"));
   };
 
   if (loading) {
@@ -97,14 +99,14 @@ const MyToolsEditor = () => {
       <div className="mb-3 flex items-center justify-between gap-2">
         <span className="flex items-center gap-2 text-sm font-bold text-foreground">
           <Wrench size={18} className="text-primary" />
-          Aletlerim {totalCount > 0 && `(${totalCount})`}
+          {t("Aletlerim")} {totalCount > 0 && `(${totalCount})`}
         </span>
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
           className="flex items-center gap-1 rounded-lg border border-border bg-background px-2.5 py-1.5 text-[11px] font-bold text-foreground active:scale-95"
         >
-          {expanded ? "Kapat" : totalCount > 0 ? "Düzenle" : "Alet Ekle"}
+          {expanded ? t("Kapat") : totalCount > 0 ? t("Düzenle") : t("Alet Ekle")}
           <ChevronDown size={13} className={expanded ? "rotate-180 transition-transform" : "transition-transform"} />
         </button>
       </div>
@@ -133,7 +135,7 @@ const MyToolsEditor = () => {
       {expanded && (
         <>
       <p className="mb-3 text-xs text-muted-foreground">
-        Sahip olduğun aletleri işaretle. Alet gerektiren işler haritada senin aletlerinle uyumluysa öne çıkar.
+        {t("Sahip olduğun aletleri işaretle. Alet gerektiren işler haritada senin aletlerinle uyumluysa öne çıkar.")}
       </p>
 
       <div className="mb-2 flex items-center gap-2 rounded-xl border-2 border-border bg-background px-3 py-2.5 focus-within:border-primary">
@@ -141,7 +143,7 @@ const MyToolsEditor = () => {
         <input
           value={toolQuery}
           onChange={(e) => setToolQuery(e.target.value)}
-          placeholder="Alet ara..."
+          placeholder={t("Alet ara...")}
           className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground/50"
         />
       </div>
@@ -153,9 +155,9 @@ const MyToolsEditor = () => {
           );
           if (groupTools.length === 0) return null;
           return (
-            <div key={group}>
+            <div key={t(group)}>
               <p className="mb-1.5 text-[10px] font-bold uppercase tracking-wide text-muted-foreground/70">
-                {group}
+                {t(group)}
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {groupTools.map((tool) => (
@@ -170,7 +172,7 @@ const MyToolsEditor = () => {
                     }`}
                   >
                     {ownedTools.includes(tool.id) && <Check size={11} strokeWidth={3} />}
-                    {tool.label}
+                    {t(tool.label)}
                   </button>
                 ))}
               </div>
@@ -181,7 +183,7 @@ const MyToolsEditor = () => {
 
 
       <div className="mt-4">
-        <label className="mb-2 block text-xs font-bold text-muted-foreground">Listede Yoksa Elle Ekle</label>
+        <label className="mb-2 block text-xs font-bold text-muted-foreground">{t("Liste­de Yoksa Elle Ekle")}</label>
         <div className="flex gap-2">
           <input
             type="text"
@@ -193,7 +195,7 @@ const MyToolsEditor = () => {
                 addCustomTool();
               }
             }}
-            placeholder="Örn: Akvaryum pompası..."
+            placeholder={t("Örn: Akvaryum pompası...")}
             className="flex-1 rounded-xl border-2 border-border bg-background px-3 py-2.5 text-sm text-foreground outline-none focus:border-primary placeholder:text-muted-foreground/50"
           />
           <button
@@ -227,7 +229,7 @@ const MyToolsEditor = () => {
         disabled={saving}
         className="mt-4 w-full rounded-xl gradient-warm py-3 text-sm font-bold text-primary-foreground shadow-soft active:scale-95 disabled:opacity-60"
       >
-        {saving ? "Kaydediliyor..." : "Kaydet"}
+        {saving ? t("Kaydediliyor...") : t("Kaydet")}
       </button>
         </>
       )}

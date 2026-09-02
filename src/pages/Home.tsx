@@ -380,7 +380,7 @@ const Home = () => {
           <div className="pointer-events-none absolute inset-x-3 top-3 flex justify-end gap-2">
             <div className="flex items-center gap-1.5 rounded-full bg-card/95 px-3 py-1.5 shadow-card backdrop-blur">
               <Zap size={12} className="text-primary" />
-              <p className="text-[11px] font-black text-foreground">{filteredTasks.length} açık iş</p>
+              <p className="text-[11px] font-black text-foreground">{filteredTasks.length} {t("açık iş")}</p>
             </div>
             <div className="flex items-center gap-1.5 rounded-full bg-card/95 px-3 py-1.5 shadow-card backdrop-blur">
               <MapPin size={12} className="text-primary" />
@@ -393,7 +393,7 @@ const Home = () => {
         <button
           onClick={() => setMapType((t) => (t === "satellite" ? "standard" : "satellite"))}
           className="fixed bottom-36 right-4 z-[600] flex h-8 w-8 items-center justify-center rounded-full bg-card text-foreground shadow-card pointer-events-auto"
-          aria-label={mapType === "satellite" ? "Normal harita" : "Uydu görünümü"}
+          aria-label={mapType === "satellite" ? t("Normal harita") : t("Uydu görünümü")}
         >
           {mapType === "satellite" ? <Map size={18} /> : <Satellite size={18} />}
         </button>
@@ -402,7 +402,7 @@ const Home = () => {
         <button
           onClick={handleLocateMe}
           className="fixed bottom-24 right-4 z-[600] flex h-8 w-8 items-center justify-center rounded-full bg-sky-200 text-sky-700 shadow-md pointer-events-auto"
-          aria-label="Konumuma git"
+          aria-label={t("Konumuma git")}
         >
           <Crosshair size={22} className="text-sky-700" />
         </button>
@@ -439,7 +439,7 @@ const Home = () => {
             />
             <div className="fixed inset-x-0 bottom-0 z-[701] max-h-[80vh] overflow-y-auto rounded-t-3xl bg-background p-5 safe-bottom">
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-base font-black text-foreground">Filtrele</h2>
+                <h2 className="text-base font-black text-foreground">{t("Filtrele")}</h2>
                 <div className="flex items-center gap-3">
                   {activeFilterCount > 0 && (
                     <button

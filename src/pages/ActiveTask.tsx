@@ -1,4 +1,5 @@
 import { getLang, useT } from "@/lib/i18n";
+import { getTaskStatusLabel } from "@/lib/taskLifecycle";
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useParams, useNavigate } from "react-router-dom";
@@ -9,7 +10,7 @@ import { toast } from "sonner";
 import RouteMap from "@/components/RouteMap";
 import type { Tables } from "@/integrations/supabase/types";
 import { getTaskEmoji } from "@/lib/taskCategories";
-import { confirmCompletion, confirmDeadlineMs, formatRemaining, requestCompletion, rejectCompletion, markArrival, completionUnlockMs, taskStatusLabels } from "@/lib/taskLifecycle";
+import { confirmCompletion, confirmDeadlineMs, formatRemaining, requestCompletion, rejectCompletion, markArrival, completionUnlockMs } from "@/lib/taskLifecycle";
 
 type TaskerEntry = { tasker_id: string; profile: Tables<"profiles"> | null };
 
@@ -210,8 +211,8 @@ const ActiveTask = () => {
         <div className="min-w-0 flex-1">
           <h1 className="truncate text-base font-black text-foreground">{task.title}</h1>
           <p className="text-xs text-muted-foreground">
-            {taskStatusLabels[task.status]?.label || task.status}
-            {needed > 1 && ` · 👥 ${taskers.length}/${needed} kişi`}
+            {getTaskStatusLabel(task.status)}
+            {needed > 1 && ` · 👥 ${taskers.length}/${needed} ${t("kişi")}`}
           </p>
         </div>
         <span className="text-lg font-black text-primary">{task.current_price || task.price} ₺</span>
@@ -316,7 +317,7 @@ const ActiveTask = () => {
               onClick={() => setRejectOpen(true)}
               className="flex w-full items-center justify-center gap-2 rounded-2xl border border-destructive/40 px-4 py-3 text-sm font-bold text-destructive"
             >
-              <XCircle size={18} /> İş Yapılmadı
+              <XCircle size={18} /> {t("İş Yapılmadı")}
             </button>
             <p className="text-center text-[11px] text-muted-foreground">
               {(task.rejection_count ?? 0) >= 1
@@ -468,7 +469,7 @@ const ActiveTask = () => {
                   onClick={() => setRejectOpen(false)}
                   className="flex-1 rounded-2xl border border-border py-3 text-sm font-bold text-muted-foreground"
                 >
-                  Vazgeç
+                  {t("Vazgeç")}
                 </button>
                 <button
                   onClick={async () => {

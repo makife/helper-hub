@@ -41,7 +41,7 @@ const Search = () => {
       </div>
 
       <div className="px-5 pt-2">
-        <p className="mb-3 text-xs font-semibold text-muted-foreground">Kategoriler</p>
+        <p className="mb-3 text-xs font-semibold text-muted-foreground">{t("Kategoriler")}</p>
         <div className="space-y-2">
           {filtered.map((cat, i) => (
             <motion.button
@@ -53,7 +53,7 @@ const Search = () => {
               className="flex w-full items-center gap-3 rounded-xl border border-border bg-card p-3 text-left transition-all active:scale-[0.98]"
             >
               <span className="text-2xl">{cat.emoji}</span>
-              <span className="text-sm font-bold text-foreground">{cat.label}</span>
+              <span className="text-sm font-bold text-foreground">{t(cat.label)}</span>
             </motion.button>
           ))}
         </div>

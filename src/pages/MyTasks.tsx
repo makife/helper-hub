@@ -24,6 +24,7 @@ import { usePendingReviews } from "@/hooks/usePendingReviews";
 import TaskTimeline from "@/components/TaskTimeline";
 import {
   taskStatusLabels as statusLabels,
+  getTaskStatusLabel,
   isClosedStatus,
   requestCompletion,
   confirmCompletion,
@@ -537,7 +538,7 @@ const MyTasks = () => {
             <div className="space-y-3">
               {accepted.map((item, i) => {
                 const task = item.task;
-                const status = statusLabels[task.status] || statusLabels.open;
+                const status = { ...(statusLabels[task.status] || statusLabels.open), label: getTaskStatusLabel(task.status) };
                 const isDone = isClosedStatus(task.status);
                 const isMyCompletionRequest =
                   task.status === "pending_confirm" && task.completion_requested_by === user?.id;
@@ -671,7 +672,7 @@ const MyTasks = () => {
           <div className="space-y-3">
 
             {tasks.map((task, i) => {
-              const status = statusLabels[task.status] || statusLabels.open;
+              const status = { ...(statusLabels[task.status] || statusLabels.open), label: getTaskStatusLabel(task.status) };
               const isFaded = isClosedStatus(task.status);
 
               return (
@@ -707,7 +708,7 @@ const MyTasks = () => {
                       {computePrice(task).isDropping && (
                         <p className="text-[10px] font-semibold text-primary">↓ {formatCountdown(computePrice(task).msToNextDrop)}</p>
                       )}
-                      <span className="text-[10px] text-muted-foreground">Detay →</span>
+                      <span className="text-[10px] text-muted-foreground">{t("Detayları Gör")} →</span>
                     </div>
                   </div>
 
@@ -760,11 +761,11 @@ const MyTasks = () => {
                     </span>
                     <span className="flex items-center gap-1">
                       <Timer size={11} className="text-primary" />
-                      {task.status === "open" ? `Yayında ${formatElapsed(task.created_at, Date.now())}` : ""}
+                      {task.status === "open" ? `${t("Yayında:")} ${formatElapsed(task.created_at, Date.now())}` : ""}
                     </span>
                     {task.status === "pending_confirm" && (
                       <span className="flex items-center gap-1">
-                        El atan bitirdi, onay için {formatRemaining(confirmDeadlineMs(task.completion_requested_at))}
+                        {t("El atan bitirdi, onay için")} {formatRemaining(confirmDeadlineMs(task.completion_requested_at))}
                       </span>
                     )}
                     <span className="flex items-center gap-1">
