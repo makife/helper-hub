@@ -3,6 +3,7 @@ import { PAGES } from "./pages";
 import { LEGAL } from "./legal";
 import { CATALOG } from "./catalog";
 import { NOTIFICATIONS } from "./notifications";
+import { EXTRAS } from "./extras";
 
 export const EN: Record<string, string> = {
   ...UI,
@@ -10,4 +11,5 @@ export const EN: Record<string, string> = {
   ...LEGAL,
   ...CATALOG,
   ...NOTIFICATIONS,
+  ...EXTRAS,
 };
