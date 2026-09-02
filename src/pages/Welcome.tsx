@@ -71,15 +71,25 @@ const Welcome = () => {
         <AnimatePresence>
           {langOpen && (
             <motion.div
-              initial={{ opacity: 0, y: -8, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -8, scale: 0.95 }}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              variants={{
+                hidden: { opacity: 0, scaleY: 0.6, originY: 0 },
+                visible: { opacity: 1, scaleY: 1, originY: 0 },
+              }}
               transition={{ duration: 0.2, ease: "easeOut" }}
-              className="absolute right-0 top-full mt-1 flex w-36 origin-top-right flex-col rounded-xl border border-border bg-card p-1 shadow-lg"
+              className="absolute right-0 top-full mt-1 flex w-36 origin-top flex-col rounded-xl border border-border bg-card p-1 shadow-lg"
             >
-              {langOptions.map((o) => (
-                <button
+              {langOptions.map((o, i) => (
+                <motion.button
                   key={o.code}
+                  custom={i}
+                  variants={{
+                    hidden: { opacity: 0, y: -12 },
+                    visible: { opacity: 1, y: 0 },
+                  }}
+                  transition={{ duration: 0.2, delay: i * 0.06, ease: "easeOut" }}
                   onClick={() => {
                     setLang(o.code);
                     setLangOpen(false);
@@ -92,7 +102,7 @@ const Welcome = () => {
                 >
                   <span className="flex items-center">{flags[o.code]}</span>
                   <span>{o.label}</span>
-                </button>
+                </motion.button>
               ))}
             </motion.div>
           )}
