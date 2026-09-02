@@ -39,7 +39,7 @@ const InviteLanding = () => {
     <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background px-6 text-center">
       <img src={logo} alt="Bi' El At" width={72} height={72} />
       <div>
-        <h1 className="text-2xl font-black text-foreground">Davet kodu yükleniyor</h1>
+        <h1 className="text-2xl font-black text-foreground">{t("Davet kodu yükleniyor")}</h1>
         <p className="mt-2 text-base text-muted-foreground">
           {code ? `Kod: ${code.toUpperCase()}` : "Yönlendiriliyorsunuz..."}
         </p>

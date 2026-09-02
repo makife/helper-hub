@@ -123,7 +123,7 @@ const Notifications = () => {
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted">
               <Bell size={32} className="text-muted-foreground" />
             </div>
-            <p className="text-lg font-bold text-foreground">Henüz bildirim yok</p>
+            <p className="text-lg font-bold text-foreground">{t("Henüz bildirim yok")}</p>
             <p className="text-center text-sm text-muted-foreground">
               Çağrına başvuru geldiğinde, biri işi bıraktığında ve yeni mesaj aldığında burada görünecek.
             </p>

@@ -92,7 +92,7 @@ const Terms = () => {
         animate={{ y: 0, opacity: 1 }}
         className="mb-6"
       >
-        <h1 className="mb-2 text-2xl font-black text-foreground">Kullanım Koşulları</h1>
+        <h1 className="mb-2 text-2xl font-black text-foreground">{t("Kullanım Koşulları")}</h1>
         <p className="text-sm text-muted-foreground">
           Bi' El At uygulamasını kullanarak aşağıdaki şartları kabul etmiş olursunuz.
         </p>

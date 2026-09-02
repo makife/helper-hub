@@ -102,7 +102,7 @@ const Privacy = () => {
         animate={{ y: 0, opacity: 1 }}
         className="mb-6"
       >
-        <h1 className="mb-2 text-2xl font-black text-foreground">Gizlilik Politikası</h1>
+        <h1 className="mb-2 text-2xl font-black text-foreground">{t("Gizlilik Politikası")}</h1>
         <p className="text-sm text-muted-foreground">
           Kişisel verilerinizin gizliliği ve güvenliği bizim için önemli.
         </p>

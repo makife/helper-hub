@@ -100,7 +100,7 @@ const Messages = () => {
         <button onClick={() => navigate(-1)} className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card">
           <ArrowLeft size={20} className="text-foreground" />
         </button>
-        <h1 className="text-xl font-black text-foreground">Mesajlar</h1>
+        <h1 className="text-xl font-black text-foreground">{t("Mesajlar")}</h1>
       </div>
 
       <div className="flex-1 px-5 pb-24">
@@ -113,7 +113,7 @@ const Messages = () => {
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted">
               <MessageCircle size={32} className="text-muted-foreground" />
             </div>
-            <p className="mt-3 text-lg font-bold text-foreground">Henüz mesaj yok</p>
+            <p className="mt-3 text-lg font-bold text-foreground">{t("Henüz mesaj yok")}</p>
             <p className="mt-1 text-center text-sm text-muted-foreground">
               Bir iş kabul ettiğinizde mesajlaşma başlayacak.
             </p>

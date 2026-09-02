@@ -357,10 +357,10 @@ const MyTasks = () => {
     setIsUpdating(false);
     setConfirmState(null);
     if (ok) {
-      toast.success("İşten ayrıldın.");
+      toast.success(t("İşten ayrıldın."));
       fetchAccepted();
     } else {
-      toast.error("İşten ayrılamadın, tekrar dene.");
+      toast.error(t("İşten ayrılamadın, tekrar dene."));
     }
   };
 
@@ -410,12 +410,12 @@ const MyTasks = () => {
     const ok = await confirmCompletion(taskId);
     setIsUpdating(false);
     if (ok) {
-      toast.success("Yardım çağrısı tamamlandı.");
+      toast.success(t("Yardım çağrısı tamamlandı."));
       setSelectedTask(null);
       await fetchTasks();
       refreshPendingReviews();
     } else {
-      toast.error("İş tamamlanamadı, tekrar dene.");
+      toast.error(t("İş tamamlanamadı, tekrar dene."));
     }
   };
 
@@ -461,7 +461,7 @@ const MyTasks = () => {
       setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, status: "cancelled" } : t)));
       setSelectedTask(null);
     } else {
-      toast.error("İptal edilemedi, tekrar dene.");
+      toast.error(t("İptal edilemedi, tekrar dene."));
     }
     setIsUpdating(false);
     setConfirmState(null);
@@ -473,7 +473,7 @@ const MyTasks = () => {
     if (error) {
       toast.error(error.message || "İş başlatılamadı, tekrar dene.");
     } else {
-      toast.success("İş mevcut kontenjanla başlatıldı.");
+      toast.success(t("İş mevcut kontenjanla başlatıldı."));
       setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, status: "matched" } : t)));
     }
     setIsUpdating(false);
@@ -485,7 +485,7 @@ const MyTasks = () => {
     if (error) {
       toast.error(error.message || "İptal edilemedi, tekrar dene.");
     } else {
-      toast.success("Görev iptal edildi, el atanlara kredi iadesi yapıldı.");
+      toast.success(t("Görev iptal edildi, el atanlara kredi iadesi yapıldı."));
       setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, status: "cancelled" } : t)));
     }
     setIsUpdating(false);
@@ -497,7 +497,7 @@ const MyTasks = () => {
         <button onClick={() => navigate(-1)} className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card">
           <ArrowLeft size={20} className="text-foreground" />
         </button>
-        <h1 className="text-xl font-black text-foreground">İşlerim</h1>
+        <h1 className="text-xl font-black text-foreground">{t("İşlerim")}</h1>
       </div>
 
 
@@ -527,8 +527,8 @@ const MyTasks = () => {
               <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted">
                 <HeartHandshake size={32} className="text-muted-foreground" />
               </div>
-              <p className="mt-3 text-lg font-bold text-foreground">Henüz el attığın iş yok</p>
-              <p className="text-xs text-muted-foreground">Haritadan bir yardım çağrısı kabul et.</p>
+              <p className="mt-3 text-lg font-bold text-foreground">{t("Henüz el attığın iş yok")}</p>
+              <p className="text-xs text-muted-foreground">{t("Haritadan bir yardım çağrısı kabul et.")}</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -569,7 +569,7 @@ const MyTasks = () => {
                         <p className="text-base font-black text-primary">
                           {item.agreed_price ?? t.current_price ?? t.price} ₺
                         </p>
-                        <span className="text-[10px] text-muted-foreground">Anlaşılan</span>
+                        <span className="text-[10px] text-muted-foreground">{t("Anlaşılan")}</span>
                       </div>
                     </div>
 
@@ -664,7 +664,7 @@ const MyTasks = () => {
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted">
               <Clock size={32} className="text-muted-foreground" />
             </div>
-            <p className="mt-3 text-lg font-bold text-foreground">Henüz yardım çağrın yok</p>
+            <p className="mt-3 text-lg font-bold text-foreground">{t("Henüz yardım çağrın yok")}</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -834,7 +834,7 @@ const MyTasks = () => {
                 </div>
 
                 <div>
-                  <span className="font-semibold text-muted-foreground text-xs">Açıklama:</span>
+                  <span className="font-semibold text-muted-foreground text-xs">{t("Açıklama:")}</span>
                   <p className="mt-1 text-sm bg-muted/40 p-3 rounded-xl">{selectedTask.description}</p>
                 </div>
 
@@ -848,7 +848,7 @@ const MyTasks = () => {
                         <img 
                           key={idx} 
                           src={url} 
-                          alt="İş Görseli" 
+                          alt={t("İş Görseli")} 
                           className="h-20 w-20 object-cover rounded-xl border border-border"
                         />
                       ))}
@@ -873,7 +873,7 @@ const MyTasks = () => {
 
                 {/* İş akışı zaman çizelgesi */}
                 <div className="border-t pt-2">
-                  <span className="text-muted-foreground text-xs font-semibold">İş Akışı:</span>
+                  <span className="text-muted-foreground text-xs font-semibold">{t("İş Akışı:")}</span>
                   <TaskTimeline task={selectedTask} arrivedAt={ownedArrivals[selectedTask.id]} />
                 </div>
 

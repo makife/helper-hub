@@ -185,7 +185,7 @@ const CreateTask = () => {
           setIsCustomCategory(true);
           setCustomCategoryText(data.title || "");
         }
-        toast.info("Önceki görevin bilgileriyle dolduruldu, gözden geçirip yayınlayabilirsin.");
+        toast.info(t("Önceki görevin bilgileriyle dolduruldu, gözden geçirip yayınlayabilirsin."));
       }
     };
 
@@ -314,7 +314,7 @@ const CreateTask = () => {
 
       if (latitude == null || longitude == null) {
         setLoading(false);
-        toast.error("Konum alınamadı. Lütfen konum izni verip tekrar dene.");
+        toast.error(t("Konum alınamadı. Lütfen konum izni verip tekrar dene."));
         return;
       }
 
@@ -358,7 +358,7 @@ const CreateTask = () => {
 
       if (error) {
         if (!editTaskId && error.message?.includes("Yetersiz kredi")) {
-          toast.error("Yetersiz kredi! Yardım çağrısı oluşturmak için 1 kredi gerekli.", {
+          toast.error(t("Yetersiz kredi! Yardım çağrısı oluşturmak için 1 kredi gerekli."), {
             action: { label: "Kredi Yükle", onClick: () => navigate("/market") },
             duration: 6000,
           });
@@ -381,7 +381,7 @@ const CreateTask = () => {
       navigate("/my-tasks");
     } catch (err) {
       setLoading(false);
-      toast.error("Bir sorun oluştu.");
+      toast.error(t("Bir sorun oluştu."));
     }
   };
 
@@ -432,7 +432,7 @@ const CreateTask = () => {
               type="text"
               value={customCategoryText}
               onChange={(e) => setCustomCategoryText(e.target.value)}
-              placeholder="Örn: Akvaryum Temizliği, Avize Montajı..."
+              placeholder={t("Örn: Akvaryum Temizliği, Avize Montajı...")}
               className="w-full rounded-xl border-2 border-primary bg-card px-4 py-3 text-sm text-foreground outline-none shadow-sm placeholder:text-muted-foreground/50"
               autoFocus
             />
@@ -443,7 +443,7 @@ const CreateTask = () => {
                 <input
                   value={categoryQuery}
                   onChange={(e) => setCategoryQuery(e.target.value)}
-                  placeholder="Kategori ara... (300+ seçenek)"
+                  placeholder={t("Kategori ara... (300+ seçenek)")}
                   className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground/50"
                 />
               </div>
@@ -483,7 +483,7 @@ const CreateTask = () => {
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value.slice(0, 500))}
-            placeholder="İşin detaylarını açıkla (min 20 karakter)..."
+            placeholder={t("İşin detaylarını açıkla (min 20 karakter)...")}
             rows={3}
             className="w-full resize-none rounded-xl border-2 border-border bg-card px-4 py-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:border-primary"
           />
@@ -523,7 +523,7 @@ const CreateTask = () => {
                     : "bg-muted text-muted-foreground hover:bg-muted/80"
                 }`}
               >
-                <span>Diğer</span>
+                <span>{t("Diğer")}</span>
               </button>
             </div>
 
@@ -542,10 +542,10 @@ const CreateTask = () => {
                       setPersonCount(count);
                     }
                   }}
-                  placeholder="Örn: 6"
+                  placeholder={t("Örn: 6")}
                   className="w-full rounded-xl border-2 border-border bg-background px-4 py-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:border-primary"
                 />
-                <span className="whitespace-nowrap text-sm font-bold text-muted-foreground">kişi lazım</span>
+                <span className="whitespace-nowrap text-sm font-bold text-muted-foreground">{t("kişi lazım")}</span>
               </div>
             )}
           </div>
@@ -610,7 +610,7 @@ const CreateTask = () => {
 
         {/* Fotoğraf */}
         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.15 }}>
-          <label className="mb-2 block text-sm font-semibold text-foreground">Fotoğraf (opsiyonel)</label>
+          <label className="mb-2 block text-sm font-semibold text-foreground">{t("Fotoğraf (opsiyonel)")}</label>
           <div className="flex gap-2">
             {photoPreviews.map((preview, i) => (
               <div key={i} className="relative h-20 w-20 overflow-hidden rounded-xl border border-border">
@@ -632,7 +632,7 @@ const CreateTask = () => {
                   className="flex h-20 w-20 flex-col items-center justify-center gap-0.5 rounded-xl border-2 border-dashed border-primary/60 bg-primary/5 transition-colors active:bg-primary/10"
                 >
                   <Camera size={20} className="text-primary" />
-                  <span className="text-[10px] font-bold text-primary">Çek</span>
+                  <span className="text-[10px] font-bold text-primary">{t("Çek")}</span>
                 </button>
                 <button
                   type="button"
@@ -650,7 +650,7 @@ const CreateTask = () => {
 
         {/* Süre */}
         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }}>
-          <label className="mb-2 block text-sm font-semibold text-foreground">İşin Tahmini Bitiş Süresi</label>
+          <label className="mb-2 block text-sm font-semibold text-foreground">{t("İşin Tahmini Bitiş Süresi")}</label>
           <div className="flex flex-wrap gap-2">
             {durationPresets.map((d) => (
               <button
@@ -699,10 +699,10 @@ const CreateTask = () => {
                     setDuration(Math.round(hours * 60));
                   }
                 }}
-                placeholder="Örn: 10"
+                placeholder={t("Örn: 10")}
                 className="w-full rounded-xl border-2 border-border bg-card px-4 py-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:border-primary"
               />
-              <span className="whitespace-nowrap text-sm font-bold text-muted-foreground">saat sürer</span>
+              <span className="whitespace-nowrap text-sm font-bold text-muted-foreground">{t("saat sürer")}</span>
             </div>
           )}
         </motion.div>
@@ -772,7 +772,7 @@ const CreateTask = () => {
                   <input
                     value={toolQuery}
                     onChange={(e) => setToolQuery(e.target.value)}
-                    placeholder="Alet ara... (100+ seçenek)"
+                    placeholder={t("Alet ara... (100+ seçenek)")}
                     className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground/50"
                   />
                 </div>
@@ -827,7 +827,7 @@ const CreateTask = () => {
                         addCustomTool();
                       }
                     }}
-                    placeholder="Örn: Akvaryum pompası..."
+                    placeholder={t("Örn: Akvaryum pompası...")}
                     className="flex-1 rounded-xl border-2 border-border bg-background px-3 py-2.5 text-sm text-foreground outline-none focus:border-primary placeholder:text-muted-foreground/50"
                   />
                   <button
@@ -905,7 +905,7 @@ const CreateTask = () => {
             type="text"
             value={addressNote}
             onChange={(e) => setAddressNote(e.target.value)}
-            placeholder="Kapı zilini çalma, mesaj at..."
+            placeholder={t("Kapı zilini çalma, mesaj at...")}
             className="w-full rounded-xl border-2 border-border bg-card px-4 py-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:border-primary"
           />
         </motion.div>

@@ -136,10 +136,10 @@ const Market = () => {
         return;
       }
 
-      toast.success("Satın alma alındı, kredin yükleniyor…");
+      toast.success(t("Satın alma alındı, kredin yükleniyor…"));
       const arrived = await waitForCredits(before);
       if (arrived) toast.success(`${total} kredi hesabına eklendi 🎉`);
-      else toast.info("Kredin birkaç dakika içinde hesabına yansıyacak.");
+      else toast.info(t("Kredin birkaç dakika içinde hesabına yansıyacak."));
       load();
       return;
     }
@@ -147,7 +147,7 @@ const Market = () => {
     if (native) {
       setBuying(false);
       setSelected(null);
-      toast.error("Mağaza paketleri yüklenemedi. Bağlantını kontrol edip tekrar dene.");
+      toast.error(t("Mağaza paketleri yüklenemedi. Bağlantını kontrol edip tekrar dene."));
       return;
     }
 
@@ -168,7 +168,7 @@ const Market = () => {
     setSelected(null);
 
     if (txErr || upErr) {
-      toast.error("Satın alma tamamlanamadı.");
+      toast.error(t("Satın alma tamamlanamadı."));
       return;
     }
     toast.success(`${total} kredi hesabına eklendi 🎉`);
@@ -180,10 +180,10 @@ const Market = () => {
     const ok = await restorePurchases();
     setRestoring(false);
     if (ok) {
-      toast.success("Satın almaların kontrol edildi.");
+      toast.success(t("Satın almaların kontrol edildi."));
       load();
     } else {
-      toast.error("Satın almalar geri yüklenemedi.");
+      toast.error(t("Satın almalar geri yüklenemedi."));
     }
   };
 
@@ -193,7 +193,7 @@ const Market = () => {
         <button onClick={() => navigate(-1)} className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card">
           <ArrowLeft size={20} className="text-foreground" />
         </button>
-        <h1 className="text-xl font-black text-foreground">Kredi Marketi</h1>
+        <h1 className="text-xl font-black text-foreground">{t("Kredi Marketi")}</h1>
         {native && (
           <button
             onClick={handleRestore}
@@ -257,9 +257,9 @@ const Market = () => {
         </p>
 
         <div className="rounded-2xl bg-card p-4 shadow-card">
-          <p className="mb-3 text-sm font-black text-foreground">Kredi Hareketleri</p>
+          <p className="mb-3 text-sm font-black text-foreground">{t("Kredi Hareketleri")}</p>
           {history.length === 0 ? (
-            <p className="text-xs text-muted-foreground">Henüz hareket yok.</p>
+            <p className="text-xs text-muted-foreground">{t("Henüz hareket yok.")}</p>
           ) : (
             <div className="space-y-2.5">
               {history.map((h) => (
@@ -285,7 +285,7 @@ const Market = () => {
         open={!!selected}
         title={`${selected ? selected.credits + (selected.bonus || 0) : 0} kredi yükle`}
         description={`${selected?.priceLabel ?? `${selected?.price ?? 0} ₺`} karşılığında kredi hesabına eklenecek.`}
-        confirmLabel="Satın Al"
+        confirmLabel={t("Satın Al")}
         loading={buying}
         onConfirm={purchase}
         onCancel={() => setSelected(null)}

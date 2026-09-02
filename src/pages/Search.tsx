@@ -32,7 +32,7 @@ const Search = () => {
             autoFocus
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Ne yaptırmak istiyorsun?"
+            placeholder={t("Ne yaptırmak istiyorsun?")}
             className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground/50"
           />
         </div>
