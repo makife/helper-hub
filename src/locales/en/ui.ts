@@ -437,5 +437,4 @@ export const UI: Record<string, string> = {
   "Uygulama dilini {lang} olarak değiştirmek istiyor musunuz?": "Do you want to change the app language to {lang}?",
   "Değiştir": "Change",
   "Hoş geldin hediyesi: 5 kredi hesabına yüklendi! 🎁": "Welcome gift: 5 credits have been added to your account! 🎁",
-  "Davet kodunu kabul edersen ikinize de 1'er kredi hediye.": "If you accept the invite code, you both get 1 credit.",
 };
