@@ -419,7 +419,7 @@ const Profile = () => {
                         onClick={() => toggleSkill(s)}
                         className="gradient-warm flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold text-primary-foreground"
                       >
-                        {s}
+                        {t(s)}
                         <X size={12} />
                       </button>
                     ))}
@@ -456,7 +456,7 @@ const Profile = () => {
                   {filteredSkillGroups.map((g) => (
                     <div key={g.id}>
                       <p className="mb-1.5 text-[11px] font-black uppercase tracking-wide text-muted-foreground">
-                        {g.emoji} {g.label}
+                        {g.emoji} {t(g.label)}
                       </p>
                       <div className="flex flex-wrap gap-1.5">
                         {g.skills.map((s) => {
@@ -470,7 +470,7 @@ const Profile = () => {
                                 active ? "gradient-warm text-primary-foreground" : "border border-border bg-card text-foreground"
                               }`}
                             >
-                              {s}
+                              {t(s)}
                             </button>
                           );
                         })}
@@ -504,7 +504,7 @@ const Profile = () => {
                   <div className="flex flex-wrap gap-2">
                     {(profile?.skill_tags?.length ? profile.skill_tags : (profile?.skills || []).map((skill) => LEGACY_SKILL_LABELS[skill] || skill)).map((skill) => (
                       <span key={skill} className="rounded-full bg-muted px-3 py-1.5 text-xs font-bold text-foreground">
-                        {skill}
+                        {t(skill)}
                       </span>
                     ))}
                   </div>

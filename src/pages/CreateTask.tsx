@@ -398,7 +398,7 @@ const CreateTask = () => {
           <ArrowLeft size={20} className="text-foreground" />
         </button>
         <h1 className="text-xl font-black text-foreground">
-          {editTaskId ? "Yardım Çağrısını Düzenle" : "Yardım Çağrısı Oluştur"}
+          {editTaskId ? t("Yardım Çağrısını Düzenle") : t("Yardım Çağrısı Oluştur")}
         </h1>
       </div>
 
@@ -407,7 +407,7 @@ const CreateTask = () => {
         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
           <div className="mb-2 flex items-center justify-between">
             <label className="text-sm font-semibold text-foreground">
-              Kategori * {!isCustomCategory && <span className="text-xs text-muted-foreground"></span>}
+              {t("Kategori")} * {!isCustomCategory && <span className="text-xs text-muted-foreground"></span>}
             </label>
             <button
               type="button"
@@ -419,11 +419,11 @@ const CreateTask = () => {
             >
               {isCustomCategory ? (
                 <>
-                  <Grid size={14} /> Listeden Seç
+                  <Grid size={14} /> {t("Listeden Seç")}
                 </>
               ) : (
                 <>
-                  <Edit3 size={14} /> Kategoriyi Elle Gir
+                  <Edit3 size={14} /> {t("Kategoriyi Elle Gir")}
                 </>
               )}
             </button>
@@ -451,7 +451,7 @@ const CreateTask = () => {
               </div>
               <div className="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto pr-1">
               {categories
-                .filter((cat) => !categoryQuery || normalize(cat.label).includes(normalize(categoryQuery)))
+                .filter((cat) => !categoryQuery || normalize(`${t(cat.label)} ${t(cat.label)}`).includes(normalize(categoryQuery)))
                 .map((cat) => (
                 <button
                   key={cat.id}
@@ -465,7 +465,7 @@ const CreateTask = () => {
                 >
                   <span className="text-2xl">{cat.emoji}</span>
                   <span className="text-[11px] font-bold leading-tight whitespace-normal break-words text-center line-clamp-2">
-                    {cat.label}
+                    {t(cat.label)}
                   </span>
                 </button>
               ))}
@@ -496,7 +496,7 @@ const CreateTask = () => {
           <div>
             <label className="mb-2 flex items-center gap-2 text-sm font-bold text-foreground">
               <Users size={18} className="text-primary" />
-              Kaç Kişi Lazım?
+              {t("Kaç Kişi Lazım?")}
             </label>
             <div className="grid grid-cols-4 gap-2">
               {PERSON_OPTIONS.map((opt) => (
@@ -513,7 +513,7 @@ const CreateTask = () => {
                       : "bg-muted text-muted-foreground hover:bg-muted/80"
                   }`}
                 >
-                  <span>{opt.label}</span>
+                  <span>{t(opt.label)}</span>
                 </button>
               ))}
               <button
@@ -556,7 +556,7 @@ const CreateTask = () => {
             <div>
               <label className="mb-2 flex items-center gap-2 text-sm font-bold text-foreground">
                 <Clock size={18} className="text-primary" />
-                El atanların gelmesini ne kadar süre beklemeyi düşünüyorsun?
+                {t("El atanların gelmesini ne kadar süre beklemeyi düşünüyorsun?")}
               </label>
               <div className="flex flex-wrap gap-2">
                 {WAIT_TIME_OPTIONS.map((opt) => (
@@ -575,16 +575,14 @@ const CreateTask = () => {
                 ))}
               </div>
               <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                Kontenjan bu süre dolmadan tamamlanırsa iş otomatik başlar. Dolmazsa,
-                süre bitiminde çağrıyı sonlandırma veya mevcut kişilerle başlatma
-                seçeneği sana sunulur.
+                {t("Kontenjan bu süre dolmadan tamamlanırsa iş otomatik başlar. Dolmazsa,\n                süre bitiminde çağrıyı sonlandırma veya mevcut kişilerle başlatma\n                seçeneği sana sunulur.")}
               </p>
             </div>
           )}
 
           <div>
             <label className="mb-1 block text-sm font-bold text-foreground">
-              Teklif Edilen Ücret (Kişi Başı ₺) *
+              {t("Teklif Edilen Ücret (Kişi Başı ₺) *")}
             </label>
             <div className="relative">
               <input
@@ -604,7 +602,7 @@ const CreateTask = () => {
 
           {personCount > 1 && (
             <div className="flex justify-between items-center rounded-xl bg-primary/10 p-3 text-xs font-bold text-primary">
-              <span>{personCount} Kişi için Toplam Bütçe:</span>
+              <span>{t("{count} Kişi için Toplam Bütçe:", { count: personCount })}</span>
               <span className="text-base font-black">{totalPrice} ₺</span>
             </div>
           )}
@@ -642,7 +640,7 @@ const CreateTask = () => {
                   className="flex h-20 w-20 flex-col items-center justify-center gap-0.5 rounded-xl border-2 border-dashed border-border bg-muted/50 transition-colors active:bg-muted"
                 >
                   <ImageIcon size={20} className="text-muted-foreground" />
-                  <span className="text-[10px] text-muted-foreground">Galeri</span>
+                  <span className="text-[10px] text-muted-foreground">{t("Galeri")}</span>
                 </button>
               </>
             )}
@@ -682,7 +680,7 @@ const CreateTask = () => {
               }`}
             >
               <Edit3 size={14} />
-              Diğer
+              {t("Diğer")}
             </button>
           </div>
 
@@ -718,7 +716,7 @@ const CreateTask = () => {
           >
             <span className="flex items-center gap-2 text-sm font-bold text-foreground">
               <Wrench size={18} className="text-primary" />
-              İş İçin Alet/Edevat Gerekiyor mu?
+              {t("İş İçin Alet/Edevat Gerekiyor mu?")}
             </span>
             <span
               className={`flex h-6 w-6 items-center justify-center rounded-md border-2 transition-all ${
@@ -734,7 +732,7 @@ const CreateTask = () => {
               {/* Aletleri kim getirecek */}
               <div>
                 <label className="mb-2 block text-xs font-bold text-muted-foreground">
-                  Alet/Edevatı Kim Getirecek?
+                  {t("Alet/Edevatı Kim Getirecek?")}
                 </label>
                 <div className="flex gap-2">
                   <button
@@ -747,7 +745,7 @@ const CreateTask = () => {
                     }`}
                   >
                     <UserCheck size={14} />
-                    El Atan Getirsin
+                    {t("El Atan Getirsin")}
                   </button>
                   <button
                     type="button"
@@ -759,7 +757,7 @@ const CreateTask = () => {
                     }`}
                   >
                     <Home size={14} />
-                    Ben Sağlayacağım
+                    {t("Ben Sağlayacağım")}
                   </button>
                 </div>
               </div>
@@ -767,7 +765,7 @@ const CreateTask = () => {
               {/* Alet arama ve seçim */}
               <div>
                 <label className="mb-2 block text-xs font-bold text-muted-foreground">
-                  Gereken Alet/Malzemeleri Seç {selectedTools.length > 0 && `(${selectedTools.length} seçili)`}
+                  {t("Gereken Alet/Malzemeleri Seç")} {selectedTools.length > 0 && `(${selectedTools.length} ${t("seçili")})`}
                 </label>
                 <div className="mb-2 flex items-center gap-2 rounded-xl border-2 border-border bg-background px-3 py-2.5 focus-within:border-primary">
                   <SearchIcon size={16} className="text-muted-foreground" />
@@ -789,7 +787,7 @@ const CreateTask = () => {
                     return (
                       <div key={group}>
                         <p className="mb-1.5 text-[10px] font-bold uppercase tracking-wide text-muted-foreground/70">
-                          {group}
+                          {t(group)}
                         </p>
                         <div className="flex flex-wrap gap-1.5">
                           {groupTools.map((tool) => (
@@ -803,7 +801,7 @@ const CreateTask = () => {
                                   : "border border-border bg-background text-foreground"
                               }`}
                             >
-                              {tool.label}
+                              {t(tool.label)}
                             </button>
                           ))}
                         </div>
@@ -816,7 +814,7 @@ const CreateTask = () => {
               {/* Manuel alet ekleme */}
               <div>
                 <label className="mb-2 block text-xs font-bold text-muted-foreground">
-                  Listede Yoksa Elle Ekle
+                  {t("Liste­de Yoksa Elle Ekle")}
                 </label>
                 <div className="flex gap-2">
                   <input
@@ -859,7 +857,7 @@ const CreateTask = () => {
 
               {selectedTools.length + customTools.length === 0 && (
                 <p className="text-[11px] font-semibold text-destructive">
-                  ⚠️ En az bir alet/malzeme seçmelisin ya da elle eklemelisin.
+                  ⚠️ {t("En az bir alet/malzeme seçmelisin ya da elle eklemelisin.")}
                 </p>
               )}
             </div>
@@ -868,7 +866,7 @@ const CreateTask = () => {
 
         {/* Acillik */}
         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.25 }}>
-          <label className="mb-2 block text-sm font-semibold text-foreground">Acillik</label>
+          <label className="mb-2 block text-sm font-semibold text-foreground">{t("Acillik")}</label>
           <div className="flex gap-3">
             <button
               type="button"
@@ -880,7 +878,7 @@ const CreateTask = () => {
               }`}
             >
               <Flame size={16} />
-              Acil
+              {t("Acil")}
             </button>
             <button
               type="button"
@@ -892,7 +890,7 @@ const CreateTask = () => {
               }`}
             >
               <Clock size={16} />
-              Bekleyebilirim
+              {t("Bekleyebilirim")}
             </button>
           </div>
         </motion.div>
