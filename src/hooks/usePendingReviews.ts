@@ -1,3 +1,4 @@
+import { useT } from "@/lib/i18n";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -15,6 +16,7 @@ export type PendingReview = {
  * Puanlama zorunlu olduğu için uygulama bunları modal ile gösterir.
  */
 export const usePendingReviews = () => {
+  const t = useT();
   const { user } = useAuth();
   const [pending, setPending] = useState<PendingReview[]>([]);
 
@@ -79,7 +81,7 @@ export const usePendingReviews = () => {
         ...r,
         revieweeName:
           (profiles || []).find((p) => p.user_id === r.revieweeId)?.full_name ||
-          (r.role === "owner" ? "Yardım eden" : "İş veren"),
+          (r.role === "owner" ? t("Yardım eden") : t("İş veren")),
       }))
     );
   }, [user?.id]);
