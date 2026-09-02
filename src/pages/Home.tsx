@@ -41,6 +41,7 @@ const normalize = (value: string) =>
     .trim();
 
 const Home = () => {
+  const t = useT();
   const [tasks, setTasks] = useState<TaskWithUI[]>([]);
   const [selectedTask, setSelectedTask] = useState<TaskWithUI | null>(null);
   const [ownerNames, setOwnerNames] = useState<Record<string, string>>({});
