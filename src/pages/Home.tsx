@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useT } from "@/lib/i18n";
 import { AnimatePresence } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Zap, MapPin, Bell, Crosshair, SlidersHorizontal, X, Check, Map, Satellite } from "lucide-react";
@@ -40,6 +41,7 @@ const normalize = (value: string) =>
     .trim();
 
 const Home = () => {
+  const t = useT();
   const [tasks, setTasks] = useState<TaskWithUI[]>([]);
   const [selectedTask, setSelectedTask] = useState<TaskWithUI | null>(null);
   const [ownerNames, setOwnerNames] = useState<Record<string, string>>({});

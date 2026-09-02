@@ -231,6 +231,7 @@ export type Database = {
           id_verification_status: string
           is_available: boolean | null
           is_banned: boolean | null
+          language: string
           latitude: number | null
           longitude: number | null
           owned_tools: string[]
@@ -261,6 +262,7 @@ export type Database = {
           id_verification_status?: string
           is_available?: boolean | null
           is_banned?: boolean | null
+          language?: string
           latitude?: number | null
           longitude?: number | null
           owned_tools?: string[]
@@ -291,6 +293,7 @@ export type Database = {
           id_verification_status?: string
           is_available?: boolean | null
           is_banned?: boolean | null
+          language?: string
           latitude?: number | null
           longitude?: number | null
           owned_tools?: string[]

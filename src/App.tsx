@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { I18nProvider } from "@/lib/i18n";
 import Welcome from "./pages/Welcome";
 import Onboarding from "./pages/Onboarding";
 import Login from "./pages/Login";
@@ -34,35 +35,37 @@ setupNativeAuthListener();
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Welcome />} />
-              <Route path="/onboarding" element={<Onboarding />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/auth/callback" element={<AuthCallback />} />
-              <Route path="/davet/:code" element={<InviteLanding />} />
-              <Route path="/profile-setup" element={<ProfileSetup />} />
-              <Route path="/home" element={<Home />} />
-              <Route path="/create-task" element={<CreateTask />} />
-              <Route path="/search" element={<Search />} />
-              <Route path="/notifications" element={<Notifications />} />
-              <Route path="/my-tasks" element={<MyTasks />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/profile/:userId" element={<UserProfile />} />
-              <Route path="/market" element={<Market />} />
-              <Route path="/messages" element={<Messages />} />
-              <Route path="/task/:taskId" element={<ActiveTask />} />
-              <Route path="/terms" element={<Terms />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </AuthProvider>
+      <I18nProvider>
+        <AuthProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Welcome />} />
+                <Route path="/onboarding" element={<Onboarding />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/auth/callback" element={<AuthCallback />} />
+                <Route path="/davet/:code" element={<InviteLanding />} />
+                <Route path="/profile-setup" element={<ProfileSetup />} />
+                <Route path="/home" element={<Home />} />
+                <Route path="/create-task" element={<CreateTask />} />
+                <Route path="/search" element={<Search />} />
+                <Route path="/notifications" element={<Notifications />} />
+                <Route path="/my-tasks" element={<MyTasks />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/profile/:userId" element={<UserProfile />} />
+                <Route path="/market" element={<Market />} />
+                <Route path="/messages" element={<Messages />} />
+                <Route path="/task/:taskId" element={<ActiveTask />} />
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </TooltipProvider>
+        </AuthProvider>
+      </I18nProvider>
     </QueryClientProvider>
   </ErrorBoundary>
 );

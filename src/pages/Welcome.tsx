@@ -3,10 +3,12 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/logo.png";
+import { useT } from "@/lib/i18n";
 
 const Welcome = () => {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
+  const t = useT();
 
   useEffect(() => {
     if (!loading && user) {
@@ -48,7 +50,7 @@ const Welcome = () => {
         transition={{ delay: 0.5, duration: 0.5 }}
         className="mb-12 text-center text-lg text-muted-foreground"
       >
-        Yardım al, Yardım et.
+        {t("Yardım al, Yardım et.")}
       </motion.p>
 
       <motion.div
@@ -61,14 +63,14 @@ const Welcome = () => {
           onClick={() => navigate("/onboarding")}
           className="gradient-warm w-full rounded-2xl px-6 py-4 text-lg font-bold text-primary-foreground shadow-soft transition-transform active:scale-[0.98]"
         >
-          Başlayalım
+          {t("Başlayalım")}
         </button>
 
         <button
           onClick={() => navigate("/login")}
           className="w-full rounded-2xl border-2 border-border bg-card px-6 py-4 text-lg font-bold text-foreground transition-colors active:bg-muted"
         >
-          Zaten hesabım var
+          {t("Zaten hesabım var")}
         </button>
       </motion.div>
 
@@ -83,14 +85,14 @@ const Welcome = () => {
           onClick={() => navigate("/terms")}
           className="font-semibold text-primary underline-offset-2 hover:underline"
         >
-          Kullanım Koşulları
+          {t("Kullanım Koşulları")}
         </button>{" "}
         ve{" "}
         <button
           onClick={() => navigate("/privacy")}
           className="font-semibold text-primary underline-offset-2 hover:underline"
         >
-          Gizlilik Politikası
+          {t("Gizlilik Politikası")}
         </button>
         'nı kabul etmiş olursunuz.
       </motion.p>

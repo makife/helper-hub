@@ -28,6 +28,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Tables } from "@/integrations/supabase/types";
 import { toast } from "sonner";
+import { useI18n } from "@/lib/i18n";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { ALL_SKILLS, searchSkills } from "@/lib/skillCatalog";
 import MyToolsEditor from "@/components/MyToolsEditor";
@@ -72,6 +73,7 @@ const Profile = () => {
 
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const { t, lang, setLang } = useI18n();
 
   const loadAll = useCallback(async () => {
     if (!user) return;
@@ -112,6 +114,15 @@ const Profile = () => {
   useEffect(() => {
     loadAll();
   }, [loadAll]);
+
+  const changeLanguage = async (next: "tr" | "en") => {
+    setLang(next);
+    setProfile((prev) => (prev ? { ...prev, language: next } : prev));
+    if (user) {
+      const { error } = await supabase.from("profiles").update({ language: next }).eq("user_id", user.id);
+      if (error) toast.error(t("Dil tercihi kaydedilemedi."));
+    }
+  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -271,14 +282,14 @@ const Profile = () => {
         <button onClick={() => navigate(-1)} className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card">
           <ArrowLeft size={20} className="text-foreground" />
         </button>
-        <h1 className="flex-1 text-xl font-black text-foreground">Profil</h1>
+        <h1 className="flex-1 text-xl font-black text-foreground">{t("Profil")}</h1>
         {!loading && (
           <button
             onClick={() => setEditing((v) => !v)}
             className="flex items-center gap-1.5 rounded-xl bg-card px-3 py-2 text-xs font-bold text-primary shadow-card"
           >
             {editing ? <X size={14} /> : <Pencil size={14} />}
-            {editing ? "Vazgeç" : "Düzenle"}
+            {editing ? t("Vazgeç") : t("Düzenle")}
           </button>
         )}
       </div>
@@ -305,11 +316,11 @@ const Profile = () => {
                 <Camera size={15} />
               </span>
             </button>
-            {avatarUploading && <p className="mt-2 text-xs text-muted-foreground">Yükleniyor...</p>}
+            {avatarUploading && <p className="mt-2 text-xs text-muted-foreground">{t("Yükleniyor...")}</p>}
 
             {!editing && (
               <>
-                <h2 className="mt-3 text-lg font-black text-foreground">{profile?.full_name || "İsimsiz Kullanıcı"}</h2>
+                <h2 className="mt-3 text-lg font-black text-foreground">{profile?.full_name || t("İsimsiz Kullanıcı")}</h2>
                 {profile?.profession && (
                   <p className="mt-0.5 text-sm font-bold text-primary">{profile.profession}</p>
                 )}
@@ -328,12 +339,12 @@ const Profile = () => {
             <div className="flex flex-1 flex-col items-center rounded-xl bg-card p-3 shadow-card">
               <Star size={18} className="text-accent" />
               <p className="mt-1 text-lg font-black text-foreground">{Number(profile?.rating || 0).toFixed(1)}</p>
-              <p className="text-[10px] text-muted-foreground">Puan ({reviews.length})</p>
+              <p className="text-[10px] text-muted-foreground">{t("Puan")} ({reviews.length})</p>
             </div>
             <div className="flex flex-1 flex-col items-center rounded-xl bg-card p-3 shadow-card">
               <CheckCircle size={18} className="text-primary" />
               <p className="mt-1 text-lg font-black text-foreground">{profile?.total_completed || 0}</p>
-              <p className="text-[10px] text-muted-foreground">Tamamlanan</p>
+              <p className="text-[10px] text-muted-foreground">{t("Tamamlanan")}</p>
             </div>
             <button
               onClick={() => navigate("/market")}
@@ -341,7 +352,7 @@ const Profile = () => {
             >
               <Coins size={18} className="text-accent" />
               <p className="mt-1 text-lg font-black text-foreground">{profile?.credits ?? 0}</p>
-              <p className="text-[10px] text-muted-foreground">Kredi</p>
+              <p className="text-[10px] text-muted-foreground">{t("Kredi")}</p>
             </button>
           </div>
 
@@ -351,8 +362,8 @@ const Profile = () => {
           >
             <ShoppingBag size={20} />
             <div className="flex-1">
-              <p className="text-sm font-black">Kredi Marketi</p>
-              <p className="text-xs opacity-90">İş kabul etmek için kredi yükle</p>
+              <p className="text-sm font-black">{t("Kredi Marketi")}</p>
+              <p className="text-xs opacity-90">{t("İş kabul etmek için kredi yükle")}</p>
             </div>
           </button>
 
@@ -360,7 +371,7 @@ const Profile = () => {
           {editing ? (
             <div className="mb-5 space-y-3 rounded-2xl border border-border bg-card p-4">
               <div>
-                <label className="mb-1 block text-xs font-bold text-muted-foreground">Ad Soyad</label>
+                <label className="mb-1 block text-xs font-bold text-muted-foreground">{t("Ad Soyad")}</label>
                 <input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -368,16 +379,16 @@ const Profile = () => {
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-bold text-muted-foreground">Meslek / Uzmanlık Alanı</label>
+                <label className="mb-1 block text-xs font-bold text-muted-foreground">{t("Meslek / Uzmanlık Alanı")}</label>
                 <input
                   value={profession}
                   onChange={(e) => setProfession(e.target.value)}
-                  placeholder="Örn: Elektrik Teknisyeni"
+                  placeholder={t("Örn: Elektrik Teknisyeni")}
                   className="w-full rounded-xl border-2 border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary placeholder:text-muted-foreground/50"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-bold text-muted-foreground">Hakkında</label>
+                <label className="mb-1 block text-xs font-bold text-muted-foreground">{t("Hakkında")}</label>
                 <textarea
                   value={bio}
                   onChange={(e) => setBio(e.target.value.slice(0, 300))}
@@ -420,7 +431,7 @@ const Profile = () => {
                   <input
                     value={skillQuery}
                     onChange={(e) => setSkillQuery(e.target.value)}
-                    placeholder="Beceri ara (ör. musluk, boya, özel ders)"
+                    placeholder={t("Beceri ara (ör. musluk, boya, özel ders)")}
                     className="w-full rounded-xl border-2 border-border bg-background py-2.5 pl-9 pr-3 text-sm text-foreground outline-none focus:border-primary placeholder:text-muted-foreground/50"
                   />
                 </div>
@@ -474,14 +485,14 @@ const Profile = () => {
                 className="gradient-warm flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold text-primary-foreground disabled:opacity-50"
               >
                 <Check size={16} />
-                {saving ? "Kaydediliyor..." : "Kaydet"}
+                {saving ? t("Kaydediliyor...") : t("Kaydet")}
               </button>
             </div>
           ) : (
             <>
               {profile?.bio && (
                 <div className="mb-5 rounded-xl bg-card p-4 shadow-card">
-                  <p className="text-xs font-semibold text-muted-foreground">Hakkında</p>
+                  <p className="text-xs font-semibold text-muted-foreground">{t("Hakkında")}</p>
                   <p className="mt-1 text-sm text-foreground">{profile.bio}</p>
                 </div>
               )}
@@ -507,7 +518,7 @@ const Profile = () => {
             <div className="mb-3 flex items-center justify-between">
               <p className="flex items-center gap-1.5 text-sm font-black text-foreground">
                 <BadgeCheck size={16} className="text-primary" />
-                Yetkinlik Belgelerim
+                {t("Yetkinlik Belgelerim")}
               </p>
               <button
                 onClick={() => setCredOpen(true)}
@@ -546,12 +557,12 @@ const Profile = () => {
 
           {/* Değerlendirmeler */}
           <div className="mb-5 rounded-2xl bg-card p-4 shadow-card">
-            <p className="mb-3 flex items-center gap-1.5 text-sm font-black text-foreground">
-              <Star size={16} className="text-accent" />
-              Değerlendirmeler
-            </p>
-            {reviews.length === 0 ? (
-              <p className="text-xs text-muted-foreground">Henüz değerlendirme yok.</p>
+              <p className="mb-3 flex items-center gap-1.5 text-sm font-black text-foreground">
+                <Star size={16} className="text-accent" />
+                {t("Değerlendirmeler")}
+              </p>
+              {reviews.length === 0 ? (
+                <p className="text-xs text-muted-foreground">{t("Henüz değerlendirme yok.")}</p>
             ) : (
               <div className="space-y-3">
                 {reviews.map((r) => (
@@ -592,10 +603,10 @@ const Profile = () => {
             </div>
             <div className="flex-1">
               <p className="text-sm font-bold text-foreground">
-                {locationLoading ? "Konum alınıyor..." : locationGranted ? "Konum aktif ✓" : "Konumunu aç"}
+                {locationLoading ? t("Konum alınıyor...") : locationGranted ? t("Konum aktif ✓") : t("Konumunu aç")}
               </p>
               <p className="text-xs text-muted-foreground">
-                {locationGranted ? "Yakınındaki işleri görebilirsin" : "Yakınındaki işleri görmek için gerekli"}
+                {locationGranted ? t("Yakınındaki işleri görebilirsin") : t("Yakınındaki işleri görmek için gerekli")}
               </p>
             </div>
           </button>
@@ -607,6 +618,19 @@ const Profile = () => {
 
 
 
+          <div className="mb-5 rounded-2xl border border-border bg-card p-4 shadow-card">
+            <div className="mb-3 flex items-center justify-between">
+              <div>
+                <p className="text-sm font-black text-foreground">{t("Uygulama Dili")}</p>
+                <p className="text-xs text-muted-foreground">{t("Dil / Language")}</p>
+              </div>
+              <div className="flex rounded-xl bg-muted p-1">
+                <button type="button" onClick={() => void changeLanguage("tr")} className={`rounded-lg px-3 py-2 text-xs font-bold ${lang === "tr" ? "bg-card text-primary shadow-card" : "text-muted-foreground"}`}>TR</button>
+                <button type="button" onClick={() => void changeLanguage("en")} className={`rounded-lg px-3 py-2 text-xs font-bold ${lang === "en" ? "bg-card text-primary shadow-card" : "text-muted-foreground"}`}>EN</button>
+              </div>
+            </div>
+          </div>
+
           <div className="mb-5 space-y-2.5 rounded-2xl border border-border bg-card p-2 shadow-card">
             <button
               onClick={() => navigate("/terms")}
@@ -617,7 +641,7 @@ const Profile = () => {
                   <FileText size={18} />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-foreground">Kullanım Koşulları</p>
+                  <p className="text-sm font-bold text-foreground">{t("Kullanım Koşulları")}</p>
                   <p className="text-[11px] text-muted-foreground">Hizmet şartları ve sorumluluklar</p>
                 </div>
               </div>
@@ -635,7 +659,7 @@ const Profile = () => {
                   <Shield size={18} />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-foreground">Gizlilik Politikası</p>
+                  <p className="text-sm font-bold text-foreground">{t("Gizlilik Politikası")}</p>
                   <p className="text-[11px] text-muted-foreground">Kişisel verilerin korunması</p>
                 </div>
               </div>
@@ -729,8 +753,8 @@ const Profile = () => {
                   <Camera size={18} className="text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-foreground">Kamera ile Çek</p>
-                  <p className="text-xs text-muted-foreground">Yeni bir fotoğraf çek</p>
+                  <p className="text-sm font-bold text-foreground">{t("Kamera ile Çek")}</p>
+                  <p className="text-xs text-muted-foreground">{t("Yeni bir fotoğraf çek")}</p>
                 </div>
               </button>
               <button
@@ -741,8 +765,8 @@ const Profile = () => {
                   <Plus size={18} className="text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-foreground">Galeriden Seç</p>
-                  <p className="text-xs text-muted-foreground">Mevcut bir fotoğrafı kullan</p>
+                  <p className="text-sm font-bold text-foreground">{t("Galeriden Seç")}</p>
+                  <p className="text-xs text-muted-foreground">{t("Mevcut bir fotoğrafı kullan")}</p>
                 </div>
               </button>
               <button
