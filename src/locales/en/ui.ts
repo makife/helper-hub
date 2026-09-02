@@ -1,4 +1,11 @@
 export const UI: Record<string, string> = {
+  "Türk Lirası": "Turkish Lira",
+  "Dolar": "US Dollar",
+  "Euro": "Euro",
+  "Sterlin": "British Pound",
+  "Para birimi": "Currency",
+  "Ödeme hangi para birimiyle yapılacak?": "Which currency will the payment use?",
+  "Teklif Edilen Ücret (Kişi Başı) *": "Offered price (per person) *",
   "Geri": "Back",
   "Atla": "Skip",
   "Devam": "Continue",

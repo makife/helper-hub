@@ -1,5 +1,5 @@
 import { useT } from "@/lib/i18n";
-import { formatPrice } from "@/lib/currency";
+import { CURRENCIES, CURRENCY_LABELS, currencySymbol, formatPrice, type CurrencyCode } from "@/lib/currency";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -62,6 +62,7 @@ const CreateTask = () => {
   const [customPersonCountInput, setCustomPersonCountInput] = useState("");
   const [waitMinutes, setWaitMinutes] = useState<number>(60);
   const [basePriceInput, setBasePriceInput] = useState<string>("200");
+  const [currency, setCurrency] = useState<CurrencyCode>("TRY");
   const basePrice = Number(basePriceInput) || 0;
   const [duration, setDuration] = useState(30);
   const [isCustomDuration, setIsCustomDuration] = useState(false);
@@ -102,6 +103,7 @@ const CreateTask = () => {
       if (data && !error) {
         setDescription(data.description || "");
         setBasePriceInput(String(data.price ? Math.round(data.price / (data.person_count || 1)) : 200));
+        setCurrency((data.currency as CurrencyCode) || "TRY");
         const loadedPersonCount = data.person_count || 1;
         setPersonCount(loadedPersonCount);
         if (!PERSON_OPTIONS.some((p) => p.value === loadedPersonCount)) {
@@ -158,6 +160,7 @@ const CreateTask = () => {
       if (data && !error) {
         setDescription(data.description || "");
         setBasePriceInput(String(data.price ? Math.round(data.price / (data.person_count || 1)) : 200));
+        setCurrency((data.currency as CurrencyCode) || "TRY");
         const loadedPersonCount = data.person_count || 1;
         setPersonCount(loadedPersonCount);
         if (!PERSON_OPTIONS.some((p) => p.value === loadedPersonCount)) {
@@ -328,6 +331,7 @@ const CreateTask = () => {
         category: enumCategory as any,
         subcategory: isCustomCategory ? null : selectedCategoryId,
         urgency,
+        currency,
         price: safeTotalPrice,
         current_price: safeTotalPrice,
         min_price: safeMinPrice,
@@ -583,28 +587,41 @@ const CreateTask = () => {
 
           <div>
             <label className="mb-1 block text-sm font-bold text-foreground">
-              {t("Teklif Edilen Ücret (Kişi Başı ₺) *")}
+              {t("Teklif Edilen Ücret (Kişi Başı) *")}
             </label>
-            <div className="relative">
-              <input
-                type="text"
-                inputMode="numeric"
-                value={basePriceInput}
-                onChange={(e) => {
-                  const digits = e.target.value.replace(/\D/g, "").replace(/^0+(?=\d)/, "");
-                  setBasePriceInput(digits);
-                }}
-                className="w-full rounded-xl border border-input bg-background p-3 text-base font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder="200"
-              />
-              <span className="absolute right-4 top-3.5 font-bold text-muted-foreground">₺</span>
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={basePriceInput}
+                  onChange={(e) => {
+                    const digits = e.target.value.replace(/\D/g, "").replace(/^0+(?=\d)/, "");
+                    setBasePriceInput(digits);
+                  }}
+                  className="w-full rounded-xl border border-input bg-background p-3 pr-12 text-base font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="200"
+                />
+                <span className="absolute right-4 top-3.5 font-bold text-muted-foreground">{currencySymbol(currency)}</span>
+              </div>
+              <select
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value as CurrencyCode)}
+                aria-label={t("Para birimi")}
+                className="w-[7.5rem] rounded-xl border border-input bg-background px-3 text-sm font-bold text-foreground outline-none focus:ring-2 focus:ring-primary"
+              >
+                {CURRENCIES.map((code) => (
+                  <option key={code} value={code}>{currencySymbol(code)} {t(CURRENCY_LABELS[code])}</option>
+                ))}
+              </select>
             </div>
+            <p className="mt-1.5 text-xs text-muted-foreground">{t("Ödeme hangi para birimiyle yapılacak?")}</p>
           </div>
 
           {personCount > 1 && (
             <div className="flex justify-between items-center rounded-xl bg-primary/10 p-3 text-xs font-bold text-primary">
               <span>{t("{count} Kişi için Toplam Bütçe:", { count: personCount })}</span>
-              <span className="text-base font-black">{formatPrice(totalPrice)}</span>
+              <span className="text-base font-black">{formatPrice(totalPrice, currency)}</span>
             </div>
           )}
         </motion.div>

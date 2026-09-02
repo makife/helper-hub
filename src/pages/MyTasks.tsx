@@ -1,5 +1,5 @@
 import { useT, translate } from "@/lib/i18n";
-import { formatPrice } from "@/lib/currency";
+import { formatPrice, getTaskCurrency } from "@/lib/currency";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -572,7 +572,7 @@ const MyTasks = () => {
                       </div>
                       <div className="text-right">
                         <p className="text-base font-black text-primary">
-                          {formatPrice(item.agreed_price ?? task.current_price ?? task.price)}
+                          {formatPrice(item.agreed_price ?? task.current_price ?? task.price, getTaskCurrency(task))}
                         </p>
                         <span className="text-[10px] text-muted-foreground">{t("Anlaşılan")}</span>
                       </div>
@@ -705,7 +705,7 @@ const MyTasks = () => {
                     </div>
 
                     <div className="text-right">
-                      <p className="text-base font-black text-primary">{formatPrice(computePrice(task).price)}</p>
+                      <p className="text-base font-black text-primary">{formatPrice(computePrice(task).price, getTaskCurrency(task))}</p>
                       {computePrice(task).isDropping && (
                         <p className="text-[10px] font-semibold text-primary">↓ {formatCountdown(computePrice(task).msToNextDrop)}</p>
                       )}
@@ -861,7 +861,7 @@ const MyTasks = () => {
 
                 <div className="flex justify-between py-1 border-t pt-2">
                   <span className="text-muted-foreground">{t("Fiyat:")}</span>
-                  <span className="font-bold text-primary">{formatPrice(selectedTask.price)}</span>
+                  <span className="font-bold text-primary">{formatPrice(selectedTask.price, getTaskCurrency(selectedTask))}</span>
                 </div>
 
                 {/* Yayında geçen süre */}
