@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { I18nProvider } from "@/lib/i18n";
 import Welcome from "./pages/Welcome";
 import Onboarding from "./pages/Onboarding";
 import Login from "./pages/Login";
