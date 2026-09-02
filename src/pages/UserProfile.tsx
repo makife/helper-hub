@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Star, CheckCircle, Phone, User, BadgeCheck, Award } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
+import { timeAgo } from "@/lib/dateFormat";
 
 const SKILL_LABELS: Record<string, string> = {
   ampul_takma: "💡 Ampul Takma",
