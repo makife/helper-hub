@@ -8,6 +8,7 @@ import {
   getPendingReferralCode,
   clearPendingReferralCode,
 } from "@/lib/nativeAuth";
+import { useT } from "@/lib/i18n";
 
 /**
  * Davet kodu beklemedeyse (linkle gelinmişse) ana sayfada açılan kabul diyaloğu.
@@ -15,6 +16,7 @@ import {
  */
 const ReferralPrompt = () => {
   const { user } = useAuth();
+  const t = useT();
   const [pendingCode, setPendingCode] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -49,7 +51,7 @@ const ReferralPrompt = () => {
       .maybeSingle();
 
     if (!referrer) {
-      toast.error("Geçersiz davet kodu.");
+      toast.error(t("Geçersiz davet kodu."));
       setSubmitting(false);
       return;
     }
@@ -62,14 +64,14 @@ const ReferralPrompt = () => {
     setSubmitting(false);
 
     if (error) {
-      toast.error("Davet kodu kaydedilemedi.");
+      toast.error(t("Davet kodu kaydedilemedi."));
       console.error(error);
       return;
     }
 
     clearPendingReferralCode();
     setPendingCode(null);
-    toast.success("Davet kodu kabul edildi! İkinize de 1'er kredi hediye edildi. 🎉");
+    toast.success(t("Davet kodu kabul edildi! İkinize de 1'er kredi hediye edildi. 🎉"));
   };
 
   const handleSkip = () => {
@@ -97,13 +99,13 @@ const ReferralPrompt = () => {
                 <UserPlus size={24} />
               </div>
               <div>
-                <h3 className="text-lg font-black text-foreground">Arkadaşın seni davet etti</h3>
-                <p className="text-xs text-muted-foreground">Davet kodunu kabul edersen ikinize de 1'er kredi hediye.</p>
+                <h3 className="text-lg font-black text-foreground">{t("Arkadaşın seni davet etti")}</h3>
+                <p className="text-xs text-muted-foreground">{t("Davet kodunu kabul edersen ikinize de 1'er kredi hediye.")}</p>
               </div>
             </div>
 
             <div className="mb-5 rounded-2xl border-2 border-dashed border-primary/40 bg-primary/5 px-4 py-4 text-center">
-              <p className="text-xs font-semibold text-muted-foreground">Davet kodu</p>
+              <p className="text-xs font-semibold text-muted-foreground">{t("Davet kodu")}</p>
               <p className="text-2xl font-black tracking-widest text-primary">{pendingCode}</p>
             </div>
 
@@ -112,14 +114,14 @@ const ReferralPrompt = () => {
                 onClick={handleSkip}
                 className="flex-1 rounded-2xl border-2 border-border bg-card py-3 text-sm font-bold text-foreground transition-all active:scale-[0.98]"
               >
-                Sonra
+                {t("Sonra")}
               </button>
               <button
                 onClick={handleAccept}
                 disabled={submitting}
                 className="flex-1 rounded-2xl bg-primary py-3 text-sm font-bold text-primary-foreground transition-all active:scale-[0.98] disabled:opacity-50"
               >
-                {submitting ? "Kaydediliyor..." : "Kabul Et"}
+                {submitting ? t("Kaydediliyor...") : t("Kabul Et")}
               </button>
             </div>
           </motion.div>

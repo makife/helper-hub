@@ -4,11 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { isNativePlatform } from "@/lib/nativeAuth";
+import { useT } from "@/lib/i18n";
 
 const PUBLISHED_URL = "https://task-hand-shake.lovable.app";
 
 const ReferralCard = () => {
   const { user } = useAuth();
+  const t = useT();
   const [code, setCode] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -27,8 +29,8 @@ const ReferralCard = () => {
   const deepLink = `com.ergan.bielat://davet?code=${code}`;
   const webLink = `${PUBLISHED_URL}/davet/${code}`;
   const shareText = isNativePlatform()
-    ? `Bi' El At'ta yardım çağrısı açıp hızlıca el atacak birini buluyorum. Sen de dene, ${code} kodumla kaydolursan ikimize de kredi hediye: ${deepLink}`
-    : `Bi' El At'ta yardım çağrısı açıp hızlıca el atacak birini buluyorum. Sen de dene, ${code} kodumla kaydolursan ikimize de kredi hediye: ${webLink}`;
+    ? t("Bi' El At'ta yardım çağrısı açıp hızlıca el atacak birini buluyorum. Sen de dene, {code} kodumla kaydolursan ikimize de kredi hediye: {link}", { code, link: deepLink })
+    : t("Bi' El At'ta yardım çağrısı açıp hızlıca el atacak birini buluyorum. Sen de dene, {code} kodumla kaydolursan ikimize de kredi hediye: {link}", { code, link: webLink });
 
   const copyText = async (text: string) => {
     try {
@@ -63,7 +65,7 @@ const ReferralCard = () => {
         await Share.share({
           title: "Bi' El At",
           text: shareText,
-          dialogTitle: "Davet linkini paylaş",
+          dialogTitle: t("Davet Linkini Paylaş"),
         });
         return;
       } catch (err: any) {
@@ -80,18 +82,18 @@ const ReferralCard = () => {
       }
     }
     const ok = await copyText(shareText);
-    if (ok) toast.success("Davet metni kopyalandı!");
-    else toast.error("Paylaşım yapılamadı, kodu elle kopyalayabilirsin.");
+    if (ok) toast.success(t("Davet metni kopyalandı!"));
+    else toast.error(t("Paylaşım yapılamadı, kodu elle kopyalayabilirsin."));
   };
 
   const handleCopyCode = async () => {
     const ok = await copyText(code);
     if (!ok) {
-      toast.error("Kod kopyalanamadı.");
+      toast.error(t("Kod kopyalanamadı."));
       return;
     }
     setCopied(true);
-    toast.success("Kod kopyalandı!");
+    toast.success(t("Kod kopyalandı!"));
     setTimeout(() => setCopied(false), 1500);
   };
 
@@ -99,10 +101,10 @@ const ReferralCard = () => {
     <div className="rounded-2xl border border-border bg-card p-4">
       <div className="mb-2 flex items-center gap-2 text-sm font-bold text-foreground">
         <Gift size={18} className="text-primary" />
-        Arkadaşını Davet Et
+        {t("Arkadaşını Davet Et")}
       </div>
       <p className="mb-3 text-xs text-muted-foreground">
-        Kodunla kaydolan arkadaşın uygulamaya katılınca ikinize de 1'er kredi hediye.
+        {t("Kodunla kaydolan arkadaşın uygulamaya katılınca ikinize de 1'er kredi hediye.")}
       </p>
 
       <button
@@ -118,7 +120,7 @@ const ReferralCard = () => {
         className="flex w-full items-center justify-center gap-2 rounded-xl gradient-warm py-3 text-sm font-bold text-primary-foreground shadow-soft active:scale-95"
       >
         <Share2 size={16} />
-        Davet Linkini Paylaş
+        {t("Davet Linkini Paylaş")}
       </button>
     </div>
   );
