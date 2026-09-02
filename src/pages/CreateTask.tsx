@@ -477,7 +477,7 @@ const CreateTask = () => {
         {/* Açıklama */}
         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.05 }}>
           <label className="mb-1.5 flex items-center justify-between text-sm font-semibold text-foreground">
-            Açıklama *
+            {t("Açıklama *")}
             <span className={`text-xs ${description.length < 20 ? "text-destructive" : "text-muted-foreground"}`}>
               {description.length}/500
             </span>
@@ -570,7 +570,7 @@ const CreateTask = () => {
                         : "border-border bg-card text-muted-foreground"
                     }`}
                   >
-                    {opt.label}
+                    {t(opt.label)}
                   </button>
                 ))}
               </div>
@@ -667,7 +667,7 @@ const CreateTask = () => {
                 }`}
               >
                 <Clock size={14} />
-                {d.label}
+                {t(d.label)}
               </button>
             ))}
             <button
@@ -899,7 +899,7 @@ const CreateTask = () => {
         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }}>
           <label className="mb-1.5 block text-sm font-semibold text-foreground">
             <MapPin size={14} className="mb-0.5 mr-1 inline text-primary" />
-            Adres Notu (opsiyonel)
+            {t("Adres Notu (opsiyonel)")}
           </label>
           <input
             type="text"
@@ -916,15 +916,15 @@ const CreateTask = () => {
         {!isValid && (
           <p className="mb-2 text-center text-xs text-muted-foreground">
             {!isValidCategory
-              ? "⬆️ Bir kategori seçin veya kategori adını girin"
+              ? `⬆️ ${t("Bir kategori seçin veya kategori adını girin")}`
               : description.length < 20
-                ? `⬆️ Açıklama en az 20 karakter olmalı. (${description.length}/20)`
+                ? `⬆️ ${t("Açıklama en az 20 karakter olmalı. ({count}/20)", { count: description.length })}`
                 : !isValidDuration
-                  ? "⬆️ Süreyi saat cinsinden girin"
+                  ? `⬆️ ${t("Süreyi saat cinsinden girin")}`
                   : !isValidPersonCount
-                    ? "⬆️ Kişi sayısını girin"
+                    ? `⬆️ ${t("Kişi sayısını girin")}`
                     : !isValidTools
-                      ? "⬆️ En az bir alet/malzeme seç ya da elle ekle"
+                      ? `⬆️ ${t("En az bir alet/malzeme seç ya da elle ekle")}`
                       : ""}
           </p>
         )}
@@ -936,11 +936,11 @@ const CreateTask = () => {
         >
           {loading
             ? editTaskId
-              ? "Güncelleniyor..."
-              : "Oluşturuluyor..."
+              ? t("Güncelleniyor...")
+              : t("Oluşturuluyor...")
             : editTaskId
-              ? "Yardım Çağrısını Güncelle"
-              : "Yardım Çağrısı Oluştur!"}
+              ? t("Yardım Çağrısını Güncelle")
+              : t("Yardım Çağrısı Oluştur!")}
         </button>
       </div>
     </div>

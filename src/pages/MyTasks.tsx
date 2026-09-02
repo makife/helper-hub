@@ -510,13 +510,13 @@ const MyTasks = () => {
           onClick={() => setTab("owned")}
           className={`flex-1 rounded-xl py-2 text-xs font-black transition-all ${tab === "owned" ? "bg-card text-primary shadow-card" : "text-muted-foreground"}`}
         >
-          Yardım Çağrılarım ({tasks.length})
+          {t("Yardım Çağrılarım")} ({tasks.length})
         </button>
         <button
           onClick={() => setTab("accepted")}
           className={`flex-1 rounded-xl py-2 text-xs font-black transition-all ${tab === "accepted" ? "bg-card text-primary shadow-card" : "text-muted-foreground"}`}
         >
-          El Attıklarım ({accepted.length})
+          {t("El Attıklarım")} ({accepted.length})
         </button>
       </div>
 
