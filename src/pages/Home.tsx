@@ -589,6 +589,7 @@ const Home = () => {
         )}
       </AnimatePresence>
 
+      <ReferralPrompt />
       <BottomNav />
     </div>
   );
