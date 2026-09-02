@@ -10,6 +10,12 @@ const Welcome = () => {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
   const { t, lang, setLang } = useI18n();
+  const [langOpen, setLangOpen] = useState(false);
+
+  const langOptions = [
+    { code: "tr" as const, label: "Türkçe", flag: "🇹🇷" },
+    { code: "en" as const, label: "English", flag: "🇬🇧" },
+  ];
 
   useEffect(() => {
     if (!loading && user) {
