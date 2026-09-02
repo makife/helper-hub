@@ -47,13 +47,13 @@ const MyToolsEditor = () => {
   }, [user]);
 
   const toggleTool = (id: string) => {
-    setOwnedTools((prev) => (prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]));
+    setOwnedTools((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]));
   };
 
   const addCustomTool = () => {
     const value = customInput.trim();
     if (!value) return;
-    if (customOwnedTools.some((t) => normalize(t) === normalize(value))) {
+    if (customOwnedTools.some((item) => normalize(item) === normalize(value))) {
       setCustomInput("");
       return;
     }
@@ -90,7 +90,7 @@ const MyToolsEditor = () => {
 
   const totalCount = ownedTools.length + customOwnedTools.length;
   const selectedLabels = [
-    ...ownedTools.map((id) => ALL_TOOLS.find((t) => t.id === id)?.label || id),
+    ...ownedTools.map((id) => t(ALL_TOOLS.find((tool) => tool.id === id)?.label || id)),
     ...customOwnedTools,
   ];
 
