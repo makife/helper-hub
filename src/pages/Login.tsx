@@ -124,7 +124,7 @@ const Login = () => {
               <path fill="#FBBC05" d="M5.1 14.2c-.3-.8-.4-1.6-.4-2.2 0-.8.1-1.5.4-2.2v-.3L1.3 6.6l-.1.06A11.9 11.9 0 0 0 0 12c0 1.9.5 3.8 1.2 5.4l3.9-3.2Z" />
               <path fill="#EA4335" d="M12 4.7c2.3 0 3.8 1 4.7 1.8l3.4-3.3C18 1.2 15.3 0 12 0 7.2 0 3.1 2.7 1.2 6.6l3.9 3.2c1-3 3.7-5.1 6.9-5.1Z" />
             </svg>
-            {pending === "google" ? "{t("Yönlendiriliyor...")}" : "{t("Google ile devam et")}"}
+            {pending === "google" ? t("Yönlendiriliyor...") : t("Google ile devam et")}
           </button>
         )}
 
@@ -137,7 +137,7 @@ const Login = () => {
             <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M16.4 12.7c0-2.6 2.1-3.9 2.2-4-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.3-.9-1.7 0-3.3 1-4.2 2.5-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.5 1.3-.05 1.8-.8 3.3-.8 1.5 0 2 .8 3.3.8 1.4 0 2.2-1.2 3.1-2.5.98-1.4 1.4-2.8 1.4-2.9-.03-.01-2.7-1-2.7-3.8ZM14 3.9c.7-.9 1.2-2.1 1-3.3-1 .04-2.3.7-3 1.6-.7.8-1.3 2-1.1 3.2 1.1.09 2.3-.6 3.1-1.5Z" />
             </svg>
-            {pending === "apple" ? "{t("Yönlendiriliyor...")}" : "{t("Apple ile devam et")}"}
+            {pending === "apple" ? t("Yönlendiriliyor...") : t("Apple ile devam et")}
           </button>
         )}
 

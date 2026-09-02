@@ -63,14 +63,14 @@ const Welcome = () => {
           onClick={() => navigate("/onboarding")}
           className="gradient-warm w-full rounded-2xl px-6 py-4 text-lg font-bold text-primary-foreground shadow-soft transition-transform active:scale-[0.98]"
         >
-          Başlayalım
+          {t("Başlayalım")}
         </button>
 
         <button
           onClick={() => navigate("/login")}
           className="w-full rounded-2xl border-2 border-border bg-card px-6 py-4 text-lg font-bold text-foreground transition-colors active:bg-muted"
         >
-          Zaten hesabım var
+          {t("Zaten hesabım var")}
         </button>
       </motion.div>
 

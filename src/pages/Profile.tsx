@@ -603,10 +603,10 @@ const Profile = () => {
             </div>
             <div className="flex-1">
               <p className="text-sm font-bold text-foreground">
-                {locationLoading ? "{t("Konum alınıyor...")}" : locationGranted ? "{t("Konum aktif ✓")}" : "{t("Konumunu aç")}"}
+                {locationLoading ? t("Konum alınıyor...") : locationGranted ? t("Konum aktif ✓") : t("Konumunu aç")}
               </p>
               <p className="text-xs text-muted-foreground">
-                {locationGranted ? "{t("Yakınındaki işleri görebilirsin")}" : "{t("Yakınındaki işleri görmek için gerekli")}"}
+                {locationGranted ? t("Yakınındaki işleri görebilirsin") : t("Yakınındaki işleri görmek için gerekli")}
               </p>
             </div>
           </button>
