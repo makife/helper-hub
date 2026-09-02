@@ -75,6 +75,8 @@ export const EXTRAS: Record<string, string> = {
   "İş yapılmadı mı?": "Was the task not completed?",
   "Bu ikinci itirazın. Anlaşmazlık olarak değerlendirilecek ve varış kaydına göre tarafsız sonuçlandırılacak.": "This is your second objection. It will be treated as a dispute and resolved neutrally based on the arrival record.",
   "El atan kişiye bildirilecek, işi tamamlayıp tekrar bildirebilecek. Haksız itirazlar sicilinize işlenir.": "The helper will be notified and can complete the task and report again. Unfair objections are recorded on your account.",
+  "İş konumuna 300 m yaklaşınca \"Vardım\" de; \"Bitirdim\" bundan sonra açılır.": "Tap \"Arrived\" within 300 m of the task location; \"Finished\" unlocks afterward.",
+  "{title} belgesini silmek istediğine emin misin?": "Are you sure you want to delete the document \"{title}\"?",
   "İptal Et": "Cancel",
   "İptal edilemedi, tekrar dene.": "Could not cancel. Try again.",
   "İşten ayrıldın.": "You left the task.",
