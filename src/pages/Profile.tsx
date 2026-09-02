@@ -700,7 +700,7 @@ const Profile = () => {
           </div>
 
           <button
-            onClick={handleSignOut}
+            onClick={() => setSignOutOpen(true)}
             className="flex w-full items-center justify-center gap-2 rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3.5 text-sm font-bold text-destructive transition-all active:scale-[0.98]"
           >
             <LogOut size={16} />
@@ -819,6 +819,19 @@ const Profile = () => {
         confirmLabel={t("Sil")}
         onConfirm={deleteCredential}
         onCancel={() => setCredToDelete(null)}
+      />
+
+      <ConfirmDialog
+        open={signOutOpen}
+        title={t("Çıkış Yap")}
+        description={t("Hesabından çıkış yapmak istediğine emin misin?")}
+        confirmLabel={t("Çıkış Yap")}
+        cancelLabel={t("Vazgeç")}
+        onConfirm={() => {
+          setSignOutOpen(false);
+          void handleSignOut();
+        }}
+        onCancel={() => setSignOutOpen(false)}
       />
 
       <ConfirmDialog
