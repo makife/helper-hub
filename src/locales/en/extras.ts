@@ -156,7 +156,8 @@ export const EXTRAS: Record<string, string> = {
   "Kabul Et ✋ ({count}/{needed})": "Accept ✋ ({count}/{needed})",
   "Kontenjan doldu ({count}/{needed})": "All spots filled ({count}/{needed})",
   "Ödeme taraflar arasında elden yapılır. Bi' El At, ödeme anlaşmazlıklarında taraf olmaz.": "Payment is made directly between the parties. Bi' El At is not a party to payment disputes.",
-  "Yardım çağrısı yapan, el atan kontenjanının dolmasını {time} daha beklemektedir. Bu süreden önce işe başlanamayacak. Süre dolunca çağrı yapan dilerse çağrıyı sonlandırır veya mevcut kontenjanla işi başlatabilir. Süreçle ilgili bildirim gönderilecektir.": "The requester is waiting {time} more for all helper spots to fill. The task cannot start before this time. When it ends, the requester can close the request or start with the current helpers. You will be notified about the process.",
+  "Yardım çağrısı yapan, el atan kontenjanının dolmasını ": "The requester is waiting ",
+  " daha beklemektedir. Bu süreden önce işe başlanamayacak. Süre dolunca çağrı yapan dilerse çağrıyı sonlandırır veya mevcut kontenjanla işi başlatabilir. Süreçle ilgili bildirim gönderilecektir.": " more for all helper spots to fill. The task cannot start before this time. When it ends, the requester can close the request or start with the current helpers. You will be notified about the process.",
   "Bekleme süresi bitmek üzere; çağrı yapan şu anda dilerse çağrıyı sonlandırabilir veya mevcut kontenjanla işi başlatabilir. Süreçle ilgili bildirim gönderilecektir.": "The waiting period is almost over; the requester can now close the request or start with the current helpers. You will be notified about the process.",
   "{price} karşılığında kredi hesabına eklenecek.": "{price} will be charged and the credits added to your account.",
 };
