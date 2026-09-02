@@ -12,6 +12,7 @@ type TaskPin = {
   title: string;
   emoji: string;
   price: number;
+  currency?: string | null;
   lat: number;
   lng: number;
   urgent?: boolean;

@@ -313,6 +313,7 @@ const Home = () => {
       id: t.id,
       title: t.title,
       price: computePrice(t).price,
+      currency: getTaskCurrency(t),
       lat,
       lng,
       emoji: t.emoji,
