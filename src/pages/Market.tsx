@@ -158,11 +158,22 @@ const Market = () => {
       return;
     }
 
-    // Web: krediler güvenlik nedeniyle yalnızca mağaza satın alması sonrası sunucu tarafında yüklenir
+    // Web: test amaçlı sunucu tarafında kredi yükleme
+    const { data, error } = await supabase.rpc("test_grant_credits", {
+      _credits: total,
+      _pack: selected.id,
+    });
     setBuying(false);
     setSelected(null);
-    toast.info(t("Kredi satın alma yalnızca mobil uygulamada yapılabilir."));
+    if (error) {
+      toast.error(t("Satın alma tamamlanamadı."));
+      return;
+    }
+    if (typeof data === "number") setCredits(data);
+    toast.success(t("{total} kredi hesabına eklendi 🎉", { total }));
+    load();
   };
+
 
 
   const handleRestore = async () => {
