@@ -1,1 +1,67 @@
-export const LEGAL: Record<string, string> = {};
+export const LEGAL: Record<string, string> = {
+  "Geri": "Back",
+  "Kullanım Koşulları": "Terms of Use",
+  "Gizlilik Politikası": "Privacy Policy",
+  "Bi' El At uygulamasını kullanarak aşağıdaki şartları kabul etmiş olursunuz.": "By using the Bi' El At app, you agree to the terms below.",
+  "Kişisel verilerinizin gizliliği ve güvenliği bizim için önemli.": "The privacy and security of your personal data are important to us.",
+  "Son güncelleme": "Last updated",
+};
+
+const TERMS: Record<string, string> = {
+  "1. Taraflar ve Tanımlar": "1. Parties and Definitions",
+  "Bi' El At, Ergan Game&App tarafından işletilen bir yardımlaşma ve komşuluk platformudur.": "Bi' El At is a mutual-aid and neighbourhood platform operated by Ergan Game&App.",
+  "'Yardım Çağrısı Açan' (işveren), uygulama üzerinden destek talebinde bulunan kullanıcıdır.": "The 'Requester' is a user who asks for support through the app.",
+  "'El Atan' (yardımcı), açılan çağrıya başvurarak destek sağlayan kullanıcıdır.": "The 'Helper' is a user who applies to an open request and provides support.",
+  "Platform yalnızca kullanıcıları bir araya getiren bir aracıdır; tarafların kendi aralarındaki ilişkide taraf değildir.": "The platform only connects users and is not a party to their relationship.",
+  "2. Hizmetin Kapsamı": "2. Scope of Service",
+  "Uygulama, kullanıcıların yerel komşuluk çerçevesinde küçük işler, tamirat, taşıma ve benzeri günlük yardım taleplerini paylaşmasını sağlar.": "The app lets users share requests for small jobs, repairs, moving and similar everyday help within their local community.",
+  "Platform, kullanıcı profillerini, konum bilgilerini, mesajlaşma ve değerlendirme araçlarını sunar.": "The platform provides user profiles, location information, messaging and review tools.",
+  "Bi' El At, gerçekleşen işin niteliği, süresi, bedeli veya tarafların davranışları üzerinde doğrudan kontrol sahibi değildir.": "Bi' El At does not directly control the nature, duration or cost of a task, or the conduct of the parties.",
+  "3. Sorumluluk Reddi": "3. Disclaimer",
+  "Taraflar arasında doğabilecek uyuşmazlıklarda, hasar, gecikme, kalite sorunu veya ödeme anlaşmazlıklarında Bi' El At ve Ergan Game&App sorumlu tutulamaz.": "Bi' El At and Ergan Game&App are not liable for disputes, damage, delays, quality issues or payment disagreements between parties.",
+  "Yardım Çağrısı Açan ve El Atan, işin şartlarını (süre, ücret, yapılacaklar) kendi aralarında netleştirir.": "The Requester and Helper agree the task terms (duration, fee and scope) between themselves.",
+  "Platform üzerinde gerçekleşen işlemler tamamen kullanıcıların kendi sorumluluğundadır.": "Transactions on the platform are entirely the users' responsibility.",
+  "Bi' El At, kullanıcıların kimlik, yetkinlik veya belgelerini garanti etmez; profilde paylaşılan bilgilerin doğruluğu kullanıcıya aittir.": "Bi' El At does not guarantee users' identity, qualifications or documents; users are responsible for the accuracy of their profile information.",
+  "4. Kredi ve Ödeme": "4. Credits and Payments",
+  "El Atan'ın bir çağrıya başvurabilmesi için yeterli krediye sahip olması gerekir.": "A Helper must have sufficient credits to apply to a request.",
+  "Krediler uygulama içi satın alma yollarıyla temin edilir ve iade koşulları satın alma sırasında belirtilir.": "Credits are obtained through in-app purchases; refund terms are stated at purchase.",
+  "Platform, kullanıcılar arası doğrudan ödeme veya nakit transferi yapmaz; bu tür düzenlemeler tarafların kendi inisiyatifindedir.": "The platform does not process direct payments or cash transfers between users; such arrangements are up to the parties.",
+  "Kötüye kullanım, dolandırıcılık veya sahte çağrı tespit edilen hesaplarda kredi ve hesap dondurma işlemi uygulanabilir.": "Credits and accounts may be frozen when abuse, fraud or fake requests are detected.",
+  "5. Davranış Kuralları": "5. Code of Conduct",
+  "Kullanıcılar birbirine karşı saygılı ve güvenli iletişim kurmakla yükümlüdür.": "Users must communicate with one another respectfully and safely.",
+  "Ayrımcı, taciz edici, tehditkar veya yasa dışı içerik paylaşımı yasaktır.": "Discriminatory, harassing, threatening or unlawful content is prohibited.",
+  "Sahte çağrı, spam veya platformu kötüye kullanan hesaplar kalıcı olarak engellenebilir.": "Accounts that create fake requests, spam or abuse the platform may be permanently blocked.",
+  "Kullanıcılar, gerçekleştirdikleri işle ilgili dürüst değerlendirme yapmakla yükümlüdür.": "Users must leave honest reviews about tasks they complete.",
+  "6. Değerlendirme ve İçerik": "6. Reviews and Content",
+  "Tamamlanan işlerde çift onaylı değerlendirme sistemi kullanılır.": "Completed tasks use a dual-confirmation review system.",
+  "Yapılan yorumlar ve puanlar kamusal bir güvenilirlik kaynağıdır; silinmesi talep edilse de platform, yasalara aykırı olmadığı sürece içeriği saklayabilir.": "Reviews and ratings are public trust signals; the platform may retain content unless it is unlawful, even if deletion is requested.",
+  "Kullanıcılar, paylaştıkları fotoğraf, belge ve metinlerin kendilerine ait olduğunu ve yasalara uygun olduğunu kabul eder.": "Users confirm that the photos, documents and text they share belong to them and comply with the law.",
+  "7. Değişiklikler ve İletişim": "7. Changes and Contact",
+  "Bu koşullar önceden bildirmeksizin güncellenebilir; güncel versiyon uygulama içinde veya web sitesinde yayımlanır.": "These terms may be updated without prior notice; the current version is published in the app or on the website.",
+  "Hizmeti kullanmaya devam eden kullanıcı, güncel koşulları kabul etmiş sayılır.": "Continued use of the service means the user accepts the current terms.",
+  "Sorularınız için makifergan@gmail.com adresine yazabilirsiniz.": "For questions, email makifergan@gmail.com.",
+};
+
+const PRIVACY: Record<string, string> = {
+  "1. Veri Sorumlusu": "1. Data Controller", "Veri sorumlusu: Ergan Game&App (makifergan@gmail.com).": "Data controller: Ergan Game&App (makifergan@gmail.com).",
+  "2. Toplanan Veriler": "2. Data Collected", "3. Konum Verilerinin Kullanımı": "3. Use of Location Data", "4. Verilerin İşlenme Amaçları": "4. Purposes of Processing",
+  "5. Ödeme ve Kredi Verileri": "5. Payment and Credit Data", "6. Verilerin Paylaşılması": "6. Data Sharing", "7. Saklama Süreleri ve Haklarınız": "7. Retention Periods and Your Rights", "8. İletişim": "8. Contact",
+};
+
+const pairs: Record<string, string> = {
+  "Bu politika, Bi' El At uygulamasında işlenen kişisel verilerin hangi amaçla, ne şekilde ve ne kadar süreyle saklandığını açıklar.": "This policy explains why and how personal data is processed in Bi' El At and how long it is retained.",
+  "Uygulama, 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) ve ilgili düzenlemelere uygun olarak çalışır.": "The app operates in accordance with Turkey's Personal Data Protection Law No. 6698 (KVKK) and related regulations.",
+  "Kimlik bilgileri: ad, soyad, profil fotoğrafı, telefon numarası (giriş amaçlı).": "Identity data: name, surname, profile photo and phone number (for sign-in).",
+  "Konum verileri: cihaz GPS veya IP tabanlı yaklaşık konum, yakındaki çağrıları göstermek için kullanılır.": "Location data: device GPS or approximate IP-based location, used to show nearby requests.",
+  "Profil verileri: beceriler, meslek, biyografi, yetkinlik belgeleri ve değerlendirmeler.": "Profile data: skills, profession, biography, competency documents and reviews.",
+  "İletişim verileri: uygulama içi mesajlar, çağrı başvuruları ve tamamlanan iş geçmişi.": "Communication data: in-app messages, request applications and completed task history.",
+  "Cihaz ve günlük verileri: işletim sistemi, uygulama çökme raporları, kullanım istatistikleri (anonimleştirilmiş).": "Device and log data: operating system, crash reports and anonymised usage statistics.",
+  "Konum bilgisi, yalnızca uygulamanın temel işlevselliği için (yakındaki çağrılar, rota oluşturma) kullanılır.": "Location data is used only for core app functionality (nearby requests and route creation).",
+  "Kullanıcı dilediği zaman cihaz ayarlarından konum iznini geri çekebilir; bu durumda bazı özellikler kısıtlanabilir.": "Users can withdraw location permission in device settings at any time; some features may then be limited.",
+  "Kullanıcı hesabının oluşturulması ve yönetilmesi.": "Creating and managing user accounts.", "Yardım çağrılarının eşleştirilmesi, mesajlaşma ve iş takibi.": "Matching help requests, messaging and task tracking.",
+  "Güvenilirlik puanlaması, dolandırıcılık önleme ve platform güvenliği.": "Trust ratings, fraud prevention and platform security.", "Ödeme/kredi işlemlerinin kaydedilmesi ve faturalandırma desteği.": "Recording payment/credit transactions and supporting billing.",
+  "Profil adı, fotoğrafı, becerileri ve puanı, diğer kullanıcılar tarafından görülebilir.": "Your profile name, photo, skills and rating may be visible to other users.",
+  "Hesap verileri: hesabın silinmesine kadar saklanır.": "Account data: retained until the account is deleted.", "Gizlilik politikası, çerez kullanımı veya veri talepleri için: makifergan@gmail.com": "For privacy, cookie or data requests: makifergan@gmail.com",
+};
+
+Object.assign(LEGAL, TERMS, PRIVACY, pairs);
