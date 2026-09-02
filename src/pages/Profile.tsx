@@ -80,6 +80,7 @@ const Profile = () => {
   const [credSaving, setCredSaving] = useState(false);
   const [credToDelete, setCredToDelete] = useState<Credential | null>(null);
   const [pendingLang, setPendingLang] = useState<"tr" | "en" | null>(null);
+  const [signOutOpen, setSignOutOpen] = useState(false);
 
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
