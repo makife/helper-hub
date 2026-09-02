@@ -636,7 +636,7 @@ const MyTasks = () => {
                         disabled={isUpdating}
                         className="mt-3 w-full rounded-xl bg-primary py-2.5 text-xs font-bold text-primary-foreground disabled:opacity-50"
                       >
-                        <CheckCircle2 size={14} className="mr-1 inline" /> İşi Onayla ve Tamamla
+                        <CheckCircle2 size={14} className="mr-1 inline" /> {t("İşi Onayla ve Tamamla")}
                       </button>
                     )}
                     {!isDone && t.status !== "pending_confirm" && (
@@ -859,7 +859,7 @@ const MyTasks = () => {
                 )}
 
                 <div className="flex justify-between py-1 border-t pt-2">
-                  <span className="text-muted-foreground">Fiyat:</span>
+                  <span className="text-muted-foreground">{t("Fiyat:")}</span>
                   <span className="font-bold text-primary">{selectedTask.price} ₺</span>
                 </div>
 

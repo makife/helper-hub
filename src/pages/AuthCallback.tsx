@@ -26,7 +26,7 @@ const AuthCallback = () => {
       <div>
         <h1 className="text-2xl font-black text-foreground">{t("Giriş tamamlandı")}</h1>
         <p className="mt-2 text-base text-muted-foreground">
-          Uygulamaya yönlendiriliyorsunuz...
+          {t("Yönlendiriliyorsunuz...")}
         </p>
       </div>
       <button

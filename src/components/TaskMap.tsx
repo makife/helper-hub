@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Map, Satellite } from "lucide-react";
+import { useT } from "@/lib/i18n";
 
 
 type TaskPin = {
@@ -123,6 +124,7 @@ type Props = {
 
 const TaskMap = ({ tasks, center = [40.9903, 29.0297], userPos = null, onTaskClick, mapType = "satellite" }: Props) => {
 
+  const t = useT();
   const mapCenter = center || userPos || [40.9903, 29.0297];
 
   const userIcon = useMemo(() => L.divIcon({
@@ -193,36 +195,36 @@ const TaskMap = ({ tasks, center = [40.9903, 29.0297], userPos = null, onTaskCli
               )}
 
               <div className="flex items-center justify-between border-b border-border/40 py-1">
-                <span className="text-[10px] font-semibold text-muted-foreground">Kategori:</span>
+                <span className="text-[10px] font-semibold text-muted-foreground">{t("Kategori:")}</span>
                 <span className="line-clamp-1 max-w-[120px] text-right text-xs font-bold">{task.title}</span>
               </div>
 
               {task.ownerName && (
                 <div className="flex items-center justify-between border-b border-border/40 py-1">
-                  <span className="text-[10px] font-semibold text-muted-foreground">Çağrı yapan:</span>
+                  <span className="text-[10px] font-semibold text-muted-foreground">{t("Çağrı yapan:")}</span>
                   <span className="line-clamp-1 max-w-[120px] text-right text-xs text-muted-foreground">{task.ownerName}</span>
                 </div>
               )}
 
               {typeof task.estimatedMinutes === "number" && (
                 <div className="flex items-center justify-between border-b border-border/40 py-1">
-                  <span className="text-[10px] font-semibold text-muted-foreground">Süre:</span>
+                  <span className="text-[10px] font-semibold text-muted-foreground">{t("Süre:")}</span>
                   <span className="text-right text-xs text-muted-foreground">~{task.estimatedMinutes} dk</span>
                 </div>
               )}
 
               {task.needsTools && (
                 <div className="flex items-center justify-between border-b border-border/40 py-1">
-                  <span className="text-[10px] font-semibold text-muted-foreground">Alet/Edevat:</span>
+                  <span className="text-[10px] font-semibold text-muted-foreground">{t("Alet/Edevat:")}</span>
                   <span className="line-clamp-1 max-w-[130px] text-right text-xs font-semibold text-primary">
-                    {task.toolProvider === "owner" ? "Ben Sağlıyorum" : "El Atan Getirsin"}
+                    {task.toolProvider === "owner" ? t("Ben Sağlıyorum") : t("El Atan Getirsin")}
                     {typeof task.toolsCount === "number" && task.toolsCount > 0 ? ` (${task.toolsCount})` : ""}
                   </span>
                 </div>
               )}
 
               <div className="flex items-center justify-between border-b border-border/40 py-1">
-                <span className="text-[10px] font-semibold text-muted-foreground">Fiyat:</span>
+                <span className="text-[10px] font-semibold text-muted-foreground">{t("Fiyat:")}</span>
                 <span className="text-right font-black text-primary">{task.price} ₺</span>
               </div>
 

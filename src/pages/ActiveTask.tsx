@@ -1,4 +1,4 @@
-import { useT } from "@/lib/i18n";
+import { getLang, useT } from "@/lib/i18n";
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useParams, useNavigate } from "react-router-dom";
@@ -270,10 +270,10 @@ const ActiveTask = () => {
             <div className="flex-1">
               <p className="text-sm font-bold text-foreground">{otherProfile.full_name}</p>
               <p className="text-xs text-muted-foreground">
-                {isTasker ? "İş Veren" : "Tasker"} · ⭐ {otherProfile.rating || "0.0"}
+                {isTasker ? t("İş Veren") : t("Tasker")} · ⭐ {otherProfile.rating || "0.0"}
               </p>
             </div>
-            <span className="text-xs text-primary font-semibold">Profil →</span>
+            <span className="text-xs text-primary font-semibold">{t("Profili Gör →")}</span>
           </button>
         )}
 
@@ -283,7 +283,7 @@ const ActiveTask = () => {
             <div className="flex flex-1 items-center gap-2 rounded-xl bg-primary/5 px-3 py-2">
               <MapPin size={14} className="text-primary" />
               <div>
-                <p className="text-[10px] text-muted-foreground">Senin Konumun</p>
+                <p className="text-[10px] text-muted-foreground">{t("Senin Konumun")}</p>
                 <p className="text-xs font-bold text-foreground">{userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}</p>
               </div>
             </div>
@@ -310,7 +310,7 @@ const ActiveTask = () => {
               }}
               className="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 font-bold text-primary-foreground shadow-soft"
             >
-              <CheckCircle2 size={18} /> İşi Onayla ve Tamamla
+              <CheckCircle2 size={18} /> {t("İşi Onayla ve Tamamla")}
             </button>
             <button
               onClick={() => setRejectOpen(true)}
@@ -343,7 +343,7 @@ const ActiveTask = () => {
                 }}
                 className="flex w-full items-center justify-center gap-2 rounded-2xl bg-accent px-4 py-3 font-bold text-accent-foreground disabled:opacity-50"
               >
-                <MapPin size={18} /> {arriving ? "Konum kontrol ediliyor..." : "Vardım (Konumumu Doğrula)"}
+                <MapPin size={18} /> {arriving ? t("Konum kontrol ediliyor...") : t("Vardım (Konumumu Doğrula)")}
               </button>
             ) : (
               <button
@@ -409,7 +409,7 @@ const ActiveTask = () => {
               >
                 <p className="text-sm">{msg.content}</p>
                 <p className={`text-[10px] mt-1 ${isMine ? "text-primary-foreground/60" : "text-muted-foreground"}`}>
-                  {new Date(msg.created_at).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}
+                  {new Date(msg.created_at).toLocaleTimeString(getLang() === "en" ? "en-US" : "tr-TR", { hour: "2-digit", minute: "2-digit" })}
                 </p>
               </div>
             </div>
