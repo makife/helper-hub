@@ -216,14 +216,14 @@ const ProfileSetup = () => {
 
         {/* Name */}
         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.15 }}>
-          <label className="mb-1.5 block text-sm font-semibold text-foreground">Ad Soyad *</label>
-          <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ahmet Yılmaz" className="w-full rounded-xl border-2 border-border bg-card px-4 py-3 text-base font-semibold text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:border-primary" />
+          <label className="mb-1.5 block text-sm font-semibold text-foreground">{t("Ad Soyad *")}</label>
+          <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder={t("Ahmet Yılmaz")} className="w-full rounded-xl border-2 border-border bg-card px-4 py-3 text-base font-semibold text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:border-primary" />
         </motion.div>
 
         {/* Bio */}
         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }}>
           <label className="mb-1.5 flex items-center justify-between text-sm font-semibold text-foreground">
-            Kısa Bio
+            {t("Kısa Bio")}
             <span className="text-xs text-muted-foreground">{bio.length}/150</span>
           </label>
           <textarea value={bio} onChange={(e) => setBio(e.target.value.slice(0, 150))} placeholder={t("Kendini kısaca tanıt...")} rows={2} className="w-full resize-none rounded-xl border-2 border-border bg-card px-4 py-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:border-primary" />
@@ -231,11 +231,11 @@ const ProfileSetup = () => {
 
         {/* Skills */}
         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.25 }}>
-          <label className="mb-2 block text-sm font-semibold text-foreground">Becerilerin</label>
+          <label className="mb-2 block text-sm font-semibold text-foreground">{t("Becerilerin")}</label>
           <div className="flex flex-wrap gap-2">
             {skills.map((skill) => (
               <button key={skill.id} onClick={() => toggleSkill(skill.id)} className={`rounded-xl px-3 py-2 text-sm font-semibold transition-all active:scale-95 ${selectedSkills.includes(skill.id) ? "gradient-warm text-primary-foreground shadow-soft" : "border border-border bg-card text-foreground"}`}>
-                {skill.label}
+                {t(skill.label)}
               </button>
             ))}
           </div>
@@ -248,8 +248,8 @@ const ProfileSetup = () => {
               <MapPin size={20} />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-bold text-foreground">{locationGranted ? "Konum aktif ✓" : "Konumunu aç"}</p>
-              <p className="text-xs text-muted-foreground">{locationGranted ? "Yakınındaki işleri görebilirsin" : "Yakınındaki işleri görmek için gerekli"}</p>
+              <p className="text-sm font-bold text-foreground">{locationGranted ? t("Konum aktif ✓") : t("Konumunu aç")}</p>
+              <p className="text-xs text-muted-foreground">{locationGranted ? t("Yakınındaki işleri görebilirsin") : t("Yakınındaki işleri görmek için gerekli")}</p>
             </div>
           </button>
         </motion.div>
@@ -263,7 +263,7 @@ const ProfileSetup = () => {
         disabled={!isValid || loading}
         className="mt-4 gradient-warm w-full rounded-2xl px-6 py-4 text-lg font-bold text-primary-foreground shadow-soft transition-all active:scale-[0.98] disabled:opacity-40"
       >
-        {loading ? "Kaydediliyor..." : "Profili Tamamla 🎉"}
+        {loading ? t("Kaydediliyor...") : t("Profili Tamamla 🎉")}
       </motion.button>
 
       <AnimatePresence>

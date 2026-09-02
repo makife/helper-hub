@@ -250,7 +250,7 @@ const ActiveTask = () => {
 
         {isOwner && taskers.length === 0 && (
           <p className="rounded-xl bg-muted/50 p-3 text-xs text-muted-foreground">
-            Henüz kimse bu işi kabul etmedi. Kabul eden olduğunda burada sohbet açılacak.
+            {t("Henüz kimse bu işi kabul etmedi. Kabul eden olduğunda burada sohbet açılacak.")}
           </p>
         )}
 
@@ -321,8 +321,8 @@ const ActiveTask = () => {
             </button>
             <p className="text-center text-[11px] text-muted-foreground">
               {(task.rejection_count ?? 0) >= 1
-                ? "İkinci itirazın anlaşmazlık olarak tarafsız kurallarla sonuçlanır."
-                : "İtiraz edersen el atan kişi işi tamamlayıp tekrar bildirebilir."}
+                ? t("İkinci itirazın anlaşmazlık olarak tarafsız kurallarla sonuçlanır.")
+                : t("İtiraz edersen el atan kişi işi tamamlayıp tekrar bildirebilir.")}
             </p>
           </div>
         )}
@@ -360,21 +360,21 @@ const ActiveTask = () => {
               >
                 <CheckCircle2 size={18} />
                 {(completionUnlockMs(myArrivedAt, task.estimated_minutes) ?? 0) > 0
-                  ? `İşi Bitirdim · ${formatRemaining(completionUnlockMs(myArrivedAt, task.estimated_minutes) ?? 0)} sonra`
-                  : "İşi Bitirdim"}
+                  ? `${t("İşi Bitirdim")} · ${formatRemaining(completionUnlockMs(myArrivedAt, task.estimated_minutes) ?? 0)} ${t("sonra")}`
+                  : t("İşi Bitirdim")}
               </button>
             )}
             <p className="text-center text-[11px] text-muted-foreground">
               {myArrivedAt
-                ? "Varışın kayıtlı. İtiraz olursa bu kayıt seni korur."
-                : "İş konumuna 300 m yaklaşınca varışını kaydet — bitirdim butonu bundan sonra açılır."}
+                ? t("Varışın kayıtlı. İtiraz olursa bu kayıt seni korur.")
+                : t("İş konumuna 300 m yaklaşınca varışını kaydet — bitirdim butonu bundan sonra açılır.")}
             </p>
           </div>
         )}
 
         {task.status === "pending_confirm" && isTasker && (
           <p className="rounded-2xl bg-muted px-4 py-3 text-center text-xs font-semibold text-muted-foreground">
-            Onay bekleniyor · {formatRemaining(confirmDeadlineMs(task.completion_requested_at))}
+            {t("Onay bekleniyor")} · {formatRemaining(confirmDeadlineMs(task.completion_requested_at))}
           </p>
         )}
 
@@ -385,7 +385,7 @@ const ActiveTask = () => {
           className="gradient-warm flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3 font-bold text-primary-foreground shadow-soft active:scale-[0.98]"
         >
           <Navigation size={18} />
-          Rota Oluştur
+          {t("Rota Oluştur")}
         </button>
       </div>
 
@@ -453,8 +453,8 @@ const ActiveTask = () => {
               <h2 className="text-lg font-black text-foreground">{t("İş yapılmadı mı?")}</h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 {(task.rejection_count ?? 0) >= 1
-                  ? "Bu ikinci itirazın. Anlaşmazlık olarak değerlendirilecek ve varış kaydına göre tarafsız sonuçlandırılacak."
-                  : "El atan kişiye bildirilecek ve işi tamamlayıp tekrar bildirebilecek. Haksız itirazlar sicilinize işlenir."}
+                  ? t("Bu ikinci itirazın. Anlaşmazlık olarak değerlendirilecek ve varış kaydına göre tarafsız sonuçlandırılacak.")
+                  : t("El atan kişiye bildirilecek ve işi tamamlayıp tekrar bildirebilecek. Haksız itirazlar sicilinize işlenir.")}
               </p>
               <textarea
                 value={rejectReason}
@@ -493,7 +493,7 @@ const ActiveTask = () => {
                   }}
                   className="flex-1 rounded-2xl bg-destructive py-3 text-sm font-bold text-destructive-foreground"
                 >
-                  İtiraz Et
+                  {t("İtiraz Et")}
                 </button>
               </div>
             </motion.div>

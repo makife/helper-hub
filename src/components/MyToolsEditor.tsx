@@ -115,7 +115,7 @@ const MyToolsEditor = () => {
         <>
           {totalCount === 0 ? (
             <p className="text-xs text-muted-foreground">
-              Henüz alet eklemedin. Alet gerektiren işlerle eşleşmek için aletlerini ekle.
+              {t("Henüz alet eklemedin. Alet gerektiren işlerle eşleşmek için aletlerini ekle.")}
             </p>
           ) : (
             <div className="flex flex-wrap gap-1.5">
@@ -155,7 +155,7 @@ const MyToolsEditor = () => {
           );
           if (groupTools.length === 0) return null;
           return (
-            <div key={t(group)}>
+            <div key={group}>
               <p className="mb-1.5 text-[10px] font-bold uppercase tracking-wide text-muted-foreground/70">
                 {t(group)}
               </p>

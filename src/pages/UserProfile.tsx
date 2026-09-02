@@ -83,7 +83,7 @@ const UserProfile = () => {
                 <User size={36} className="text-muted-foreground" />
               )}
             </div>
-            <h2 className="mt-3 text-lg font-black text-foreground">{profile.full_name || "İsimsiz Kullanıcı"}</h2>
+            <h2 className="mt-3 text-lg font-black text-foreground">{profile.full_name || t("İsimsiz Kullanıcı")}</h2>
             {profile.profession && <p className="mt-0.5 text-sm font-bold text-primary">{profile.profession}</p>}
             {profile.phone && (
               <div className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
@@ -138,7 +138,7 @@ const UserProfile = () => {
                 Yetkinlik Belgeleri
               </p>
               <p className="mb-3 text-xs text-muted-foreground">
-                Bu belgeler kullanıcı tarafından yüklenmiştir; doğruluğu Bi' El At tarafından onaylanmamıştır.
+                {t("Bu belgeler kullanıcı tarafından yüklenmiştir; doğruluğu Bi' El At tarafından onaylanmamıştır.")}
               </p>
               <div className="grid grid-cols-2 gap-3">
                 {credentials.map((c) => (
@@ -160,7 +160,7 @@ const UserProfile = () => {
           <div className="rounded-2xl bg-card p-4 shadow-card">
             <p className="mb-3 flex items-center gap-1.5 text-sm font-black text-foreground">
               <Star size={16} className="text-accent" />
-              Değerlendirmeler
+              {t("Değerlendirmeler")}
             </p>
             {reviews.length === 0 ? (
               <p className="text-xs text-muted-foreground">{t("Henüz değerlendirme yok.")}</p>
@@ -179,7 +179,7 @@ const UserProfile = () => {
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
-                        <p className="text-xs font-bold text-foreground">{r.reviewer?.full_name || "Kullanıcı"}</p>
+                        <p className="text-xs font-bold text-foreground">{r.reviewer?.full_name || t("Kullanıcı")}</p>
                         <div className="flex items-center gap-0.5 text-accent">
                           {Array.from({ length: r.rating }).map((_, i) => (
                             <Star key={i} size={11} fill="currentColor" />

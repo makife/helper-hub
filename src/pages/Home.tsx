@@ -334,7 +334,7 @@ const Home = () => {
       <div className="relative z-10 flex items-start justify-between px-5 pb-3 pt-4">
         <div>
           <h1 className="flex items-center gap-1.5 text-xl font-black text-foreground">
-            Merhaba!
+            {t("Merhaba!")}
             <img src={logo} alt="Bi' El At" className="inline-block h-7 w-auto align-middle" />
           </h1>
           <p className="text-xs text-muted-foreground font-semibold">{t("Yardım çağrılarına el at veya çağrıda bulun")}</p>
@@ -452,7 +452,7 @@ const Home = () => {
                       }}
                       className="text-xs font-bold text-primary"
                     >
-                      Temizle
+                      {t("Temizle")}
                     </button>
                   )}
                   <button onClick={() => setShowFilters(false)}>
@@ -464,7 +464,7 @@ const Home = () => {
               <div className="space-y-5">
                 <div>
                   <p className="mb-2 text-xs font-bold text-muted-foreground">
-                    Kategori {filterCategoryIds.length > 0 && `(${filterCategoryIds.length} seçili)`}
+                    {t("Kategori")} {filterCategoryIds.length > 0 && `(${filterCategoryIds.length} ${t("seçili")})`}
                   </p>
                   <div className="mb-2 flex items-center gap-2 rounded-xl border-2 border-border bg-card px-3 py-2.5 focus-within:border-primary">
                     <SlidersHorizontal size={14} className="text-muted-foreground" />
@@ -486,7 +486,7 @@ const Home = () => {
                             key={id}
                             className="flex items-center gap-1 rounded-lg bg-primary px-2.5 py-1.5 text-[11px] font-semibold text-primary-foreground"
                           >
-                            {cat.emoji} {cat.label}
+                            {cat.emoji} {t(cat.label)}
                             <button onClick={() => setFilterCategoryIds((prev) => prev.filter((x) => x !== id))}>
                               <X size={11} />
                             </button>
@@ -512,7 +512,7 @@ const Home = () => {
                             className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-xs font-semibold text-foreground hover:bg-muted"
                           >
                             <span>{c.emoji}</span>
-                            <span>{c.label}</span>
+                            <span>{t(c.label)}</span>
                           </button>
                         ))}
                     </div>
@@ -520,12 +520,12 @@ const Home = () => {
                 </div>
 
                 <div>
-                  <p className="mb-2 text-xs font-bold text-muted-foreground">Aciliyet</p>
+                  <p className="mb-2 text-xs font-bold text-muted-foreground">{t("Aciliyet")}</p>
                   <div className="flex gap-2">
                     {[
-                      { value: "all" as const, label: "Tümü" },
-                      { value: "urgent" as const, label: "Acil" },
-                      { value: "can_wait" as const, label: "Bekleyebilir" },
+                      { value: "all" as const, label: t("Tümü") },
+                      { value: "urgent" as const, label: t("Acil") },
+                      { value: "can_wait" as const, label: t("Bekleyebilir") },
                     ].map((opt) => (
                       <button
                         key={opt.value}
@@ -547,7 +547,7 @@ const Home = () => {
                   className="flex w-full items-center justify-between rounded-xl border border-border bg-card p-3.5"
                 >
                   <span className="text-sm font-semibold text-foreground">
-                    Sadece alet gerektirmeyen işler
+                    {t("Sadece alet gerektirmeyen işler")}
                   </span>
                   <span
                     className={`flex h-6 w-6 items-center justify-center rounded-md border-2 transition-all ${
@@ -564,10 +564,10 @@ const Home = () => {
                 >
                   <div className="text-left">
                     <span className="block text-sm font-semibold text-foreground">
-                      Elimdeki aletlerle yapabileceğim işler
+                      {t("Elimdeki aletlerle yapabileceğim işler")}
                     </span>
                     <span className="block text-[11px] text-muted-foreground">
-                      Profilinde işaretlediğin aletlere göre eşleştirir
+                      {t("Profilinde işaretlediğin aletlere göre eşleştirir")}
                     </span>
                   </div>
                   <span
@@ -584,7 +584,7 @@ const Home = () => {
                 onClick={() => setShowFilters(false)}
                 className="mt-6 w-full rounded-xl gradient-warm py-3.5 text-sm font-bold text-primary-foreground shadow-soft active:scale-95"
               >
-                Sonuçları Göster ({filteredTasks.length})
+                {t("Sonuçları Göster")} ({filteredTasks.length})
               </button>
             </div>
           </>
