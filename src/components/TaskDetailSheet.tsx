@@ -4,6 +4,7 @@ import { X, Clock, MapPin, Star, User, Users, TrendingDown, Wrench, UserCheck, H
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useT } from "@/lib/i18n";
 import { toast } from "sonner";
 import { useLivePrice, formatCountdown } from "@/lib/dynamicPricing";
 import { acceptTask, leaveTask } from "@/lib/assignments";
@@ -26,6 +27,7 @@ type Props = {
 const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const t = useT();
   const [owner, setOwner] = useState<Tables<"profiles"> | null>(null);
   const [accepting, setAccepting] = useState(false);
   const [acceptedCount, setAcceptedCount] = useState(0);

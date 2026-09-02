@@ -1,4 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
+import { translate } from "@/lib/i18n";
 
 type Props = { children: ReactNode };
 type State = { hasError: boolean };
@@ -28,7 +29,7 @@ class ErrorBoundary extends Component<Props, State> {
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-destructive/10 text-2xl">!</div>
           <h1 className="mt-4 text-xl font-black text-foreground">{translate("Bir şeyler ters gitti")}</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Uygulama beklenmeyen bir sorunla karşılaştı. Sayfayı yenileyerek tekrar deneyebilirsin.
+            {translate("Uygulama beklenmeyen bir sorunla karşılaştı. Sayfayı yenileyerek tekrar deneyebilirsin.")}
           </p>
           <button
             type="button"
