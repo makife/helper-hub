@@ -36,3 +36,16 @@ export const formatPrice = (amount: number | null | undefined, currency?: string
   });
   return en ? `${sym}${num}` : `${num} ${sym}`;
 };
+
+/** Kredi paketleri için sabit Euro fiyatları (İngilizce dilde gösterilir) */
+export const TRY_TO_EUR_RATE = 0.026;
+
+/**
+ * Kredi paketi fiyatı: Türkçede ₺, İngilizcede € olarak gösterilir.
+ * eurPrice verilirse doğrudan kullanılır, verilmezse kur ile hesaplanır.
+ */
+export const formatPackPrice = (tryPrice: number, eurPrice?: number) => {
+  if (getLang() !== "en") return formatPrice(tryPrice, "TRY");
+  const value = eurPrice ?? Math.round(tryPrice * TRY_TO_EUR_RATE * 100) / 100;
+  return `€${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+};
