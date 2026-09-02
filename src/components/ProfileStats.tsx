@@ -16,6 +16,7 @@ type Stats = {
 // Herhangi bir kullanıcının profilinde gösterilebilecek özet istatistik kartı.
 // Hem kendi profilinde hem başkasının profilinde kullanılabilir (userId parametresiyle).
 const ProfileStats = ({ userId }: Props) => {
+  const t = useT();
   const [stats, setStats] = useState<Stats | null>(null);
 
   useEffect(() => {
