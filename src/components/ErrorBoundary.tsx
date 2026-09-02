@@ -26,7 +26,7 @@ class ErrorBoundary extends Component<Props, State> {
       <main className="flex min-h-screen items-center justify-center bg-background px-6 text-center">
         <section className="w-full max-w-sm rounded-3xl border border-border bg-card p-7 shadow-card">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-destructive/10 text-2xl">!</div>
-          <h1 className="mt-4 text-xl font-black text-foreground">Bir şeyler ters gitti</h1>
+          <h1 className="mt-4 text-xl font-black text-foreground">{translate("Bir şeyler ters gitti")}</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Uygulama beklenmeyen bir sorunla karşılaştı. Sayfayı yenileyerek tekrar deneyebilirsin.
           </p>

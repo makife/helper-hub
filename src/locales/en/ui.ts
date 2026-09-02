@@ -420,4 +420,6 @@ export const UI: Record<string, string> = {
   "Kıdemli Üye": "Veteran member",
   "6 aydır Bi' El At'ta": "6 months on Bi' El At",
   "İş başlatılamadı, tekrar dene.": "The task could not be started. Try again.",
+  "🔥 Acil iş — hemen başlaman bekleniyor": "🔥 Urgent task — you are expected to start immediately",
+  "Bekleme süresi doldu, çağrı yapan kararını verdiğinde bilgilendirileceksin.": "The waiting period has ended. You will be notified when the requester decides.",
 };

@@ -743,7 +743,7 @@ const Profile = () => {
             onClick={(e) => e.stopPropagation()}
             className="w-full max-w-md rounded-t-3xl bg-card p-5 pb-8 safe-bottom"
           >
-            <h3 className="mb-4 text-center text-base font-black text-foreground">Profil Fotoğrafı</h3>
+            <h3 className="mb-4 text-center text-base font-black text-foreground">{t("Profil Fotoğrafı")}</h3>
             <div className="flex flex-col gap-2">
               <button
                 onClick={() => { setAvatarSheetOpen(false); pickImage(uploadAvatar, true); }}

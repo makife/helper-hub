@@ -285,7 +285,7 @@ const ProfileSetup = () => {
                   <UserPlus size={24} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-black text-foreground">Arkadaşın seni davet etti</h3>
+                  <h3 className="text-lg font-black text-foreground">{t("Arkadaşın seni davet etti")}</h3>
                   <p className="text-xs text-muted-foreground">Davet kodunu kabul edersen ikinize de 1'er kredi hediye.</p>
                 </div>
               </div>
