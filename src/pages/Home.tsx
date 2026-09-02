@@ -337,7 +337,7 @@ const Home = () => {
             Merhaba!
             <img src={logo} alt="Bi' El At" className="inline-block h-7 w-auto align-middle" />
           </h1>
-          <p className="text-xs text-muted-foreground font-semibold">Yardım çağrılarına el at veya çağrıda bulun</p>
+          <p className="text-xs text-muted-foreground font-semibold">{t("Yardım çağrılarına el at veya çağrıda bulun")}</p>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -384,7 +384,7 @@ const Home = () => {
             </div>
             <div className="flex items-center gap-1.5 rounded-full bg-card/95 px-3 py-1.5 shadow-card backdrop-blur">
               <MapPin size={12} className="text-primary" />
-              <p className="text-[11px] font-black text-foreground">100 km yakınında</p>
+              <p className="text-[11px] font-black text-foreground">{t("100 km yakınında")}</p>
             </div>
           </div>
         }
@@ -471,7 +471,7 @@ const Home = () => {
                     <input
                       value={categoryQuery}
                       onChange={(e) => setCategoryQuery(e.target.value)}
-                      placeholder="Kategori ara... (ör. temizlik, tesisat)"
+                      placeholder={t("Kategori ara... (ör. temizlik, tesisat)")}
                       className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground/50"
                     />
                   </div>

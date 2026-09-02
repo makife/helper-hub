@@ -1,3 +1,4 @@
+import { useT } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -18,6 +19,7 @@ type Conversation = {
 };
 
 const Messages = () => {
+  const t = useT();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -65,9 +67,9 @@ const Messages = () => {
         const profile = profileById.get(otherId);
         convos.push({
           task_id: taskId,
-          task_title: taskById.get(taskId)?.title || "İş",
+          task_title: taskById.get(taskId)?.title || t("İş"),
           other_user_id: otherId,
-          other_user_name: profile?.full_name || "Kullanıcı",
+          other_user_name: profile?.full_name || t("Kullanıcı"),
           other_user_avatar: profile?.avatar_url || null,
           last_message: lastMsg.content,
           last_message_at: lastMsg.created_at,
@@ -100,7 +102,7 @@ const Messages = () => {
         <button onClick={() => navigate(-1)} className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card">
           <ArrowLeft size={20} className="text-foreground" />
         </button>
-        <h1 className="text-xl font-black text-foreground">Mesajlar</h1>
+        <h1 className="text-xl font-black text-foreground">{t("Mesajlar")}</h1>
       </div>
 
       <div className="flex-1 px-5 pb-24">
@@ -113,7 +115,7 @@ const Messages = () => {
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted">
               <MessageCircle size={32} className="text-muted-foreground" />
             </div>
-            <p className="mt-3 text-lg font-bold text-foreground">Henüz mesaj yok</p>
+            <p className="mt-3 text-lg font-bold text-foreground">{t("Henüz mesaj yok")}</p>
             <p className="mt-1 text-center text-sm text-muted-foreground">
               Bir iş kabul ettiğinizde mesajlaşma başlayacak.
             </p>

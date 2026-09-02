@@ -1,3 +1,4 @@
+import { useT } from "@/lib/i18n";
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useParams, useNavigate } from "react-router-dom";
@@ -13,6 +14,7 @@ import { confirmCompletion, confirmDeadlineMs, formatRemaining, requestCompletio
 type TaskerEntry = { tasker_id: string; profile: Tables<"profiles"> | null };
 
 const ActiveTask = () => {
+  const t = useT();
   const { taskId } = useParams<{ taskId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -150,7 +152,7 @@ const ActiveTask = () => {
   const handleSend = async () => {
     if (!newMessage.trim() || !user || !task) return;
     const receiverId = partnerId;
-    if (!receiverId) { toast.error("Henüz konuşulacak kişi yok."); return; }
+    if (!receiverId) { toast.error(t("Henüz konuşulacak kişi yok.")); return; }
 
 
     setSending(true);
@@ -161,7 +163,7 @@ const ActiveTask = () => {
       content: newMessage.trim(),
     });
     setSending(false);
-    if (error) { toast.error("Mesaj gönderilemedi"); return; }
+    if (error) { toast.error(t("Mesaj gönderilemedi")); return; }
     setNewMessage("");
   };
 
@@ -289,7 +291,7 @@ const ActiveTask = () => {
           <div className="flex flex-1 items-center gap-2 rounded-xl bg-accent/30 px-3 py-2">
             <MapPin size={14} className="text-destructive" />
             <div>
-              <p className="text-[10px] text-muted-foreground">İş Konumu</p>
+              <p className="text-[10px] text-muted-foreground">{t("İş Konumu")}</p>
               <p className="text-xs font-bold text-foreground">{task.latitude.toFixed(4)}, {task.longitude.toFixed(4)}</p>
             </div>
           </div>
@@ -303,8 +305,8 @@ const ActiveTask = () => {
                 const ok = await confirmCompletion(task.id);
                 if (ok) {
                   setTask((current) => current ? { ...current, status: "completed", completed_at: new Date().toISOString() } : current);
-                  toast.success("Yardım çağrısı tamamlandı.");
-                } else toast.error("İş tamamlanamadı, tekrar dene.");
+                  toast.success(t("Yardım çağrısı tamamlandı."));
+                } else toast.error(t("İş tamamlanamadı, tekrar dene."));
               }}
               className="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 font-bold text-primary-foreground shadow-soft"
             >
@@ -391,7 +393,7 @@ const ActiveTask = () => {
         {visibleMessages.length === 0 && (
           <div className="flex flex-col items-center py-10">
             <MessageCircle size={32} className="text-muted-foreground mb-2" />
-            <p className="text-sm text-muted-foreground">Henüz mesaj yok. İlk mesajı gönder!</p>
+            <p className="text-sm text-muted-foreground">{t("Henüz mesaj yok. İlk mesajı gönder!")}</p>
           </div>
         )}
         {visibleMessages.map((msg) => {
@@ -424,7 +426,7 @@ const ActiveTask = () => {
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
-            placeholder="Mesaj yaz..."
+            placeholder={t("Mesaj yaz...")}
             className="flex-1 rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
           />
           <button
@@ -447,7 +449,7 @@ const ActiveTask = () => {
               exit={{ scale: 0.94, opacity: 0, y: 16 }}
               className="w-full max-w-sm rounded-3xl border border-border bg-card p-6 shadow-xl"
             >
-              <h2 className="text-lg font-black text-foreground">İş yapılmadı mı?</h2>
+              <h2 className="text-lg font-black text-foreground">{t("İş yapılmadı mı?")}</h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 {(task.rejection_count ?? 0) >= 1
                   ? "Bu ikinci itirazın. Anlaşmazlık olarak değerlendirilecek ve varış kaydına göre tarafsız sonuçlandırılacak."
@@ -458,7 +460,7 @@ const ActiveTask = () => {
                 onChange={(e) => setRejectReason(e.target.value)}
                 maxLength={300}
                 rows={3}
-                placeholder="Nedenini kısaca yaz"
+                placeholder={t("Nedenini kısaca yaz")}
                 className="mt-4 w-full resize-none rounded-2xl border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
               <div className="mt-4 flex gap-2">

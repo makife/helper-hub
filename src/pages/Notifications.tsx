@@ -1,3 +1,4 @@
+import { useT } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -19,6 +20,7 @@ type Notif = {
 const dateLabel = (date: string) => formatDateTime(date);
 
 const Notifications = () => {
+  const t = useT();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [items, setItems] = useState<Notif[]>([]);
@@ -66,7 +68,7 @@ const Notifications = () => {
         list.push({
           id: `m-${m.id}`,
           type: "message",
-          title: `${names.get(m.sender_id) || "Kullanıcı"} mesaj gönderdi`,
+          title: `${names.get(m.sender_id) || t("Kullanıcı")} ${t("mesaj gönderdi")}`,
           body: m.content,
           at: m.created_at,
           taskId: m.task_id,
@@ -123,7 +125,7 @@ const Notifications = () => {
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted">
               <Bell size={32} className="text-muted-foreground" />
             </div>
-            <p className="text-lg font-bold text-foreground">Henüz bildirim yok</p>
+            <p className="text-lg font-bold text-foreground">{t("Henüz bildirim yok")}</p>
             <p className="text-center text-sm text-muted-foreground">
               Çağrına başvuru geldiğinde, biri işi bıraktığında ve yeni mesaj aldığında burada görünecek.
             </p>

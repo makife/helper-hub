@@ -703,6 +703,7 @@ export type Database = {
         Returns: undefined
       }
       generate_referral_code: { Args: never; Returns: string }
+      get_user_language: { Args: { _user_id: string }; Returns: string }
       grant_store_credits: {
         Args: {
           _credits: number

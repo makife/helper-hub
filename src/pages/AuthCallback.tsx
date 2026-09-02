@@ -1,3 +1,4 @@
+import { useT } from "@/lib/i18n";
 import { useEffect } from "react";
 import logo from "@/assets/logo.png";
 
@@ -8,6 +9,7 @@ import logo from "@/assets/logo.png";
  * com.ergan.bielat:// deep-link'i ile native uygulamaya geri gönderir.
  */
 const AuthCallback = () => {
+  const t = useT();
   useEffect(() => {
     const target = `com.ergan.bielat://auth/callback${window.location.search}${window.location.hash}`;
     // Custom scheme yönlendirmesi Android/iOS'ta uygulamayı açar
@@ -22,7 +24,7 @@ const AuthCallback = () => {
     <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background px-6 text-center">
       <img src={logo} alt="Bi' El At" width={72} height={72} />
       <div>
-        <h1 className="text-2xl font-black text-foreground">Giriş tamamlandı</h1>
+        <h1 className="text-2xl font-black text-foreground">{t("Giriş tamamlandı")}</h1>
         <p className="mt-2 text-base text-muted-foreground">
           Uygulamaya yönlendiriliyorsunuz...
         </p>

@@ -1,3 +1,4 @@
+import { useT } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
@@ -17,6 +18,7 @@ const SKILL_LABELS: Record<string, string> = {
 type ReviewRow = Tables<"reviews"> & { reviewer?: { full_name: string; avatar_url: string | null } | null };
 
 const UserProfile = () => {
+  const t = useT();
   const { userId } = useParams<{ userId: string }>();
   const [profile, setProfile] = useState<Tables<"profiles"> | null>(null);
   const [credentials, setCredentials] = useState<Tables<"credentials">[]>([]);
@@ -69,7 +71,7 @@ const UserProfile = () => {
         </div>
       ) : !profile ? (
         <div className="flex items-center justify-center py-20">
-          <p className="text-sm text-muted-foreground">Kullanıcı bulunamadı</p>
+          <p className="text-sm text-muted-foreground">{t("Kullanıcı bulunamadı")}</p>
         </div>
       ) : (
         <div className="flex-1 px-5 pb-24">
@@ -111,7 +113,7 @@ const UserProfile = () => {
 
           {profile.bio && (
             <div className="mb-5 rounded-xl bg-card p-4 shadow-card">
-              <p className="text-xs font-semibold text-muted-foreground">Hakkında</p>
+              <p className="text-xs font-semibold text-muted-foreground">{t("Hakkında")}</p>
               <p className="mt-1 text-sm text-foreground">{profile.bio}</p>
             </div>
           )}
@@ -161,7 +163,7 @@ const UserProfile = () => {
               Değerlendirmeler
             </p>
             {reviews.length === 0 ? (
-              <p className="text-xs text-muted-foreground">Henüz değerlendirme yok.</p>
+              <p className="text-xs text-muted-foreground">{t("Henüz değerlendirme yok.")}</p>
             ) : (
               <div className="space-y-3">
                 {reviews.map((r) => (
