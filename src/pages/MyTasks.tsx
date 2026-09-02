@@ -555,7 +555,7 @@ const MyTasks = () => {
                         {getTaskEmoji(task.category, task.subcategory, task.title)}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <h3 className="truncate text-sm font-bold text-foreground">{task.title}</h3>
+                        <h3 className="truncate text-sm font-bold text-foreground">{t(task.title)}</h3>
                         <p className={`text-xs font-semibold ${status.color}`}>{status.label}</p>
                         <button
                           onClick={() => navigate(`/profile/${task.owner_id}`)}
@@ -693,7 +693,7 @@ const MyTasks = () => {
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <h3 className="truncate text-sm font-bold text-foreground">{task.title}</h3>
+                        <h3 className="truncate text-sm font-bold text-foreground">{t(task.title)}</h3>
                         {task.urgency === "urgent" && (
                           <span className="flex items-center text-[10px] font-bold text-red-500 bg-red-100 px-1.5 py-0.5 rounded-full">
                             <Zap size={10} className="fill-red-500 mr-0.5" /> {t("Acil")}
@@ -814,7 +814,7 @@ const MyTasks = () => {
               <div className="flex items-center justify-between border-b pb-3">
                 <div className="flex items-center gap-2">
                   <span className="text-2xl">{getTaskEmoji(selectedTask.category, selectedTask.subcategory, selectedTask.title)}</span>
-                  <h2 className="text-lg font-bold text-foreground">{selectedTask.title}</h2>
+                  <h2 className="text-lg font-bold text-foreground">{t(selectedTask.title)}</h2>
                 </div>
                 <button onClick={() => setSelectedTask(null)} className="rounded-full p-1 bg-muted hover:bg-muted/80">
                   <X size={20} />

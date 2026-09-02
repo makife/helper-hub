@@ -1,4 +1,4 @@
-import { translate, useT } from "@/lib/i18n";
+import { useT } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -21,12 +21,12 @@ const dateLabel = (date: string) => formatDateTime(date);
 
 const localizeNotificationText = (text: string, t: (value: string) => string) => {
   const suffixes: Array<[string, string]> = [
-    [" çağrını kabul etti", " çağrını kabul etti"],
-    [" işi bıraktı", " işi bıraktı"],
+    [" çağrını kabul etti", "çağrını kabul etti"],
+    [" işi bıraktı", "işi bıraktı"],
   ];
   for (const [sourceSuffix, keySuffix] of suffixes) {
     if (text.endsWith(sourceSuffix)) {
-      return `${text.slice(0, -sourceSuffix.length)}${t(keySuffix)}`;
+      return `${text.slice(0, -sourceSuffix.length)} ${t(keySuffix)}`;
     }
   }
 
