@@ -789,6 +789,23 @@ const Profile = () => {
         onConfirm={deleteCredential}
         onCancel={() => setCredToDelete(null)}
       />
+
+      <ConfirmDialog
+        open={!!pendingLang}
+        title={t("Dil Değiştir")}
+        description={t("Uygulama dilini {lang} olarak değiştirmek istiyor musunuz?", {
+          lang: pendingLang === "tr" ? t("Türkçe") : t("İngilizce"),
+        })}
+        confirmLabel={t("Değiştir")}
+        cancelLabel={t("Vazgeç")}
+        onConfirm={() => {
+          if (pendingLang) {
+            void changeLanguage(pendingLang);
+          }
+          setPendingLang(null);
+        }}
+        onCancel={() => setPendingLang(null)}
+      />
     </div>
   );
 };
