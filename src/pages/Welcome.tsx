@@ -83,7 +83,7 @@ const Welcome = () => {
                     : "text-foreground hover:bg-muted"
                 }`}
               >
-                <span className="text-base">{o.flag}</span>
+                <span className="flex items-center">{flags[o.code]}</span>
                 <span>{o.label}</span>
               </button>
             ))}
