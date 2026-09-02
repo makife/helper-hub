@@ -1,3 +1,4 @@
+import { getLang } from "@/lib/i18n";
 export type LatLng = [number, number];
 
 export type Maneuver = {
@@ -50,52 +51,77 @@ export const formatDistance = (meters: number) => {
   return `${Math.round(meters)} m`;
 };
 
-export const formatDuration = (seconds: number) => `${Math.round(seconds / 60)} dk`;
+export const formatDuration = (seconds: number) =>
+  `${Math.round(seconds / 60)} ${getLang() === "en" ? "min" : "dk"}`;
 
 export const turkishInstruction = (step: RouteStep, distance?: number) => {
+  const en = getLang() === "en";
   const type = step.maneuver?.type || "continue";
   const modifier = step.maneuver?.modifier || "";
-  const road = step.name && step.name !== "unnamed" ? step.name : "hedef yönünde";
+  const named = !!step.name && step.name !== "unnamed";
+  const road = named ? step.name : en ? "the destination" : "hedef yönünde";
   const distText = distance !== undefined ? formatDistance(distance) : "";
-  const prefix = distText ? `${distText} sonra ` : "";
+  const prefix = distText ? (en ? `In ${distText}, ` : `${distText} sonra `) : "";
 
-  if (type === "depart") return `Başlangıç noktasından ${road} yönüne ilerle.`;
-  if (type === "arrive") return "Hedefe vardın.";
+  if (type === "depart")
+    return en ? `Start out toward ${road}.` : `Başlangıç noktasından ${road} yönüne ilerle.`;
+  if (type === "arrive") return en ? "You have arrived." : "Hedefe vardın.";
 
-  const turnMap: Record<string, string> = {
-    uturn: "geriye dön",
-    "sharp right": "sağa keskin dön",
-    right: "sağa dön",
-    "slight right": "hafif sağa dön",
-    straight: "düz devam et",
-    "slight left": "hafif sola dön",
-    left: "sola dön",
-    "sharp left": "sola keskin dön",
-  };
+  const turnMap: Record<string, string> = en
+    ? {
+        uturn: "make a U-turn",
+        "sharp right": "turn sharp right",
+        right: "turn right",
+        "slight right": "turn slightly right",
+        straight: "continue straight",
+        "slight left": "turn slightly left",
+        left: "turn left",
+        "sharp left": "turn sharp left",
+      }
+    : {
+        uturn: "geriye dön",
+        "sharp right": "sağa keskin dön",
+        right: "sağa dön",
+        "slight right": "hafif sağa dön",
+        straight: "düz devam et",
+        "slight left": "hafif sola dön",
+        left: "sola dön",
+        "sharp left": "sola keskin dön",
+      };
 
   if (type === "roundabout" || type === "rotary") {
-    return `${prefix}kavşaktan ${road} yönüne çık.`;
+    return en
+      ? `${prefix}at the roundabout, take the exit toward ${road}.`
+      : `${prefix}kavşaktan ${road} yönüne çık.`;
   }
   if (type === "exit roundabout" || type === "exit rotary") {
-    return `${prefix}kavşaktan çık.`;
+    return en ? `${prefix}exit the roundabout.` : `${prefix}kavşaktan çık.`;
   }
   if (type === "merge") {
-    return `${prefix}yola gir, sonra ${road} yönüne ilerle.`;
+    return en
+      ? `${prefix}merge onto the road, then continue toward ${road}.`
+      : `${prefix}yola gir, sonra ${road} yönüne ilerle.`;
   }
   if (type === "fork") {
-    const dir = modifier.includes("right") ? "sağ" : "sol";
-    return `${prefix}yol ayrımında ${dir} tarafa sap, ${road} yönüne devam et.`;
+    const right = modifier.includes("right");
+    return en
+      ? `${prefix}keep ${right ? "right" : "left"} at the fork and continue toward ${road}.`
+      : `${prefix}yol ayrımında ${right ? "sağ" : "sol"} tarafa sap, ${road} yönüne devam et.`;
   }
   if (type === "end of road") {
-    const dir = modifier.includes("right") ? "sağa" : "sola";
-    return `${prefix}yolun sonunda ${dir} dön, ${road} yönüne devam et.`;
+    const right = modifier.includes("right");
+    return en
+      ? `${prefix}at the end of the road turn ${right ? "right" : "left"} and continue toward ${road}.`
+      : `${prefix}yolun sonunda ${right ? "sağa" : "sola"} dön, ${road} yönüne devam et.`;
   }
   if (type === "new name" || type === "continue") {
-    return `${prefix}${road} yönünde düz devam et.`;
+    return en ? `${prefix}continue straight toward ${road}.` : `${prefix}${road} yönünde düz devam et.`;
   }
 
   const turnText = turnMap[modifier] || turnMap["straight"];
-  return `${prefix}${turnText}${road ? `, ${road} yönüne devam et` : ""}.`;
+  return en
+    ? `${prefix}${turnText}${road ? `, then continue toward ${road}` : ""}.`
+    : `${prefix}${turnText}${road ? `, ${road} yönüne devam et` : ""}.`;
 };
 
 export const nearestPointOnRoute = (pos: LatLng, route: LatLng[]) => {
@@ -136,7 +162,7 @@ export const remainingDistanceToStepEnd = (pos: LatLng, step: RouteStep) => {
   return remaining;
 };
 
-export const speak = (text: string, lang = "tr-TR") => {
+export const speak = (text: string, lang = getLang() === "en" ? "en-US" : "tr-TR") => {
   if (!("speechSynthesis" in window)) return;
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);

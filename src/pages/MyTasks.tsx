@@ -448,7 +448,7 @@ const MyTasks = () => {
             const p = (profiles || []).find((pr) => pr.user_id === v.viewer_id);
             return {
               id: v.viewer_id,
-              full_name: p?.full_name || "Kullanıcı",
+              full_name: p?.full_name || t("Kullanıcı"),
               avatar_url: p?.avatar_url || null,
               viewed_at: v.viewed_at,
             };
@@ -475,7 +475,7 @@ const MyTasks = () => {
     setIsUpdating(true);
     const { error } = await supabase.rpc("start_task_with_partial_quota", { p_task_id: taskId });
     if (error) {
-      toast.error(error.message || "İş başlatılamadı, tekrar dene.");
+      toast.error(error.message || t("İş başlatılamadı, tekrar dene."));
     } else {
       toast.success(t("İş mevcut kontenjanla başlatıldı."));
       setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, status: "matched" } : t)));
@@ -487,7 +487,7 @@ const MyTasks = () => {
     setIsUpdating(true);
     const { error } = await supabase.rpc("cancel_unfilled_task", { p_task_id: taskId });
     if (error) {
-      toast.error(error.message || "İptal edilemedi, tekrar dene.");
+      toast.error(error.message || t("İptal edilemedi, tekrar dene."));
     } else {
       toast.success(t("Görev iptal edildi, el atanlara kredi iadesi yapıldı."));
       setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, status: "cancelled" } : t)));
