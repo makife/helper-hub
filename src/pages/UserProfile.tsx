@@ -62,7 +62,7 @@ const UserProfile = () => {
         <button onClick={() => navigate(-1)} className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card">
           <ArrowLeft size={20} className="text-foreground" />
         </button>
-        <h1 className="text-xl font-black text-foreground">Profil</h1>
+        <h1 className="text-xl font-black text-foreground">{t("Profil")}</h1>
       </div>
 
       {loading ? (
@@ -97,17 +97,17 @@ const UserProfile = () => {
             <div className="flex flex-1 flex-col items-center rounded-xl bg-card p-3 shadow-card">
               <Star size={18} className="text-accent" />
               <p className="mt-1 text-lg font-black text-foreground">{Number(profile.rating || 0).toFixed(1)}</p>
-              <p className="text-[10px] text-muted-foreground">Puan ({reviews.length})</p>
+              <p className="text-[10px] text-muted-foreground">{t("Puan ({count})", { count: reviews.length })}</p>
             </div>
             <div className="flex flex-1 flex-col items-center rounded-xl bg-card p-3 shadow-card">
               <CheckCircle size={18} className="text-primary" />
               <p className="mt-1 text-lg font-black text-foreground">{profile.total_completed || 0}</p>
-              <p className="text-[10px] text-muted-foreground">Tamamlanan</p>
+              <p className="text-[10px] text-muted-foreground">{t("Tamamlanan")}</p>
             </div>
             <div className="flex flex-1 flex-col items-center rounded-xl bg-card p-3 shadow-card">
               <Award size={18} className="text-success" />
               <p className="mt-1 text-lg font-black text-foreground">{credentials.length}</p>
-              <p className="text-[10px] text-muted-foreground">Belge</p>
+              <p className="text-[10px] text-muted-foreground">{t("Belge")}</p>
             </div>
           </div>
 
@@ -120,11 +120,11 @@ const UserProfile = () => {
 
           {(profile.skills?.length ?? 0) > 0 && (
             <div className="mb-5 rounded-xl bg-card p-4 shadow-card">
-              <p className="mb-2 text-xs font-semibold text-muted-foreground">Beceriler</p>
+              <p className="mb-2 text-xs font-semibold text-muted-foreground">{t("Beceriler")}</p>
               <div className="flex flex-wrap gap-2">
                 {(profile.skills || []).map((s) => (
                   <span key={s} className="rounded-full bg-muted px-3 py-1.5 text-xs font-bold text-foreground">
-                    {SKILL_LABELS[s] || s}
+                    {t(SKILL_LABELS[s] || s)}
                   </span>
                 ))}
               </div>
@@ -135,7 +135,7 @@ const UserProfile = () => {
             <div className="mb-5 rounded-2xl bg-card p-4 shadow-card">
               <p className="mb-1 flex items-center gap-1.5 text-sm font-black text-foreground">
                 <BadgeCheck size={16} className="text-primary" />
-                Yetkinlik Belgeleri
+                {t("Yetkinlik Belgeleri")}
               </p>
               <p className="mb-3 text-xs text-muted-foreground">
                 {t("Bu belgeler kullanıcı tarafından yüklenmiştir; doğruluğu Bi' El At tarafından onaylanmamıştır.")}
