@@ -70,6 +70,7 @@ const Profile = () => {
   const [credPreview, setCredPreview] = useState<string | null>(null);
   const [credSaving, setCredSaving] = useState(false);
   const [credToDelete, setCredToDelete] = useState<Credential | null>(null);
+  const [pendingLang, setPendingLang] = useState<"tr" | "en" | null>(null);
 
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
@@ -625,8 +626,8 @@ const Profile = () => {
                 <p className="text-xs text-muted-foreground">{t("Dil / Language")}</p>
               </div>
               <div className="flex rounded-xl bg-muted p-1">
-                <button type="button" onClick={() => void changeLanguage("tr")} className={`rounded-lg px-3 py-2 text-xs font-bold ${lang === "tr" ? "bg-card text-primary shadow-card" : "text-muted-foreground"}`}>TR</button>
-                <button type="button" onClick={() => void changeLanguage("en")} className={`rounded-lg px-3 py-2 text-xs font-bold ${lang === "en" ? "bg-card text-primary shadow-card" : "text-muted-foreground"}`}>EN</button>
+                <button type="button" onClick={() => setPendingLang("tr")} className={`rounded-lg px-3 py-2 text-xs font-bold ${lang === "tr" ? "bg-card text-primary shadow-card" : "text-muted-foreground"}`}>TR</button>
+                <button type="button" onClick={() => setPendingLang("en")} className={`rounded-lg px-3 py-2 text-xs font-bold ${lang === "en" ? "bg-card text-primary shadow-card" : "text-muted-foreground"}`}>EN</button>
               </div>
             </div>
           </div>
@@ -787,6 +788,23 @@ const Profile = () => {
         confirmLabel={t("Sil")}
         onConfirm={deleteCredential}
         onCancel={() => setCredToDelete(null)}
+      />
+
+      <ConfirmDialog
+        open={!!pendingLang}
+        title={t("Dil Değiştir")}
+        description={t("Uygulama dilini {lang} olarak değiştirmek istiyor musunuz?", {
+          lang: pendingLang === "tr" ? t("Türkçe") : t("İngilizce"),
+        })}
+        confirmLabel={t("Değiştir")}
+        cancelLabel={t("Vazgeç")}
+        onConfirm={() => {
+          if (pendingLang) {
+            void changeLanguage(pendingLang);
+          }
+          setPendingLang(null);
+        }}
+        onCancel={() => setPendingLang(null)}
       />
     </div>
   );
