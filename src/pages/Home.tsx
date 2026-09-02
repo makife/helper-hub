@@ -20,6 +20,8 @@ import { getTaskEmoji, ALL_TASK_CATEGORIES, getTaskCategory } from "@/lib/taskCa
 import { computePrice } from "@/lib/dynamicPricing";
 import { fetchAssignmentCounts } from "@/lib/assignments";
 import { distanceMeters } from "@/lib/taskLifecycle";
+import { Geolocation } from "@capacitor/geolocation";
+import { toast } from "sonner";
 import { getFuzzedLocation } from "@/lib/locationPrivacy";
 
 type TaskWithUI = Tables<"tasks"> & {
@@ -88,23 +90,28 @@ const Home = () => {
   });
 
   useEffect(() => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const coords: [number, number] = [pos.coords.latitude, pos.coords.longitude];
-          setUserPos(coords);
-          // Konum neredeyse aynıysa haritayı yeniden ortalama (titremeyi önler)
-          setMapCenter((prev) =>
-            prev && distanceMeters(prev[0], prev[1], coords[0], coords[1]) < 40 ? prev : coords,
-          );
-          try {
-            localStorage.setItem("bielat_last_location", JSON.stringify(coords));
-          } catch {}
-        },
-        () => {}, // silently fail
-        { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 },
-      );
-    }
+    (async () => {
+      try {
+        // Native plugin kullanıyoruz: WebView'in "kullanıcı etkileşimi olmadan
+        // konum isteği sessizce reddedilir" kısıtlamasını bypass eder, bu yüzden
+        // izin penceresi artık sayfa ilk açıldığında da doğru şekilde çıkar.
+        const pos = await Geolocation.getCurrentPosition({
+          enableHighAccuracy: false,
+          timeout: 10000,
+        });
+        const coords: [number, number] = [pos.coords.latitude, pos.coords.longitude];
+        setUserPos(coords);
+        // Konum neredeyse aynıysa haritayı yeniden ortalama (titremeyi önler)
+        setMapCenter((prev) =>
+          prev && distanceMeters(prev[0], prev[1], coords[0], coords[1]) < 40 ? prev : coords,
+        );
+        try {
+          localStorage.setItem("bielat_last_location", JSON.stringify(coords));
+        } catch {}
+      } catch {
+        // İzin verilmedi veya konum alınamadı; sessizce geç, cache'lenmiş konum varsa o kullanılır
+      }
+    })();
   }, []);
 
 
@@ -282,22 +289,22 @@ const Home = () => {
     }
   };
 
-  const handleLocateMe = () => {
+  const handleLocateMe = async () => {
     // Bilinen konum varsa anında oraya uç, GPS'i arka planda tazele
     if (userPos) setMapCenter([userPos[0], userPos[1]]);
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const coords: [number, number] = [pos.coords.latitude, pos.coords.longitude];
-          setUserPos(coords);
-          setMapCenter(coords);
-          try {
-            localStorage.setItem("bielat_last_location", JSON.stringify(coords));
-          } catch {}
-        },
-        () => {}, // silently fail
-        { enableHighAccuracy: true, timeout: 8000, maximumAge: 30000 },
-      );
+    try {
+      const pos = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 8000,
+      });
+      const coords: [number, number] = [pos.coords.latitude, pos.coords.longitude];
+      setUserPos(coords);
+      setMapCenter(coords);
+      try {
+        localStorage.setItem("bielat_last_location", JSON.stringify(coords));
+      } catch {}
+    } catch {
+      toast.error(t("Konum alınamadı. Lütfen konum izni verip tekrar dene."));
     }
   };
 
@@ -580,6 +587,9 @@ const Home = () => {
                     </span>
                     <span className="block text-[11px] text-muted-foreground">
                       {t("Profilinde işaretlediğin aletlere göre eşleştirir")}
+                    </span>
+                    <span className="block text-[11px] text-muted-foreground">
+                      {t("Sahip olduğun tüm alet/edevatı kapsayan yardım çağrıları listelenir.")}
                     </span>
                   </div>
                   <span
