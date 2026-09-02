@@ -758,6 +758,10 @@ export type Database = {
         Returns: undefined
       }
       task_lifecycle_snapshot: { Args: { _task_id: string }; Returns: Json }
+      test_grant_credits: {
+        Args: { _credits: number; _pack?: string }
+        Returns: number
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
