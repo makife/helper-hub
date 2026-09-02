@@ -535,7 +535,7 @@ const MyTasks = () => {
           ) : (
             <div className="space-y-3">
               {accepted.map((item, i) => {
-                const t = item.task;
+                const task = item.task;
                 const status = statusLabels[t.status] || statusLabels.open;
                 const isDone = isClosedStatus(t.status);
                 const isMyCompletionRequest =
