@@ -36,7 +36,7 @@ const Welcome = () => {
   };
 
   const langOptions = [
-    { code: "tr" as const, label: "Türkçe" },
+    { code: "tr" as const, label: lang === "en" ? "Turkish" : "Türkçe" },
     { code: "en" as const, label: "English" },
   ];
 
