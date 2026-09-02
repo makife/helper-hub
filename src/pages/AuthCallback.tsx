@@ -33,7 +33,7 @@ const AuthCallback = () => {
         onClick={openApp}
         className="rounded-2xl bg-primary px-8 py-4 text-lg font-bold text-primary-foreground"
       >
-        Uygulamaya dön
+        {t("Uygulamaya dön")}
       </button>
     </div>
   );
