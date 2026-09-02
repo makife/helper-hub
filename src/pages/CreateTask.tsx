@@ -621,7 +621,7 @@ const CreateTask = () => {
           {personCount > 1 && (
             <div className="flex justify-between items-center rounded-xl bg-primary/10 p-3 text-xs font-bold text-primary">
               <span>{t("{count} Kişi için Toplam Bütçe:", { count: personCount })}</span>
-              <span className="text-base font-black">{formatPrice(totalPrice)}</span>
+              <span className="text-base font-black">{formatPrice(totalPrice, currency)}</span>
             </div>
           )}
         </motion.div>
