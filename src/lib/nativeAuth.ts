@@ -42,49 +42,33 @@ export const signInNativeOAuth = async (provider: "google" | "apple") => {
 
   let res: Awaited<ReturnType<typeof SocialLogin.login>>;
 
-  const googleLogin = (style: "standard" | "bottom") =>
-    SocialLogin.login({
-      provider: "google",
-      // Android eklentisi email/profile/openid kapsamlarını zaten varsayılan
-      // olarak ekliyor. `scopes` göndermek özel kapsam akışını tetikleyip
-      // değiştirilmiş bir MainActivity talep ediyor.
-      options:
-        style === "bottom"
-          ? { style: "bottom", filterByAuthorizedAccounts: false, autoSelectEnabled: false }
-          : { style: "standard", forceRefreshToken: true },
-    });
-
   try {
     res =
       provider === "google"
-        ? await googleLogin("standard")
+        ? await SocialLogin.login({
+            provider: "google",
+            // Yetkili hesap filtresi kapalı olmalı; aksi halde yeni kurulumlar ve
+            // Family Link hesapları Credential Manager tarafından elenebilir.
+            // Eklenti [16] hatasında kendi durum temizleme + tek yeniden deneme
+            // akışını zaten uyguluyor, burada ikinci bir tekrar başlatmıyoruz.
+            options: {
+              style: "standard",
+              filterByAuthorizedAccounts: false,
+              autoSelectEnabled: false,
+            },
+          })
         : await SocialLogin.login({
             provider: "apple",
             options: { scopes: ["email", "name"] },
           });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-
-    // Credential Manager bazı cihazlarda önbelleğe alınmış kimlik bilgisi
-    // yüzünden [16] "Account reauth failed" veriyor. Önbelleği temizleyip
-    // alternatif (bottom sheet) akışıyla bir kez daha deniyoruz.
     if (provider === "google" && /\[16\]|reauth|16:/i.test(msg)) {
-      try {
-        await SocialLogin.logout({ provider: "google" });
-      } catch {
-        // önbellek zaten boş olabilir
-      }
-      try {
-        res = await googleLogin("bottom");
-      } catch (err2) {
-        const msg2 = err2 instanceof Error ? err2.message : String(err2);
-        throw new Error(
-          `Google hesabı doğrulanamadı. Telefon ayarlarından Google hesabını kaldırıp yeniden ekleyip dener misin? (${msg2})`,
-        );
-      }
-    } else {
-      throw new Error(`Hesap seçici hatası: ${msg}`);
+      throw new Error(
+        "Google hesabı doğrulanamadı. Lütfen başka bir Google hesabı seç veya Google hesabındaki üçüncü taraf bağlantı izinlerini kontrol et.",
+      );
     }
+    throw new Error(`Hesap seçici hatası: ${msg}`);
   }
 
 
