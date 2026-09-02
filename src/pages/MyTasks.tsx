@@ -590,13 +590,13 @@ const MyTasks = () => {
                           : `${t("İşi tamamlamak için kalan süre:")} ${formatRemaining(confirmDeadlineMs(task.completion_requested_at))}`}
                       </p>
                     )}
-                    {!isDone && t.status !== "pending_confirm" && (
+                    {!isDone && task.status !== "pending_confirm" && (
                       <div className="mt-3 flex gap-2">
                         <button
-                          onClick={() => navigate(`/task/${t.id}`)}
+                          onClick={() => navigate(`/task/${task.id}`)}
                           className="flex-1 rounded-xl bg-primary py-2.5 text-xs font-bold text-primary-foreground"
                         >
-                          İşi Aç 💬
+                          {t("İşi Aç 💬")}
                         </button>
                         {!item.arrived_at ? (
                           <button
@@ -604,57 +604,55 @@ const MyTasks = () => {
                             disabled={isUpdating}
                             className="flex-1 rounded-xl bg-accent py-2.5 text-xs font-bold text-accent-foreground disabled:opacity-50"
                           >
-                            <User size={14} className="mr-1 inline" /> Vardım
+                            <User size={14} className="mr-1 inline" /> {t("Vardım")}
                           </button>
                         ) : (
                           <button
-                            onClick={() => handleRequestCompletion(t.id)}
-                            disabled={isUpdating || (completionUnlockMs(item.arrived_at, t.estimated_minutes) ?? 0) > 0}
+                            onClick={() => handleRequestCompletion(task.id)}
+                            disabled={isUpdating || (completionUnlockMs(item.arrived_at, task.estimated_minutes) ?? 0) > 0}
                             className="flex-1 rounded-xl bg-accent py-2.5 text-xs font-bold text-accent-foreground disabled:opacity-50"
                           >
                             <CheckCircle2 size={14} className="mr-1 inline" />
-                            {(completionUnlockMs(item.arrived_at, t.estimated_minutes) ?? 0) > 0
-                              ? formatRemaining(completionUnlockMs(item.arrived_at, t.estimated_minutes) ?? 0)
-                              : "Bitirdim"}
+                            {(completionUnlockMs(item.arrived_at, task.estimated_minutes) ?? 0) > 0
+                              ? formatRemaining(completionUnlockMs(item.arrived_at, task.estimated_minutes) ?? 0)
+                              : t("Bitirdim")}
                           </button>
                         )}
                       </div>
                     )}
-                    {!isDone && t.status !== "pending_confirm" && !item.arrived_at && (
-                      <p className="mt-2 text-[10px] text-muted-foreground">
-                        İş konumuna 300 m yaklaşınca "Vardım" de; "Bitirdim" bundan sonra açılır.
-                      </p>
+                    {!isDone && task.status !== "pending_confirm" && !item.arrived_at && (
+                      <p className="mt-2 text-[10px] text-muted-foreground">{t('İş konumuna 300 m yaklaşınca "Vardım" de; "Bitirdim" bundan sonra açılır.')}</p>
                     )}
-                    {t.rejection_count ? (
+                    {task.rejection_count ? (
                       <p className="mt-2 rounded-xl bg-destructive/10 p-2 text-[10px] font-semibold text-destructive">
-                        İş veren itiraz etti ({t.rejection_count}/2). Tamamlayıp tekrar bildir.
+                        {t("İş veren itiraz etti ({rejection_count}/2). Tamamlayıp tekrar bildir.", { rejection_count: task.rejection_count })}
                       </p>
                     ) : null}
 
-                    {!isDone && t.status === "pending_confirm" && !isMyCompletionRequest && (
+                    {!isDone && task.status === "pending_confirm" && !isMyCompletionRequest && (
                       <button
-                        onClick={() => handleConfirmCompletion(t.id)}
+                        onClick={() => handleConfirmCompletion(task.id)}
                         disabled={isUpdating}
                         className="mt-3 w-full rounded-xl bg-primary py-2.5 text-xs font-bold text-primary-foreground disabled:opacity-50"
                       >
                         <CheckCircle2 size={14} className="mr-1 inline" /> {t("İşi Onayla ve Tamamla")}
                       </button>
                     )}
-                    {!isDone && t.status !== "pending_confirm" && (
+                    {!isDone && task.status !== "pending_confirm" && (
                       <button
                         disabled={isUpdating}
                         onClick={() =>
                           setConfirmState({
                             kind: "leave",
-                            taskId: t.id,
-                            title: "İşten ayrılmak üzeresin",
-                            description: "Bu yardım çağrısındaki yerini bırakacaksın. Emin misin?",
-                            confirmLabel: "Ayrıl",
+                            taskId: task.id,
+                            title: t("İşten ayrılmak üzeresin"),
+                            description: t("Bu yardım çağrısındaki yerini bırakacaksın. Emin misin?"),
+                            confirmLabel: t("Ayrıl"),
                           })
                         }
                         className="mt-2 w-full rounded-xl border border-border py-2.5 text-xs font-bold text-muted-foreground disabled:opacity-50"
                       >
-                        İşten Ayrıl
+                        {t("İşten Ayrıl")}
                       </button>
                     )}
                   </motion.div>
