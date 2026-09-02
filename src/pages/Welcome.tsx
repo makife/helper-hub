@@ -12,9 +12,32 @@ const Welcome = () => {
   const { t, lang, setLang } = useI18n();
   const [langOpen, setLangOpen] = useState(false);
 
+  const flags: Record<string, React.ReactNode> = {
+    tr: (
+      <svg viewBox="0 0 640 480" className="h-4 w-auto rounded-sm">
+        <rect width="640" height="480" fill="#E30A17" />
+        <circle cx="220" cy="240" r="120" fill="#FFFFFF" />
+        <circle cx="256" cy="240" r="96" fill="#E30A17" />
+        <path
+          d="M520.6,240 L483.8,266.8 L497.9,310.2 L461.1,283.4 L424.3,310.2 L438.4,266.8 L401.6,240 L447.1,240 L461.1,196.6 L475.2,240 Z"
+          fill="#FFFFFF"
+        />
+      </svg>
+    ),
+    en: (
+      <svg viewBox="0 0 640 480" className="h-4 w-auto rounded-sm">
+        <rect width="640" height="480" fill="#012169" />
+        <path d="M0 0 L640 480 M640 0 L0 480" stroke="#FFFFFF" strokeWidth="60" />
+        <path d="M0 0 L640 480 M640 0 L0 480" stroke="#C8102E" strokeWidth="40" />
+        <path d="M320 0 V480 M0 240 H640" stroke="#FFFFFF" strokeWidth="100" />
+        <path d="M320 0 V480 M0 240 H640" stroke="#C8102E" strokeWidth="60" />
+      </svg>
+    ),
+  };
+
   const langOptions = [
-    { code: "tr" as const, label: "Türkçe", flag: "🇹🇷" },
-    { code: "en" as const, label: "English", flag: "🇬🇧" },
+    { code: "tr" as const, label: "Türkçe" },
+    { code: "en" as const, label: "English" },
   ];
 
   useEffect(() => {
