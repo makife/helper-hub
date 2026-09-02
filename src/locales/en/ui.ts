@@ -213,6 +213,7 @@ export const UI: Record<string, string> = {
   "Sadece alet gerektirmeyen işler": "Only tasks that need no tools",
   "Elimdeki aletlerle yapabileceğim işler": "Tasks I can do with my tools",
   "Profilinde işaretlediğin aletlere göre eşleştirir": "Matches tasks to the tools selected in your profile",
+  "Sahip olduğun tüm alet/edevatı kapsayan yardım çağrıları listelenir.": "Only shows tasks whose required tools are fully covered by what you already own.",
   "Alet/Edevat": "Tools/equipment",
   "Çağrı yapan:": "Requester:",
   "Süre:": "Duration:",
