@@ -534,6 +534,7 @@ export type Database = {
           completion_requested_at: string | null
           completion_requested_by: string | null
           created_at: string
+          currency: string
           current_price: number | null
           custom_tools: string[]
           description: string
@@ -578,6 +579,7 @@ export type Database = {
           completion_requested_at?: string | null
           completion_requested_by?: string | null
           created_at?: string
+          currency?: string
           current_price?: number | null
           custom_tools?: string[]
           description: string
@@ -622,6 +624,7 @@ export type Database = {
           completion_requested_at?: string | null
           completion_requested_by?: string | null
           created_at?: string
+          currency?: string
           current_price?: number | null
           custom_tools?: string[]
           description?: string
