@@ -282,6 +282,10 @@ const MyTasks = () => {
     supabase.from("tasks").select("*").eq("id", taskId).maybeSingle().then(({ data }) => {
       if (data) setSelectedTask(data);
     });
+    // Parametreyi temizle ki detay kapatılınca tekrar açılmasın
+    const p = new URLSearchParams(searchParams);
+    p.delete("task");
+    setSearchParams(p, { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, tasks, accepted, loading]);
 
