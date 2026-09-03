@@ -2,7 +2,7 @@ import { useT, translate } from "@/lib/i18n";
 import { formatPrice, getTaskCurrency } from "@/lib/currency";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { 
   ArrowLeft, Clock, Lightbulb, Blinds, Armchair, Hammer, Wrench, Package, 
   Trash2, Edit3, X, Zap, Image as ImageIcon, Sparkles, Droplet, Key, Laptop, 
