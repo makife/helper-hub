@@ -442,7 +442,6 @@ export const UI: Record<string, string> = {
   "Teklif Ver": "Make an offer",
   "Teklifi Gönder": "Send offer",
   "Teklif tutarı": "Offer amount",
-  "Vazgeç": "Cancel",
   "Teklifin ilan fiyatının üzerinde olmalı.": "Your offer must be above the listed price.",
   "Her çağrıya yalnızca bir kez teklif verebilirsin.": "You can make only one offer per request.",
   "Bu çağrıya zaten teklif verdin.": "You have already made an offer for this request.",
