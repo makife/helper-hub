@@ -195,15 +195,20 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
     loadOffers();
   };
 
+  const reservedByOffers = offers.filter((o) => o.status === "accepted").length;
+  const canAcceptOffer = acceptedCount + reservedByOffers < needed;
+
   const handleRespond = async (offerId: string, accept: boolean) => {
     setOfferBusy(true);
     const res = await respondToOffer(offerId, accept);
     setOfferBusy(false);
     if (res === "accepted") toast.success(t("Teklif kabul edildi. El atanın onayı bekleniyor."));
     else if (res === "rejected") toast.success(t("Teklif reddedildi."));
+    else if (res === "quota_full") toast.error(t("Kontenjan doldu, başka teklif kabul edemezsin."));
     else toast.error(t("İşlem yapılamadı."));
     loadOffers();
   };
+
 
   const handleConfirmOffer = async () => {
     if (!myOffer) return;
@@ -377,13 +382,15 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
                   </div>
                   {o.status === "pending" ? (
                     <div className="mt-2 flex gap-2">
-                      <button
-                        onClick={() => handleRespond(o.id, true)}
-                        disabled={offerBusy}
-                        className="gradient-warm flex-1 rounded-xl px-4 py-2 text-sm font-bold text-primary-foreground disabled:opacity-50"
-                      >
-                        {t("Teklifi Kabul Et")}
-                      </button>
+                      {canAcceptOffer && (
+                        <button
+                          onClick={() => handleRespond(o.id, true)}
+                          disabled={offerBusy}
+                          className="gradient-warm flex-1 rounded-xl px-4 py-2 text-sm font-bold text-primary-foreground disabled:opacity-50"
+                        >
+                          {t("Teklifi Kabul Et")}
+                        </button>
+                      )}
                       <button
                         onClick={() => handleRespond(o.id, false)}
                         disabled={offerBusy}
@@ -393,6 +400,7 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
                       </button>
                     </div>
                   ) : (
+
                     <p className="mt-1 text-xs font-semibold text-muted-foreground">
                       {o.status === "accepted"
                         ? t("Kabul edildi — el atanın onayı bekleniyor")
