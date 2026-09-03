@@ -382,24 +382,31 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
                     </span>
                   </div>
                   {o.status === "pending" ? (
-                    <div className="mt-2 flex gap-2">
-                      {canAcceptOffer && (
+                    <>
+                      <div className="mt-2 flex gap-2">
+                        {canAcceptOffer && !hasAcceptedOffer && (
+                          <button
+                            onClick={() => handleRespond(o.id, true)}
+                            disabled={offerBusy}
+                            className="gradient-warm flex-1 rounded-xl px-4 py-2 text-sm font-bold text-primary-foreground disabled:opacity-50"
+                          >
+                            {t("Teklifi Kabul Et")}
+                          </button>
+                        )}
                         <button
-                          onClick={() => handleRespond(o.id, true)}
-                          disabled={offerBusy}
-                          className="gradient-warm flex-1 rounded-xl px-4 py-2 text-sm font-bold text-primary-foreground disabled:opacity-50"
+                          onClick={() => handleRespond(o.id, false)}
+                          disabled={offerBusy || hasAcceptedOffer}
+                          className={`rounded-xl border border-border px-4 py-2 text-sm font-bold text-muted-foreground disabled:opacity-50 ${canAcceptOffer && !hasAcceptedOffer ? "flex-1" : "w-full"}`}
                         >
-                          {t("Teklifi Kabul Et")}
+                          {t("Reddet")}
                         </button>
+                      </div>
+                      {hasAcceptedOffer && (
+                        <p className="mt-1 text-xs font-semibold text-muted-foreground">
+                          {t("Başka bir teklif kabul edildi, bu teklif beklemede")}
+                        </p>
                       )}
-                      <button
-                        onClick={() => handleRespond(o.id, false)}
-                        disabled={offerBusy}
-                        className="flex-1 rounded-xl border border-border px-4 py-2 text-sm font-bold text-muted-foreground disabled:opacity-50"
-                      >
-                        {t("Reddet")}
-                      </button>
-                    </div>
+                    </>
                   ) : (
 
                     <p className="mt-1 text-xs font-semibold text-muted-foreground">
