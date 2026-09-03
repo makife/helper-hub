@@ -496,6 +496,50 @@ export type Database = {
           },
         ]
       }
+      task_offers: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          message: string | null
+          responded_at: string | null
+          status: string
+          task_id: string
+          tasker_id: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          message?: string | null
+          responded_at?: string | null
+          status?: string
+          task_id: string
+          tasker_id: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          message?: string | null
+          responded_at?: string | null
+          status?: string
+          task_id?: string
+          tasker_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_offers_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       task_views: {
         Row: {
           id: string
@@ -700,6 +744,7 @@ export type Database = {
         Args: { _task_id: string }
         Returns: number
       }
+      confirm_accepted_offer: { Args: { _offer_id: string }; Returns: string }
       confirm_task_completion: { Args: { _task_id: string }; Returns: boolean }
       dispatch_push: {
         Args: { _body: string; _path: string; _title: string; _user_id: string }
@@ -753,6 +798,10 @@ export type Database = {
       remind_stale_open_tasks: { Args: never; Returns: undefined }
       request_task_completion: { Args: { _task_id: string }; Returns: string }
       resolve_dispute: { Args: { _task_id: string }; Returns: undefined }
+      respond_to_offer: {
+        Args: { _accept: boolean; _offer_id: string }
+        Returns: string
+      }
       start_task_with_partial_quota: {
         Args: { p_task_id: string }
         Returns: undefined
