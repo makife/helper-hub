@@ -302,6 +302,8 @@ export const UI: Record<string, string> = {
   "Henüz yardım çağrın yok": "You have no help requests yet",
   "Hesabınla saniyeler içinde giriş yap, hemen yardımlaşmaya başla.": "Sign in in seconds and start helping right away.",
   "Kabul Et": "Accept",
+  "Kabul Et ({count}/{needed})": "Accept ({count}/{needed})",
+  "Kabul ediliyor...": "Accepting...",
   "Kapı zilini çalma, mesaj at...": "Don't ring the doorbell, send a message...",
   "Kategori ara... (300+ seçenek)": "Search categories... (300+ options)",
   "Kod": "Code",
