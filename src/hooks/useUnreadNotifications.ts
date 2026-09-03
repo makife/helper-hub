@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { setAppBadge } from "@/lib/feedback";
 
 /** Okunmamış bildirim sayısı (kalıcı bildirimler + gelen mesajlar). */
 export const useUnreadNotifications = () => {
@@ -10,6 +11,7 @@ export const useUnreadNotifications = () => {
   useEffect(() => {
     if (!user) {
       setCount(0);
+      void setAppBadge(0);
       return;
     }
 
@@ -26,7 +28,9 @@ export const useUnreadNotifications = () => {
           .eq("receiver_id", user.id)
           .eq("is_read", false),
       ]);
-      setCount((n ?? 0) + (m ?? 0));
+      const total = (n ?? 0) + (m ?? 0);
+      setCount(total);
+      void setAppBadge(total);
     };
 
     fetchCount();

@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useT } from "@/lib/i18n";
 import { localizeNotificationText } from "@/lib/notificationText";
+import { notifyFeedback } from "@/lib/feedback";
 
 type NotificationRow = {
   id: string;
@@ -47,6 +48,7 @@ const GlobalNotifier = () => {
     if (!user) return;
 
     const show = (title: string, body: string, path: string) => {
+      notifyFeedback();
       toast(title, {
         description: body || undefined,
         duration: 6000,

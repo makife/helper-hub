@@ -117,7 +117,7 @@ Deno.serve(async (req) => {
               priority: isUrgent ? 'HIGH' : 'NORMAL',
               notification: {
                 sound: 'default',
-                channel_id: 'bielat_high',
+                channel_id: 'bielat_alerts_v2',
                 notification_priority: isUrgent ? 'PRIORITY_MAX' : 'PRIORITY_DEFAULT',
                 default_vibrate_timings: true,
                 visibility: 'PUBLIC',
