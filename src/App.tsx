@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import GlobalNotifier from "@/components/GlobalNotifier";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { I18nProvider } from "@/lib/i18n";
 import Welcome from "./pages/Welcome";
@@ -41,6 +42,7 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
+              <GlobalNotifier />
               <Routes>
                 <Route path="/" element={<Welcome />} />
                 <Route path="/onboarding" element={<Onboarding />} />
