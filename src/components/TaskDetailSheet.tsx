@@ -546,10 +546,22 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
               )}
 
               {myOffer?.status === "rejected" && (
-                <p className="rounded-2xl bg-muted/50 p-3 text-center text-xs font-semibold text-muted-foreground">
-                  {t("Teklifin reddedildi. İlan fiyatından yine de kabul edebilirsin.")}
-                </p>
+                <div className="space-y-2">
+                  <p className="rounded-2xl bg-muted/50 p-3 text-center text-xs font-semibold text-muted-foreground">
+                    {t("Teklifin reddedildi. İlan fiyatından yine de kabul edebilirsin.")}
+                  </p>
+                  <button
+                    onClick={handleAccept}
+                    disabled={accepting}
+                    className="gradient-warm w-full rounded-2xl px-4 py-4 text-base font-bold text-primary-foreground shadow-soft transition-transform active:scale-[0.98] disabled:opacity-50"
+                  >
+                    {accepting
+                      ? t("Kabul ediliyor...")
+                      : `${t("Kabul Et")} · ${formatPrice(livePrice ? livePrice.price : task.current_price ?? task.price, currency)}`}
+                  </button>
+                </div>
               )}
+
 
               {!myOffer && offerOpen && (
                 <div className="space-y-2 rounded-2xl border border-border p-3">
