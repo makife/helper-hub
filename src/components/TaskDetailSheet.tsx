@@ -197,6 +197,7 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
 
   const reservedByOffers = offers.filter((o) => o.status === "accepted").length;
   const canAcceptOffer = acceptedCount + reservedByOffers < needed;
+  const hasAcceptedOffer = offers.some((o) => o.status === "accepted" || o.status === "confirmed");
 
   const handleRespond = async (offerId: string, accept: boolean) => {
     setOfferBusy(true);
