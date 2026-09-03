@@ -501,10 +501,78 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
                     ? t("Kabul Et ✋ ({count}/{needed})", { count: acceptedCount, needed })
                     : t("Kabul Et ✋")}
               </button>
+
+              {myOffer?.status === "pending" && (
+                <div className="rounded-2xl bg-muted/50 p-3 text-center text-sm font-semibold text-muted-foreground">
+                  {t("Teklifin gönderildi")}: <span className="font-black text-foreground">{formatPrice(myOffer.amount, currency)}</span>
+                  <p className="mt-1 text-xs font-normal">{t("Çağrı sahibinin yanıtı bekleniyor.")}</p>
+                </div>
+              )}
+
+              {myOffer?.status === "accepted" && (
+                <button
+                  onClick={handleConfirmOffer}
+                  disabled={offerBusy}
+                  className="w-full rounded-2xl bg-primary px-6 py-4 text-base font-bold text-primary-foreground disabled:opacity-50"
+                >
+                  {t("Teklifin kabul edildi")} ({formatPrice(myOffer.amount, currency)}) — {t("Onayla ve Başla")}
+                </button>
+              )}
+
+              {myOffer?.status === "rejected" && (
+                <p className="rounded-2xl bg-muted/50 p-3 text-center text-xs font-semibold text-muted-foreground">
+                  {t("Teklifin reddedildi. İlan fiyatından yine de kabul edebilirsin.")}
+                </p>
+              )}
+
+              {!myOffer && (
+                offerOpen ? (
+                  <div className="space-y-2 rounded-2xl border border-border p-3">
+                    <p className="text-xs text-muted-foreground">
+                      {t("Teklifin ilan fiyatının üzerinde olmalı.")} ({formatPrice(task.price, currency)})
+                    </p>
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      value={offerAmount}
+                      onChange={(e) => setOfferAmount(e.target.value)}
+                      placeholder={t("Teklif tutarı")}
+                      className="w-full rounded-xl border border-border bg-background px-4 py-3 text-base font-bold text-foreground outline-none"
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        onClick={handleSendOffer}
+                        disabled={offerBusy}
+                        className="gradient-warm flex-1 rounded-xl px-4 py-3 text-sm font-bold text-primary-foreground disabled:opacity-50"
+                      >
+                        {t("Teklifi Gönder")}
+                      </button>
+                      <button
+                        onClick={() => setOfferOpen(false)}
+                        className="rounded-xl border border-border px-4 py-3 text-sm font-bold text-muted-foreground"
+                      >
+                        {t("Vazgeç")}
+                      </button>
+                    </div>
+                    <p className="text-[11px] leading-snug text-muted-foreground">
+                      {t("Her çağrıya yalnızca bir kez teklif verebilirsin.")}
+                    </p>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setOfferOpen(true)}
+                    className="flex w-full items-center justify-center gap-2 rounded-2xl border border-primary px-6 py-3 text-sm font-bold text-primary"
+                  >
+                    <Handshake size={16} /> {t("Teklif Ver")}
+                  </button>
+                )
+              )}
+
               <p className="text-center text-[11px] leading-snug text-muted-foreground">
                 {t("Ödeme taraflar arasında elden yapılır. Bi' El At, ödeme anlaşmazlıklarında taraf olmaz.")}
               </p>
             </div>
+
           )
         )}
 
