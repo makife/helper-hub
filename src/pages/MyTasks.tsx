@@ -259,7 +259,31 @@ const MyTasks = () => {
 
   
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
+
+  // Bildirimlerden gelen ?task= derin bağlantısı: ilgili görevin detayını aç
+  useEffect(() => {
+    const taskId = searchParams.get("task");
+    if (!taskId || loading) return;
+    const owned = tasks.find((t) => t.id === taskId);
+    if (owned) {
+      setTab("owned");
+      setSelectedTask(owned);
+      return;
+    }
+    const taken = accepted.find((a) => a.task.id === taskId);
+    if (taken) {
+      setTab("accepted");
+      setSelectedTask(taken.task);
+      return;
+    }
+    // Listede yoksa (ör. süresi dolmuş / farklı sekme) doğrudan çek
+    supabase.from("tasks").select("*").eq("id", taskId).maybeSingle().then(({ data }) => {
+      if (data) setSelectedTask(data);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, tasks, accepted, loading]);
 
   const fetchTasks = async () => {
     if (!user) return;
