@@ -355,6 +355,58 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
           </div>
         )}
 
+        {isOwner && offers.length > 0 && (
+          <div className="mb-4 rounded-xl bg-muted/50 p-3">
+            <div className="mb-2 flex items-center gap-2 text-sm text-muted-foreground">
+              <Handshake size={14} className="text-primary" />
+              <span>{t("Gelen Teklifler")}</span>
+            </div>
+            <div className="space-y-2">
+              {offers.map((o) => (
+                <div key={o.id} className="rounded-xl bg-card p-3">
+                  <div className="flex items-center justify-between">
+                    <button
+                      onClick={() => navigate(`/profile/${o.tasker_id}`)}
+                      className="text-xs font-semibold text-primary"
+                    >
+                      {t("Profili Gör →")}
+                    </button>
+                    <span className="text-lg font-black text-foreground">
+                      {formatPrice(o.amount, currency)}
+                    </span>
+                  </div>
+                  {o.status === "pending" ? (
+                    <div className="mt-2 flex gap-2">
+                      <button
+                        onClick={() => handleRespond(o.id, true)}
+                        disabled={offerBusy}
+                        className="gradient-warm flex-1 rounded-xl px-4 py-2 text-sm font-bold text-primary-foreground disabled:opacity-50"
+                      >
+                        {t("Teklifi Kabul Et")}
+                      </button>
+                      <button
+                        onClick={() => handleRespond(o.id, false)}
+                        disabled={offerBusy}
+                        className="flex-1 rounded-xl border border-border px-4 py-2 text-sm font-bold text-muted-foreground disabled:opacity-50"
+                      >
+                        {t("Reddet")}
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="mt-1 text-xs font-semibold text-muted-foreground">
+                      {o.status === "accepted"
+                        ? t("Kabul edildi — el atanın onayı bekleniyor")
+                        : o.status === "confirmed"
+                          ? t("Onaylandı")
+                          : t("Reddedildi")}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {needed > 1 && task.wait_deadline && (
 
           <div className="mb-4 rounded-xl bg-muted/50 p-3 text-xs leading-relaxed text-muted-foreground">
