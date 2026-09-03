@@ -36,6 +36,13 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
   const [acceptedCount, setAcceptedCount] = useState(0);
   const [iAccepted, setIAccepted] = useState(false);
   const [viewerCount, setViewerCount] = useState(0);
+  const [myOffer, setMyOffer] = useState<OfferRow | null>(null);
+  const [offers, setOffers] = useState<OfferRow[]>([]);
+  const [offerOpen, setOfferOpen] = useState(false);
+  const [offerAmount, setOfferAmount] = useState("");
+  const [offerBusy, setOfferBusy] = useState(false);
+  const isOwner = user?.id === task.owner_id;
+  const currency = getTaskCurrency(task);
 
   const livePrice = useLivePrice(task);
   const needed = task.person_count ?? 1;
