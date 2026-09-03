@@ -155,6 +155,77 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
     navigate(`/task/${task.id}`);
   };
 
+  const loadOffers = async () => {
+    if (!user) return;
+    if (isOwner) setOffers(await fetchTaskOffers(task.id));
+    else setMyOffer(await fetchMyOffer(task.id, user.id));
+  };
+
+  useEffect(() => {
+    loadOffers();
+    const channel = supabase
+      .channel(`task-offers-${task.id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "task_offers", filter: `task_id=eq.${task.id}` },
+        () => loadOffers()
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [task.id, user?.id, isOwner]);
+
+  const handleSendOffer = async () => {
+    if (!user) return;
+    const amount = Math.round(Number(offerAmount));
+    if (!amount || amount <= task.price) {
+      toast.error(t("Teklifin ilan fiyatının üzerinde olmalı."));
+      return;
+    }
+    setOfferBusy(true);
+    const res = await createOffer(task.id, user.id, amount);
+    setOfferBusy(false);
+    if (!res.ok) {
+      toast.error(res.code === "23505" ? t("Bu çağrıya zaten teklif verdin.") : t("Teklif gönderilemedi."));
+      return;
+    }
+    toast.success(t("Teklifin gönderildi. Çağrı sahibi yanıtlayınca bildirim alacaksın."));
+    setOfferOpen(false);
+    setOfferAmount("");
+    loadOffers();
+  };
+
+  const handleRespond = async (offerId: string, accept: boolean) => {
+    setOfferBusy(true);
+    const res = await respondToOffer(offerId, accept);
+    setOfferBusy(false);
+    if (res === "accepted") toast.success(t("Teklif kabul edildi. El atanın onayı bekleniyor."));
+    else if (res === "rejected") toast.success(t("Teklif reddedildi."));
+    else toast.error(t("İşlem yapılamadı."));
+    loadOffers();
+  };
+
+  const handleConfirmOffer = async () => {
+    if (!myOffer) return;
+    setOfferBusy(true);
+    const res = await confirmAcceptedOffer(myOffer.id);
+    setOfferBusy(false);
+    if (res === "ok") {
+      toast.success(t("İş kabul edildi! 🎉"));
+      onAccepted?.(task);
+      onClose();
+      navigate(`/task/${task.id}`);
+      return;
+    }
+    if (res === "credits") {
+      toast.error(t("Kredin yetersiz. Kredi Marketi'nden kredi yükleyebilirsin."), {
+        action: { label: t("Kredi Al"), onClick: () => { onClose(); navigate("/market"); } },
+      });
+      return;
+    }
+    toast.error(t("İşlem yapılamadı."));
+  };
+
   const handleLeave = async () => {
     if (!user) return;
     setAccepting(true);
