@@ -195,15 +195,20 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
     loadOffers();
   };
 
+  const reservedByOffers = offers.filter((o) => o.status === "accepted").length;
+  const canAcceptOffer = acceptedCount + reservedByOffers < needed;
+
   const handleRespond = async (offerId: string, accept: boolean) => {
     setOfferBusy(true);
     const res = await respondToOffer(offerId, accept);
     setOfferBusy(false);
     if (res === "accepted") toast.success(t("Teklif kabul edildi. El atanın onayı bekleniyor."));
     else if (res === "rejected") toast.success(t("Teklif reddedildi."));
+    else if (res === "quota_full") toast.error(t("Kontenjan doldu, başka teklif kabul edemezsin."));
     else toast.error(t("İşlem yapılamadı."));
     loadOffers();
   };
+
 
   const handleConfirmOffer = async () => {
     if (!myOffer) return;
