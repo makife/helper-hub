@@ -33,7 +33,7 @@ function navigateFromPayload(payload: unknown) {
   const path = typeof data.path === "string"
     ? data.path
     : typeof taskId === "string" && taskId
-      ? `/task/${taskId}`
+      ? `/my-tasks?task=${taskId}`
       : data.type === "message"
         ? "/messages"
         : "/notifications";
