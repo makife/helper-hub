@@ -91,6 +91,7 @@ export const UI: Record<string, string> = {
   "Bir sorun oluştu.": "Something went wrong",
   "İş": "Task",
   "Kullanıcı": "User",
+  "Görüntüle": "View",
   "İsimsiz Kullanıcı": "Unnamed user",
   "Görüntüleyenler": "Viewers",
   "Acil": "Urgent",
