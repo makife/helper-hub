@@ -3,7 +3,8 @@ import { createClient } from 'npm:@supabase/supabase-js@2';
 
 const GATEWAY_URL = 'https://connector-gateway.lovable.dev/firebase_messaging';
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const RADIUS_M = 15_000; // 15 km
+const URGENT_RADIUS_M = 15_000; // 15 km
+const NORMAL_RADIUS_M = 10_000; // 10 km
 const MAX_RECIPIENTS = 300;
 
 Deno.serve(async (req) => {
@@ -50,16 +51,17 @@ Deno.serve(async (req) => {
 
     // Sadece görevin sahibi tetikleyebilir; sadece açık+acil işler; tekrar göndermeyi engelle
     if (task.owner_id !== callerId) return json({ error: 'Yetkisiz' }, 403);
-    if (task.urgency !== 'urgent' || task.status !== 'open') {
-      return json({ sent: 0, reason: 'not-urgent-or-not-open' });
+    if (task.status !== 'open') {
+      return json({ sent: 0, reason: 'not-open' });
     }
+    const isUrgent = task.urgency === 'urgent';
     if (task.urgent_push_sent) return json({ sent: 0, reason: 'already-sent' });
     if (task.latitude == null || task.longitude == null) return json({ sent: 0, reason: 'no-location' });
 
     const { data: nearby, error: nearbyError } = await admin.rpc('nearby_helper_ids', {
       _lat: task.latitude,
       _lng: task.longitude,
-      _radius_m: RADIUS_M,
+      _radius_m: isUrgent ? URGENT_RADIUS_M : NORMAL_RADIUS_M,
       _exclude_user_id: task.owner_id,
     });
     if (nearbyError) {
@@ -105,23 +107,25 @@ Deno.serve(async (req) => {
           message: {
             token: row.token,
             notification: {
-              title: languages.get(row.user_id) === 'en' ? '🔥 An urgent task is nearby!' : '🔥 Yakınında acil bir iş var!',
-              body: languages.get(row.user_id) === 'en' ? `${task.title} — ₺${price}` : `${task.title} — ₺${price}`,
+              title: languages.get(row.user_id) === 'en'
+                ? (isUrgent ? '🔥 An urgent task is nearby!' : '🖐️ A new task is nearby')
+                : (isUrgent ? '🔥 Yakınında acil bir iş var!' : '🖐️ Yakınında yeni bir iş var'),
+              body: `${task.title} — ₺${price}`,
             },
             data: { path: `/?task=${taskId}` },
             android: {
-              priority: 'HIGH',
+              priority: isUrgent ? 'HIGH' : 'NORMAL',
               notification: {
                 sound: 'default',
                 channel_id: 'bielat_high',
-                notification_priority: 'PRIORITY_MAX',
+                notification_priority: isUrgent ? 'PRIORITY_MAX' : 'PRIORITY_DEFAULT',
                 default_vibrate_timings: true,
                 visibility: 'PUBLIC',
               },
             },
             apns: {
-              headers: { 'apns-priority': '10' },
-              payload: { aps: { sound: 'default', badge: 1, 'interruption-level': 'time-sensitive' } },
+              headers: { 'apns-priority': isUrgent ? '10' : '5' },
+              payload: { aps: { sound: 'default', badge: 1, 'interruption-level': isUrgent ? 'time-sensitive' : 'active' } },
             },
           },
         }),

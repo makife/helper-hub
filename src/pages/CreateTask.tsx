@@ -376,9 +376,9 @@ const CreateTask = () => {
         return;
       }
 
-      // Yeni oluşturulan acil bir işse, yakındaki kullanıcılara push bildirimi gönder.
+      // Yeni iş oluşturulduğunda yakındaki kullanıcılara push bildirimi gönder.
       // Bu isteğin başarısız olması ana akışı bozmasın diye sessizce yutuluyor.
-      if (!editTaskId && newTaskId && urgency === "urgent") {
+      if (!editTaskId && newTaskId) {
         supabase.functions
           .invoke("notify-nearby-urgent-task", { body: { task_id: newTaskId } })
           .catch((err) => console.warn("Yakındakilere bildirim gönderilemedi:", err));
