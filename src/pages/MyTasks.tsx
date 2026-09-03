@@ -266,6 +266,10 @@ const MyTasks = () => {
   useEffect(() => {
     const taskId = searchParams.get("task");
     if (!taskId || loading) return;
+    // Parametreyi hemen temizle ki detay kapatılınca tekrar açılmasın
+    const p = new URLSearchParams(searchParams);
+    p.delete("task");
+    setSearchParams(p, { replace: true });
     const owned = tasks.find((t) => t.id === taskId);
     if (owned) {
       setTab("owned");
