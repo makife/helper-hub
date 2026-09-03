@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { formatPrice, getTaskCurrency } from "@/lib/currency";
 import { motion } from "framer-motion";
-import { X, Clock, MapPin, Star, User, Users, TrendingDown, Wrench, UserCheck, Home, BadgeCheck, Eye } from "lucide-react";
+import { X, Clock, MapPin, Star, User, Users, TrendingDown, Wrench, UserCheck, Home, BadgeCheck, Eye, Handshake } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -9,8 +9,10 @@ import { useT } from "@/lib/i18n";
 import { toast } from "sonner";
 import { useLivePrice, formatCountdown } from "@/lib/dynamicPricing";
 import { acceptTask, leaveTask } from "@/lib/assignments";
+import { createOffer, fetchMyOffer, fetchTaskOffers, respondToOffer, confirmAcceptedOffer, type OfferRow } from "@/lib/offers";
 import { ALL_TOOLS } from "@/lib/toolsList";
 import type { Tables } from "@/integrations/supabase/types";
+
 
 
 type TaskWithUI = Tables<"tasks"> & {
