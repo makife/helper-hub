@@ -160,8 +160,35 @@ const TaskTimeline = ({
   compact?: boolean;
 }) => {
   const t = useT();
-  const steps = buildTaskSteps(task, arrivedAt);
+  const [offerSteps, setOfferSteps] = useState<Step[]>([]);
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      const offers = await fetchTaskOffers(task.id);
+      if (!active || offers.length === 0) {
+        if (active) setOfferSteps([]);
+        return;
+      }
+      const ids = [...new Set(offers.map((o) => o.tasker_id))];
+      const { data } = await supabase
+        .from("profiles")
+        .select("user_id, full_name")
+        .in("user_id", ids);
+      const names: Record<string, string> = {};
+      (data ?? []).forEach((p: { user_id: string; full_name: string }) => {
+        names[p.user_id] = p.full_name;
+      });
+      if (active) setOfferSteps(buildOfferSteps(task, offers, names));
+    })();
+    return () => {
+      active = false;
+    };
+  }, [task.id, task.currency]);
+
+  const steps = buildTaskSteps(task, arrivedAt, offerSteps);
   const shown = compact ? steps.slice(-3) : steps;
+
 
   return (
     <ol className="mt-3 space-y-2">
