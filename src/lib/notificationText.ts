@@ -3,6 +3,7 @@ const TITLE_SUFFIXES = [
   "cagrini kabul etti",
   "işi bıraktı",
   "isi birakti",
+  "teklif gönderdi",
 ];
 
 const AUTO_CANCEL_RE =

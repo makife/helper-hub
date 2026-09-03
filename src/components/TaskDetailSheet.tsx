@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { formatPrice, getTaskCurrency } from "@/lib/currency";
 import { motion } from "framer-motion";
-import { X, Clock, MapPin, Star, User, Users, TrendingDown, Wrench, UserCheck, Home, BadgeCheck, Eye } from "lucide-react";
+import { X, Clock, MapPin, Star, User, Users, TrendingDown, Wrench, UserCheck, Home, BadgeCheck, Eye, Handshake } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -9,8 +9,10 @@ import { useT } from "@/lib/i18n";
 import { toast } from "sonner";
 import { useLivePrice, formatCountdown } from "@/lib/dynamicPricing";
 import { acceptTask, leaveTask } from "@/lib/assignments";
+import { createOffer, fetchMyOffer, fetchTaskOffers, respondToOffer, confirmAcceptedOffer, type OfferRow } from "@/lib/offers";
 import { ALL_TOOLS } from "@/lib/toolsList";
 import type { Tables } from "@/integrations/supabase/types";
+
 
 
 type TaskWithUI = Tables<"tasks"> & {
@@ -34,6 +36,13 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
   const [acceptedCount, setAcceptedCount] = useState(0);
   const [iAccepted, setIAccepted] = useState(false);
   const [viewerCount, setViewerCount] = useState(0);
+  const [myOffer, setMyOffer] = useState<OfferRow | null>(null);
+  const [offers, setOffers] = useState<OfferRow[]>([]);
+  const [offerOpen, setOfferOpen] = useState(false);
+  const [offerAmount, setOfferAmount] = useState("");
+  const [offerBusy, setOfferBusy] = useState(false);
+  const isOwner = user?.id === task.owner_id;
+  const currency = getTaskCurrency(task);
 
   const livePrice = useLivePrice(task);
   const needed = task.person_count ?? 1;
@@ -144,6 +153,77 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
     onAccepted?.(task);
     onClose();
     navigate(`/task/${task.id}`);
+  };
+
+  const loadOffers = async () => {
+    if (!user) return;
+    if (isOwner) setOffers(await fetchTaskOffers(task.id));
+    else setMyOffer(await fetchMyOffer(task.id, user.id));
+  };
+
+  useEffect(() => {
+    loadOffers();
+    const channel = supabase
+      .channel(`task-offers-${task.id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "task_offers", filter: `task_id=eq.${task.id}` },
+        () => loadOffers()
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [task.id, user?.id, isOwner]);
+
+  const handleSendOffer = async () => {
+    if (!user) return;
+    const amount = Math.round(Number(offerAmount));
+    if (!amount || amount <= task.price) {
+      toast.error(t("Teklifin ilan fiyatının üzerinde olmalı."));
+      return;
+    }
+    setOfferBusy(true);
+    const res = await createOffer(task.id, user.id, amount);
+    setOfferBusy(false);
+    if (!res.ok) {
+      toast.error(res.code === "23505" ? t("Bu çağrıya zaten teklif verdin.") : t("Teklif gönderilemedi."));
+      return;
+    }
+    toast.success(t("Teklifin gönderildi. Çağrı sahibi yanıtlayınca bildirim alacaksın."));
+    setOfferOpen(false);
+    setOfferAmount("");
+    loadOffers();
+  };
+
+  const handleRespond = async (offerId: string, accept: boolean) => {
+    setOfferBusy(true);
+    const res = await respondToOffer(offerId, accept);
+    setOfferBusy(false);
+    if (res === "accepted") toast.success(t("Teklif kabul edildi. El atanın onayı bekleniyor."));
+    else if (res === "rejected") toast.success(t("Teklif reddedildi."));
+    else toast.error(t("İşlem yapılamadı."));
+    loadOffers();
+  };
+
+  const handleConfirmOffer = async () => {
+    if (!myOffer) return;
+    setOfferBusy(true);
+    const res = await confirmAcceptedOffer(myOffer.id);
+    setOfferBusy(false);
+    if (res === "ok") {
+      toast.success(t("İş kabul edildi! 🎉"));
+      onAccepted?.(task);
+      onClose();
+      navigate(`/task/${task.id}`);
+      return;
+    }
+    if (res === "credits") {
+      toast.error(t("Kredin yetersiz. Kredi Marketi'nden kredi yükleyebilirsin."), {
+        action: { label: t("Kredi Al"), onClick: () => { onClose(); navigate("/market"); } },
+      });
+      return;
+    }
+    toast.error(t("İşlem yapılamadı."));
   };
 
   const handleLeave = async () => {
@@ -275,6 +355,58 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
           </div>
         )}
 
+        {isOwner && offers.length > 0 && (
+          <div className="mb-4 rounded-xl bg-muted/50 p-3">
+            <div className="mb-2 flex items-center gap-2 text-sm text-muted-foreground">
+              <Handshake size={14} className="text-primary" />
+              <span>{t("Gelen Teklifler")}</span>
+            </div>
+            <div className="space-y-2">
+              {offers.map((o) => (
+                <div key={o.id} className="rounded-xl bg-card p-3">
+                  <div className="flex items-center justify-between">
+                    <button
+                      onClick={() => navigate(`/profile/${o.tasker_id}`)}
+                      className="text-xs font-semibold text-primary"
+                    >
+                      {t("Profili Gör →")}
+                    </button>
+                    <span className="text-lg font-black text-foreground">
+                      {formatPrice(o.amount, currency)}
+                    </span>
+                  </div>
+                  {o.status === "pending" ? (
+                    <div className="mt-2 flex gap-2">
+                      <button
+                        onClick={() => handleRespond(o.id, true)}
+                        disabled={offerBusy}
+                        className="gradient-warm flex-1 rounded-xl px-4 py-2 text-sm font-bold text-primary-foreground disabled:opacity-50"
+                      >
+                        {t("Teklifi Kabul Et")}
+                      </button>
+                      <button
+                        onClick={() => handleRespond(o.id, false)}
+                        disabled={offerBusy}
+                        className="flex-1 rounded-xl border border-border px-4 py-2 text-sm font-bold text-muted-foreground disabled:opacity-50"
+                      >
+                        {t("Reddet")}
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="mt-1 text-xs font-semibold text-muted-foreground">
+                      {o.status === "accepted"
+                        ? t("Kabul edildi — el atanın onayı bekleniyor")
+                        : o.status === "confirmed"
+                          ? t("Onaylandı")
+                          : t("Reddedildi")}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {needed > 1 && task.wait_deadline && (
 
           <div className="mb-4 rounded-xl bg-muted/50 p-3 text-xs leading-relaxed text-muted-foreground">
@@ -369,10 +501,78 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
                     ? t("Kabul Et ✋ ({count}/{needed})", { count: acceptedCount, needed })
                     : t("Kabul Et ✋")}
               </button>
+
+              {myOffer?.status === "pending" && (
+                <div className="rounded-2xl bg-muted/50 p-3 text-center text-sm font-semibold text-muted-foreground">
+                  {t("Teklifin gönderildi")}: <span className="font-black text-foreground">{formatPrice(myOffer.amount, currency)}</span>
+                  <p className="mt-1 text-xs font-normal">{t("Çağrı sahibinin yanıtı bekleniyor.")}</p>
+                </div>
+              )}
+
+              {myOffer?.status === "accepted" && (
+                <button
+                  onClick={handleConfirmOffer}
+                  disabled={offerBusy}
+                  className="w-full rounded-2xl bg-primary px-6 py-4 text-base font-bold text-primary-foreground disabled:opacity-50"
+                >
+                  {t("Teklifin kabul edildi")} ({formatPrice(myOffer.amount, currency)}) — {t("Onayla ve Başla")}
+                </button>
+              )}
+
+              {myOffer?.status === "rejected" && (
+                <p className="rounded-2xl bg-muted/50 p-3 text-center text-xs font-semibold text-muted-foreground">
+                  {t("Teklifin reddedildi. İlan fiyatından yine de kabul edebilirsin.")}
+                </p>
+              )}
+
+              {!myOffer && (
+                offerOpen ? (
+                  <div className="space-y-2 rounded-2xl border border-border p-3">
+                    <p className="text-xs text-muted-foreground">
+                      {t("Teklifin ilan fiyatının üzerinde olmalı.")} ({formatPrice(task.price, currency)})
+                    </p>
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      value={offerAmount}
+                      onChange={(e) => setOfferAmount(e.target.value)}
+                      placeholder={t("Teklif tutarı")}
+                      className="w-full rounded-xl border border-border bg-background px-4 py-3 text-base font-bold text-foreground outline-none"
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        onClick={handleSendOffer}
+                        disabled={offerBusy}
+                        className="gradient-warm flex-1 rounded-xl px-4 py-3 text-sm font-bold text-primary-foreground disabled:opacity-50"
+                      >
+                        {t("Teklifi Gönder")}
+                      </button>
+                      <button
+                        onClick={() => setOfferOpen(false)}
+                        className="rounded-xl border border-border px-4 py-3 text-sm font-bold text-muted-foreground"
+                      >
+                        {t("Vazgeç")}
+                      </button>
+                    </div>
+                    <p className="text-[11px] leading-snug text-muted-foreground">
+                      {t("Her çağrıya yalnızca bir kez teklif verebilirsin.")}
+                    </p>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setOfferOpen(true)}
+                    className="flex w-full items-center justify-center gap-2 rounded-2xl border border-primary px-6 py-3 text-sm font-bold text-primary"
+                  >
+                    <Handshake size={16} /> {t("Teklif Ver")}
+                  </button>
+                )
+              )}
+
               <p className="text-center text-[11px] leading-snug text-muted-foreground">
                 {t("Ödeme taraflar arasında elden yapılır. Bi' El At, ödeme anlaşmazlıklarında taraf olmaz.")}
               </p>
             </div>
+
           )
         )}
 
