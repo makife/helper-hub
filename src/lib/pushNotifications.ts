@@ -71,7 +71,7 @@ async function initialize(userId: string) {
   if (Capacitor.getPlatform() === "android") {
     try {
       await FirebaseMessaging.createChannel({
-        id: "bielat_high",
+        id: "bielat_alerts_v2",
         name: "Bi' El At Bildirimleri",
         description: "Yeni mesaj ve yardım çağrısı bildirimleri",
         importance: 5,
