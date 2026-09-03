@@ -140,7 +140,7 @@ const Notifications = () => {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: i * 0.06 }}
-              onClick={() => navigate(n.type === "message" ? "/messages" : n.taskId ? `/task/${n.taskId}` : "/my-tasks")}
+              onClick={() => navigate(n.type === "message" ? "/messages" : n.taskId ? `/my-tasks?task=${n.taskId}` : "/my-tasks")}
               className={`flex w-full items-start gap-3 rounded-2xl border p-3 text-left shadow-card transition-shadow active:scale-[0.98] ${
                 n.unread ? "border-primary/40 bg-primary/5" : "border-border bg-card"
               }`}

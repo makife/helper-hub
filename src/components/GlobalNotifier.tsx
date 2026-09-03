@@ -26,7 +26,7 @@ type MessageRow = {
 
 const pathForNotification = (type: string | null, taskId: string | null) => {
   if (type === "message") return "/messages";
-  if (taskId) return `/task/${taskId}`;
+  if (taskId) return `/my-tasks?task=${taskId}`;
   return "/notifications";
 };
 
