@@ -766,6 +766,7 @@ export type Database = {
         }
         Returns: string
       }
+      has_pending_reviews: { Args: { _user_id: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -774,7 +775,7 @@ export type Database = {
         Returns: boolean
       }
       mark_arrival: {
-        Args: { _distance_m: number; _task_id: string }
+        Args: { _lat: number; _lng: number; _task_id: string }
         Returns: boolean
       }
       nearby_helper_ids: {
