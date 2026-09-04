@@ -100,6 +100,7 @@ const ProfileSetup = () => {
 
     clearPendingReferralCode();
     setReferralDialogOpen(false);
+    setManualCodeApplied(true);
     toast.success(t("Davet kodu kabul edildi! İkinize de 1'er kredi hediye edildi. 🎉"));
   };
 
