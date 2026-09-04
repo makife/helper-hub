@@ -1,3 +1,4 @@
+import { compressImage } from "@/lib/imageCompress";
 import { useEffect, useState } from "react";
 import { useT } from "@/lib/i18n";
 import { motion, AnimatePresence } from "framer-motion";

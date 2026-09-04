@@ -1,3 +1,4 @@
+import { compressImage } from "@/lib/imageCompress";
 import { useT } from "@/lib/i18n";
 import { CURRENCIES, CURRENCY_LABELS, currencySymbol, formatPrice, type CurrencyCode } from "@/lib/currency";
 import { useEffect, useState } from "react";
