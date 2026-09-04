@@ -223,6 +223,7 @@ export const EXTRAS: Record<string, string> = {
   "Cuma": "Friday",
   "Cumartesi": "Saturday",
   "Pazar": "Sunday",
+  "Gece Yarısı 00:00 - 05:00": "Midnight 00:00 - 05:00",
   "Erken Sabah 05:00 - 09:00": "Early Morning 05:00 - 09:00",
   "Sabah 09:00 - 12:00": "Morning 09:00 - 12:00",
   "Öğleden sonra 12:00 - 17:00": "Afternoon 12:00 - 17:00",
