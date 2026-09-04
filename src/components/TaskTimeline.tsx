@@ -101,6 +101,7 @@ export const buildTaskSteps = (
         ? "İşe atandınız"
         : translate("{name} el atan olmayı kabul etti", { name }),
       at: task.matched_at,
+      tone: "success",
     });
   }
 
