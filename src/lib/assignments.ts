@@ -39,7 +39,8 @@ export const fetchMyActiveAssignment = async (userId: string) => {
 
 export type AcceptResult =
   | { ok: true }
-  | { ok: false; reason: "already" | "busy" | "full" | "credits" | "error"; message: string };
+  | { ok: false; reason: "already" | "busy" | "full" | "credits" | "reviews" | "error"; message: string };
+
 
 export const acceptTask = async (
   taskId: string,
