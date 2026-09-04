@@ -584,12 +584,12 @@ const Profile = () => {
                     >
                       <div>
                         <div className="mb-3 flex items-center gap-2.5">
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-black text-primary">
-                            {initials(r.reviewer?.full_name)}
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                            <User size={20} />
                           </div>
                           <div className="min-w-0 flex-1">
                             <p className="truncate text-xs font-bold text-foreground">
-                              {initials(r.reviewer?.full_name)}
+                              {r.reviewer?.full_name || t("İsimsiz Kullanıcı")}
                             </p>
                             <p className="text-[10px] text-muted-foreground">{timeAgoIn(r.created_at, lang)}</p>
                           </div>
