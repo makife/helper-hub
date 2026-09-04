@@ -900,7 +900,7 @@ const MyTasks = () => {
                 {/* İş akışı zaman çizelgesi */}
                 <div className="border-t pt-2">
                   <span className="text-muted-foreground text-xs font-semibold">{t("İş Akışı:")}</span>
-                  <TaskTimeline task={selectedTask} arrivedAt={ownedArrivals[selectedDetail.task.id]} />
+                  <TaskTimeline task={selectedDetail.task} arrivedAt={selectedDetail.arrivedAt} />
                 </div>
 
 
