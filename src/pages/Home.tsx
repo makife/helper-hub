@@ -287,7 +287,8 @@ const Home = () => {
     if (sortBy === "price_desc") return computePrice(b).price - computePrice(a).price;
     if (sortBy === "price_asc") return computePrice(a).price - computePrice(b).price;
     if (sortBy === "urgency") {
-      const rank = (t: TaskWithUI) => (t.urgency === "urgent" ? 0 : 1);
+      const rank = (t: TaskWithUI) =>
+        t.urgency === "urgent" ? 0 : isScheduledSoon((t as any).scheduled_at) ? 1 : 2;
       return rank(a) - rank(b) || new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     }
     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
