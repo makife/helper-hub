@@ -68,6 +68,8 @@ const CreateTask = () => {
   const [isCustomDuration, setIsCustomDuration] = useState(false);
   const [customDurationHours, setCustomDurationHours] = useState<string>("");
   const [urgency, setUrgency] = useState<"urgent" | "can_wait">("can_wait");
+  const [scheduleDay, setScheduleDay] = useState<number | null>(null);
+  const [scheduleSlot, setScheduleSlot] = useState<SlotId>("morning");
   const [addressNote, setAddressNote] = useState("");
   const [originalLat, setOriginalLat] = useState<number | null>(null);
   const [originalLng, setOriginalLng] = useState<number | null>(null);
