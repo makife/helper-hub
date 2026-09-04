@@ -18,13 +18,6 @@ const SKILL_LABELS: Record<string, string> = {
 
 type ReviewRow = Tables<"reviews"> & { reviewer?: { full_name: string; avatar_url: string | null } | null };
 
-const initials = (name?: string | null) => {
-  if (!name) return "?";
-  const parts = name.trim().split(/\s+/);
-  const first = parts[0]?.[0] || "";
-  const last = parts.length > 1 ? parts[parts.length - 1][0] : "";
-  return (first + last).toUpperCase();
-};
 
 const UserProfile = () => {
   const { t, lang } = useI18n();
@@ -191,12 +184,12 @@ const UserProfile = () => {
                     >
                       <div>
                         <div className="mb-3 flex items-center gap-2.5">
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-black text-primary">
-                            {initials(r.reviewer?.full_name)}
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                            <User size={20} />
                           </div>
                           <div className="min-w-0 flex-1">
                             <p className="truncate text-xs font-bold text-foreground">
-                              {initials(r.reviewer?.full_name)}
+                              {r.reviewer?.full_name || t("İsimsiz Kullanıcı")}
                             </p>
                             <p className="text-[10px] text-muted-foreground">{timeAgoIn(r.created_at, lang)}</p>
                           </div>
