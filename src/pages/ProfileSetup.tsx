@@ -44,7 +44,6 @@ const ProfileSetup = () => {
   useEffect(() => {
     if (!user) return;
     const code = getPendingReferralCode();
-    if (!code) return;
 
     supabase
       .from("profiles")
@@ -53,15 +52,18 @@ const ProfileSetup = () => {
       .maybeSingle()
       .then(({ data }) => {
         if (!data) return;
+        if (data.referred_by) {
+          clearPendingReferralCode();
+          setManualCodeApplied(true);
+          return;
+        }
+        if (!code) return;
         // Kendi kodunla kendini davet edemez
         if (data.referral_code?.toUpperCase() === code) {
           clearPendingReferralCode();
           return;
         }
-        if (data.referred_by) {
-          clearPendingReferralCode();
-          return;
-        }
+        setManualCode(code);
         setPendingReferralCode(code);
         setReferralDialogOpen(true);
       });
