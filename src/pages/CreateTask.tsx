@@ -287,7 +287,7 @@ const CreateTask = () => {
         : selectedCatObj?.baseEnum || "kucuk_tamir";
 
       const safeTotalPrice = Math.max(50, totalPrice);
-      const safeMinPrice = urgency === "can_wait" ? Math.max(50, Math.round(safeTotalPrice * 0.65)) : safeTotalPrice;
+      const safeMinPrice = safeTotalPrice;
 
       let latitude: number | null = null;
       let longitude: number | null = null;
@@ -346,8 +346,8 @@ const CreateTask = () => {
         photo_urls: finalPhotoUrls,
         latitude,
         longitude,
-        price_drop_started_at:
-          urgency === "can_wait" && personCount === 1 ? new Date().toISOString() : null,
+        price_drop_started_at: null,
+
       };
 
       let error;

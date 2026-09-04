@@ -27,44 +27,23 @@ export type PriceState = {
   dropsApplied: number;
 };
 
-export function computePrice(task: PriceTask, now: number = Date.now()): PriceState {
+/**
+ * Dinamik fiyat düşüşü kaldırıldı: ilan fiyatı sabittir,
+ * pazarlık yalnızca teklif sistemiyle yapılır.
+ */
+export function computePrice(task: PriceTask, _now: number = Date.now()): PriceState {
   const basePrice = task.price;
-  const minPrice = task.min_price ?? basePrice;
-  const locked =
-    task.urgency === "urgent" ||
-    !task.price_drop_started_at ||
-    (task.person_count ?? 1) > 1 ||
-    (task.status != null && task.status !== "open");
-
-  if (locked || minPrice >= basePrice) {
-    return {
-      price: task.current_price ?? basePrice,
-      isDropping: false,
-      msToNextDrop: 0,
-      atFloor: false,
-      minPrice,
-      basePrice,
-      dropsApplied: 0,
-    };
-  }
-
-  const started = new Date(task.price_drop_started_at!).getTime();
-  const elapsed = Math.max(0, now - started);
-  const drops = Math.floor(elapsed / DROP_INTERVAL_MS);
-  const raw = Math.round(basePrice * Math.pow(1 - DROP_RATE, drops));
-  const price = Math.max(minPrice, raw);
-  const atFloor = price <= minPrice;
-
   return {
-    price,
-    isDropping: !atFloor,
-    msToNextDrop: atFloor ? 0 : DROP_INTERVAL_MS - (elapsed % DROP_INTERVAL_MS),
-    atFloor,
-    minPrice,
+    price: task.current_price ?? basePrice,
+    isDropping: false,
+    msToNextDrop: 0,
+    atFloor: false,
+    minPrice: basePrice,
     basePrice,
-    dropsApplied: drops,
+    dropsApplied: 0,
   };
 }
+
 
 /** Her saniye güncellenen canlı fiyat */
 export function useLivePrice(task: PriceTask | null | undefined): PriceState | null {
