@@ -108,6 +108,7 @@ export const EXTRAS: Record<string, string> = {
   "{name} işe geri döndü, tekrar sürüyor": "{name} returned to the task; it is in progress again",
   "Bitirdiğinizi belirttiniz, iş verenden onay bekleniyor": "You marked the task as finished; waiting for the requester's confirmation",
   "{name} bitirdiğini belirtti, sizden onay bekliyor": "{name} marked it finished and is awaiting your confirmation",
+  "{name} bitirdi, onay için": "{name} finished; confirmation due in",
   "{name} teklifi onayladı, işe atandı": "{name} confirmed the offer and was assigned",
 
   "İkinci itiraz anlaşmazlık başlattı.": "The second objection started a dispute.",
