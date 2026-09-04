@@ -577,7 +577,8 @@ const MyTasks = () => {
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ delay: i * 0.05 }}
-                    className={`rounded-2xl border border-border bg-card p-4 shadow-card ${isDone ? "opacity-60" : ""}`}
+                    onClick={() => setSelectedDetail({ task, arrivedAt: item.arrived_at })}
+                    className={`cursor-pointer rounded-2xl border border-border bg-card p-4 shadow-card ${isDone ? "opacity-60" : ""}`}
                   >
                     <div className="flex items-center gap-3">
                       <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted text-2xl">
@@ -587,7 +588,7 @@ const MyTasks = () => {
                         <h3 className="truncate text-sm font-bold text-foreground">{t(task.title)}</h3>
                         <p className={`text-xs font-semibold ${status.color}`}>{status.label}</p>
                         <button
-                          onClick={() => navigate(`/profile/${task.owner_id}`)}
+                          onClick={(e) => { e.stopPropagation(); navigate(`/profile/${task.owner_id}`); }}
                           className="mt-0.5 flex items-center gap-1 text-[10px] font-semibold text-muted-foreground"
                         >
                           <User size={11} className="text-primary" />
@@ -606,13 +607,6 @@ const MyTasks = () => {
                       </div>
                     </div>
 
-                    <div className="mt-3 rounded-xl bg-muted/40 p-3">
-                      <p className="text-[10px] font-black uppercase tracking-wide text-muted-foreground">
-                        {t("İş Akışı")}
-                      </p>
-                      <TaskTimeline task={task} arrivedAt={item.arrived_at} />
-                    </div>
-
                     {task.status === "pending_confirm" && (
                       <p className="mt-3 rounded-xl bg-muted/60 p-2.5 text-xs font-semibold text-muted-foreground">
                         {isMyCompletionRequest
@@ -623,14 +617,14 @@ const MyTasks = () => {
                     {!isDone && task.status !== "pending_confirm" && (
                       <div className="mt-3 flex gap-2">
                         <button
-                          onClick={() => navigate(`/task/${task.id}`)}
+                          onClick={(e) => { e.stopPropagation(); navigate(`/task/${task.id}`); }}
                           className="flex-1 rounded-xl bg-primary py-2.5 text-xs font-bold text-primary-foreground"
                         >
                           {t("İşi Aç 💬")}
                         </button>
                         {!item.arrived_at ? (
                           <button
-                            onClick={() => handleMarkArrival(item)}
+                            onClick={(e) => { e.stopPropagation(); handleMarkArrival(item); }}
                             disabled={isUpdating}
                             className="flex-1 rounded-xl bg-accent py-2.5 text-xs font-bold text-accent-foreground disabled:opacity-50"
                           >
@@ -638,7 +632,7 @@ const MyTasks = () => {
                           </button>
                         ) : (
                           <button
-                            onClick={() => handleRequestCompletion(task.id)}
+                            onClick={(e) => { e.stopPropagation(); handleRequestCompletion(task.id); }}
                             disabled={isUpdating || (completionUnlockMs(item.arrived_at, task.estimated_minutes) ?? 0) > 0}
                             className="flex-1 rounded-xl bg-accent py-2.5 text-xs font-bold text-accent-foreground disabled:opacity-50"
                           >
@@ -661,7 +655,7 @@ const MyTasks = () => {
 
                     {!isDone && task.status === "pending_confirm" && !isMyCompletionRequest && (
                       <button
-                        onClick={() => handleConfirmCompletion(task.id)}
+                        onClick={(e) => { e.stopPropagation(); handleConfirmCompletion(task.id); }}
                         disabled={isUpdating}
                         className="mt-3 w-full rounded-xl bg-primary py-2.5 text-xs font-bold text-primary-foreground disabled:opacity-50"
                       >
@@ -671,15 +665,16 @@ const MyTasks = () => {
                     {!isDone && task.status !== "pending_confirm" && (
                       <button
                         disabled={isUpdating}
-                        onClick={() =>
+                        onClick={(e) => {
+                          e.stopPropagation();
                           setConfirmState({
                             kind: "leave",
                             taskId: task.id,
                             title: t("İşten ayrılmak üzeresin"),
                             description: t("Bu yardım çağrısındaki yerini bırakacaksın. Emin misin?"),
                             confirmLabel: t("Ayrıl"),
-                          })
-                        }
+                          });
+                        }}
                         className="mt-2 w-full rounded-xl border border-border py-2.5 text-xs font-bold text-muted-foreground disabled:opacity-50"
                       >
                         {t("İşten Ayrıl")}
