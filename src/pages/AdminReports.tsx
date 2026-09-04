@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ShieldAlert, Check, Loader2 } from "lucide-react";
+import { ArrowLeft, ShieldAlert, Check, Loader2, AlertTriangle, Ban, Undo2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useT } from "@/lib/i18n";
@@ -77,6 +77,27 @@ const AdminReports = () => {
     }
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
     toast.success(t("Şikayet güncellendi"));
+  };
+
+  const sanction = async (id: string, action: "warn" | "suspend" | "unsuspend") => {
+    setBusy(`${id}:${action}`);
+    const { error } = await supabase.rpc("admin_apply_sanction", {
+      p_report_id: id,
+      p_action: action,
+    });
+    setBusy(null);
+    if (error) {
+      toast.error(t("İşlem tamamlanamadı"));
+      return;
+    }
+    setRows((prev) => prev.map((r) => (r.id === id ? { ...r, status: "reviewed" } : r)));
+    toast.success(
+      action === "warn"
+        ? t("Uyarı bildirimi gönderildi")
+        : action === "suspend"
+          ? t("Hesap askıya alındı")
+          : t("Askı kaldırıldı"),
+    );
   };
 
   const visible = filter === "open" ? rows.filter((r) => r.status === "pending") : rows;
@@ -196,6 +217,45 @@ const AdminReports = () => {
                         {t("Kapat")}
                       </button>
                     )}
+                  </div>
+
+                  <div className="mt-2 flex gap-2">
+                    <button
+                      disabled={busy !== null}
+                      onClick={() => sanction(r.id, "warn")}
+                      className="flex flex-1 items-center justify-center gap-1 rounded-xl bg-amber-500/10 px-3 py-2 text-xs font-bold text-amber-600 active:scale-[0.98] disabled:opacity-60 dark:text-amber-400"
+                    >
+                      {busy === `${r.id}:warn` ? (
+                        <Loader2 size={14} className="animate-spin" />
+                      ) : (
+                        <AlertTriangle size={14} />
+                      )}
+                      {t("Uyarı gönder")}
+                    </button>
+                    <button
+                      disabled={busy !== null}
+                      onClick={() => sanction(r.id, "suspend")}
+                      className="flex flex-1 items-center justify-center gap-1 rounded-xl bg-destructive/10 px-3 py-2 text-xs font-bold text-destructive active:scale-[0.98] disabled:opacity-60"
+                    >
+                      {busy === `${r.id}:suspend` ? (
+                        <Loader2 size={14} className="animate-spin" />
+                      ) : (
+                        <Ban size={14} />
+                      )}
+                      {t("Hesabı askıya al")}
+                    </button>
+                    <button
+                      disabled={busy !== null}
+                      onClick={() => sanction(r.id, "unsuspend")}
+                      className="flex items-center justify-center gap-1 rounded-xl border border-border px-3 py-2 text-xs font-bold text-muted-foreground active:scale-[0.98] disabled:opacity-60"
+                    >
+                      {busy === `${r.id}:unsuspend` ? (
+                        <Loader2 size={14} className="animate-spin" />
+                      ) : (
+                        <Undo2 size={14} />
+                      )}
+                      {t("Askıyı kaldır")}
+                    </button>
                   </div>
                 </motion.div>
               ))}
