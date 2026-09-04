@@ -339,6 +339,11 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
           {task.urgency === "urgent" && (
             <p className="mt-1 text-xs font-semibold text-destructive">{t("🔥 Acil iş — hemen başlaman bekleniyor")}</p>
           )}
+          {task.urgency !== "urgent" && formatScheduled((task as any).scheduled_at) && (
+            <p className="mt-1 text-xs font-semibold text-primary">
+              {t("📅 Randevu")}: {formatScheduled((task as any).scheduled_at)}
+            </p>
+          )}
         </div>
         {/* Kişi kontenjanı */}
         <div className="mb-4 flex items-center justify-between rounded-xl bg-muted/50 p-3">
