@@ -312,7 +312,43 @@ const ProfileSetup = () => {
             </div>
           </button>
         </motion.div>
+
+        {/* Davet kodu */}
+        <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.35 }}>
+          <label className="mb-1.5 flex items-center gap-2 text-sm font-semibold text-foreground">
+            <UserPlus size={16} className="text-primary" />
+            {t("Davet kodun var mı?")}
+          </label>
+          {manualCodeApplied ? (
+            <div className="flex items-center gap-2 rounded-xl border-2 border-success/30 bg-success/5 px-4 py-3 text-sm font-bold text-foreground">
+              <Check size={16} className="text-success" />
+              {t("Davet kodu uygulandı")}
+            </div>
+          ) : (
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={manualCode}
+                onChange={(e) => setManualCode(e.target.value.toUpperCase().slice(0, 12))}
+                placeholder={t("Örn. ABC123")}
+                autoCapitalize="characters"
+                className="w-full flex-1 rounded-xl border-2 border-border bg-card px-4 py-3 text-base font-bold tracking-widest text-foreground outline-none transition-colors placeholder:text-sm placeholder:font-semibold placeholder:tracking-normal placeholder:text-muted-foreground/50 focus:border-primary"
+              />
+              <button
+                onClick={handleApplyManualCode}
+                disabled={manualCodeBusy || manualCode.trim().length < 3}
+                className="shrink-0 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground transition-all active:scale-[0.98] disabled:opacity-40"
+              >
+                {manualCodeBusy ? t("...") : t("Uygula")}
+              </button>
+            </div>
+          )}
+          <p className="mt-1.5 text-xs text-muted-foreground">
+            {t("Seni davet edenin kodunu gir, ikinize de 1'er kredi hediye.")}
+          </p>
+        </motion.div>
       </div>
+
 
       <motion.button
         initial={{ y: 20, opacity: 0 }}
