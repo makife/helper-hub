@@ -176,7 +176,18 @@ const Market = () => {
 
 
 
+  /**
+   * Fiyat metni: native'de her zaman mağazadan (RevenueCat → Google Play / App Store)
+   * gelen, kullanıcının ülkesine göre yerelleştirilmiş fiyat kullanılır.
+   * Sabit/hardcoded fiyat yalnızca web önizlemesinde gösterilir.
+   */
+  const priceText = (pack: Pack) => {
+    if (pack.priceLabel) return pack.priceLabel;
+    return native ? "…" : formatPackPrice(pack.price, pack.eurPrice);
+  };
+
   const handleRestore = async () => {
+
     setRestoring(true);
     const ok = await restorePurchases();
     setRestoring(false);
@@ -246,7 +257,7 @@ const Market = () => {
                   </span>
                 )}
               </div>
-              <p className="text-lg font-black text-primary">{pack.priceLabel ?? formatPackPrice(pack.price, pack.eurPrice)}</p>
+              <p className="text-lg font-black text-primary">{priceText(pack)}</p>
             </motion.button>
           ))}
         </div>
@@ -285,7 +296,7 @@ const Market = () => {
       <ConfirmDialog
         open={!!selected}
         title={t("{count} kredi yükle", { count: selected ? selected.credits + (selected.bonus || 0) : 0 })}
-        description={t("{price} karşılığında kredi hesabına eklenecek.", { price: selected?.priceLabel ?? formatPackPrice(selected?.price ?? 0, selected?.eurPrice) })}
+        description={t("{price} karşılığında kredi hesabına eklenecek.", { price: selected ? priceText(selected) : "" })}
         confirmLabel={t("Satın Al")}
         loading={buying}
         onConfirm={purchase}
