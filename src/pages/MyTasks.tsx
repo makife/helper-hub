@@ -273,18 +273,18 @@ const MyTasks = () => {
     const owned = tasks.find((t) => t.id === taskId);
     if (owned) {
       setTab("owned");
-      setSelectedTask(owned);
+      setSelectedDetail({ task: owned, arrivedAt: ownedArrivals[owned.id] });
       return;
     }
     const taken = accepted.find((a) => a.task.id === taskId);
     if (taken) {
       setTab("accepted");
-      setSelectedTask(taken.task);
+      setSelectedDetail({ task: taken.task, arrivedAt: taken.arrived_at });
       return;
     }
     // Listede yoksa (ör. süresi dolmuş / farklı sekme) doğrudan çek
     supabase.from("tasks").select("*").eq("id", taskId).maybeSingle().then(({ data }) => {
-      if (data) setSelectedTask(data);
+      if (data) setSelectedDetail({ task: data, arrivedAt: null });
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, tasks, accepted, loading]);
