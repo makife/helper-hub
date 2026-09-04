@@ -471,6 +471,9 @@ export const UI: Record<string, string> = {
   "Teklif reddedildi.": "Offer declined.",
   "Kontenjan doldu, başka teklif kabul edemezsin.": "Quota is full, you cannot accept another offer.",
   "İşlem yapılamadı.": "The action could not be completed.",
+  "Önce tamamlanan işlerin için puan vermelisin.": "You must rate your completed tasks first.",
+  "Kontenjan doldu, bu işe artık katılamazsın.": "All spots are filled, you can no longer join this task.",
+
   "Başka bir teklif kabul edildi, bu teklif beklemede": "Another offer was accepted, this offer is on hold",
   "teklif gönderdi": "sent an offer",
   "teklif": "offer",
