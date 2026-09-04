@@ -723,6 +723,11 @@ const MyTasks = () => {
                             <Zap size={10} className="fill-red-500 mr-0.5" /> {t("Acil")}
                           </span>
                         )}
+                        {task.urgency !== "urgent" && formatScheduled((task as any).scheduled_at) && (
+                          <span className="shrink-0 text-[10px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded-full">
+                            📅 {formatScheduled((task as any).scheduled_at)}
+                          </span>
+                        )}
                       </div>
                       <p className={`text-xs font-semibold ${status.color}`}>{status.label}</p>
                     </div>
