@@ -21,6 +21,7 @@ import { computePrice } from "@/lib/dynamicPricing";
 import { fetchAssignmentCounts } from "@/lib/assignments";
 import { distanceMeters } from "@/lib/taskLifecycle";
 import { Geolocation } from "@capacitor/geolocation";
+import { ensureLocationPermission } from "@/lib/geo";
 import { toast } from "sonner";
 import { getFuzzedLocation } from "@/lib/locationPrivacy";
 
