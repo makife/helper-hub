@@ -24,6 +24,7 @@ import {
   Shield,
   ChevronRight,
   Info,
+  ShieldAlert,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -76,10 +77,21 @@ const Profile = () => {
   const [credToDelete, setCredToDelete] = useState<Credential | null>(null);
   const [pendingLang, setPendingLang] = useState<"tr" | "en" | null>(null);
   const [signOutOpen, setSignOutOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { t, lang, setLang } = useI18n();
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .eq("role", "admin")
+      .then(({ data }) => setIsAdmin(!!data?.length));
+  }, [user]);
 
   const loadAll = useCallback(async () => {
     if (!user) return;
@@ -659,6 +671,24 @@ const Profile = () => {
               </div>
             </div>
           </div>
+
+          {isAdmin && (
+            <button
+              onClick={() => navigate("/admin/reports")}
+              className="mb-5 flex w-full items-center justify-between rounded-2xl border border-border bg-card p-3 shadow-card transition-all active:scale-[0.98]"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-destructive/10 text-destructive">
+                  <ShieldAlert size={18} />
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-bold text-foreground">{t("Şikayetler")}</p>
+                  <p className="text-[11px] text-muted-foreground">{t("Yönetici paneli")}</p>
+                </div>
+              </div>
+              <ChevronRight size={18} className="text-muted-foreground" />
+            </button>
+          )}
 
           <div className="mb-5 space-y-2.5 rounded-2xl border border-border bg-card p-2 shadow-card">
             <button
