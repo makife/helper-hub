@@ -285,7 +285,7 @@ const Market = () => {
       <ConfirmDialog
         open={!!selected}
         title={t("{count} kredi yükle", { count: selected ? selected.credits + (selected.bonus || 0) : 0 })}
-        description={t("{price} karşılığında kredi hesabına eklenecek.", { price: selected?.priceLabel ?? formatPackPrice(selected?.price ?? 0, selected?.eurPrice) })}
+        description={t("{price} karşılığında kredi hesabına eklenecek.", { price: selected ? priceText(selected) : "" })}
         confirmLabel={t("Satın Al")}
         loading={buying}
         onConfirm={purchase}
