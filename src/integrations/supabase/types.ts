@@ -808,6 +808,10 @@ export type Database = {
         Args: { p_action: string; p_auto: boolean; p_task_id: string }
         Returns: undefined
       }
+      admin_apply_sanction: {
+        Args: { p_action: string; p_report_id: string }
+        Returns: string
+      }
       cancel_task: { Args: { _task_id: string }; Returns: boolean }
       cancel_unfilled_task: { Args: { p_task_id: string }; Returns: undefined }
       charge_employer_credit: {
