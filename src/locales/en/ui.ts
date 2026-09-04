@@ -104,7 +104,6 @@ export const UI: Record<string, string> = {
   "Mesaj gönder": "Send message",
   "Gönder": "Send",
   "Yardım çağrısı oluşturuldu": "Help request created",
-  "El atan bulundu": "A helper was found",
   "İş tamamlandı": "Task completed",
   "Süresi doldu, kredi iade edildi": "Expired, credits refunded",
   "İptal Edildi": "Cancelled",
