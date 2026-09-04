@@ -710,7 +710,7 @@ const MyTasks = () => {
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: isFaded ? 0.5 : 1 }}
                   transition={{ delay: i * 0.05 }}
-                  onClick={() => setSelectedTask(task)}
+                  onClick={() => setSelectedDetail({ task, arrivedAt: ownedArrivals[task.id] })}
                   className={`cursor-pointer rounded-2xl border border-border p-4 shadow-card transition-colors ${
                     isFaded ? "bg-muted/40 grayscale hover:opacity-80" : "bg-card hover:bg-muted/50"
                   }`}
