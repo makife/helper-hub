@@ -101,6 +101,7 @@ export const buildTaskSteps = (
         ? "İşe atandınız"
         : translate("{name} el atan olmayı kabul etti", { name }),
       at: task.matched_at,
+      tone: "success",
     });
   }
 
@@ -231,12 +232,8 @@ const TaskTimeline = ({
       const matchedOffer = offers.find(
         (o) => o.status === "accepted" || o.status === "confirmed"
       );
-      if (offers.length === 0) {
-        setOfferSteps([]);
-        setTaskerName(null);
-        return;
-      }
       const ids = [...new Set(offers.map((o) => o.tasker_id))];
+      if (task.tasker_id) ids.push(task.tasker_id);
       const { data } = await supabase
         .from("profiles")
         .select("user_id, full_name")
@@ -247,13 +244,16 @@ const TaskTimeline = ({
       });
       if (active) {
         setOfferSteps(buildOfferSteps(task, offers, names, viewerId));
-        setTaskerName(matchedOffer ? names[matchedOffer.tasker_id] || null : null);
+        setTaskerName(
+          (task.tasker_id ? names[task.tasker_id] : null) ||
+            (matchedOffer ? names[matchedOffer.tasker_id] || null : null)
+        );
       }
     })();
     return () => {
       active = false;
     };
-  }, [task.id, task.currency, task.owner_id]);
+  }, [task.id, task.currency, task.owner_id, task.tasker_id]);
 
   const steps = buildTaskSteps(task, arrivedAt, offerSteps, viewerRole, taskerName);
   const shown = compact ? steps.slice(-3) : steps;
