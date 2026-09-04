@@ -366,7 +366,13 @@ const Home = () => {
         <div>
           <h1 className="flex items-center gap-1.5 text-xl font-black text-foreground">
             {t("Merhaba!")}
-            <img src={logo} alt="Bi' El At" className="inline-block h-7 w-auto align-middle" />
+            <motion.img
+              src={logo}
+              alt="Bi' El At"
+              className="inline-block h-10 w-auto origin-bottom-left align-middle"
+              animate={{ rotate: [0, -20, 20, -20, 20, -20, 20, 0] }}
+              transition={{ duration: 1.8, ease: "easeInOut", repeat: Infinity, repeatDelay: 120 }}
+            />
           </h1>
           <p className="text-xs text-muted-foreground font-semibold">{t("Yardım çağrılarına el at veya çağrıda bulun")}</p>
         </div>
