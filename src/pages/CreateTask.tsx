@@ -369,12 +369,15 @@ const CreateTask = () => {
             action: { label: t("Kredi Yükle"), onClick: () => navigate("/market") },
             duration: 6000,
           });
+        } else if (error.message?.includes("Bekleyen degerlendirme")) {
+          toast.error(t("Önce tamamlanan işlerin için puan vermelisin."));
         } else {
           toast.error(editTaskId ? t("Yardım çağrısı güncellenemedi.") : t("Yardım çağrısı oluşturulamadı."));
         }
         console.error(error);
         return;
       }
+
 
       // Yeni iş oluşturulduğunda yakındaki kullanıcılara push bildirimi gönder.
       // Bu isteğin başarısız olması ana akışı bozmasın diye sessizce yutuluyor.
