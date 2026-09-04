@@ -24,6 +24,8 @@ import { Geolocation } from "@capacitor/geolocation";
 import { ensureLocationPermission } from "@/lib/geo";
 import { toast } from "sonner";
 import { getFuzzedLocation } from "@/lib/locationPrivacy";
+import { fetchBlockedIds } from "@/lib/blocks";
+import { List as ListIcon, MapIcon } from "lucide-react";
 
 type TaskWithUI = Tables<"tasks"> & {
   emoji: string;
@@ -71,6 +73,9 @@ const Home = () => {
   });
   const [mapCenter, setMapCenter] = useState<[number, number] | null>(userPos);
   const [mapType, setMapType] = useState<"standard" | "satellite">("satellite");
+  const [viewMode, setViewMode] = useState<"map" | "list">("map");
+  const [sortBy, setSortBy] = useState<"distance" | "price_desc" | "price_asc" | "urgency" | "new">("distance");
+  const [blockedIds, setBlockedIds] = useState<string[]>([]);
   const navigate = useNavigate();
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -251,7 +256,13 @@ const Home = () => {
     return hasAllStandard && hasAllCustom;
   };
 
+  useEffect(() => {
+    if (!user) return;
+    fetchBlockedIds(user.id).then(setBlockedIds);
+  }, [user]);
+
   const filteredTasks = tasks.filter((t) => {
+    if (blockedIds.includes(t.owner_id)) return false;
     if (filterUrgency !== "all" && t.urgency !== filterUrgency) return false;
     if (filterNoTools && t.needs_tools) return false;
     if (filterMyTools && !matchesMyTools(t)) return false;
@@ -267,6 +278,20 @@ const Home = () => {
     (filterNoTools ? 1 : 0) +
     (filterMyTools ? 1 : 0) +
     (filterCategoryIds.length > 0 ? 1 : 0);
+
+  const taskDistance = (t: TaskWithUI) =>
+    userPos ? distanceMeters(userPos[0], userPos[1], t.lat, t.lng) : Number.MAX_SAFE_INTEGER;
+
+  const sortedTasks = [...filteredTasks].sort((a, b) => {
+    if (sortBy === "distance") return taskDistance(a) - taskDistance(b);
+    if (sortBy === "price_desc") return computePrice(b).price - computePrice(a).price;
+    if (sortBy === "price_asc") return computePrice(a).price - computePrice(b).price;
+    if (sortBy === "urgency") {
+      const rank = (t: TaskWithUI) => (t.urgency === "urgent" ? 0 : 1);
+      return rank(a) - rank(b) || new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    }
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+  });
 
   const handleTaskClick = (task: { id: string }) => {
     const matched = tasks.find((t) => t.id === task.id);
