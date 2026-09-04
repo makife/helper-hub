@@ -1003,7 +1003,8 @@ const CreateTask = () => {
               <p className="mt-2 text-[11px] text-muted-foreground">
                 {scheduleDay === null
                   ? t("Çağrın hemen yayına girer, el atan ilk kişiyle eşleşirsin.")
-                  : t("Çağrın haritada planlı olarak görünür, randevu saati yaklaşınca öne çıkar.")}
+                  : t("Çağrın haritada planlı olarak görünür, randevu saati yaklaşınca öne çıkar.")}{" "}
+                {t("Tam saati eşleştiğiniz kişiyle mesajlaşarak netleştirebilirsiniz.")}
               </p>
             </div>
           )}

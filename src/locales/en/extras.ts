@@ -231,6 +231,7 @@ export const EXTRAS: Record<string, string> = {
   "Gece 21:00 - 00:00": "Night 21:00 - 00:00",
   "Çağrın hemen yayına girer, el atan ilk kişiyle eşleşirsin.": "Your request goes live right away and matches the first helper.",
   "Çağrın haritada planlı olarak görünür, randevu saati yaklaşınca öne çıkar.": "Your request shows as scheduled on the map and moves up as the time approaches.",
+  "Tam saati eşleştiğiniz kişiyle mesajlaşarak netleştirebilirsiniz.": "You can finalize the exact time by messaging the person you match with.",
   "📅 PLANLI": "\ud83d\udcc5 SCHEDULED",
   "📅 Randevu": "\ud83d\udcc5 Appointment",
 };
