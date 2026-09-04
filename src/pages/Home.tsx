@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useT } from "@/lib/i18n";
 import { getTaskCurrency } from "@/lib/currency";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Zap, MapPin, Bell, Crosshair, SlidersHorizontal, X, Check, Map, Satellite } from "lucide-react";
 import logo from "@/assets/logo.png";
