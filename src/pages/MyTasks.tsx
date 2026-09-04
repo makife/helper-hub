@@ -19,6 +19,8 @@ import { computePrice, formatCountdown } from "@/lib/dynamicPricing";
 import { getTaskEmoji } from "@/lib/taskCategories";
 import { formatScheduled } from "@/lib/schedule";
 import { leaveTask } from "@/lib/assignments";
+import { respondToOffer, type OfferRow } from "@/lib/offers";
+
 import { toast } from "sonner";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import ReviewDialog from "@/components/ReviewDialog";
@@ -251,6 +253,9 @@ const MyTasks = () => {
   const [viewers, setViewers] = useState<{ id: string; full_name: string; avatar_url: string | null; viewed_at: string }[]>([]);
   const [ownedArrivals, setOwnedArrivals] = useState<Record<string, string | null>>({});
   const [ownedTaskers, setOwnedTaskers] = useState<Record<string, { user_id: string; full_name: string; avatar_url: string | null }[]>>({});
+  const [ownedOffers, setOwnedOffers] = useState<Record<string, OfferRow[]>>({});
+  const [offerProfiles, setOfferProfiles] = useState<Record<string, { full_name: string; avatar_url: string | null }>>({});
+
   const [, setPriceTick] = useState(0);
 
   useEffect(() => {
@@ -343,8 +348,44 @@ const MyTasks = () => {
       } else {
         setOwnedTaskers({});
       }
+
+      // Gelen fiyat teklifleri
+      const { data: offerRows } = await supabase
+        .from("task_offers")
+        .select("*")
+        .in("task_id", ownedIds)
+        .order("created_at", { ascending: true });
+      const offerMap: Record<string, OfferRow[]> = {};
+      (offerRows || []).forEach((o) => {
+        offerMap[o.task_id] = offerMap[o.task_id] || [];
+        offerMap[o.task_id].push(o as OfferRow);
+      });
+      setOwnedOffers(offerMap);
+
+      const offerTaskerIds = [...new Set((offerRows || []).map((o) => o.tasker_id))];
+      if (offerTaskerIds.length > 0) {
+        const { data: op } = await supabase
+          .from("profiles")
+          .select("user_id, full_name, avatar_url")
+          .in("user_id", offerTaskerIds);
+        const map: Record<string, { full_name: string; avatar_url: string | null }> = {};
+        (op || []).forEach((p) => { map[p.user_id] = { full_name: p.full_name, avatar_url: p.avatar_url }; });
+        setOfferProfiles(map);
+      }
     }
   };
+
+  const handleRespondOffer = async (offerId: string, accept: boolean) => {
+    setIsUpdating(true);
+    const res = await respondToOffer(offerId, accept);
+    setIsUpdating(false);
+    if (res === "accepted") toast.success(t("Teklif kabul edildi. El atanın onayı bekleniyor."));
+    else if (res === "rejected") toast.success(t("Teklif reddedildi."));
+    else if (res === "quota_full") toast.error(t("Kontenjan doldu, başka teklif kabul edemezsin."));
+    else toast.error(t("İşlem yapılamadı."));
+    await fetchTasks();
+  };
+
 
   const fetchAccepted = async () => {
     if (!user) return;
