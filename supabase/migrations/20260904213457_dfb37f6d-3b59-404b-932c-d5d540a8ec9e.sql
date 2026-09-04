@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.notify_admins_on_report() FROM PUBLIC, anon, authenticated;
