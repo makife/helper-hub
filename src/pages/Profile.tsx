@@ -77,6 +77,17 @@ const Profile = () => {
   const [credToDelete, setCredToDelete] = useState<Credential | null>(null);
   const [pendingLang, setPendingLang] = useState<"tr" | "en" | null>(null);
   const [signOutOpen, setSignOutOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .eq("role", "admin")
+      .then(({ data }) => setIsAdmin(!!data?.length));
+  }, [user]);
 
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
