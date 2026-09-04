@@ -18,6 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { getTaskEmoji, ALL_TASK_CATEGORIES, getTaskCategory } from "@/lib/taskCategories";
 import { computePrice } from "@/lib/dynamicPricing";
+import { formatScheduled, isScheduledSoon } from "@/lib/schedule";
 import { fetchAssignmentCounts } from "@/lib/assignments";
 import { distanceMeters } from "@/lib/taskLifecycle";
 import { Geolocation } from "@capacitor/geolocation";
