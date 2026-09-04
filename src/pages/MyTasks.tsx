@@ -238,7 +238,7 @@ const MyTasks = () => {
   const [tasks, setTasks] = useState<Tables<"tasks">[]>([]);
   const [accepted, setAccepted] = useState<AcceptedItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedTask, setSelectedTask] = useState<Tables<"tasks"> | null>(null);
+  const [selectedDetail, setSelectedDetail] = useState<{ task: Tables<"tasks">; arrivedAt?: string | null } | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
   const [confirmState, setConfirmState] = useState<
     | { kind: "leave" | "cancel" | "reject"; taskId: string; title: string; description: string; confirmLabel: string }
