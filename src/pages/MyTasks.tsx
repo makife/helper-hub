@@ -844,7 +844,9 @@ const MyTasks = () => {
                     </span>
                     {task.status === "pending_confirm" && (
                       <span className="flex items-center gap-1">
-                        {t("El atan bitirdi, onay için")} {formatRemaining(confirmDeadlineMs(task.completion_requested_at))}
+                        {translate("{name} bitirdi, onay için", {
+                          name: ownedTaskers[task.id]?.[0]?.full_name || t("El atan"),
+                        })} {formatRemaining(confirmDeadlineMs(task.completion_requested_at))}
                       </span>
                     )}
                     <span className="flex items-center gap-1">
