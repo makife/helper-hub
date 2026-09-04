@@ -26,35 +26,50 @@ const fmt = (iso?: string | null) => {
 const buildOfferSteps = (
   task: Tables<"tasks">,
   offers: OfferRow[],
-  names: Record<string, string>
+  names: Record<string, string>,
+  viewerId?: string | null
 ): Step[] => {
   const cur = getTaskCurrency(task);
+  const isOwner = !!viewerId && viewerId === task.owner_id;
   const steps: Step[] = [];
   for (const o of offers) {
+    const isMe = !!viewerId && viewerId === o.tasker_id;
     const who = names[o.tasker_id] || translate("El atan");
     const amount = formatPrice(o.amount, cur);
     steps.push({
-      label: translate("{name} {amount} fiyat teklifi verdi", { name: who, amount }),
+      label: isMe
+        ? translate("{amount} fiyat teklifi verdiniz", { amount })
+        : translate("{name} {amount} fiyat teklifi verdi", { name: who, amount }),
       at: o.created_at,
       note: o.message || undefined,
     });
     if (o.status === "rejected") {
       steps.push({
-        label: translate("İş veren, {name} adlı el atanın teklifini reddetti", { name: who }),
+        label: isMe
+          ? translate("İş veren teklifinizi reddetti")
+          : isOwner
+          ? translate("{name} kişisinin teklifini reddettiniz", { name: who })
+          : translate("İş veren {name} kişisinin teklifini reddetti", { name: who }),
         at: o.responded_at,
         tone: "danger",
       });
     }
     if (o.status === "accepted" || o.status === "confirmed") {
       steps.push({
-        label: translate("İş veren, {name} adlı el atanın teklifini kabul etti ({amount})", { name: who, amount }),
+        label: isMe
+          ? translate("İş veren teklifinizi kabul etti ({amount})", { amount })
+          : isOwner
+          ? translate("{name} kişisinin teklifini kabul ettiniz ({amount})", { name: who, amount })
+          : translate("İş veren {name} kişisinin teklifini kabul etti ({amount})", { name: who, amount }),
         at: o.responded_at,
         tone: "success",
       });
     }
     if (o.status === "confirmed") {
       steps.push({
-        label: translate("{name} teklifi onayladı, işe atandı", { name: who }),
+        label: isMe
+          ? translate("Teklifi onayladınız, işe atandınız")
+          : translate("{name} teklifi onayladı, işe atandı", { name: who }),
         at: o.updated_at,
         tone: "success",
       });
@@ -68,55 +83,79 @@ const buildOfferSteps = (
 export const buildTaskSteps = (
   task: Tables<"tasks">,
   arrivedAt?: string | null,
-  offerSteps: Step[] = []
+  offerSteps: Step[] = [],
+  viewerRole: "owner" | "tasker" | "other" = "other"
 ): Step[] => {
+  const isTasker = viewerRole === "tasker";
+  const isOwner = viewerRole === "owner";
   const steps: Step[] = [
     { label: "Yardım çağrısı oluşturuldu", at: task.created_at },
     ...offerSteps,
   ];
 
   if (task.matched_at) {
-    steps.push({ label: "El atan bulundu", at: task.matched_at });
+    steps.push({
+      label: isTasker ? "İşe atandınız" : "El atan bulundu",
+      at: task.matched_at,
+    });
   }
 
 
   if (arrivedAt) {
     steps.push({
-      label: "El atan iş konumuna vardı",
+      label: isTasker ? "İş konumuna vardınız" : "El atan iş konumuna vardı",
       at: arrivedAt,
       tone: "success",
     });
   } else if (task.status === "matched" || task.status === "in_progress") {
-    steps.push({ label: "El atan yola çıktı, varış bekleniyor" });
+    steps.push({
+      label: isTasker
+        ? "Yola çıktınız, varışınız bekleniyor"
+        : "El atan yola çıktı, varış bekleniyor",
+    });
   }
 
   if (task.completion_requested_at) {
     steps.push({
-      label: "El atan “işi bitirdim” dedi",
+      label: isTasker ? "“İşi bitirdim” dediniz" : "El atan “işi bitirdim” dedi",
       at: task.completion_requested_at,
     });
   }
 
   if (task.rejection_count) {
     steps.push({
-      label: translate("İş veren itiraz etti ({rejection_count}/2)", {
-        rejection_count: task.rejection_count,
-      }),
+      label: isOwner
+        ? translate("İtiraz ettiniz ({rejection_count}/2)", {
+            rejection_count: task.rejection_count,
+          })
+        : translate("İş veren itiraz etti ({rejection_count}/2)", {
+            rejection_count: task.rejection_count,
+          }),
       at: task.last_rejected_at,
       tone: "danger",
       note:
         task.dispute_reason ||
         (task.rejection_count >= 2
           ? "İkinci itiraz anlaşmazlık başlattı."
+          : isTasker
+          ? "İşi tamamlayıp tekrar bildirebilirsiniz."
           : "El atan işi tamamlayıp tekrar bildirebilir."),
     });
     if (task.status === "in_progress") {
-      steps.push({ label: "El atan işe geri döndü, tekrar sürüyor" });
+      steps.push({
+        label: isTasker
+          ? "İşe geri döndünüz, tekrar sürüyor"
+          : "El atan işe geri döndü, tekrar sürüyor",
+      });
     }
   }
 
   if (task.status === "pending_confirm") {
-    steps.push({ label: "El atan bitirdiğini belirtti, sizden onay bekliyor" });
+    steps.push({
+      label: isTasker
+        ? "Bitirdiğinizi belirttiniz, iş verenden onay bekleniyor"
+        : "El atan bitirdiğini belirtti, sizden onay bekliyor",
+    });
   }
 
   if (task.disputed_at) {
@@ -161,13 +200,27 @@ const TaskTimeline = ({
 }) => {
   const t = useT();
   const [offerSteps, setOfferSteps] = useState<Step[]>([]);
+  const [viewerRole, setViewerRole] = useState<"owner" | "tasker" | "other">("other");
 
   useEffect(() => {
     let active = true;
     (async () => {
-      const offers = await fetchTaskOffers(task.id);
-      if (!active || offers.length === 0) {
-        if (active) setOfferSteps([]);
+      const [{ data: authData }, offers] = await Promise.all([
+        supabase.auth.getUser(),
+        fetchTaskOffers(task.id),
+      ]);
+      if (!active) return;
+      const viewerId = authData?.user?.id ?? null;
+      const isOwner = viewerId === task.owner_id;
+      const isAssignee =
+        !isOwner &&
+        !!viewerId &&
+        offers.some(
+          (o) => o.tasker_id === viewerId && (o.status === "accepted" || o.status === "confirmed")
+        );
+      setViewerRole(isOwner ? "owner" : isAssignee ? "tasker" : "other");
+      if (offers.length === 0) {
+        setOfferSteps([]);
         return;
       }
       const ids = [...new Set(offers.map((o) => o.tasker_id))];
@@ -179,14 +232,14 @@ const TaskTimeline = ({
       (data ?? []).forEach((p: { user_id: string; full_name: string }) => {
         names[p.user_id] = p.full_name;
       });
-      if (active) setOfferSteps(buildOfferSteps(task, offers, names));
+      if (active) setOfferSteps(buildOfferSteps(task, offers, names, viewerId));
     })();
     return () => {
       active = false;
     };
-  }, [task.id, task.currency]);
+  }, [task.id, task.currency, task.owner_id]);
 
-  const steps = buildTaskSteps(task, arrivedAt, offerSteps);
+  const steps = buildTaskSteps(task, arrivedAt, offerSteps, viewerRole);
   const shown = compact ? steps.slice(-3) : steps;
 
 
