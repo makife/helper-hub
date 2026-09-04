@@ -26,6 +26,7 @@ type TaskPin = {
   toolProvider?: "helper" | "owner";
   toolsCount?: number;
   isOwn?: boolean;
+  scheduledLabel?: string | null;
 };
 
 
