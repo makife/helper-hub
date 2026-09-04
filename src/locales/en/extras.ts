@@ -61,7 +61,6 @@ export const EXTRAS: Record<string, string> = {
   "Henüz yardım çağrın yok": "You have no help requests yet",
   "Detayları Gör": "View details",
   "Yayında:": "Live for:",
-  "El atan bitirdi, onay için": "The helper finished; confirmation due in",
   "görüntülenme": "views",
   "İşi Başlat ({filled}/{total})": "Start task ({filled}/{total})",
   "İşi Başlat": "Start task",
