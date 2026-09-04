@@ -60,13 +60,20 @@ export const acceptTask = async (
   if (msg.includes("Yetersiz kredi")) {
     return { ok: false, reason: "credits", message: translate("Kredin yetersiz. Kredi Marketi'nden kredi yükleyebilirsin.") };
   }
+  if (msg.includes("Bekleyen degerlendirme")) {
+    return { ok: false, reason: "reviews", message: translate("Önce tamamlanan işlerin için puan vermelisin.") };
+  }
   if (msg.includes("aktif bir isin var")) {
     return { ok: false, reason: "busy", message: translate("Zaten aktif bir işin var. Önce onu tamamla veya bırak.") };
+  }
+  if (msg.includes("Kontenjan dolu")) {
+    return { ok: false, reason: "full", message: translate("Kontenjan doldu, bu işe artık katılamazsın.") };
   }
   if (error.code === "23505") {
     return { ok: false, reason: "already", message: translate("Bu işi zaten kabul ettin.") };
   }
   return { ok: false, reason: "error", message: translate("İş kabul edilemedi. Kontenjan dolmuş olabilir.") };
+
 };
 
 export const leaveTask = async (taskId: string, taskerId: string) => {
