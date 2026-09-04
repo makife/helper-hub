@@ -84,10 +84,12 @@ export const buildTaskSteps = (
   task: Tables<"tasks">,
   arrivedAt?: string | null,
   offerSteps: Step[] = [],
-  viewerRole: "owner" | "tasker" | "other" = "other"
+  viewerRole: "owner" | "tasker" | "other" = "other",
+  taskerName?: string | null
 ): Step[] => {
   const isTasker = viewerRole === "tasker";
   const isOwner = viewerRole === "owner";
+  const name = taskerName || translate("El atan");
   const steps: Step[] = [
     { label: "Yardım çağrısı oluşturuldu", at: task.created_at },
     ...offerSteps,
@@ -95,7 +97,9 @@ export const buildTaskSteps = (
 
   if (task.matched_at) {
     steps.push({
-      label: isTasker ? "İşe atandınız" : "El atan bulundu",
+      label: isTasker
+        ? "İşe atandınız"
+        : translate("{name} el atan olmayı kabul etti", { name }),
       at: task.matched_at,
     });
   }
@@ -103,7 +107,9 @@ export const buildTaskSteps = (
 
   if (arrivedAt) {
     steps.push({
-      label: isTasker ? "İş konumuna vardınız" : "El atan iş konumuna vardı",
+      label: isTasker
+        ? "İş konumuna vardınız"
+        : translate("{name} iş konumuna vardı", { name }),
       at: arrivedAt,
       tone: "success",
     });
@@ -111,13 +117,15 @@ export const buildTaskSteps = (
     steps.push({
       label: isTasker
         ? "Yola çıktınız, varışınız bekleniyor"
-        : "El atan yola çıktı, varış bekleniyor",
+        : translate("{name} yola çıktı, varış bekleniyor", { name }),
     });
   }
 
   if (task.completion_requested_at) {
     steps.push({
-      label: isTasker ? "“İşi bitirdim” dediniz" : "El atan “işi bitirdim” dedi",
+      label: isTasker
+        ? "“İşi bitirdim” dediniz"
+        : translate("{name} “işi bitirdim” dedi", { name }),
       at: task.completion_requested_at,
     });
   }
@@ -139,13 +147,13 @@ export const buildTaskSteps = (
           ? "İkinci itiraz anlaşmazlık başlattı."
           : isTasker
           ? "İşi tamamlayıp tekrar bildirebilirsiniz."
-          : "El atan işi tamamlayıp tekrar bildirebilir."),
+          : translate("{name} işi tamamlayıp tekrar bildirebilir.", { name })),
     });
     if (task.status === "in_progress") {
       steps.push({
         label: isTasker
           ? "İşe geri döndünüz, tekrar sürüyor"
-          : "El atan işe geri döndü, tekrar sürüyor",
+          : translate("{name} işe geri döndü, tekrar sürüyor", { name }),
       });
     }
   }
@@ -154,7 +162,7 @@ export const buildTaskSteps = (
     steps.push({
       label: isTasker
         ? "Bitirdiğinizi belirttiniz, iş verenden onay bekleniyor"
-        : "El atan bitirdiğini belirtti, sizden onay bekliyor",
+        : translate("{name} bitirdiğini belirtti, sizden onay bekliyor", { name }),
     });
   }
 
@@ -201,6 +209,7 @@ const TaskTimeline = ({
   const t = useT();
   const [offerSteps, setOfferSteps] = useState<Step[]>([]);
   const [viewerRole, setViewerRole] = useState<"owner" | "tasker" | "other">("other");
+  const [taskerName, setTaskerName] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -219,8 +228,12 @@ const TaskTimeline = ({
           (o) => o.tasker_id === viewerId && (o.status === "accepted" || o.status === "confirmed")
         );
       setViewerRole(isOwner ? "owner" : isAssignee ? "tasker" : "other");
+      const matchedOffer = offers.find(
+        (o) => o.status === "accepted" || o.status === "confirmed"
+      );
       if (offers.length === 0) {
         setOfferSteps([]);
+        setTaskerName(null);
         return;
       }
       const ids = [...new Set(offers.map((o) => o.tasker_id))];
@@ -232,14 +245,17 @@ const TaskTimeline = ({
       (data ?? []).forEach((p: { user_id: string; full_name: string }) => {
         names[p.user_id] = p.full_name;
       });
-      if (active) setOfferSteps(buildOfferSteps(task, offers, names, viewerId));
+      if (active) {
+        setOfferSteps(buildOfferSteps(task, offers, names, viewerId));
+        setTaskerName(matchedOffer ? names[matchedOffer.tasker_id] || null : null);
+      }
     })();
     return () => {
       active = false;
     };
   }, [task.id, task.currency, task.owner_id]);
 
-  const steps = buildTaskSteps(task, arrivedAt, offerSteps, viewerRole);
+  const steps = buildTaskSteps(task, arrivedAt, offerSteps, viewerRole, taskerName);
   const shown = compact ? steps.slice(-3) : steps;
 
 
