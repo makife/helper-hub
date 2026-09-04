@@ -1015,6 +1015,78 @@ const MyTasks = () => {
                   </div>
                 )}
 
+                {/* Gelen fiyat teklifleri (sadece iş veren) */}
+                {selectedDetail.task.owner_id === user?.id &&
+                  (ownedOffers[selectedDetail.task.id] || []).length > 0 && (
+                    <div className="border-t pt-2">
+                      <span className="text-muted-foreground text-xs font-semibold flex items-center gap-1 mb-2">
+                        💬 {t("Gelen Teklifler")}
+                      </span>
+                      <div className="space-y-2">
+                        {(ownedOffers[selectedDetail.task.id] || []).map((o) => {
+                          const prof = offerProfiles[o.tasker_id];
+                          const hasAccepted = (ownedOffers[selectedDetail.task.id] || []).some(
+                            (x) => x.status === "accepted" || x.status === "confirmed"
+                          );
+                          return (
+                            <div key={o.id} className="rounded-xl bg-muted/40 p-2.5">
+                              <div className="flex items-center gap-2.5">
+                                <button
+                                  onClick={() => { setSelectedDetail(null); navigate(`/profile/${o.tasker_id}`); }}
+                                  className="flex flex-1 items-center gap-2.5 text-left min-w-0"
+                                >
+                                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted overflow-hidden">
+                                    {prof?.avatar_url ? (
+                                      <img src={prof.avatar_url} alt="" className="h-full w-full object-cover" />
+                                    ) : (
+                                      <User size={14} className="text-muted-foreground" />
+                                    )}
+                                  </div>
+                                  <span className="flex-1 truncate text-xs font-bold text-foreground">
+                                    {prof?.full_name || t("El atan")}
+                                  </span>
+                                </button>
+                                <span className="text-sm font-black text-primary">
+                                  {formatPrice(o.amount, getTaskCurrency(selectedDetail.task))}
+                                </span>
+                              </div>
+
+                              {o.status === "pending" ? (
+                                <div className="mt-2 flex gap-2">
+                                  {!hasAccepted && (
+                                    <button
+                                      onClick={() => handleRespondOffer(o.id, true)}
+                                      disabled={isUpdating}
+                                      className="flex-1 rounded-xl bg-primary px-3 py-2 text-xs font-bold text-primary-foreground disabled:opacity-50"
+                                    >
+                                      {t("Teklifi Kabul Et")}
+                                    </button>
+                                  )}
+                                  <button
+                                    onClick={() => handleRespondOffer(o.id, false)}
+                                    disabled={isUpdating || hasAccepted}
+                                    className={`rounded-xl border border-border px-3 py-2 text-xs font-bold text-muted-foreground disabled:opacity-50 ${hasAccepted ? "w-full" : "flex-1"}`}
+                                  >
+                                    {t("Reddet")}
+                                  </button>
+                                </div>
+                              ) : (
+                                <p className="mt-1 text-[11px] font-semibold text-muted-foreground">
+                                  {o.status === "accepted"
+                                    ? t("Kabul edildi — el atanın onayı bekleniyor")
+                                    : o.status === "confirmed"
+                                      ? t("Onaylandı")
+                                      : t("Reddedildi")}
+                                </p>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+
                 {/* İşi kabul edenler (sadece iş veren) */}
                 {selectedDetail.task.owner_id === user?.id && (ownedTaskers[selectedDetail.task.id] || []).length > 0 && (
                   <div className="border-t pt-2">
