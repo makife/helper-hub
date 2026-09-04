@@ -429,7 +429,7 @@ const MyTasks = () => {
     setConfirmState(null);
     if (res.ok) {
       toast.success(res.message);
-      setSelectedTask(null);
+      setSelectedDetail(null);
       await fetchTasks();
       await fetchAccepted();
     } else {
@@ -444,7 +444,7 @@ const MyTasks = () => {
     setIsUpdating(false);
     if (ok) {
       toast.success(t("Yardım çağrısı tamamlandı."));
-      setSelectedTask(null);
+      setSelectedDetail(null);
       await fetchTasks();
       refreshPendingReviews();
     } else {
@@ -492,7 +492,7 @@ const MyTasks = () => {
 
     if (ok) {
       setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, status: "cancelled" } : t)));
-      setSelectedTask(null);
+      setSelectedDetail(null);
     } else {
       toast.error(t("İptal edilemedi, tekrar dene."));
     }
@@ -827,7 +827,7 @@ const MyTasks = () => {
 
       {/* Detay Modalı */}
       <AnimatePresence>
-        {selectedTask && (
+        {selectedDetail && (
           <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 p-4">
             <motion.div
               initial={{ y: "100%", opacity: 0 }}
@@ -837,10 +837,10 @@ const MyTasks = () => {
             >
               <div className="flex items-center justify-between border-b pb-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-2xl">{getTaskEmoji(selectedTask.category, selectedTask.subcategory, selectedTask.title)}</span>
-                  <h2 className="text-lg font-bold text-foreground">{t(selectedTask.title)}</h2>
+                  <span className="text-2xl">{getTaskEmoji(selectedDetail.task.category, selectedDetail.task.subcategory, selectedDetail.task.title)}</span>
+                  <h2 className="text-lg font-bold text-foreground">{t(selectedDetail.task.title)}</h2>
                 </div>
-                <button onClick={() => setSelectedTask(null)} className="rounded-full p-1 bg-muted hover:bg-muted/80">
+                <button onClick={() => setSelectedDetail(null)} className="rounded-full p-1 bg-muted hover:bg-muted/80">
                   <X size={20} />
                 </button>
               </div>
@@ -848,7 +848,7 @@ const MyTasks = () => {
               <div className="space-y-3 text-sm text-foreground">
                 <div className="flex justify-between items-center bg-muted/30 p-2.5 rounded-xl">
                   <span className="text-xs text-muted-foreground font-semibold">{t("Acillik Durumu:")}</span>
-                  {selectedTask.urgency === "urgent" ? (
+                  {selectedDetail.task.urgency === "urgent" ? (
                     <span className="flex items-center gap-1 font-bold text-xs text-red-600 bg-red-100 px-2.5 py-1 rounded-lg">
                       <Zap size={14} className="fill-red-600" /> {t("Acil (Hemen Lazım)")}
                     </span>
@@ -861,16 +861,16 @@ const MyTasks = () => {
 
                 <div>
                   <span className="font-semibold text-muted-foreground text-xs">{t("Açıklama:")}</span>
-                  <p className="mt-1 text-sm bg-muted/40 p-3 rounded-xl">{selectedTask.description}</p>
+                  <p className="mt-1 text-sm bg-muted/40 p-3 rounded-xl">{selectedDetail.task.description}</p>
                 </div>
 
-                {selectedTask.photo_urls && selectedTask.photo_urls.length > 0 && (
+                {selectedDetail.task.photo_urls && selectedDetail.task.photo_urls.length > 0 && (
                   <div>
                     <span className="font-semibold text-muted-foreground text-xs flex items-center gap-1 mb-1.5">
-                      <ImageIcon size={14} /> {t("Eklenen Fotoğraflar")} ({selectedTask.photo_urls.length})
+                      <ImageIcon size={14} /> {t("Eklenen Fotoğraflar")} ({selectedDetail.task.photo_urls.length})
                     </span>
                     <div className="flex gap-2 overflow-x-auto pb-1">
-                      {selectedTask.photo_urls.map((url, idx) => (
+                      {selectedDetail.task.photo_urls.map((url, idx) => (
                         <img 
                           key={idx} 
                           src={url} 
@@ -884,7 +884,7 @@ const MyTasks = () => {
 
                 <div className="flex justify-between py-1 border-t pt-2">
                   <span className="text-muted-foreground">{t("Fiyat:")}</span>
-                  <span className="font-bold text-primary">{formatPrice(selectedTask.price, getTaskCurrency(selectedTask))}</span>
+                  <span className="font-bold text-primary">{formatPrice(selectedDetail.task.price, getTaskCurrency(selectedTask))}</span>
                 </div>
 
                 {/* Yayında geçen süre */}
@@ -893,20 +893,20 @@ const MyTasks = () => {
                     <Timer size={14} className="text-primary" /> {t("Yayında:")}
                   </span>
                   <span className="font-bold text-foreground tabular-nums">
-                    {formatElapsed(selectedTask.created_at, Date.now())}
+                    {formatElapsed(selectedDetail.task.created_at, Date.now())}
                   </span>
                 </div>
 
                 {/* İş akışı zaman çizelgesi */}
                 <div className="border-t pt-2">
                   <span className="text-muted-foreground text-xs font-semibold">{t("İş Akışı:")}</span>
-                  <TaskTimeline task={selectedTask} arrivedAt={ownedArrivals[selectedTask.id]} />
+                  <TaskTimeline task={selectedTask} arrivedAt={ownedArrivals[selectedDetail.task.id]} />
                 </div>
 
 
 
                 {/* Görüntüleyenler (sadece iş veren) */}
-                {selectedTask.owner_id === user?.id && (
+                {selectedDetail.task.owner_id === user?.id && (
                   <div className="border-t pt-2">
                     <span className="text-muted-foreground flex items-center gap-1 mb-2">
                       <Eye size={14} className="text-primary" /> {t("Görüntüleyenler")} ({viewers.length})
@@ -918,13 +918,13 @@ const MyTasks = () => {
                     ) : (
                       <div className="space-y-1.5 max-h-40 overflow-y-auto">
                         {viewers.map((v) => {
-                          const isAccepted = (ownedTaskers[selectedTask.id] || []).some(
+                          const isAccepted = (ownedTaskers[selectedDetail.task.id] || []).some(
                             (tp) => tp.user_id === v.id
                           );
                           return (
                           <button
                             key={v.id}
-                            onClick={() => { setSelectedTask(null); navigate(`/profile/${v.id}`); }}
+                            onClick={() => { setSelectedDetail(null); navigate(`/profile/${v.id}`); }}
                             className="flex w-full items-center gap-2.5 rounded-xl bg-muted/40 p-2 text-left hover:bg-muted/70"
                           >
                             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted overflow-hidden">
@@ -950,16 +950,16 @@ const MyTasks = () => {
                 )}
 
                 {/* İşi kabul edenler (sadece iş veren) */}
-                {selectedTask.owner_id === user?.id && (ownedTaskers[selectedTask.id] || []).length > 0 && (
+                {selectedDetail.task.owner_id === user?.id && (ownedTaskers[selectedDetail.task.id] || []).length > 0 && (
                   <div className="border-t pt-2">
                     <span className="text-muted-foreground text-xs font-semibold flex items-center gap-1 mb-2">
                       <UserCheck size={14} className="text-primary" /> {t("İşi Kabul Eden / El Atan")}
                     </span>
                     <div className="space-y-1.5">
-                      {(ownedTaskers[selectedTask.id] || []).map((tp) => (
+                      {(ownedTaskers[selectedDetail.task.id] || []).map((tp) => (
                         <button
                           key={tp.user_id}
-                          onClick={() => { setSelectedTask(null); navigate(`/profile/${tp.user_id}`); }}
+                          onClick={() => { setSelectedDetail(null); navigate(`/profile/${tp.user_id}`); }}
                           className="flex w-full items-center gap-2.5 rounded-xl bg-muted/40 p-2 text-left hover:bg-muted/70"
                         >
                           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted overflow-hidden">
@@ -976,22 +976,22 @@ const MyTasks = () => {
                   </div>
                 )}
 
-                {selectedTask.address_note && (
+                {selectedDetail.task.address_note && (
 
                   <div className="flex justify-between py-1 border-t pt-2">
                     <span className="text-muted-foreground">{t("Adres Notu:")}</span>
-                    <span className="font-medium text-right max-w-[200px]">{selectedTask.address_note}</span>
+                    <span className="font-medium text-right max-w-[200px]">{selectedDetail.task.address_note}</span>
                   </div>
                 )}
               </div>
 
               <div className="flex gap-2 pt-3">
-                {(selectedTask.status === "completed" || selectedTask.status === "cancelled") &&
-                  selectedTask.owner_id === user?.id && (
+                {(selectedDetail.task.status === "completed" || selectedDetail.task.status === "cancelled") &&
+                  selectedDetail.task.owner_id === user?.id && (
                     <button
                       onClick={() => {
-                        setSelectedTask(null);
-                        navigate(`/create-task?duplicate=${selectedTask.id}`);
+                        setSelectedDetail(null);
+                        navigate(`/create-task?duplicate=${selectedDetail.task.id}`);
                       }}
                       className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground py-3 font-bold hover:opacity-90"
                     >
@@ -1000,10 +1000,10 @@ const MyTasks = () => {
                     </button>
                   )}
 
-                {selectedTask.status === "pending_confirm" && selectedTask.owner_id === user?.id && (
+                {selectedDetail.task.status === "pending_confirm" && selectedDetail.task.owner_id === user?.id && (
                   <>
                     <button
-                      onClick={() => handleConfirmCompletion(selectedTask.id)}
+                      onClick={() => handleConfirmCompletion(selectedDetail.task.id)}
                       disabled={isUpdating}
                       className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground py-3 font-bold disabled:opacity-50"
                     >
@@ -1014,10 +1014,10 @@ const MyTasks = () => {
                       onClick={() =>
                         setConfirmState({
                           kind: "reject",
-                          taskId: selectedTask.id,
+                          taskId: selectedDetail.task.id,
                           title: t("İş yapılmadı mı?"),
                           description:
-                            (selectedTask.rejection_count ?? 0) >= 1
+                            (selectedDetail.task.rejection_count ?? 0) >= 1
                               ? t("Bu ikinci itirazın. Anlaşmazlık olarak değerlendirilecek ve varış kaydına göre tarafsız sonuçlandırılacak.")
                               : t("El atan kişiye bildirilecek, işi tamamlayıp tekrar bildirebilecek. Haksız itirazlar sicilinize işlenir."),
                           confirmLabel: t("İtiraz Et"),
@@ -1032,14 +1032,14 @@ const MyTasks = () => {
                   </>
                 )}
 
-                {selectedTask.status === "open" &&
-                  selectedTask.owner_id === user?.id &&
-                  (selectedTask.person_count || 1) > 1 &&
-                  isWaitDecisionWindowOpen(selectedTask.wait_deadline) && (
+                {selectedDetail.task.status === "open" &&
+                  selectedDetail.task.owner_id === user?.id &&
+                  (selectedDetail.task.person_count || 1) > 1 &&
+                  isWaitDecisionWindowOpen(selectedDetail.task.wait_deadline) && (
                     <>
                       <button
                         disabled={isUpdating}
-                        onClick={() => handleCancelUnfilled(selectedTask.id)}
+                        onClick={() => handleCancelUnfilled(selectedDetail.task.id)}
                         className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-destructive/10 text-destructive py-3 font-bold hover:bg-destructive/20 disabled:opacity-50"
                       >
                         <Trash2 size={18} />
@@ -1047,7 +1047,7 @@ const MyTasks = () => {
                       </button>
                       <button
                         disabled={isUpdating}
-                        onClick={() => handleStartPartial(selectedTask.id)}
+                        onClick={() => handleStartPartial(selectedDetail.task.id)}
                         className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground py-3 font-bold hover:opacity-90 disabled:opacity-50"
                       >
                         <UserCheck size={18} />
@@ -1056,11 +1056,11 @@ const MyTasks = () => {
                     </>
                   )}
 
-                {selectedTask.status === "open" &&
-                  selectedTask.owner_id === user?.id &&
+                {selectedDetail.task.status === "open" &&
+                  selectedDetail.task.owner_id === user?.id &&
                   !(
-                    (selectedTask.person_count || 1) > 1 &&
-                    isWaitDecisionWindowOpen(selectedTask.wait_deadline)
+                    (selectedDetail.task.person_count || 1) > 1 &&
+                    isWaitDecisionWindowOpen(selectedDetail.task.wait_deadline)
                   ) && (
                     <>
                       <button
@@ -1068,7 +1068,7 @@ const MyTasks = () => {
                         onClick={() =>
                           setConfirmState({
                             kind: "cancel",
-                            taskId: selectedTask.id,
+                            taskId: selectedDetail.task.id,
                             title: t("Yardım çağrısını iptal et"),
                             description: t("Bu çağrı kapatılacak ve haritadan kaldırılacak. Emin misin?"),
                             confirmLabel: t("İptal Et"),
@@ -1083,8 +1083,8 @@ const MyTasks = () => {
 
                       <button
                         onClick={() => {
-                          setSelectedTask(null);
-                          navigate(`/create-task?edit=${selectedTask.id}`);
+                          setSelectedDetail(null);
+                          navigate(`/create-task?edit=${selectedDetail.task.id}`);
                         }}
                         className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground py-3 font-bold hover:opacity-90"
                       >
