@@ -83,55 +83,79 @@ const buildOfferSteps = (
 export const buildTaskSteps = (
   task: Tables<"tasks">,
   arrivedAt?: string | null,
-  offerSteps: Step[] = []
+  offerSteps: Step[] = [],
+  viewerRole: "owner" | "tasker" | "other" = "other"
 ): Step[] => {
+  const isTasker = viewerRole === "tasker";
+  const isOwner = viewerRole === "owner";
   const steps: Step[] = [
     { label: "Yardım çağrısı oluşturuldu", at: task.created_at },
     ...offerSteps,
   ];
 
   if (task.matched_at) {
-    steps.push({ label: "El atan bulundu", at: task.matched_at });
+    steps.push({
+      label: isTasker ? "İşe atandınız" : "El atan bulundu",
+      at: task.matched_at,
+    });
   }
 
 
   if (arrivedAt) {
     steps.push({
-      label: "El atan iş konumuna vardı",
+      label: isTasker ? "İş konumuna vardınız" : "El atan iş konumuna vardı",
       at: arrivedAt,
       tone: "success",
     });
   } else if (task.status === "matched" || task.status === "in_progress") {
-    steps.push({ label: "El atan yola çıktı, varış bekleniyor" });
+    steps.push({
+      label: isTasker
+        ? "Yola çıktınız, varışınız bekleniyor"
+        : "El atan yola çıktı, varış bekleniyor",
+    });
   }
 
   if (task.completion_requested_at) {
     steps.push({
-      label: "El atan “işi bitirdim” dedi",
+      label: isTasker ? "“İşi bitirdim” dediniz" : "El atan “işi bitirdim” dedi",
       at: task.completion_requested_at,
     });
   }
 
   if (task.rejection_count) {
     steps.push({
-      label: translate("İş veren itiraz etti ({rejection_count}/2)", {
-        rejection_count: task.rejection_count,
-      }),
+      label: isOwner
+        ? translate("İtiraz ettiniz ({rejection_count}/2)", {
+            rejection_count: task.rejection_count,
+          })
+        : translate("İş veren itiraz etti ({rejection_count}/2)", {
+            rejection_count: task.rejection_count,
+          }),
       at: task.last_rejected_at,
       tone: "danger",
       note:
         task.dispute_reason ||
         (task.rejection_count >= 2
           ? "İkinci itiraz anlaşmazlık başlattı."
+          : isTasker
+          ? "İşi tamamlayıp tekrar bildirebilirsiniz."
           : "El atan işi tamamlayıp tekrar bildirebilir."),
     });
     if (task.status === "in_progress") {
-      steps.push({ label: "El atan işe geri döndü, tekrar sürüyor" });
+      steps.push({
+        label: isTasker
+          ? "İşe geri döndünüz, tekrar sürüyor"
+          : "El atan işe geri döndü, tekrar sürüyor",
+      });
     }
   }
 
   if (task.status === "pending_confirm") {
-    steps.push({ label: "El atan bitirdiğini belirtti, sizden onay bekliyor" });
+    steps.push({
+      label: isTasker
+        ? "Bitirdiğinizi belirttiniz, iş verenden onay bekleniyor"
+        : "El atan bitirdiğini belirtti, sizden onay bekliyor",
+    });
   }
 
   if (task.disputed_at) {
