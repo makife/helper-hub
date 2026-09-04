@@ -9,6 +9,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { ALL_TASK_CATEGORIES, type TaskBaseCategory } from "@/lib/taskCategories";
 import { ALL_TOOLS, TOOL_GROUPS } from "@/lib/toolsList";
+import {
+  MAX_SCHEDULE_DAYS,
+  SCHEDULE_SLOTS,
+  buildScheduledAt,
+  dayLabel,
+  dayShortDate,
+  isSlotSelectable,
+  type SlotId,
+} from "@/lib/schedule";
 
 const PERSON_OPTIONS = [
   { value: 1, label: "1 Kişi" },
