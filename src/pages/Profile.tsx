@@ -24,6 +24,7 @@ import {
   Shield,
   ChevronRight,
   Info,
+  ShieldAlert,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -659,6 +660,24 @@ const Profile = () => {
               </div>
             </div>
           </div>
+
+          {isAdmin && (
+            <button
+              onClick={() => navigate("/admin/reports")}
+              className="mb-5 flex w-full items-center justify-between rounded-2xl border border-border bg-card p-3 shadow-card transition-all active:scale-[0.98]"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-destructive/10 text-destructive">
+                  <ShieldAlert size={18} />
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-bold text-foreground">{t("Şikayetler")}</p>
+                  <p className="text-[11px] text-muted-foreground">{t("Yönetici paneli")}</p>
+                </div>
+              </div>
+              <ChevronRight size={18} className="text-muted-foreground" />
+            </button>
+          )}
 
           <div className="mb-5 space-y-2.5 rounded-2xl border border-border bg-card p-2 shadow-card">
             <button
