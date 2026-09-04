@@ -176,7 +176,18 @@ const Market = () => {
 
 
 
+  /**
+   * Fiyat metni: native'de her zaman mağazadan (RevenueCat → Google Play / App Store)
+   * gelen, kullanıcının ülkesine göre yerelleştirilmiş fiyat kullanılır.
+   * Sabit/hardcoded fiyat yalnızca web önizlemesinde gösterilir.
+   */
+  const priceText = (pack: Pack) => {
+    if (pack.priceLabel) return pack.priceLabel;
+    return native ? "…" : formatPackPrice(pack.price, pack.eurPrice);
+  };
+
   const handleRestore = async () => {
+
     setRestoring(true);
     const ok = await restorePurchases();
     setRestoring(false);
