@@ -101,6 +101,61 @@ const ProfileSetup = () => {
     toast.success(t("Davet kodu kabul edildi! İkinize de 1'er kredi hediye edildi. 🎉"));
   };
 
+  const handleApplyManualCode = async () => {
+    const code = manualCode.trim().toUpperCase();
+    if (!code || !user) return;
+    setManualCodeBusy(true);
+
+    const { data: me } = await supabase
+      .from("profiles")
+      .select("referral_code, referred_by")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (me?.referred_by) {
+      setManualCodeBusy(false);
+      setManualCodeApplied(true);
+      toast.success(t("Davet kodu zaten kayıtlı."));
+      return;
+    }
+
+    if (me?.referral_code?.toUpperCase() === code) {
+      setManualCodeBusy(false);
+      toast.error(t("Kendi davet kodunu kullanamazsın."));
+      return;
+    }
+
+    const { data: referrer } = await supabase
+      .from("profiles")
+      .select("user_id")
+      .eq("referral_code", code)
+      .maybeSingle();
+
+    if (!referrer) {
+      setManualCodeBusy(false);
+      toast.error(t("Geçersiz davet kodu."));
+      return;
+    }
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({ referred_by: referrer.user_id })
+      .eq("user_id", user.id);
+
+    setManualCodeBusy(false);
+
+    if (error) {
+      toast.error(t("Davet kodu kaydedilemedi."));
+      console.error(error);
+      return;
+    }
+
+    clearPendingReferralCode();
+    setManualCodeApplied(true);
+    setReferralDialogOpen(false);
+    toast.success(t("Davet kodu kabul edildi! İkinize de 1'er kredi hediye edildi. 🎉"));
+  };
+
   const handleSkipReferral = () => {
     clearPendingReferralCode();
     setReferralDialogOpen(false);
