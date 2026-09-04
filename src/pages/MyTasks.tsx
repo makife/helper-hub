@@ -874,6 +874,11 @@ const MyTasks = () => {
                     </div>
                   )}
 
+                <div>
+                  <span className="font-semibold text-muted-foreground text-xs">{t("Açıklama:")}</span>
+                  <p className="mt-1 text-sm bg-muted/40 p-3 rounded-xl">{selectedDetail.task.description}</p>
+                </div>
+
 
                 {selectedDetail.task.photo_urls && selectedDetail.task.photo_urls.length > 0 && (
                   <div>
