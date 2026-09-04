@@ -200,13 +200,27 @@ const TaskTimeline = ({
 }) => {
   const t = useT();
   const [offerSteps, setOfferSteps] = useState<Step[]>([]);
+  const [viewerRole, setViewerRole] = useState<"owner" | "tasker" | "other">("other");
 
   useEffect(() => {
     let active = true;
     (async () => {
-      const offers = await fetchTaskOffers(task.id);
-      if (!active || offers.length === 0) {
-        if (active) setOfferSteps([]);
+      const [{ data: authData }, offers] = await Promise.all([
+        supabase.auth.getUser(),
+        fetchTaskOffers(task.id),
+      ]);
+      if (!active) return;
+      const viewerId = authData?.user?.id ?? null;
+      const isOwner = viewerId === task.owner_id;
+      const isAssignee =
+        !isOwner &&
+        !!viewerId &&
+        offers.some(
+          (o) => o.tasker_id === viewerId && (o.status === "accepted" || o.status === "confirmed")
+        );
+      setViewerRole(isOwner ? "owner" : isAssignee ? "tasker" : "other");
+      if (offers.length === 0) {
+        setOfferSteps([]);
         return;
       }
       const ids = [...new Set(offers.map((o) => o.tasker_id))];
@@ -218,14 +232,14 @@ const TaskTimeline = ({
       (data ?? []).forEach((p: { user_id: string; full_name: string }) => {
         names[p.user_id] = p.full_name;
       });
-      if (active) setOfferSteps(buildOfferSteps(task, offers, names));
+      if (active) setOfferSteps(buildOfferSteps(task, offers, names, viewerId));
     })();
     return () => {
       active = false;
     };
-  }, [task.id, task.currency]);
+  }, [task.id, task.currency, task.owner_id]);
 
-  const steps = buildTaskSteps(task, arrivedAt, offerSteps);
+  const steps = buildTaskSteps(task, arrivedAt, offerSteps, viewerRole);
   const shown = compact ? steps.slice(-3) : steps;
 
 
