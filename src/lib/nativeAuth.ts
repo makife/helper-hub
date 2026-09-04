@@ -85,7 +85,7 @@ export const signInNativeOAuth = async (provider: "google" | "apple") => {
     provider: provider === "google" ? "google" : "apple",
     token: idToken,
   });
-  if (error) throw new Error(`Oturum açılamadı: ${error.message}`);
+  if (error) throw new Error(translate("Giriş yapılamadı, tekrar dene."));
 };
 
 /**
