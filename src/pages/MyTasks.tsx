@@ -17,6 +17,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import type { Tables } from "@/integrations/supabase/types";
 import { computePrice, formatCountdown } from "@/lib/dynamicPricing";
 import { getTaskEmoji } from "@/lib/taskCategories";
+import { formatScheduled } from "@/lib/schedule";
 import { leaveTask } from "@/lib/assignments";
 import { toast } from "sonner";
 import ConfirmDialog from "@/components/ConfirmDialog";
