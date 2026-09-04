@@ -235,4 +235,8 @@ export const EXTRAS: Record<string, string> = {
   "📅 PLANLI": "\ud83d\udcc5 SCHEDULED",
   "📅 Randevu": "\ud83d\udcc5 Appointment",
   "Randevu:": "Appointment:",
+  "{count} yeni fiyat teklifi": "{count} new price offer(s)",
+  "Onaylandı": "Confirmed",
+  "Reddedildi": "Rejected",
+
 };
