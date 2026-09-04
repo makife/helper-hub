@@ -287,7 +287,7 @@ const CreateTask = () => {
         : selectedCatObj?.baseEnum || "kucuk_tamir";
 
       const safeTotalPrice = Math.max(50, totalPrice);
-      const safeMinPrice = urgency === "can_wait" ? Math.max(50, Math.round(safeTotalPrice * 0.65)) : safeTotalPrice;
+      const safeMinPrice = safeTotalPrice;
 
       let latitude: number | null = null;
       let longitude: number | null = null;
