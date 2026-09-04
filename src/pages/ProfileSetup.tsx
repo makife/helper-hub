@@ -35,6 +35,9 @@ const ProfileSetup = () => {
   const [referralDialogOpen, setReferralDialogOpen] = useState(false);
   const [pendingReferralCode, setPendingReferralCode] = useState<string | null>(null);
   const [referralSubmitting, setReferralSubmitting] = useState(false);
+  const [manualCode, setManualCode] = useState("");
+  const [manualCodeApplied, setManualCodeApplied] = useState(false);
+  const [manualCodeBusy, setManualCodeBusy] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
 
