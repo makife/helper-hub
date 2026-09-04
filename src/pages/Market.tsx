@@ -246,7 +246,7 @@ const Market = () => {
                   </span>
                 )}
               </div>
-              <p className="text-lg font-black text-primary">{pack.priceLabel ?? formatPackPrice(pack.price, pack.eurPrice)}</p>
+              <p className="text-lg font-black text-primary">{priceText(pack)}</p>
             </motion.button>
           ))}
         </div>
