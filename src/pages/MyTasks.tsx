@@ -652,7 +652,7 @@ const MyTasks = () => {
                     {task.status === "pending_confirm" && (
                       <p className="mt-3 rounded-xl bg-muted/60 p-2.5 text-xs font-semibold text-muted-foreground">
                         {isMyCompletionRequest
-                          ? t("El atan bitirdiğini belirtti, sizden onay bekliyor. 24 saat içinde otomatik tamamlanır.")
+                          ? t("Bitirdiğinizi belirttiniz, iş verenden onay bekleniyor. 24 saat içinde otomatik tamamlanır.")
                           : `${t("İşi tamamlamak için kalan süre:")} ${formatRemaining(confirmDeadlineMs(task.completion_requested_at))}`}
                       </p>
                     )}
@@ -844,7 +844,9 @@ const MyTasks = () => {
                     </span>
                     {task.status === "pending_confirm" && (
                       <span className="flex items-center gap-1">
-                        {t("El atan bitirdi, onay için")} {formatRemaining(confirmDeadlineMs(task.completion_requested_at))}
+                        {translate("{name} bitirdi, onay için", {
+                          name: ownedTaskers[task.id]?.[0]?.full_name || t("El atan"),
+                        })} {formatRemaining(confirmDeadlineMs(task.completion_requested_at))}
                       </span>
                     )}
                     <span className="flex items-center gap-1">
