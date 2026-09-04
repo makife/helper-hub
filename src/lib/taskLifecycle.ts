@@ -36,11 +36,17 @@ export const markArrival = async (taskId: string, taskLat: number, taskLng: numb
   });
   if (!position) return { ok: false, message: translate("Konumun alınamadı. Konum iznini açman gerekiyor.") };
   const distance = distanceMeters(position.coords.latitude, position.coords.longitude, taskLat, taskLng);
-  if (distance > ARRIVAL_RADIUS_M) return { ok: false, distance, message: translate("İş konumuna {distance} m uzaktasın. Varış kaydı için {radius} m içine girmelisin.", { distance, radius: ARRIVAL_RADIUS_M }) };
-  const { data, error } = await supabase.rpc("mark_arrival", { _task_id: taskId, _distance_m: distance });
-  if (error || data === false) return { ok: false, distance, message: translate("Varış kaydedilemedi, tekrar dene.") };
+  // Mesafe doğrulaması sunucuda yapılır; buradaki değer yalnızca kullanıcıya bilgi içindir.
+  const { data, error } = await supabase.rpc("mark_arrival", {
+    _task_id: taskId,
+    _lat: position.coords.latitude,
+    _lng: position.coords.longitude,
+  });
+  if (error) return { ok: false, distance, message: translate("Varış kaydedilemedi, tekrar dene.") };
+  if (data === false) return { ok: false, distance, message: translate("İş konumuna {distance} m uzaktasın. Varış kaydı için {radius} m içine girmelisin.", { distance, radius: ARRIVAL_RADIUS_M }) };
   return { ok: true, distance, message: translate("Varışın kaydedildi ({distance} m).", { distance }) };
 };
+
 
 export type CompletionResult = { ok: boolean; message: string; code?: string };
 
