@@ -1,9 +1,11 @@
-export type SlotId = "morning" | "afternoon" | "evening";
+export type SlotId = "earlyMorning" | "morning" | "afternoon" | "evening" | "night";
 
 export const SCHEDULE_SLOTS: { id: SlotId; label: string; startHour: number; endHour: number }[] = [
+  { id: "earlyMorning", label: "Erken Sabah 05:00 - 09:00", startHour: 5, endHour: 9 },
   { id: "morning", label: "Sabah 09:00 - 12:00", startHour: 9, endHour: 12 },
   { id: "afternoon", label: "Öğleden sonra 12:00 - 17:00", startHour: 12, endHour: 17 },
   { id: "evening", label: "Akşam 17:00 - 21:00", startHour: 17, endHour: 21 },
+  { id: "night", label: "Gece 21:00 - 00:00", startHour: 21, endHour: 24 },
 ];
 
 export const MAX_SCHEDULE_DAYS = 7;
