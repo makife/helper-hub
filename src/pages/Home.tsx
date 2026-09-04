@@ -509,6 +509,11 @@ const Home = () => {
                               {t("ACİL")}
                             </span>
                           )}
+                          {task.urgency !== "urgent" && formatScheduled((task as any).scheduled_at) && (
+                            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[9px] font-black text-primary">
+                              📅 {formatScheduled((task as any).scheduled_at)}
+                            </span>
+                          )}
                           <h3 className="truncate text-sm font-black text-foreground">{task.title}</h3>
                         </div>
                         <p className="mt-0.5 truncate text-[11px] text-muted-foreground">
