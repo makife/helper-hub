@@ -11,6 +11,7 @@ import { useLivePrice, formatCountdown } from "@/lib/dynamicPricing";
 import { acceptTask, leaveTask } from "@/lib/assignments";
 import { createOffer, fetchMyOffer, fetchTaskOffers, respondToOffer, confirmAcceptedOffer, type OfferRow } from "@/lib/offers";
 import { ALL_TOOLS } from "@/lib/toolsList";
+import { formatScheduled } from "@/lib/schedule";
 import type { Tables } from "@/integrations/supabase/types";
 
 
