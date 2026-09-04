@@ -234,4 +234,5 @@ export const EXTRAS: Record<string, string> = {
   "Tam saati eşleştiğiniz kişiyle mesajlaşarak netleştirebilirsiniz.": "You can finalize the exact time by messaging the person you match with.",
   "📅 PLANLI": "\ud83d\udcc5 SCHEDULED",
   "📅 Randevu": "\ud83d\udcc5 Appointment",
+  "Randevu:": "Appointment:",
 };

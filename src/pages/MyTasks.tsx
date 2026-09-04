@@ -17,6 +17,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import type { Tables } from "@/integrations/supabase/types";
 import { computePrice, formatCountdown } from "@/lib/dynamicPricing";
 import { getTaskEmoji } from "@/lib/taskCategories";
+import { formatScheduled } from "@/lib/schedule";
 import { leaveTask } from "@/lib/assignments";
 import { toast } from "sonner";
 import ConfirmDialog from "@/components/ConfirmDialog";
@@ -723,6 +724,11 @@ const MyTasks = () => {
                             <Zap size={10} className="fill-red-500 mr-0.5" /> {t("Acil")}
                           </span>
                         )}
+                        {task.urgency !== "urgent" && formatScheduled((task as any).scheduled_at) && (
+                          <span className="shrink-0 text-[10px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded-full">
+                            📅 {formatScheduled((task as any).scheduled_at)}
+                          </span>
+                        )}
                       </div>
                       <p className={`text-xs font-semibold ${status.color}`}>{status.label}</p>
                     </div>
@@ -859,10 +865,21 @@ const MyTasks = () => {
                   )}
                 </div>
 
+                {selectedDetail.task.urgency !== "urgent" &&
+                  formatScheduled((selectedDetail.task as any).scheduled_at) && (
+                    <div className="flex justify-between items-center bg-muted/30 p-2.5 rounded-xl">
+                      <span className="text-xs text-muted-foreground font-semibold">{t("Randevu:")}</span>
+                      <span className="font-bold text-xs text-amber-700 bg-amber-100 px-2.5 py-1 rounded-lg">
+                        📅 {formatScheduled((selectedDetail.task as any).scheduled_at)}
+                      </span>
+                    </div>
+                  )}
+
                 <div>
                   <span className="font-semibold text-muted-foreground text-xs">{t("Açıklama:")}</span>
                   <p className="mt-1 text-sm bg-muted/40 p-3 rounded-xl">{selectedDetail.task.description}</p>
                 </div>
+
 
                 {selectedDetail.task.photo_urls && selectedDetail.task.photo_urls.length > 0 && (
                   <div>
