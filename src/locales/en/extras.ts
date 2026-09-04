@@ -83,8 +83,8 @@ export const EXTRAS: Record<string, string> = {
   "El atan iş konumuna vardı": "The helper arrived at the task location",
   "El atan": "Helper",
   "{name} {amount} fiyat teklifi verdi": "{name} offered {amount}",
-  "İş veren {name} teklifini reddetti": "The requester rejected {name}'s offer",
-  "İş veren {name} teklifini kabul etti ({amount})": "The requester accepted {name}'s offer ({amount})",
+  "İş veren, {name} adlı el atanın teklifini reddetti": "The requester rejected {name}'s offer",
+  "İş veren, {name} adlı el atanın teklifini kabul etti ({amount})": "The requester accepted {name}'s offer ({amount})",
   "{name} teklifi onayladı, işe atandı": "{name} confirmed the offer and was assigned",
 
   "El atan yola çıktı, varış bekleniyor": "The helper is on the way; arrival pending",
