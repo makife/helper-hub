@@ -157,9 +157,9 @@ const Profile = () => {
     if (!user) return;
     setAvatarUploading(true);
     (async () => {
-      const ext = file.name.split(".").pop() || "jpg";
-      const path = `${user.id}/avatar_${Date.now()}.${ext}`;
-      const { error } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
+      const blob = await compressImage(file, 512, 0.8);
+      const path = `${user.id}/avatar_${Date.now()}.jpg`;
+      const { error } = await supabase.storage.from("avatars").upload(path, blob, { upsert: true, contentType: "image/jpeg" });
       if (error) {
         setAvatarUploading(false);
         toast.error(t("Fotoğraf yüklenemedi."));
@@ -227,9 +227,9 @@ const Profile = () => {
     setCredSaving(true);
     let imageUrl: string | null = null;
     if (credFile) {
-      const ext = credFile.name.split(".").pop() || "jpg";
-      const path = `${user.id}/credential_${Date.now()}.${ext}`;
-      const { error } = await supabase.storage.from("task-photos").upload(path, credFile);
+      const blob = await compressImage(credFile, 1280, 0.75);
+      const path = `${user.id}/credential_${Date.now()}.jpg`;
+      const { error } = await supabase.storage.from("task-photos").upload(path, blob, { contentType: "image/jpeg" });
       if (!error) {
         imageUrl = supabase.storage.from("task-photos").getPublicUrl(path).data.publicUrl;
       }

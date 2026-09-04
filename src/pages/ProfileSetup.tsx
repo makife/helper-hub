@@ -209,11 +209,11 @@ const ProfileSetup = () => {
 
     // Upload avatar
     if (avatarFile) {
-      const ext = avatarFile.name.split(".").pop();
-      const path = `${user.id}/avatar.${ext}`;
+      const blob = await compressImage(avatarFile, 512, 0.8);
+      const path = `${user.id}/avatar.jpg`;
       const { error: uploadError } = await supabase.storage
         .from("avatars")
-        .upload(path, avatarFile, { upsert: true });
+        .upload(path, blob, { upsert: true, contentType: "image/jpeg" });
 
       if (!uploadError) {
         const { data: { publicUrl } } = supabase.storage
