@@ -884,7 +884,7 @@ const MyTasks = () => {
 
                 <div className="flex justify-between py-1 border-t pt-2">
                   <span className="text-muted-foreground">{t("Fiyat:")}</span>
-                  <span className="font-bold text-primary">{formatPrice(selectedDetail.task.price, getTaskCurrency(selectedTask))}</span>
+                  <span className="font-bold text-primary">{formatPrice(selectedDetail.task.price, getTaskCurrency(selectedDetail.task))}</span>
                 </div>
 
                 {/* Yayında geçen süre */}
