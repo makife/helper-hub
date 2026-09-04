@@ -26,35 +26,50 @@ const fmt = (iso?: string | null) => {
 const buildOfferSteps = (
   task: Tables<"tasks">,
   offers: OfferRow[],
-  names: Record<string, string>
+  names: Record<string, string>,
+  viewerId?: string | null
 ): Step[] => {
   const cur = getTaskCurrency(task);
+  const isOwner = !!viewerId && viewerId === task.owner_id;
   const steps: Step[] = [];
   for (const o of offers) {
+    const isMe = !!viewerId && viewerId === o.tasker_id;
     const who = names[o.tasker_id] || translate("El atan");
     const amount = formatPrice(o.amount, cur);
     steps.push({
-      label: translate("{name} {amount} fiyat teklifi verdi", { name: who, amount }),
+      label: isMe
+        ? translate("{amount} fiyat teklifi verdiniz", { amount })
+        : translate("{name} {amount} fiyat teklifi verdi", { name: who, amount }),
       at: o.created_at,
       note: o.message || undefined,
     });
     if (o.status === "rejected") {
       steps.push({
-        label: translate("İş veren, {name} adlı el atanın teklifini reddetti", { name: who }),
+        label: isMe
+          ? translate("İş veren teklifinizi reddetti")
+          : isOwner
+          ? translate("{name} kişisinin teklifini reddettiniz", { name: who })
+          : translate("İş veren {name} kişisinin teklifini reddetti", { name: who }),
         at: o.responded_at,
         tone: "danger",
       });
     }
     if (o.status === "accepted" || o.status === "confirmed") {
       steps.push({
-        label: translate("İş veren, {name} adlı el atanın teklifini kabul etti ({amount})", { name: who, amount }),
+        label: isMe
+          ? translate("İş veren teklifinizi kabul etti ({amount})", { amount })
+          : isOwner
+          ? translate("{name} kişisinin teklifini kabul ettiniz ({amount})", { name: who, amount })
+          : translate("İş veren {name} kişisinin teklifini kabul etti ({amount})", { name: who, amount }),
         at: o.responded_at,
         tone: "success",
       });
     }
     if (o.status === "confirmed") {
       steps.push({
-        label: translate("{name} teklifi onayladı, işe atandı", { name: who }),
+        label: isMe
+          ? translate("Teklifi onayladınız, işe atandınız")
+          : translate("{name} teklifi onayladı, işe atandı", { name: who }),
         at: o.updated_at,
         tone: "success",
       });
