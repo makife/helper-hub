@@ -129,6 +129,17 @@ const CreateTask = () => {
           setCustomDurationHours(String(Math.round((loadedMinutes / 60) * 10) / 10));
         }
         setUrgency((data.urgency as "urgent" | "can_wait") || "can_wait");
+        if (data.scheduled_at) {
+          const sd = new Date(data.scheduled_at);
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const offset = Math.round((new Date(sd).setHours(0, 0, 0, 0) - today.getTime()) / 86400000);
+          if (offset >= 0 && offset < MAX_SCHEDULE_DAYS) {
+            setScheduleDay(offset);
+            const hour = sd.getHours();
+            setScheduleSlot(hour < 12 ? "morning" : hour < 17 ? "afternoon" : "evening");
+          }
+        }
         setAddressNote(data.address_note || "");
         setOriginalLat(data.latitude ?? null);
         setOriginalLng(data.longitude ?? null);
