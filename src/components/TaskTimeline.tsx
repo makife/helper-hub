@@ -40,14 +40,14 @@ const buildOfferSteps = (
     });
     if (o.status === "rejected") {
       steps.push({
-        label: translate("İş veren {name} teklifini reddetti", { name: who }),
+        label: translate("İş veren, {name} adlı el atanın teklifini reddetti", { name: who }),
         at: o.responded_at,
         tone: "danger",
       });
     }
     if (o.status === "accepted" || o.status === "confirmed") {
       steps.push({
-        label: translate("İş veren {name} teklifini kabul etti ({amount})", { name: who, amount }),
+        label: translate("İş veren, {name} adlı el atanın teklifini kabul etti ({amount})", { name: who, amount }),
         at: o.responded_at,
         tone: "success",
       });
