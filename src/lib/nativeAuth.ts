@@ -2,6 +2,7 @@ import { Capacitor } from "@capacitor/core";
 import { App } from "@capacitor/app";
 import { SocialLogin } from "@capgo/capacitor-social-login";
 import { supabase } from "@/integrations/supabase/client";
+import { translate } from "@/lib/i18n";
 import {
   GOOGLE_WEB_CLIENT_ID,
   APPLE_CLIENT_ID,
@@ -85,7 +86,7 @@ export const signInNativeOAuth = async (provider: "google" | "apple") => {
     provider: provider === "google" ? "google" : "apple",
     token: idToken,
   });
-  if (error) throw new Error(`Oturum açılamadı: ${error.message}`);
+  if (error) throw new Error(translate("Giriş yapılamadı, tekrar dene."));
 };
 
 /**

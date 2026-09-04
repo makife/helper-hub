@@ -110,7 +110,7 @@ export const purchaseStorePack = async (pack: StorePack): Promise<PurchaseOutcom
     return {
       ok: false,
       cancelled,
-      message: cancelled ? translate("Satın alma iptal edildi.") : err.message || translate("Satın alma tamamlanamadı."),
+      message: cancelled ? translate("Satın alma iptal edildi.") : translate("Satın alma tamamlanamadı."),
     };
   }
 };
