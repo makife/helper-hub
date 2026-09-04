@@ -204,28 +204,13 @@ const Home = () => {
     };
   }, [user, userPos]);
 
-  // Canlı fiyat düşüşü: her 15 sn'de bir yeniden hesapla, değişince DB'ye yaz (sadece iş sahibi)
+  // Canlı fiyat düşüşü: her 15 sn'de bir arayüzü tazele (fiyatı sunucu hesaplar)
   const [priceTick, setPriceTick] = useState(0);
   useEffect(() => {
     const id = setInterval(() => setPriceTick((t) => t + 1), 15000);
     return () => clearInterval(id);
   }, []);
 
-  useEffect(() => {
-    if (!user) return;
-    tasks.forEach((t) => {
-      if (t.owner_id !== user.id) return;
-      const { price } = computePrice(t);
-      if (price !== (t.current_price ?? t.price)) {
-        supabase
-          .from("tasks")
-          .update({ current_price: price })
-          .eq("id", t.id)
-          .then(() => {});
-      }
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [priceTick, tasks, user]);
 
   // Kullanıcının profiline kaydettiği aletleri çek (eşleştirme filtresi için)
   const fetchMyTools = async () => {
