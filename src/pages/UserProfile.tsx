@@ -6,6 +6,7 @@ import { ArrowLeft, Star, CheckCircle, Phone, User, BadgeCheck, Award } from "lu
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { timeAgoIn } from "@/lib/dateFormat";
+import ReportBlockSheet from "@/components/ReportBlockSheet";
 
 const SKILL_LABELS: Record<string, string> = {
   ampul_takma: "💡 Ampul Takma",
@@ -164,6 +165,8 @@ const UserProfile = () => {
               </div>
             </div>
           )}
+
+          {userId && <ReportBlockSheet userId={userId} userName={profile.full_name} />}
 
           <div>
             <p className="mb-3 flex items-center gap-1.5 text-sm font-black text-foreground">

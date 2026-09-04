@@ -24,6 +24,8 @@ import { Geolocation } from "@capacitor/geolocation";
 import { ensureLocationPermission } from "@/lib/geo";
 import { toast } from "sonner";
 import { getFuzzedLocation } from "@/lib/locationPrivacy";
+import { fetchBlockedIds } from "@/lib/blocks";
+import { List as ListIcon, MapIcon } from "lucide-react";
 
 type TaskWithUI = Tables<"tasks"> & {
   emoji: string;
@@ -71,6 +73,9 @@ const Home = () => {
   });
   const [mapCenter, setMapCenter] = useState<[number, number] | null>(userPos);
   const [mapType, setMapType] = useState<"standard" | "satellite">("satellite");
+  const [viewMode, setViewMode] = useState<"map" | "list">("map");
+  const [sortBy, setSortBy] = useState<"distance" | "price_desc" | "price_asc" | "urgency" | "new">("distance");
+  const [blockedIds, setBlockedIds] = useState<string[]>([]);
   const navigate = useNavigate();
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -251,7 +256,13 @@ const Home = () => {
     return hasAllStandard && hasAllCustom;
   };
 
+  useEffect(() => {
+    if (!user) return;
+    fetchBlockedIds(user.id).then(setBlockedIds);
+  }, [user]);
+
   const filteredTasks = tasks.filter((t) => {
+    if (blockedIds.includes(t.owner_id)) return false;
     if (filterUrgency !== "all" && t.urgency !== filterUrgency) return false;
     if (filterNoTools && t.needs_tools) return false;
     if (filterMyTools && !matchesMyTools(t)) return false;
@@ -267,6 +278,20 @@ const Home = () => {
     (filterNoTools ? 1 : 0) +
     (filterMyTools ? 1 : 0) +
     (filterCategoryIds.length > 0 ? 1 : 0);
+
+  const taskDistance = (t: TaskWithUI) =>
+    userPos ? distanceMeters(userPos[0], userPos[1], t.lat, t.lng) : Number.MAX_SAFE_INTEGER;
+
+  const sortedTasks = [...filteredTasks].sort((a, b) => {
+    if (sortBy === "distance") return taskDistance(a) - taskDistance(b);
+    if (sortBy === "price_desc") return computePrice(b).price - computePrice(a).price;
+    if (sortBy === "price_asc") return computePrice(a).price - computePrice(b).price;
+    if (sortBy === "urgency") {
+      const rank = (t: TaskWithUI) => (t.urgency === "urgent" ? 0 : 1);
+      return rank(a) - rank(b) || new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    }
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+  });
 
   const handleTaskClick = (task: { id: string }) => {
     const matched = tasks.find((t) => t.id === task.id);
@@ -347,6 +372,17 @@ const Home = () => {
         </div>
         <div className="flex items-center gap-2">
           <button
+            onClick={() => setViewMode((v) => (v === "map" ? "list" : "map"))}
+            className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card"
+            aria-label={viewMode === "map" ? t("Liste görünümü") : t("Harita görünümü")}
+          >
+            {viewMode === "map" ? (
+              <ListIcon size={18} className="text-muted-foreground" />
+            ) : (
+              <MapIcon size={18} className="text-muted-foreground" />
+            )}
+          </button>
+          <button
             onClick={() => setShowFilters(true)}
             className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card"
           >
@@ -373,6 +409,7 @@ const Home = () => {
 
       {/* Map — fills all remaining space edge-to-edge, bottom nav floats on top */}
       <div className="relative z-0 flex-1 overflow-hidden">
+        {viewMode === "map" && (<>
         <TaskMap
           tasks={mapPins}
           onTaskClick={handleTaskClick}
@@ -412,6 +449,80 @@ const Home = () => {
         >
           <Crosshair size={22} className="text-sky-700" />
         </button>
+        </>)}
+
+        {viewMode === "list" && (
+          <div className="h-full overflow-y-auto px-5 pb-28 scrollbar-hide">
+            <div className="sticky top-0 z-10 -mx-5 mb-3 bg-background/95 px-5 py-2 backdrop-blur">
+              <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+                {([
+                  ["distance", "En yakın"],
+                  ["price_desc", "En yüksek ücret"],
+                  ["price_asc", "En düşük ücret"],
+                  ["urgency", "Acil olanlar"],
+                  ["new", "En yeni"],
+                ] as const).map(([id, label]) => (
+                  <button
+                    key={id}
+                    onClick={() => setSortBy(id)}
+                    className={`shrink-0 rounded-full px-3 py-1.5 text-[11px] font-black ${
+                      sortBy === id ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground shadow-card"
+                    }`}
+                  >
+                    {t(label)}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {sortedTasks.length === 0 ? (
+              <div className="py-16 text-center">
+                <p className="text-sm font-bold text-foreground">{t("Yakınında açık iş yok")}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{t("Filtreleri değiştirip tekrar dene.")}</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {sortedTasks.map((task) => {
+                  const dist = userPos ? taskDistance(task) : null;
+                  return (
+                    <button
+                      key={task.id}
+                      onClick={() => handleTaskClick(task)}
+                      className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card p-4 text-left shadow-card active:scale-[0.98]"
+                    >
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-muted text-xl">
+                        {task.emoji}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5">
+                          {task.urgency === "urgent" && (
+                            <span className="rounded-full bg-destructive/10 px-2 py-0.5 text-[9px] font-black text-destructive">
+                              {t("ACİL")}
+                            </span>
+                          )}
+                          <h3 className="truncate text-sm font-black text-foreground">{task.title}</h3>
+                        </div>
+                        <p className="mt-0.5 truncate text-[11px] text-muted-foreground">
+                          {ownerNames[task.owner_id] || t("Kullanıcı")}
+                          {dist !== null && ` · ${dist < 1000 ? `${Math.round(dist)} m` : `${(dist / 1000).toFixed(1)} km`}`}
+                          {task.estimated_minutes ? ` · ${task.estimated_minutes} ${t("dk")}` : ""}
+                        </p>
+                        <p className="mt-1 text-[11px] font-bold text-muted-foreground">
+                          {(fillCounts[task.id] ?? 0)}/{task.person_count ?? 1} {t("kişi")}
+                        </p>
+                      </div>
+                      <div className="shrink-0 text-right">
+                        <p className="text-sm font-black text-primary">
+                          {computePrice(task).price} {getTaskCurrency(task)}
+                        </p>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
 

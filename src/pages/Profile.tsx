@@ -34,6 +34,7 @@ import { ALL_SKILLS, searchSkills } from "@/lib/skillCatalog";
 import MyToolsEditor from "@/components/MyToolsEditor";
 
 import ReferralCard from "@/components/ReferralCard";
+import NotificationPrefs from "@/components/NotificationPrefs";
 import ProfileBadges from "@/components/ProfileBadges";
 import { timeAgoIn } from "@/lib/dateFormat";
 
@@ -642,6 +643,8 @@ const Profile = () => {
           </div>
 
 
+
+          <NotificationPrefs />
 
           <div className="mb-5 rounded-2xl border border-border bg-card p-4 shadow-card">
             <div className="mb-3 flex items-center justify-between">

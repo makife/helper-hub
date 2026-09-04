@@ -151,23 +151,25 @@ const ActiveTask = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleSend = async () => {
-    if (!newMessage.trim() || !user || !task) return;
+  const sendText = async (text: string) => {
+    const content = text.trim();
+    if (!content || !user || !task) return;
     const receiverId = partnerId;
     if (!receiverId) { toast.error(t("Henüz konuşulacak kişi yok.")); return; }
-
 
     setSending(true);
     const { error } = await supabase.from("messages").insert({
       task_id: task.id,
       sender_id: user.id,
       receiver_id: receiverId,
-      content: newMessage.trim(),
+      content,
     });
     setSending(false);
     if (error) { toast.error(t("Mesaj gönderilemedi")); return; }
     setNewMessage("");
   };
+
+  const handleSend = () => sendText(newMessage);
 
   const handleStartRoute = () => {
     setShowRoute(true);
@@ -425,6 +427,22 @@ const ActiveTask = () => {
 
       {/* Message Input */}
       <div className="border-t border-border bg-card px-4 py-3 safe-bottom">
+        {/* Hazır mesajlar */}
+        <div className="mb-2 flex gap-2 overflow-x-auto scrollbar-hide">
+          {(isOwner
+            ? ["Merhaba, ne zaman gelebilirsin?", "Adres tarifine ihtiyacın var mı?", "Kapıdayım, bekliyorum.", "Teşekkürler, eline sağlık!"]
+            : ["Yoldayım 🚗", "10 dk sonra varırım", "Geldim, kapıdayım", "İşi bitirdim ✅"]
+          ).map((q) => (
+            <button
+              key={q}
+              onClick={() => sendText(t(q))}
+              disabled={sending}
+              className="shrink-0 rounded-full border border-border bg-background px-3 py-1.5 text-[11px] font-bold text-foreground active:scale-95 disabled:opacity-50"
+            >
+              {t(q)}
+            </button>
+          ))}
+        </div>
         <div className="flex items-center gap-2">
           <input
             type="text"

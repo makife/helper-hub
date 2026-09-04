@@ -234,6 +234,9 @@ export type Database = {
           language: string
           latitude: number | null
           longitude: number | null
+          notify_messages: boolean
+          notify_offers: boolean
+          notify_task_updates: boolean
           owned_tools: string[]
           phone: string | null
           profession: string | null
@@ -265,6 +268,9 @@ export type Database = {
           language?: string
           latitude?: number | null
           longitude?: number | null
+          notify_messages?: boolean
+          notify_offers?: boolean
+          notify_task_updates?: boolean
           owned_tools?: string[]
           phone?: string | null
           profession?: string | null
@@ -296,6 +302,9 @@ export type Database = {
           language?: string
           latitude?: number | null
           longitude?: number | null
+          notify_messages?: boolean
+          notify_offers?: boolean
+          notify_task_updates?: boolean
           owned_tools?: string[]
           phone?: string | null
           profession?: string | null
@@ -706,6 +715,68 @@ export type Database = {
           wait_reminder_sent_at?: string | null
         }
         Relationships: []
+      }
+      user_blocks: {
+        Row: {
+          blocked_id: string
+          blocker_id: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          blocked_id: string
+          blocker_id: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          blocked_id?: string
+          blocker_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      user_reports: {
+        Row: {
+          created_at: string
+          details: string | null
+          id: string
+          reason: string
+          reported_id: string
+          reporter_id: string
+          status: string
+          task_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason: string
+          reported_id: string
+          reporter_id: string
+          status?: string
+          task_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason?: string
+          reported_id?: string
+          reporter_id?: string
+          status?: string
+          task_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_reports_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
