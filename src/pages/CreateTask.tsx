@@ -1,3 +1,4 @@
+import { compressImage } from "@/lib/imageCompress";
 import { useT } from "@/lib/i18n";
 import { CURRENCIES, CURRENCY_LABELS, currencySymbol, formatPrice, type CurrencyCode } from "@/lib/currency";
 import { useEffect, useState } from "react";
@@ -289,9 +290,9 @@ const CreateTask = () => {
     try {
       const uploadedUrls: string[] = [];
       for (const photo of photos) {
-        const ext = photo.name.split(".").pop();
-        const path = `${user.id}/${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
-        const { error } = await supabase.storage.from("task-photos").upload(path, photo);
+        const blob = await compressImage(photo, 1280, 0.75);
+        const path = `${user.id}/${Date.now()}_${Math.random().toString(36).substring(7)}.jpg`;
+        const { error } = await supabase.storage.from("task-photos").upload(path, blob, { contentType: "image/jpeg" });
         if (!error) {
           const { data: { publicUrl } } = supabase.storage.from("task-photos").getPublicUrl(path);
           uploadedUrls.push(publicUrl);
