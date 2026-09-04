@@ -456,14 +456,14 @@ const MyTasks = () => {
 
   // Seçili işin görüntüleyenlerini yükle (sadece iş veren için)
   useEffect(() => {
-    if (!selectedTask || !user || selectedTask.owner_id !== user.id) {
+    if (!selectedDetail?.task || !user || selectedDetail.task.owner_id !== user.id) {
       setViewers([]);
       return;
     }
     supabase
       .from("task_views")
       .select("viewer_id, viewed_at")
-      .eq("task_id", selectedTask.id)
+      .eq("task_id", selectedDetail.task.id)
       .order("viewed_at", { ascending: false })
       .then(async ({ data }) => {
         const ids = (data || []).map((v) => v.viewer_id);
@@ -484,7 +484,7 @@ const MyTasks = () => {
           })
         );
       });
-  }, [selectedTask?.id, user?.id]);
+  }, [selectedDetail?.task.id, user?.id]);
 
   const handleCancelTask = async (taskId: string) => {
     setIsUpdating(true);
