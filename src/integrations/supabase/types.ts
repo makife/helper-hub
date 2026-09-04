@@ -611,6 +611,7 @@ export type Database = {
           rejection_count: number
           reminder_sent_at: string | null
           required_tools: string[]
+          scheduled_at: string | null
           status: Database["public"]["Enums"]["task_status"]
           subcategory: string | null
           tasker_id: string | null
@@ -656,6 +657,7 @@ export type Database = {
           rejection_count?: number
           reminder_sent_at?: string | null
           required_tools?: string[]
+          scheduled_at?: string | null
           status?: Database["public"]["Enums"]["task_status"]
           subcategory?: string | null
           tasker_id?: string | null
@@ -701,6 +703,7 @@ export type Database = {
           rejection_count?: number
           reminder_sent_at?: string | null
           required_tools?: string[]
+          scheduled_at?: string | null
           status?: Database["public"]["Enums"]["task_status"]
           subcategory?: string | null
           tasker_id?: string | null

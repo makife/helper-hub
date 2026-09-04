@@ -18,6 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { getTaskEmoji, ALL_TASK_CATEGORIES, getTaskCategory } from "@/lib/taskCategories";
 import { computePrice } from "@/lib/dynamicPricing";
+import { formatScheduled, isScheduledSoon } from "@/lib/schedule";
 import { fetchAssignmentCounts } from "@/lib/assignments";
 import { distanceMeters } from "@/lib/taskLifecycle";
 import { Geolocation } from "@capacitor/geolocation";
@@ -287,7 +288,8 @@ const Home = () => {
     if (sortBy === "price_desc") return computePrice(b).price - computePrice(a).price;
     if (sortBy === "price_asc") return computePrice(a).price - computePrice(b).price;
     if (sortBy === "urgency") {
-      const rank = (t: TaskWithUI) => (t.urgency === "urgent" ? 0 : 1);
+      const rank = (t: TaskWithUI) =>
+        t.urgency === "urgent" ? 0 : isScheduledSoon((t as any).scheduled_at) ? 1 : 2;
       return rank(a) - rank(b) || new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     }
     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
@@ -347,6 +349,7 @@ const Home = () => {
       lng,
       emoji: t.emoji,
       urgent: t.urgency === "urgent",
+      scheduledLabel: formatScheduled((t as any).scheduled_at),
       estimatedMinutes: t.estimated_minutes ?? undefined,
       ownerName: ownerNames[t.owner_id],
       ownerAvatar: ownerAvatars[t.owner_id],
@@ -504,6 +507,11 @@ const Home = () => {
                           {task.urgency === "urgent" && (
                             <span className="rounded-full bg-destructive/10 px-2 py-0.5 text-[9px] font-black text-destructive">
                               {t("ACİL")}
+                            </span>
+                          )}
+                          {task.urgency !== "urgent" && formatScheduled((task as any).scheduled_at) && (
+                            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[9px] font-black text-primary">
+                              📅 {formatScheduled((task as any).scheduled_at)}
                             </span>
                           )}
                           <h3 className="truncate text-sm font-black text-foreground">{task.title}</h3>

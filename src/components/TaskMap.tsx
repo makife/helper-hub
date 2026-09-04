@@ -26,6 +26,7 @@ type TaskPin = {
   toolProvider?: "helper" | "owner";
   toolsCount?: number;
   isOwn?: boolean;
+  scheduledLabel?: string | null;
 };
 
 
@@ -195,6 +196,12 @@ const TaskMap = ({ tasks, center = [40.9903, 29.0297], userPos = null, onTaskCli
               {task.urgent && (
                 <p className="m-0 pb-1 text-center text-[10px] font-bold text-destructive">{t("🔥 ACİL YARDIM")}</p>
               )}
+              {!task.urgent && task.scheduledLabel && (
+                <p className="m-0 pb-1 text-center text-[10px] font-bold text-primary">
+                  {t("📅 PLANLI")} · {task.scheduledLabel}
+                </p>
+              )}
+
 
               <div className="flex items-center justify-between border-b border-border/40 py-1">
                 <span className="text-[10px] font-semibold text-muted-foreground">{t("Kategori:")}</span>

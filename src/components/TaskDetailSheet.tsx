@@ -11,6 +11,7 @@ import { useLivePrice, formatCountdown } from "@/lib/dynamicPricing";
 import { acceptTask, leaveTask } from "@/lib/assignments";
 import { createOffer, fetchMyOffer, fetchTaskOffers, respondToOffer, confirmAcceptedOffer, type OfferRow } from "@/lib/offers";
 import { ALL_TOOLS } from "@/lib/toolsList";
+import { formatScheduled } from "@/lib/schedule";
 import type { Tables } from "@/integrations/supabase/types";
 
 
@@ -338,6 +339,11 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
           )}
           {task.urgency === "urgent" && (
             <p className="mt-1 text-xs font-semibold text-destructive">{t("🔥 Acil iş — hemen başlaman bekleniyor")}</p>
+          )}
+          {task.urgency !== "urgent" && formatScheduled((task as any).scheduled_at) && (
+            <p className="mt-1 text-xs font-semibold text-primary">
+              {t("📅 Randevu")}: {formatScheduled((task as any).scheduled_at)}
+            </p>
           )}
         </div>
         {/* Kişi kontenjanı */}

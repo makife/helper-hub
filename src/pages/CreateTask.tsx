@@ -9,6 +9,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { ALL_TASK_CATEGORIES, type TaskBaseCategory } from "@/lib/taskCategories";
 import { ALL_TOOLS, TOOL_GROUPS } from "@/lib/toolsList";
+import {
+  MAX_SCHEDULE_DAYS,
+  SCHEDULE_SLOTS,
+  buildScheduledAt,
+  dayLabel,
+  dayShortDate,
+  isSlotSelectable,
+  type SlotId,
+} from "@/lib/schedule";
 
 const PERSON_OPTIONS = [
   { value: 1, label: "1 Kişi" },
@@ -68,6 +77,8 @@ const CreateTask = () => {
   const [isCustomDuration, setIsCustomDuration] = useState(false);
   const [customDurationHours, setCustomDurationHours] = useState<string>("");
   const [urgency, setUrgency] = useState<"urgent" | "can_wait">("can_wait");
+  const [scheduleDay, setScheduleDay] = useState<number | null>(null);
+  const [scheduleSlot, setScheduleSlot] = useState<SlotId>("morning");
   const [addressNote, setAddressNote] = useState("");
   const [originalLat, setOriginalLat] = useState<number | null>(null);
   const [originalLng, setOriginalLng] = useState<number | null>(null);
@@ -118,6 +129,17 @@ const CreateTask = () => {
           setCustomDurationHours(String(Math.round((loadedMinutes / 60) * 10) / 10));
         }
         setUrgency((data.urgency as "urgent" | "can_wait") || "can_wait");
+        if (data.scheduled_at) {
+          const sd = new Date(data.scheduled_at);
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const offset = Math.round((new Date(sd).setHours(0, 0, 0, 0) - today.getTime()) / 86400000);
+          if (offset >= 0 && offset < MAX_SCHEDULE_DAYS) {
+            setScheduleDay(offset);
+            const hour = sd.getHours();
+            setScheduleSlot(hour < 12 ? "morning" : hour < 17 ? "afternoon" : "evening");
+          }
+        }
         setAddressNote(data.address_note || "");
         setOriginalLat(data.latitude ?? null);
         setOriginalLng(data.longitude ?? null);
@@ -331,6 +353,10 @@ const CreateTask = () => {
         category: enumCategory as any,
         subcategory: isCustomCategory ? null : selectedCategoryId,
         urgency,
+        scheduled_at:
+          urgency === "can_wait" && scheduleDay !== null
+            ? buildScheduledAt(scheduleDay, scheduleSlot).toISOString()
+            : null,
         currency,
         price: safeTotalPrice,
         current_price: safeTotalPrice,
@@ -914,7 +940,75 @@ const CreateTask = () => {
               {t("Bekleyebilirim")}
             </button>
           </div>
+
+          {urgency === "can_wait" && (
+            <div className="mt-3 rounded-2xl border border-border bg-card p-3">
+              <p className="mb-2 text-xs font-bold text-foreground">{t("Ne zaman lazım?")}</p>
+              <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 scrollbar-none">
+                <button
+                  type="button"
+                  onClick={() => setScheduleDay(null)}
+                  className={`shrink-0 rounded-xl px-3 py-2 text-xs font-bold transition-all active:scale-95 ${
+                    scheduleDay === null ? "gradient-warm text-primary-foreground" : "border border-border text-foreground"
+                  }`}
+                >
+                  {t("En kısa sürede")}
+                </button>
+                {Array.from({ length: MAX_SCHEDULE_DAYS }, (_, i) => i).map((offset) => (
+                  <button
+                    key={offset}
+                    type="button"
+                    onClick={() => {
+                      setScheduleDay(offset);
+                      const first = SCHEDULE_SLOTS.find((s) => isSlotSelectable(offset, s.id));
+                      if (first) setScheduleSlot(first.id);
+                    }}
+                    className={`shrink-0 rounded-xl px-3 py-2 text-center text-xs font-bold transition-all active:scale-95 ${
+                      scheduleDay === offset
+                        ? "gradient-warm text-primary-foreground"
+                        : "border border-border text-foreground"
+                    }`}
+                  >
+                    {t(dayLabel(offset))}
+                    <span className="ml-1 opacity-70">{dayShortDate(offset)}</span>
+                  </button>
+                ))}
+              </div>
+
+              {scheduleDay !== null && (
+                <div className="mt-2 flex flex-col gap-2">
+                  {SCHEDULE_SLOTS.map((slot) => {
+                    const disabled = !isSlotSelectable(scheduleDay, slot.id);
+                    return (
+                      <button
+                        key={slot.id}
+                        type="button"
+                        disabled={disabled}
+                        onClick={() => setScheduleSlot(slot.id)}
+                        className={`rounded-xl px-3 py-2.5 text-xs font-bold transition-all active:scale-95 ${
+                          disabled
+                            ? "cursor-not-allowed border border-border text-muted-foreground/40"
+                            : scheduleSlot === slot.id
+                              ? "bg-primary/10 text-primary ring-1 ring-primary"
+                              : "border border-border text-foreground"
+                        }`}
+                      >
+                        {t(slot.label)}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              <p className="mt-2 text-[11px] text-muted-foreground">
+                {scheduleDay === null
+                  ? t("Çağrın hemen yayına girer, el atan ilk kişiyle eşleşirsin.")
+                  : t("Çağrın haritada planlı olarak görünür, randevu saati yaklaşınca öne çıkar.")}
+              </p>
+            </div>
+          )}
         </motion.div>
+
 
         {/* Adres Notu */}
         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }}>
