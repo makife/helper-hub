@@ -21,6 +21,7 @@ import { computePrice } from "@/lib/dynamicPricing";
 import { fetchAssignmentCounts } from "@/lib/assignments";
 import { distanceMeters } from "@/lib/taskLifecycle";
 import { Geolocation } from "@capacitor/geolocation";
+import { ensureLocationPermission } from "@/lib/geo";
 import { toast } from "sonner";
 import { getFuzzedLocation } from "@/lib/locationPrivacy";
 
@@ -92,13 +93,14 @@ const Home = () => {
   useEffect(() => {
     (async () => {
       try {
-        // Native plugin kullanıyoruz: WebView'in "kullanıcı etkileşimi olmadan
-        // konum isteği sessizce reddedilir" kısıtlamasını bypass eder, bu yüzden
-        // izin penceresi artık sayfa ilk açıldığında da doğru şekilde çıkar.
+        // Uygulama açılır açılmaz tek bir izin penceresi çıksın (tam konum).
+        // Önce yaklaşık, sonra tam konum sorulmasını engeller.
+        if ((await ensureLocationPermission()) !== "granted") return;
         const pos = await Geolocation.getCurrentPosition({
-          enableHighAccuracy: false,
+          enableHighAccuracy: true,
           timeout: 10000,
         });
+
         const coords: [number, number] = [pos.coords.latitude, pos.coords.longitude];
         setUserPos(coords);
         // Konum neredeyse aynıysa haritayı yeniden ortalama (titremeyi önler)

@@ -46,19 +46,23 @@ const toError = (e: unknown): GeolocationPositionError => {
   } as GeolocationPositionError;
 };
 
-/** Sistem konum iznini ister; izin durumunu döner. */
+/** Sistem konum iznini (tam konum) tek seferde ister; izin durumunu döner. */
 export const ensureLocationPermission = async (): Promise<"granted" | "denied"> => {
   if (!Capacitor.isNativePlatform()) return "granted";
   try {
     let status = await Geolocation.checkPermissions();
     if (status.location !== "granted" && status.coarseLocation !== "granted") {
-      status = await Geolocation.requestPermissions({ permissions: ["location", "coarseLocation"] });
+      // Sadece "location" (tam konum) istiyoruz: Android bunu tek bir diyalogda
+      // "Kesin / Yaklaşık" seçenekleriyle gösterir. Ayrıca coarse istersek
+      // kullanıcı iki ayrı izin penceresi görüyor.
+      status = await Geolocation.requestPermissions({ permissions: ["location"] });
     }
     return status.location === "granted" || status.coarseLocation === "granted" ? "granted" : "denied";
   } catch {
     return "denied";
   }
 };
+
 
 export const installNativeGeolocation = () => {
   if (!Capacitor.isNativePlatform()) return;
