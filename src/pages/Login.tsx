@@ -64,9 +64,7 @@ const Login = () => {
       await signInWeb(provider);
     } catch (err) {
       console.error("OAuth error:", err);
-      const message =
-        err instanceof Error ? err.message : typeof err === "string" ? err : "Bilinmeyen hata";
-      toast.error(`Giriş yapılamadı: ${message}`, { duration: 8000 });
+      toast.error(t("Giriş yapılamadı, tekrar dene."), { duration: 6000 });
       setPending(null);
     }
   };
