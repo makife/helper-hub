@@ -347,6 +347,7 @@ const Home = () => {
       lng,
       emoji: t.emoji,
       urgent: t.urgency === "urgent",
+      scheduledLabel: formatScheduled((t as any).scheduled_at),
       estimatedMinutes: t.estimated_minutes ?? undefined,
       ownerName: ownerNames[t.owner_id],
       ownerAvatar: ownerAvatars[t.owner_id],
