@@ -244,7 +244,6 @@ export const UI: Record<string, string> = {
   "Davet kodun var mı?": "Have an invite code?",
   "Davet kodu uygulandı": "Invite code applied",
   "Örn. ABC123": "e.g. ABC123",
-  "Uygula": "Apply",
   "Seni davet edenin kodunu gir, ikinize de 1'er kredi hediye.": "Enter your inviter's code and you both get 1 credit.",
   "Davet kodu zaten kayıtlı.": "An invite code is already saved.",
   "Kendi davet kodunu kullanamazsın.": "You can't use your own invite code.",
