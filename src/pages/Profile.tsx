@@ -79,6 +79,10 @@ const Profile = () => {
   const [signOutOpen, setSignOutOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+  const { t, lang, setLang } = useI18n();
+
   useEffect(() => {
     if (!user) return;
     supabase
@@ -88,10 +92,6 @@ const Profile = () => {
       .eq("role", "admin")
       .then(({ data }) => setIsAdmin(!!data?.length));
   }, [user]);
-
-  const navigate = useNavigate();
-  const { user, signOut } = useAuth();
-  const { t, lang, setLang } = useI18n();
 
   const loadAll = useCallback(async () => {
     if (!user) return;
