@@ -864,10 +864,16 @@ const MyTasks = () => {
                   )}
                 </div>
 
-                <div>
-                  <span className="font-semibold text-muted-foreground text-xs">{t("Açıklama:")}</span>
-                  <p className="mt-1 text-sm bg-muted/40 p-3 rounded-xl">{selectedDetail.task.description}</p>
-                </div>
+                {selectedDetail.task.urgency !== "urgent" &&
+                  formatScheduled((selectedDetail.task as any).scheduled_at) && (
+                    <div className="flex justify-between items-center bg-muted/30 p-2.5 rounded-xl">
+                      <span className="text-xs text-muted-foreground font-semibold">{t("Randevu:")}</span>
+                      <span className="font-bold text-xs text-amber-700 bg-amber-100 px-2.5 py-1 rounded-lg">
+                        📅 {formatScheduled((selectedDetail.task as any).scheduled_at)}
+                      </span>
+                    </div>
+                  )}
+
 
                 {selectedDetail.task.photo_urls && selectedDetail.task.photo_urls.length > 0 && (
                   <div>
