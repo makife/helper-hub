@@ -346,8 +346,8 @@ const CreateTask = () => {
         photo_urls: finalPhotoUrls,
         latitude,
         longitude,
-        price_drop_started_at:
-          urgency === "can_wait" && personCount === 1 ? new Date().toISOString() : null,
+        price_drop_started_at: null,
+
       };
 
       let error;
