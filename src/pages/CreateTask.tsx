@@ -342,6 +342,10 @@ const CreateTask = () => {
         category: enumCategory as any,
         subcategory: isCustomCategory ? null : selectedCategoryId,
         urgency,
+        scheduled_at:
+          urgency === "can_wait" && scheduleDay !== null
+            ? buildScheduledAt(scheduleDay, scheduleSlot).toISOString()
+            : null,
         currency,
         price: safeTotalPrice,
         current_price: safeTotalPrice,
