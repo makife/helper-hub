@@ -78,6 +78,7 @@ const Profile = () => {
   const [credToDelete, setCredToDelete] = useState<Credential | null>(null);
   const [pendingLang, setPendingLang] = useState<"tr" | "en" | null>(null);
   const [signOutOpen, setSignOutOpen] = useState(false);
+  const [langOpen, setLangOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
   const navigate = useNavigate();
