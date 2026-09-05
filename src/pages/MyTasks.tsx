@@ -499,6 +499,19 @@ const MyTasks = () => {
 
   // Seçili işin görüntüleyenlerini yükle (sadece iş veren için)
   useEffect(() => {
+    if (!selectedDetail?.task) {
+      setAcceptedCount(0);
+      return;
+    }
+    supabase
+      .from("task_assignments")
+      .select("id", { count: "exact", head: true })
+      .eq("task_id", selectedDetail.task.id)
+      .eq("status", "accepted")
+      .then(({ count }) => setAcceptedCount(count || 0));
+  }, [selectedDetail?.task.id]);
+
+  useEffect(() => {
     if (!selectedDetail?.task || !user || selectedDetail.task.owner_id !== user.id) {
       setViewers([]);
       return;
@@ -1222,16 +1235,18 @@ const MyTasks = () => {
                         {t("İptal Et")}
                       </button>
 
-                      <button
-                        onClick={() => {
-                          setSelectedDetail(null);
-                          navigate(`/create-task?edit=${selectedDetail.task.id}`);
-                        }}
-                        className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground py-3 font-bold hover:opacity-90"
-                      >
-                        <Edit3 size={18} />
-                        {t("Düzenle")}
-                      </button>
+                      {acceptedCount === 0 && (
+                        <button
+                          onClick={() => {
+                            setSelectedDetail(null);
+                            navigate(`/create-task?edit=${selectedDetail.task.id}`);
+                          }}
+                          className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground py-3 font-bold hover:opacity-90"
+                        >
+                          <Edit3 size={18} />
+                          {t("Düzenle")}
+                        </button>
+                      )}
                     </>
                   )}
               </div>
