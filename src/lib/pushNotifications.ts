@@ -2,6 +2,7 @@ import { Capacitor } from "@capacitor/core";
 import { FirebaseMessaging } from "@capacitor-firebase/messaging";
 import type { PluginListenerHandle } from "@capacitor/core";
 import { supabase } from "@/integrations/supabase/client";
+import { pathForNotification } from "@/lib/notificationRoute";
 
 const isNative = () => Capacitor.isNativePlatform();
 const LAST_TOKEN_KEY = "bielat_push_token";
@@ -32,11 +33,7 @@ function navigateFromPayload(payload: unknown) {
   const taskId = data.task_id ?? data.taskId;
   const path = typeof data.path === "string"
     ? data.path
-    : typeof taskId === "string" && taskId
-      ? `/my-tasks?task=${taskId}`
-      : data.type === "message"
-        ? "/messages"
-        : "/notifications";
+    : pathForNotification(typeof data.type === "string" ? data.type : null, typeof taskId === "string" ? taskId : null);
 
   if (!path.startsWith("/")) return;
   window.history.pushState({}, "", path);

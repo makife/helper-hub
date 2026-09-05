@@ -12,6 +12,7 @@ import { pathForNotification } from "@/lib/notificationRoute";
 type Notif = {
   id: string;
   type: "message" | "assignment_accepted" | "assignment_left";
+  rawType: string;
   title: string;
   body: string;
   at: string;
@@ -45,6 +46,7 @@ const Notifications = () => {
         list.push({
           id: `n-${n.id}`,
           type: n.type === "assignment_left" ? "assignment_left" : "assignment_accepted",
+          rawType: n.type ?? "",
           title: localizeNotificationText(n.title, t),
           body: localizeNotificationText(n.body ?? "", t),
           at: n.created_at,
@@ -70,6 +72,7 @@ const Notifications = () => {
         list.push({
           id: `m-${m.id}`,
           type: "message",
+          rawType: "message",
           title: `${names.get(m.sender_id) || t("Kullanıcı")} ${t("mesaj gönderdi")}`,
           body: m.content,
           at: m.created_at,
@@ -141,7 +144,7 @@ const Notifications = () => {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: i * 0.06 }}
-              onClick={() => navigate(n.type === "message" ? "/messages" : n.taskId ? `/my-tasks?task=${n.taskId}` : "/my-tasks")}
+              onClick={() => navigate(pathForNotification(n.rawType, n.taskId))}
               className={`flex w-full items-start gap-3 rounded-2xl border p-3 text-left shadow-card transition-shadow active:scale-[0.98] ${
                 n.unread ? "border-primary/40 bg-primary/5" : "border-border bg-card"
               }`}
