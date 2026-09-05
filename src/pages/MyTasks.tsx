@@ -256,6 +256,7 @@ const MyTasks = () => {
   const [ownedTaskers, setOwnedTaskers] = useState<Record<string, { user_id: string; full_name: string; avatar_url: string | null }[]>>({});
   const [ownedOffers, setOwnedOffers] = useState<Record<string, OfferRow[]>>({});
   const [offerProfiles, setOfferProfiles] = useState<Record<string, { full_name: string; avatar_url: string | null }>>({});
+  const [ownerCancelCount, setOwnerCancelCount] = useState(0);
 
   const [, setPriceTick] = useState(0);
 
