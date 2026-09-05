@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { formatDateTime } from "@/lib/dateFormat";
 import { localizeNotificationText } from "@/lib/notificationText";
 import { pathForNotification } from "@/lib/notificationRoute";
+import { getCache, setCache } from "@/lib/uiCache";
 
 type Notif = {
   id: string;
@@ -26,8 +27,9 @@ const Notifications = () => {
   const t = useT();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [items, setItems] = useState<Notif[]>([]);
-  const [loading, setLoading] = useState(true);
+  const cached = getCache<Notif[]>("notifications");
+  const [items, setItems] = useState<Notif[]>(cached ?? []);
+  const [loading, setLoading] = useState(!cached);
 
   useEffect(() => {
     if (!user) return;
