@@ -23,6 +23,7 @@ import {
   FileText,
   Shield,
   ChevronRight,
+  ChevronDown,
   Info,
   ShieldAlert,
 } from "lucide-react";
