@@ -197,6 +197,7 @@ const ActiveTask = () => {
 
   const isTasker = !isOwner;
   const needed = task.person_count ?? 1;
+  const chatClosed = !["matched", "in_progress", "pending_confirm"].includes(task.status);
   const visibleMessages = messages.filter(
     (m) =>
       !partnerId ||
@@ -429,39 +430,47 @@ const ActiveTask = () => {
 
       {/* Message Input */}
       <div className="border-t border-border bg-card px-4 py-3 safe-bottom">
-        {/* Hazır mesajlar */}
-        <div className="mb-2 flex gap-2 overflow-x-auto scrollbar-hide">
-          {(isOwner
-            ? ["Merhaba, ne zaman gelebilirsin?", "Adres tarifine ihtiyacın var mı?", "Kapıdayım, bekliyorum.", "Teşekkürler, eline sağlık!"]
-            : ["Yoldayım 🚗", "10 dk sonra varırım", "Geldim, kapıdayım", "İşi bitirdim ✅"]
-          ).map((q) => (
-            <button
-              key={q}
-              onClick={() => sendText(t(q))}
-              disabled={sending}
-              className="shrink-0 rounded-full border border-border bg-background px-3 py-1.5 text-[11px] font-bold text-foreground active:scale-95 disabled:opacity-50"
-            >
-              {t(q)}
-            </button>
-          ))}
-        </div>
-        <div className="flex items-center gap-2">
-          <input
-            type="text"
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSend()}
-            placeholder={t("Mesaj yaz...")}
-            className="flex-1 rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
-          />
-          <button
-            onClick={handleSend}
-            disabled={sending || !newMessage.trim()}
-            className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground disabled:opacity-50 active:scale-95"
-          >
-            <Send size={18} />
-          </button>
-        </div>
+        {chatClosed ? (
+          <p className="rounded-xl bg-muted px-4 py-3 text-center text-xs font-semibold text-muted-foreground">
+            {t("Bu iş kapandı. Mesajlaşma sona erdi, geçmiş mesajları görüntüleyebilirsin.")}
+          </p>
+        ) : (
+          <>
+            {/* Hazır mesajlar */}
+            <div className="mb-2 flex gap-2 overflow-x-auto scrollbar-hide">
+              {(isOwner
+                ? ["Merhaba, ne zaman gelebilirsin?", "Adres tarifine ihtiyacın var mı?", "Kapıdayım, bekliyorum.", "Teşekkürler, eline sağlık!"]
+                : ["Yoldayım 🚗", "10 dk sonra varırım", "Geldim, kapıdayım", "İşi bitirdim ✅"]
+              ).map((q) => (
+                <button
+                  key={q}
+                  onClick={() => sendText(t(q))}
+                  disabled={sending}
+                  className="shrink-0 rounded-full border border-border bg-background px-3 py-1.5 text-[11px] font-bold text-foreground active:scale-95 disabled:opacity-50"
+                >
+                  {t(q)}
+                </button>
+              ))}
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                placeholder={t("Mesaj yaz...")}
+                className="flex-1 rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+              />
+              <button
+                onClick={handleSend}
+                disabled={sending || !newMessage.trim()}
+                className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground disabled:opacity-50 active:scale-95"
+              >
+                <Send size={18} />
+              </button>
+            </div>
+          </>
+        )}
       </div>
 
       {/* İtiraz penceresi */}
