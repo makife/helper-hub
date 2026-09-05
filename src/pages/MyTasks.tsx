@@ -270,6 +270,13 @@ const MyTasks = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
 
+  // İş verenin iptal sicil sayacı (iptal diyaloğunda gösterilir)
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("profiles").select("cancel_count").eq("user_id", user.id).maybeSingle()
+      .then(({ data }) => setOwnerCancelCount(data?.cancel_count ?? 0));
+  }, [user]);
+
   // Bildirimlerden gelen ?task= derin bağlantısı: ilgili görevin detayını aç
   useEffect(() => {
     const taskId = searchParams.get("task");
