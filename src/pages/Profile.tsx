@@ -239,6 +239,10 @@ const Profile = () => {
 
   const saveCredential = async () => {
     if (!user || credTitle.trim().length < 2) return;
+    if (credentials.length >= 5) {
+      toast.error(t("En fazla 5 yetkinlik belgesi yükleyebilirsin."));
+      return;
+    }
     setCredSaving(true);
     let imageUrl: string | null = null;
     if (credFile) {
@@ -573,18 +577,19 @@ const Profile = () => {
             <div className="mb-3 flex items-center justify-between">
               <p className="flex items-center gap-1.5 text-sm font-black text-foreground">
                 <BadgeCheck size={16} className="text-primary" />
-                {t("Yetkinlik Belgelerim")}
+                {t("Yetkinlik Belgelerim")} ({credentials.length}/5)
               </p>
               <button
                 onClick={() => setCredOpen(true)}
-                className="flex items-center gap-1 rounded-lg bg-primary/10 px-2.5 py-1.5 text-xs font-bold text-primary"
+                disabled={credentials.length >= 5}
+                className="flex items-center gap-1 rounded-lg bg-primary/10 px-2.5 py-1.5 text-xs font-bold text-primary disabled:opacity-40"
               >
                 <Plus size={13} /> {t("Ekle")}
               </button>
             </div>
             {credentials.length === 0 ? (
               <p className="text-xs text-muted-foreground">
-                {t("Henüz belge yok. Sertifikanı ekle, güvenilirliğini artır.")}
+                {t("Henüz belge yok. En fazla 5 belge ekleyebilirsin.")}
               </p>
             ) : (
               <div className="-mx-5 overflow-x-auto px-5 scrollbar-hide">

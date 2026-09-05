@@ -68,6 +68,8 @@ export const UI: Record<string, string> = {
   "Belge": "Document",
   "Belge ekle": "Add a document",
   "Henüz belge yok. Sertifikanı ekle, güvenilirliğini artır.": "No documents yet. Add a certificate to build trust.",
+  "Henüz belge yok. En fazla 5 belge ekleyebilirsin.": "No documents yet. You can add up to 5 documents.",
+  "En fazla 5 yetkinlik belgesi yükleyebilirsin.": "You can upload up to 5 competency documents.",
   "Değerlendirmeler": "Reviews",
   "Henüz değerlendirme yok.": "No reviews yet.",
   "Yorum yapılmamış": "No comment",
