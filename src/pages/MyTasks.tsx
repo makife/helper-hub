@@ -256,6 +256,7 @@ const MyTasks = () => {
   const [ownedTaskers, setOwnedTaskers] = useState<Record<string, { user_id: string; full_name: string; avatar_url: string | null }[]>>({});
   const [ownedOffers, setOwnedOffers] = useState<Record<string, OfferRow[]>>({});
   const [offerProfiles, setOfferProfiles] = useState<Record<string, { full_name: string; avatar_url: string | null }>>({});
+  const [ownerCancelCount, setOwnerCancelCount] = useState(0);
 
   const [, setPriceTick] = useState(0);
 
@@ -268,6 +269,13 @@ const MyTasks = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
+
+  // İş verenin iptal sicil sayacı (iptal diyaloğunda gösterilir)
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("profiles").select("cancel_count").eq("user_id", user.id).maybeSingle()
+      .then(({ data }) => setOwnerCancelCount(data?.cancel_count ?? 0));
+  }, [user]);
 
   // Bildirimlerden gelen ?task= derin bağlantısı: ilgili görevin detayını aç
   useEffect(() => {
@@ -549,6 +557,10 @@ const MyTasks = () => {
     if (ok) {
       setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, status: "cancelled" } : t)));
       setSelectedDetail(null);
+      if (user) {
+        supabase.from("profiles").select("cancel_count").eq("user_id", user.id).maybeSingle()
+          .then(({ data }) => setOwnerCancelCount(data?.cancel_count ?? 0));
+      }
     } else {
       toast.error(t("İptal edilemedi, tekrar dene."));
     }
@@ -1225,7 +1237,7 @@ const MyTasks = () => {
                             taskId: selectedDetail.task.id,
                             title: t("Yardım çağrısını iptal et"),
                             description: acceptedCount > 0
-                              ? t("El atan kişi kabul edildi. İptal edersen ona bildirim gider, kredisi iade edilir ve bu iptal siciline işlenir (3 tekrarda hesabın askıya alınır).")
+                              ? t("El atan kişi kabul edildi. İptal edersen ona bildirim gider ve kredisi iade edilir. Bu senin {count}. iptalın olacak — 3. iptalde hesabın askıya alınır.", { count: ownerCancelCount + 1 })
                               : t("Bu çağrı kapatılacak ve haritadan kaldırılacak. Emin misin?"),
                             confirmLabel: t("İptal Et"),
                           })
@@ -1249,6 +1261,36 @@ const MyTasks = () => {
                           {t("Düzenle")}
                         </button>
                       )}
+                    </>
+                  )}
+
+                {/* İş kabul edildikten sonra (iş veren): iletişim + iptal */}
+                {(selectedDetail.task.status === "matched" || selectedDetail.task.status === "in_progress") &&
+                  selectedDetail.task.owner_id === user?.id && (
+                    <>
+                      <button
+                        onClick={() => { setSelectedDetail(null); navigate(`/task/${selectedDetail.task.id}`); }}
+                        className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground py-3 font-bold hover:opacity-90"
+                      >
+                        <MessageSquare size={18} />
+                        {t("El Atanla İletişime Geç")}
+                      </button>
+                      <button
+                        disabled={isUpdating}
+                        onClick={() =>
+                          setConfirmState({
+                            kind: "cancel",
+                            taskId: selectedDetail.task.id,
+                            title: t("İşi iptal et"),
+                            description: t("El atan kişi kabul edildi. İptal edersen ona bildirim gider ve kredisi iade edilir. Bu senin {count}. iptalın olacak — 3. iptalde hesabın askıya alınır.", { count: ownerCancelCount + 1 }),
+                            confirmLabel: t("İptal Et"),
+                          })
+                        }
+                        className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-destructive/10 text-destructive py-3 font-bold hover:bg-destructive/20 disabled:opacity-50"
+                      >
+                        <Trash2 size={18} />
+                        {t("İptal Et")}
+                      </button>
                     </>
                   )}
               </div>
