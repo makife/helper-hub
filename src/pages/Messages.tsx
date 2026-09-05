@@ -6,6 +6,7 @@ import { ArrowLeft, MessageCircle, Calendar } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatDateTime } from "@/lib/dateFormat";
+import { getCache, setCache } from "@/lib/uiCache";
 
 type Conversation = {
   task_id: string;
@@ -21,8 +22,9 @@ type Conversation = {
 
 const Messages = () => {
   const t = useT();
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [loading, setLoading] = useState(true);
+  const cached = getCache<Conversation[]>("conversations");
+  const [conversations, setConversations] = useState<Conversation[]>(cached ?? []);
+  const [loading, setLoading] = useState(!cached);
   const navigate = useNavigate();
   const { user } = useAuth();
 
