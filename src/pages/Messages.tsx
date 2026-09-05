@@ -124,14 +124,16 @@ const Messages = () => {
           </div>
         ) : (
           <div className="space-y-3">
-            {conversations.map((conv, i) => (
+            {conversations.map((conv, i) => {
+              const closed = !["matched", "in_progress", "pending_confirm"].includes(conv.task_status);
+              return (
               <motion.button
                 key={conv.task_id}
                 initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
+                animate={{ y: 0, opacity: closed ? 0.55 : 1 }}
                 transition={{ delay: i * 0.06 }}
                 onClick={() => navigate(`/task/${conv.task_id}`)}
-                className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card p-4 text-left shadow-card transition-shadow active:scale-[0.98]"
+                className={`flex w-full items-center gap-3 rounded-2xl border border-border p-4 text-left shadow-card transition-shadow active:scale-[0.98] ${closed ? "bg-muted/40 grayscale" : "bg-card"}`}
               >
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
                   {conv.other_user_avatar ? (
