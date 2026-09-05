@@ -66,12 +66,8 @@ const Notifications = () => {
         });
       }
 
-      // 2) Gelen mesajlar
-      const { data: msgs } = await supabase
-        .from("messages")
-        .select("id, content, created_at, is_read, task_id, sender_id")
-        .eq("receiver_id", user.id)
-        .order("created_at", { ascending: false });
+      // 2) Gelen mesajların gönderen isimleri
+
 
       const senderIds = [...new Set((msgs ?? []).map((m) => m.sender_id))];
       const { data: profiles } = senderIds.length
