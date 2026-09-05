@@ -690,14 +690,62 @@ const Profile = () => {
           <NotificationPrefs />
 
           <div className="mb-5 rounded-2xl border border-border bg-card p-4 shadow-card">
-            <div className="mb-3 flex items-center justify-between">
+            <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-black text-foreground">{t("Uygulama Dili")}</p>
                 <p className="text-xs text-muted-foreground">{t("Dil / Language")}</p>
               </div>
-              <div className="flex rounded-xl bg-muted p-1">
-                <button type="button" onClick={() => setPendingLang("tr")} className={`rounded-lg px-3 py-2 text-xs font-bold ${lang === "tr" ? "bg-card text-primary shadow-card" : "text-muted-foreground"}`}>TR</button>
-                <button type="button" onClick={() => setPendingLang("en")} className={`rounded-lg px-3 py-2 text-xs font-bold ${lang === "en" ? "bg-card text-primary shadow-card" : "text-muted-foreground"}`}>EN</button>
+              <div className="relative">
+                <button
+                  onClick={() => setLangOpen((v) => !v)}
+                  className="flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-black text-foreground shadow-sm"
+                >
+                  <span className="flex items-center">{flags[lang]}</span>
+                  <span>{lang.toUpperCase()}</span>
+                  <ChevronDown
+                    size={14}
+                    className={`transition-transform ${langOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
+                <AnimatePresence>
+                  {langOpen && (
+                    <motion.div
+                      initial="hidden"
+                      animate="visible"
+                      exit="hidden"
+                      variants={{
+                        hidden: { opacity: 0, scaleY: 0.6, originY: 0 },
+                        visible: { opacity: 1, scaleY: 1, originY: 0 },
+                      }}
+                      transition={{ duration: 0.2, ease: "easeOut" }}
+                      className="absolute right-0 top-full z-20 mt-1 flex w-36 origin-top flex-col rounded-xl border border-border bg-card p-1 shadow-lg"
+                    >
+                      {langOptions.map((o, i) => (
+                        <motion.button
+                          key={o.code}
+                          custom={i}
+                          variants={{
+                            hidden: { opacity: 0, y: -12 },
+                            visible: { opacity: 1, y: 0 },
+                          }}
+                          transition={{ duration: 0.2, delay: i * 0.06, ease: "easeOut" }}
+                          onClick={() => {
+                            setPendingLang(o.code);
+                            setLangOpen(false);
+                          }}
+                          className={`flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold transition-colors ${
+                            lang === o.code
+                              ? "gradient-warm text-primary-foreground"
+                              : "text-foreground hover:bg-muted"
+                          }`}
+                        >
+                          <span className="flex items-center">{flags[o.code]}</span>
+                          <span>{o.label}</span>
+                        </motion.button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </div>
           </div>
