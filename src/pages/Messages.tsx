@@ -159,7 +159,8 @@ const Messages = () => {
                   </div>
                 )}
               </motion.button>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
