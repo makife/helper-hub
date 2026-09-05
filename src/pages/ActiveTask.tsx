@@ -155,6 +155,10 @@ const ActiveTask = () => {
   const sendText = async (text: string) => {
     const content = text.trim();
     if (!content || !user || !task) return;
+    if (!["matched", "in_progress", "pending_confirm"].includes(task.status)) {
+      toast.error(t("Bu iş kapandı. Mesajlaşma sona erdi."));
+      return;
+    }
     const receiverId = partnerId;
     if (!receiverId) { toast.error(t("Henüz konuşulacak kişi yok.")); return; }
 
