@@ -131,6 +131,10 @@ export const ALL_TOOLS: ToolItem[] = [
   { id: "kulak_tikaci", label: "Kulak Tıkacı", group: "Güvenlik & Koruyucu" },
   { id: "yansitici_yelek", label: "Yansıtıcı Yelek", group: "Güvenlik & Koruyucu" },
 
+  // Ev Aletleri
+  { id: "utu", label: "Ütü", group: "Ev Aletleri" },
+  { id: "utu_masasi", label: "Ütü Masası", group: "Ev Aletleri" },
+
   // Diğer
   { id: "uzatma_kablosu", label: "Uzatma Kablosu", group: "Diğer" },
   { id: "el_feneri", label: "El Feneri", group: "Diğer" },
