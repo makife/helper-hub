@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatDateTime } from "@/lib/dateFormat";
 import { localizeNotificationText } from "@/lib/notificationText";
+import { pathForNotification } from "@/lib/notificationRoute";
 
 type Notif = {
   id: string;
