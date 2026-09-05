@@ -229,7 +229,7 @@ const Market = () => {
             <p className="text-3xl font-black leading-tight">{credits}</p>
           </div>
           <p className="ml-auto max-w-[45%] text-right text-[11px] font-semibold opacity-90">
-            {t("Her yardım çağrısı kabulü 1 kredi harcar")}
+            {t("Her yardım çağrısı ve kabulü 1 kredi harcar")}
           </p>
         </motion.div>
 
