@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useT } from "@/lib/i18n";
 import { localizeNotificationText } from "@/lib/notificationText";
+import { pathForNotification } from "@/lib/notificationRoute";
 import { notifyFeedback } from "@/lib/feedback";
 
 type NotificationRow = {
@@ -24,11 +25,6 @@ type MessageRow = {
   task_id: string | null;
 };
 
-const pathForNotification = (type: string | null, taskId: string | null) => {
-  if (type === "message") return "/messages";
-  if (taskId) return `/my-tasks?task=${taskId}`;
-  return "/notifications";
-};
 
 /**
  * Uygulama açıkken gelen tüm bildirimleri (kabul, ayrılma, tamamlama,
