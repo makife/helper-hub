@@ -234,6 +234,7 @@ export type Database = {
           language: string
           latitude: number | null
           longitude: number | null
+          no_show_count: number
           notify_messages: boolean
           notify_offers: boolean
           notify_task_updates: boolean
@@ -246,6 +247,7 @@ export type Database = {
           role: Database["public"]["Enums"]["user_role"]
           skill_tags: string[]
           skills: Database["public"]["Enums"]["task_category"][] | null
+          suspended_until: string | null
           total_completed: number | null
           updated_at: string
           user_id: string
@@ -268,6 +270,7 @@ export type Database = {
           language?: string
           latitude?: number | null
           longitude?: number | null
+          no_show_count?: number
           notify_messages?: boolean
           notify_offers?: boolean
           notify_task_updates?: boolean
@@ -280,6 +283,7 @@ export type Database = {
           role?: Database["public"]["Enums"]["user_role"]
           skill_tags?: string[]
           skills?: Database["public"]["Enums"]["task_category"][] | null
+          suspended_until?: string | null
           total_completed?: number | null
           updated_at?: string
           user_id: string
@@ -302,6 +306,7 @@ export type Database = {
           language?: string
           latitude?: number | null
           longitude?: number | null
+          no_show_count?: number
           notify_messages?: boolean
           notify_offers?: boolean
           notify_task_updates?: boolean
@@ -314,6 +319,7 @@ export type Database = {
           role?: Database["public"]["Enums"]["user_role"]
           skill_tags?: string[]
           skills?: Database["public"]["Enums"]["task_category"][] | null
+          suspended_until?: string | null
           total_completed?: number | null
           updated_at?: string
           user_id?: string
@@ -603,6 +609,8 @@ export type Database = {
           matched_at: string | null
           min_price: number | null
           needs_tools: boolean
+          noshow_reminder_sent_at: string | null
+          noshow_warning_sent_at: string | null
           owner_id: string
           person_count: number
           photo_urls: string[] | null
@@ -649,6 +657,8 @@ export type Database = {
           matched_at?: string | null
           min_price?: number | null
           needs_tools?: boolean
+          noshow_reminder_sent_at?: string | null
+          noshow_warning_sent_at?: string | null
           owner_id: string
           person_count?: number
           photo_urls?: string[] | null
@@ -695,6 +705,8 @@ export type Database = {
           matched_at?: string | null
           min_price?: number | null
           needs_tools?: boolean
+          noshow_reminder_sent_at?: string | null
+          noshow_warning_sent_at?: string | null
           owner_id?: string
           person_count?: number
           photo_urls?: string[] | null
@@ -867,6 +879,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      process_no_show_tasks: { Args: never; Returns: undefined }
       process_task_lifecycle: { Args: never; Returns: undefined }
       process_wait_deadlines: { Args: never; Returns: undefined }
       profile_system_snapshot: { Args: { _user_id: string }; Returns: Json }

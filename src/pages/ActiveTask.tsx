@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import RouteMap from "@/components/RouteMap";
 import type { Tables } from "@/integrations/supabase/types";
 import { getTaskEmoji } from "@/lib/taskCategories";
+import NoShowWarning from "@/components/NoShowWarning";
 import { confirmCompletion, confirmDeadlineMs, formatRemaining, requestCompletion, rejectCompletion, markArrival, completionUnlockMs } from "@/lib/taskLifecycle";
 
 type TaskerEntry = { tasker_id: string; profile: Tables<"profiles"> | null };
@@ -333,6 +334,7 @@ const ActiveTask = () => {
         {/* Tasker: varış kaydı + bitirdim */}
         {isTasker && !["completed", "cancelled", "expired", "disputed", "pending_confirm"].includes(task.status) && (
           <div className="space-y-2">
+            <NoShowWarning scheduledAt={task.scheduled_at} arrived={!!myArrivedAt} />
             {!myArrivedAt ? (
               <button
                 disabled={arriving}
