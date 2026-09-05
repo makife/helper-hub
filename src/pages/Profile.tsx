@@ -388,7 +388,7 @@ const Profile = () => {
             <ShoppingBag size={20} />
             <div className="flex-1">
               <p className="text-sm font-black">{t("Kredi Marketi")}</p>
-              <p className="text-xs opacity-90">{t("İş kabul etmek için kredi yükle")}</p>
+              <p className="text-xs opacity-90">{t("Yardım çağrısında bulunmak ve çağrılara el atmak için kredi yükle")}</p>
             </div>
           </button>
 
