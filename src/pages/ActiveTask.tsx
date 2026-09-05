@@ -323,29 +323,32 @@ const ActiveTask = () => {
           </button>
         )}
 
-        {/* Location info */}
-        <div className="flex gap-2">
-          {userLocation && (
-            <div className="flex flex-1 items-center gap-2 rounded-xl bg-primary/5 px-3 py-2">
-              <MapPin size={14} className="text-primary" />
+        {/* Location info — only while the task is active */}
+        {!chatClosed && (
+          <div className="flex gap-2">
+            {userLocation && (
+              <div className="flex flex-1 items-center gap-2 rounded-xl bg-primary/5 px-3 py-2">
+                <MapPin size={14} className="text-primary" />
+                <div>
+                  <p className="text-[10px] text-muted-foreground">{t("Senin Konumun")}</p>
+                  <p className="text-xs font-bold text-foreground">
+                    {userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}
+                  </p>
+                </div>
+              </div>
+            )}
+            <div className="flex flex-1 items-center gap-2 rounded-xl bg-accent/30 px-3 py-2">
+              <MapPin size={14} className="text-destructive" />
               <div>
-                <p className="text-[10px] text-muted-foreground">{t("Senin Konumun")}</p>
+                <p className="text-[10px] text-muted-foreground">{t("İş Konumu")}</p>
                 <p className="text-xs font-bold text-foreground">
-                  {userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}
+                  {task.latitude.toFixed(4)}, {task.longitude.toFixed(4)}
                 </p>
               </div>
             </div>
-          )}
-          <div className="flex flex-1 items-center gap-2 rounded-xl bg-accent/30 px-3 py-2">
-            <MapPin size={14} className="text-destructive" />
-            <div>
-              <p className="text-[10px] text-muted-foreground">{t("İş Konumu")}</p>
-              <p className="text-xs font-bold text-foreground">
-                {task.latitude.toFixed(4)}, {task.longitude.toFixed(4)}
-              </p>
-            </div>
           </div>
-        </div>
+        )}
+
 
         {/* Completion actions */}
         {task.status === "pending_confirm" && isOwner && (
