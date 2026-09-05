@@ -40,6 +40,14 @@ export const respondToOffer = async (offerId: string, accept: boolean) => {
 
 export const confirmAcceptedOffer = async (offerId: string) => {
   const { data, error } = await supabase.rpc("confirm_accepted_offer", { _offer_id: offerId });
-  if (error) return error.message.includes("Yetersiz kredi") ? "credits" : "error";
+  if (error) {
+    const msg = `${error.message} ${(error as { details?: string }).details ?? ""}`;
+    if (msg.includes("Yetersiz kredi")) return "credits";
+    if (msg.includes("Bekleyen degerlendirme")) return "reviews";
+    if (msg.includes("aktif bir isin var")) return "busy";
+    if (msg.includes("Kontenjan dolu")) return "quota_full";
+    return "error";
+  }
   return data as string;
 };
+

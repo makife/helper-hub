@@ -230,6 +230,12 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
       });
       return;
     }
+    if (res === "busy") { toast.error(t("Zaten aktif bir işin var. Önce onu tamamla veya bırak.")); return; }
+    if (res === "reviews") { toast.error(t("Önce tamamlanan işlerin için puan vermelisin.")); return; }
+    if (res === "quota_full") { toast.error(t("Kontenjan doldu, bu işe artık katılamazsın.")); return; }
+    if (res === "task_closed") { toast.error(t("Bu çağrı artık açık değil.")); return; }
+    if (res === "bad_status") { toast.error(t("Bu teklif artık geçerli değil.")); return; }
+
     toast.error(t("İşlem yapılamadı."));
   };
 
