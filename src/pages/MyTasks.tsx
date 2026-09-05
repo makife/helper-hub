@@ -1259,6 +1259,36 @@ const MyTasks = () => {
                       )}
                     </>
                   )}
+
+                {/* İş kabul edildikten sonra (iş veren): iletişim + iptal */}
+                {(selectedDetail.task.status === "matched" || selectedDetail.task.status === "in_progress") &&
+                  selectedDetail.task.owner_id === user?.id && (
+                    <>
+                      <button
+                        onClick={() => { setSelectedDetail(null); navigate(`/task/${selectedDetail.task.id}`); }}
+                        className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground py-3 font-bold hover:opacity-90"
+                      >
+                        <MessageSquare size={18} />
+                        {t("El Atanla İletişime Geç")}
+                      </button>
+                      <button
+                        disabled={isUpdating}
+                        onClick={() =>
+                          setConfirmState({
+                            kind: "cancel",
+                            taskId: selectedDetail.task.id,
+                            title: t("İşi iptal et"),
+                            description: t("El atan kişi kabul edildi. İptal edersen ona bildirim gider ve kredisi iade edilir. Bu senin {count}. iptalın olacak — 3. iptalde hesabın askıya alınır.", { count: ownerCancelCount + 1 }),
+                            confirmLabel: t("İptal Et"),
+                          })
+                        }
+                        className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-destructive/10 text-destructive py-3 font-bold hover:bg-destructive/20 disabled:opacity-50"
+                      >
+                        <Trash2 size={18} />
+                        {t("İptal Et")}
+                      </button>
+                    </>
+                  )}
               </div>
             </motion.div>
           </div>
