@@ -84,17 +84,25 @@ const Messages = () => {
       }
 
       setConversations(convos);
+      setCache("conversations", convos);
       setLoading(false);
     };
 
     fetchConversations();
 
-    // Realtime
+    // Realtime: sadece bu kullanıcıyı ilgilendiren mesajlarda yenile
     const channel = supabase
-      .channel("messages-list")
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, () => {
-        fetchConversations();
-      })
+      .channel(`messages-list-${user.id}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "messages", filter: `receiver_id=eq.${user.id}` },
+        () => { fetchConversations(); },
+      )
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "messages", filter: `sender_id=eq.${user.id}` },
+        () => { fetchConversations(); },
+      )
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
