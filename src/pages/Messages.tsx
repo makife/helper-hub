@@ -6,6 +6,7 @@ import { ArrowLeft, MessageCircle, Calendar } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatDateTime } from "@/lib/dateFormat";
+import { getCache, setCache } from "@/lib/uiCache";
 
 type Conversation = {
   task_id: string;
@@ -21,8 +22,9 @@ type Conversation = {
 
 const Messages = () => {
   const t = useT();
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [loading, setLoading] = useState(true);
+  const cached = getCache<Conversation[]>("conversations");
+  const [conversations, setConversations] = useState<Conversation[]>(cached ?? []);
+  const [loading, setLoading] = useState(!cached);
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -34,10 +36,12 @@ const Messages = () => {
         .from("messages")
         .select("*")
         .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .limit(300);
 
       if (!messages || messages.length === 0) {
         setConversations([]);
+        setCache("conversations", [] as Conversation[]);
         setLoading(false);
         return;
       }
@@ -80,17 +84,25 @@ const Messages = () => {
       }
 
       setConversations(convos);
+      setCache("conversations", convos);
       setLoading(false);
     };
 
     fetchConversations();
 
-    // Realtime
+    // Realtime: sadece bu kullanıcıyı ilgilendiren mesajlarda yenile
     const channel = supabase
-      .channel("messages-list")
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, () => {
-        fetchConversations();
-      })
+      .channel(`messages-list-${user.id}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "messages", filter: `receiver_id=eq.${user.id}` },
+        () => { fetchConversations(); },
+      )
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "messages", filter: `sender_id=eq.${user.id}` },
+        () => { fetchConversations(); },
+      )
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };

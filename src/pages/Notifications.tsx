@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { formatDateTime } from "@/lib/dateFormat";
 import { localizeNotificationText } from "@/lib/notificationText";
 import { pathForNotification } from "@/lib/notificationRoute";
+import { getCache, setCache } from "@/lib/uiCache";
 
 type Notif = {
   id: string;
@@ -26,8 +27,9 @@ const Notifications = () => {
   const t = useT();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [items, setItems] = useState<Notif[]>([]);
-  const [loading, setLoading] = useState(true);
+  const cached = getCache<Notif[]>("notifications");
+  const [items, setItems] = useState<Notif[]>(cached ?? []);
+  const [loading, setLoading] = useState(!cached);
 
   useEffect(() => {
     if (!user) return;
@@ -35,12 +37,21 @@ const Notifications = () => {
     const load = async () => {
       const list: Notif[] = [];
 
-      // 1) Kalıcı bildirimler (iş kabul / iş bırakma)
-      const { data: notifs } = await supabase
-        .from("notifications")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+      // 1) Kalıcı bildirimler + gelen mesajlar tek seferde (paralel)
+      const [{ data: notifs }, { data: msgs }] = await Promise.all([
+        supabase
+          .from("notifications")
+          .select("*")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(200),
+        supabase
+          .from("messages")
+          .select("id, content, created_at, is_read, task_id, sender_id")
+          .eq("receiver_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(200),
+      ]);
 
       for (const n of notifs ?? []) {
         list.push({
@@ -55,12 +66,8 @@ const Notifications = () => {
         });
       }
 
-      // 2) Gelen mesajlar
-      const { data: msgs } = await supabase
-        .from("messages")
-        .select("id, content, created_at, is_read, task_id, sender_id")
-        .eq("receiver_id", user.id)
-        .order("created_at", { ascending: false });
+      // 2) Gelen mesajların gönderen isimleri
+
 
       const senderIds = [...new Set((msgs ?? []).map((m) => m.sender_id))];
       const { data: profiles } = senderIds.length
@@ -83,6 +90,7 @@ const Notifications = () => {
 
       list.sort((x, y) => new Date(y.at).getTime() - new Date(x.at).getTime());
       setItems(list);
+      setCache("notifications", list);
       setLoading(false);
 
       // Bildirimleri okundu olarak işaretle
@@ -95,9 +103,17 @@ const Notifications = () => {
     load();
 
     const channel = supabase
-      .channel("notifications-feed")
-      .on("postgres_changes", { event: "*", schema: "public", table: "messages" }, () => load())
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications" }, () => load())
+      .channel(`notifications-feed-${user.id}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "messages", filter: `receiver_id=eq.${user.id}` },
+        () => load(),
+      )
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` },
+        () => load(),
+      )
       .subscribe();
 
     return () => {
