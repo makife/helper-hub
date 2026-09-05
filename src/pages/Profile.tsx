@@ -589,7 +589,7 @@ const Profile = () => {
             </div>
             {credentials.length === 0 ? (
               <p className="text-xs text-muted-foreground">
-                {t("Henüz belge yok. Sertifikanı ekle, güvenilirliğini artır.")}
+                {t("Henüz belge yok. En fazla 5 belge ekleyebilirsin.")}
               </p>
             ) : (
               <div className="-mx-5 overflow-x-auto px-5 scrollbar-hide">
