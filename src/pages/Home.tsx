@@ -331,7 +331,18 @@ const Home = () => {
       return;
     }
     const matched = tasks.find((t) => t.id === taskId);
-    if (matched) setSelectedTask(matched);
+    if (matched) {
+      setSelectedTask(matched);
+      return;
+    }
+    // Liste filtreleri yüzünden görünmeyen çağrıyı doğrudan çek (bildirim linkleri için)
+    let cancelled = false;
+    supabase.from("tasks").select("*").eq("id", taskId).maybeSingle().then(({ data }) => {
+      if (!cancelled && data) setSelectedTask(data as typeof tasks[number]);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [searchParams, tasks]);
 
   const mapPins = filteredTasks.map((t) => {
