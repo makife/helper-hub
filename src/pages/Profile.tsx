@@ -587,25 +587,27 @@ const Profile = () => {
                 {t("Henüz belge yok. Sertifikanı ekle, güvenilirliğini artır.")}
               </p>
             ) : (
-              <div className="grid grid-cols-2 gap-3">
-                {credentials.map((c) => (
-                  <div key={c.id} className="relative overflow-hidden rounded-xl border border-border">
-                    {c.image_url ? (
-                      <img src={c.image_url} alt={c.title} className="h-24 w-full object-cover" />
-                    ) : (
-                      <div className="flex h-24 w-full items-center justify-center bg-muted">
-                        <BadgeCheck size={24} className="text-muted-foreground" />
-                      </div>
-                    )}
-                    <p className="px-2 py-2 text-xs font-bold text-foreground line-clamp-2">{c.title}</p>
-                    <button
-                      onClick={() => setCredToDelete(c)}
-                      className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-destructive text-destructive-foreground"
-                    >
-                      <Trash2 size={12} />
-                    </button>
-                  </div>
-                ))}
+              <div className="-mx-5 overflow-x-auto px-5 scrollbar-hide">
+                <div className="flex gap-3 pb-2">
+                  {credentials.map((c) => (
+                    <div key={c.id} className="relative min-w-[180px] max-w-[180px] overflow-hidden rounded-xl border border-border">
+                      {c.image_url ? (
+                        <img src={c.image_url} alt={c.title} className="h-36 w-full object-cover" />
+                      ) : (
+                        <div className="flex h-36 w-full items-center justify-center bg-muted">
+                          <BadgeCheck size={28} className="text-muted-foreground" />
+                        </div>
+                      )}
+                      <p className="px-2 py-2 text-xs font-bold text-foreground line-clamp-2">{c.title}</p>
+                      <button
+                        onClick={() => setCredToDelete(c)}
+                        className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-destructive text-destructive-foreground"
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
