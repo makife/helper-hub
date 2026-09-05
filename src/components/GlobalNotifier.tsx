@@ -24,11 +24,6 @@ type MessageRow = {
   task_id: string | null;
 };
 
-const pathForNotification = (type: string | null, taskId: string | null) => {
-  if (type === "message") return "/messages";
-  if (taskId) return `/my-tasks?task=${taskId}`;
-  return "/notifications";
-};
 
 /**
  * Uygulama açıkken gelen tüm bildirimleri (kabul, ayrılma, tamamlama,
