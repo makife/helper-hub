@@ -10,6 +10,7 @@ import { formatDateTime } from "@/lib/dateFormat";
 type Conversation = {
   task_id: string;
   task_title: string;
+  task_status: string;
   other_user_id: string;
   other_user_name: string;
   other_user_avatar: string | null;
@@ -55,7 +56,7 @@ const Messages = () => {
       }))];
       const [{ data: profiles }, { data: tasks }] = await Promise.all([
         supabase.from("profiles").select("user_id, full_name, avatar_url").in("user_id", otherIds),
-        supabase.from("tasks").select("id, title").in("id", taskIds),
+        supabase.from("tasks").select("id, title, status").in("id", taskIds),
       ]);
       const profileById = new Map((profiles ?? []).map((profile) => [profile.user_id, profile]));
       const taskById = new Map((tasks ?? []).map((task) => [task.id, task]));
@@ -68,6 +69,7 @@ const Messages = () => {
         convos.push({
           task_id: taskId,
           task_title: taskById.get(taskId)?.title || t("İş"),
+          task_status: taskById.get(taskId)?.status || "open",
           other_user_id: otherId,
           other_user_name: profile?.full_name || t("Kullanıcı"),
           other_user_avatar: profile?.avatar_url || null,
