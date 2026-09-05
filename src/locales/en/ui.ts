@@ -413,8 +413,8 @@ export const UI: Record<string, string> = {
   "Yardım çağrısını iptal et": "Cancel help request",
   "Bu çağrı kapatılacak ve haritadan kaldırılacak. Emin misin?": "This request will be closed and removed from the map. Are you sure?",
   "İptal Et": "Cancel it",
-  "İşi iptal et": "Cancel the job",
-  "El Atanla İletişime Geç": "Contact the helper",
+  "İşi İptal Et": "Cancel the job",
+  "El Atan'a Yaz": "Message the helper",
   "El atan kişi kabul edildi. İptal edersen ona bildirim gider ve kredisi iade edilir. Bu senin {count}. iptalın olacak — 3. iptalde hesabın askıya alınır.":
     "A helper has been accepted. If you cancel, they will be notified and refunded. This will be cancellation {count} of 3 — at 3 your account is suspended.",
   "Mevcut kredin": "Your credits",
