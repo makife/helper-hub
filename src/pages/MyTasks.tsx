@@ -1224,7 +1224,9 @@ const MyTasks = () => {
                             kind: "cancel",
                             taskId: selectedDetail.task.id,
                             title: t("Yardım çağrısını iptal et"),
-                            description: t("Bu çağrı kapatılacak ve haritadan kaldırılacak. Emin misin?"),
+                            description: acceptedCount > 0
+                              ? t("El atan kişi kabul edildi. İptal edersen ona bildirim gider, kredisi iade edilir ve bu iptal siciline işlenir (3 tekrarda hesabın askıya alınır).")
+                              : t("Bu çağrı kapatılacak ve haritadan kaldırılacak. Emin misin?"),
                             confirmLabel: t("İptal Et"),
                           })
                         }
