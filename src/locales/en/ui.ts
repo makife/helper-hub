@@ -476,6 +476,10 @@ export const UI: Record<string, string> = {
   "İşlem yapılamadı.": "The action could not be completed.",
   "Önce tamamlanan işlerin için puan vermelisin.": "You must rate your completed tasks first.",
   "Kontenjan doldu, bu işe artık katılamazsın.": "All spots are filled, you can no longer join this task.",
+  "Zaten aktif bir işin var. Önce onu tamamla veya bırak.": "You already have an active task. Finish or leave it first.",
+  "Bu çağrı artık açık değil.": "This request is no longer open.",
+  "Bu teklif artık geçerli değil.": "This offer is no longer valid.",
+
 
   "Başka bir teklif kabul edildi, bu teklif beklemede": "Another offer was accepted, this offer is on hold",
   "teklif gönderdi": "sent an offer",
