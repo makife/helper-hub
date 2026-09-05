@@ -643,10 +643,12 @@ const MyTasks = () => {
                   <motion.div
                     key={item.assignment_id}
                     initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
+                    animate={{ y: 0, opacity: isDone ? 0.5 : 1 }}
                     transition={{ delay: i * 0.05 }}
                     onClick={() => setSelectedDetail({ task, arrivedAt: item.arrived_at })}
-                    className={`cursor-pointer rounded-2xl border border-border bg-card p-4 shadow-card ${isDone ? "opacity-60" : ""}`}
+                    className={`cursor-pointer rounded-2xl border border-border p-4 shadow-card transition-colors ${
+                      isDone ? "bg-muted/40 grayscale hover:opacity-80" : "bg-card hover:bg-muted/50"
+                    }`}
                   >
                     <div className="flex items-center gap-3">
                       <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted text-2xl">
