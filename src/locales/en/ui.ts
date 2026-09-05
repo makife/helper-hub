@@ -414,7 +414,7 @@ export const UI: Record<string, string> = {
   "Bu çağrı kapatılacak ve haritadan kaldırılacak. Emin misin?": "This request will be closed and removed from the map. Are you sure?",
   "İptal Et": "Cancel it",
   "Mevcut kredin": "Your credits",
-  "Her yardım çağrısı kabulü ve 1 kredi harcar": "Each accepted help and request costs 1 credit",
+  "Her yardım çağrısı ve kabulü 1 kredi harcar": "Each accepted help and request costs 1 credit",
   "hediye": "bonus",
   "Ahmet Yılmaz": "John Smith",
   "Kısa Bio": "Short bio",
