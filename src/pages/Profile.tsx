@@ -239,6 +239,10 @@ const Profile = () => {
 
   const saveCredential = async () => {
     if (!user || credTitle.trim().length < 2) return;
+    if (credentials.length >= 5) {
+      toast.error(t("En fazla 5 yetkinlik belgesi yükleyebilirsin."));
+      return;
+    }
     setCredSaving(true);
     let imageUrl: string | null = null;
     if (credFile) {
