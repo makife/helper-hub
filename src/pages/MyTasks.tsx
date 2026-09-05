@@ -557,6 +557,10 @@ const MyTasks = () => {
     if (ok) {
       setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, status: "cancelled" } : t)));
       setSelectedDetail(null);
+      if (user) {
+        supabase.from("profiles").select("cancel_count").eq("user_id", user.id).maybeSingle()
+          .then(({ data }) => setOwnerCancelCount(data?.cancel_count ?? 0));
+      }
     } else {
       toast.error(t("İptal edilemedi, tekrar dene."));
     }
