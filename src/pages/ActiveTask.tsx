@@ -389,8 +389,8 @@ const ActiveTask = () => {
         )}
 
 
-        {/* Route button — sadece el atan kişi için */}
-        {isTasker && (
+        {/* Route button — sadece el atan kişi için, iş kapandıysa gizli */}
+        {isTasker && !chatClosed && (
           <button
             onClick={handleStartRoute}
             className="gradient-warm flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3 font-bold text-primary-foreground shadow-soft active:scale-[0.98]"
