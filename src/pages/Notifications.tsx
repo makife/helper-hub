@@ -37,12 +37,21 @@ const Notifications = () => {
     const load = async () => {
       const list: Notif[] = [];
 
-      // 1) Kalıcı bildirimler (iş kabul / iş bırakma)
-      const { data: notifs } = await supabase
-        .from("notifications")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+      // 1) Kalıcı bildirimler + gelen mesajlar tek seferde (paralel)
+      const [{ data: notifs }, { data: msgs }] = await Promise.all([
+        supabase
+          .from("notifications")
+          .select("*")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(200),
+        supabase
+          .from("messages")
+          .select("id, content, created_at, is_read, task_id, sender_id")
+          .eq("receiver_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(200),
+      ]);
 
       for (const n of notifs ?? []) {
         list.push({
