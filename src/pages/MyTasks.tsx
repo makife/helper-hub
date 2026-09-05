@@ -251,6 +251,7 @@ const MyTasks = () => {
 
   const [viewCounts, setViewCounts] = useState<Record<string, number>>({});
   const [viewers, setViewers] = useState<{ id: string; full_name: string; avatar_url: string | null; viewed_at: string }[]>([]);
+  const [acceptedCount, setAcceptedCount] = useState(0);
   const [ownedArrivals, setOwnedArrivals] = useState<Record<string, string | null>>({});
   const [ownedTaskers, setOwnedTaskers] = useState<Record<string, { user_id: string; full_name: string; avatar_url: string | null }[]>>({});
   const [ownedOffers, setOwnedOffers] = useState<Record<string, OfferRow[]>>({});
