@@ -171,6 +171,8 @@ export const UI: Record<string, string> = {
   "İş Konumu": "Task location",
   "Henüz konuşulacak kişi yok.": "No one to message yet.",
   "Mesaj gönderilemedi": "Message could not be sent",
+  "Bu iş kapandı. Mesajlaşma sona erdi.": "This task is closed. Messaging has ended.",
+  "Bu iş kapandı. Mesajlaşma sona erdi, geçmiş mesajları görüntüleyebilirsin.": "This task is closed. Messaging has ended, but you can still view past messages.",
   "Yardım çağrısı tamamlandı.": "Help request completed.",
   "İş tamamlanamadı, tekrar dene.": "Task could not be completed. Try again.",
   "Rota Oluştur": "Create route",
