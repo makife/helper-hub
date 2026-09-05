@@ -1270,10 +1270,10 @@ const MyTasks = () => {
                     <>
                       <button
                         onClick={() => { setSelectedDetail(null); navigate(`/task/${selectedDetail.task.id}`); }}
-                        className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground py-3 font-bold hover:opacity-90"
+                        className="flex-1 flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-primary text-primary-foreground py-3 font-bold hover:opacity-90"
                       >
-                        <MessageSquare size={18} />
-                        {t("El Atanla İletişime Geç")}
+                        <MessageSquare size={18} className="shrink-0" />
+                        {t("El Atan'a Yaz")}
                       </button>
                       <button
                         disabled={isUpdating}
@@ -1281,15 +1281,15 @@ const MyTasks = () => {
                           setConfirmState({
                             kind: "cancel",
                             taskId: selectedDetail.task.id,
-                            title: t("İşi iptal et"),
+                            title: t("İşi İptal Et"),
                             description: t("El atan kişi kabul edildi. İptal edersen ona bildirim gider ve kredisi iade edilir. Bu senin {count}. iptalın olacak — 3. iptalde hesabın askıya alınır.", { count: ownerCancelCount + 1 }),
-                            confirmLabel: t("İptal Et"),
+                            confirmLabel: t("İşi İptal Et"),
                           })
                         }
-                        className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-destructive/10 text-destructive py-3 font-bold hover:bg-destructive/20 disabled:opacity-50"
+                        className="flex-1 flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-destructive/10 text-destructive py-3 font-bold hover:bg-destructive/20 disabled:opacity-50"
                       >
-                        <Trash2 size={18} />
-                        {t("İptal Et")}
+                        <Trash2 size={18} className="shrink-0" />
+                        {t("İşi İptal Et")}
                       </button>
                     </>
                   )}
