@@ -12,7 +12,15 @@ import RouteMap from "@/components/RouteMap";
 import type { Tables } from "@/integrations/supabase/types";
 import { getTaskEmoji } from "@/lib/taskCategories";
 import NoShowWarning from "@/components/NoShowWarning";
-import { confirmCompletion, confirmDeadlineMs, formatRemaining, requestCompletion, rejectCompletion, markArrival, completionUnlockMs } from "@/lib/taskLifecycle";
+import {
+  confirmCompletion,
+  confirmDeadlineMs,
+  formatRemaining,
+  requestCompletion,
+  rejectCompletion,
+  markArrival,
+  completionUnlockMs,
+} from "@/lib/taskLifecycle";
 
 type TaskerEntry = { tasker_id: string; profile: Tables<"profiles"> | null };
 
@@ -37,20 +45,20 @@ const ActiveTask = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const isOwner = !!user && task?.owner_id === user.id;
-  const otherProfile = isOwner
-    ? taskers.find((t) => t.tasker_id === partnerId)?.profile ?? null
-    : ownerProfile;
+  const otherProfile = isOwner ? (taskers.find((t) => t.tasker_id === partnerId)?.profile ?? null) : ownerProfile;
 
   useEffect(() => {
     if (!taskId || !user) return;
 
     const fetchTask = async () => {
       const { data } = await supabase.from("tasks").select("*").eq("id", taskId).maybeSingle();
-      if (!data) { navigate("/home"); return; }
+      if (!data) {
+        navigate("/home");
+        return;
+      }
       setTask(data);
 
-      const { data: owner } = await supabase
-        .from("profiles").select("*").eq("user_id", data.owner_id).maybeSingle();
+      const { data: owner } = await supabase.from("profiles").select("*").eq("user_id", data.owner_id).maybeSingle();
       setOwnerProfile(owner);
 
       const { data: assignments } = await supabase
@@ -105,39 +113,61 @@ const ActiveTask = () => {
     // Get user location
     navigator.geolocation?.getCurrentPosition(
       (pos) => setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-      () => {}
+      () => {},
     );
 
     // Realtime messages
     const channel = supabase
       .channel(`task-chat-${taskId}`)
-      .on("postgres_changes", {
-        event: "INSERT",
-        schema: "public",
-        table: "messages",
-        filter: `task_id=eq.${taskId}`,
-      }, (payload) => {
-        const msg = payload.new as Tables<"messages">;
-        setMessages((prev) => prev.some((item) => item.id === msg.id) ? prev : [...prev, msg]);
-        if (msg.receiver_id === user.id) {
-          supabase.from("messages").update({ is_read: true }).eq("id", msg.id).then(() => {});
-        }
-      })
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+          filter: `task_id=eq.${taskId}`,
+        },
+        (payload) => {
+          const msg = payload.new as Tables<"messages">;
+          setMessages((prev) => (prev.some((item) => item.id === msg.id) ? prev : [...prev, msg]));
+          if (msg.receiver_id === user.id) {
+            supabase
+              .from("messages")
+              .update({ is_read: true })
+              .eq("id", msg.id)
+              .then(() => {});
+          }
+        },
+      )
       .subscribe();
 
     const assignmentChannel = supabase
       .channel(`task-assignments-page-${taskId}`)
-      .on("postgres_changes", {
-        event: "*", schema: "public", table: "task_assignments", filter: `task_id=eq.${taskId}`,
-      }, () => fetchTask())
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "task_assignments",
+          filter: `task_id=eq.${taskId}`,
+        },
+        () => fetchTask(),
+      )
       .subscribe();
 
     // RPC veya otomatik kapanma sonrası ekrandaki görev durumu anında güncellensin.
     const taskChannel = supabase
       .channel(`task-status-page-${taskId}`)
-      .on("postgres_changes", {
-        event: "UPDATE", schema: "public", table: "tasks", filter: `id=eq.${taskId}`,
-      }, () => fetchTask())
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "tasks",
+          filter: `id=eq.${taskId}`,
+        },
+        () => fetchTask(),
+      )
       .subscribe();
 
     return () => {
@@ -146,7 +176,6 @@ const ActiveTask = () => {
       supabase.removeChannel(taskChannel);
     };
   }, [taskId, user]);
-
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -160,7 +189,10 @@ const ActiveTask = () => {
       return;
     }
     const receiverId = partnerId;
-    if (!receiverId) { toast.error(t("Henüz konuşulacak kişi yok.")); return; }
+    if (!receiverId) {
+      toast.error(t("Henüz konuşulacak kişi yok."));
+      return;
+    }
 
     setSending(true);
     const { error } = await supabase.from("messages").insert({
@@ -170,7 +202,10 @@ const ActiveTask = () => {
       content,
     });
     setSending(false);
-    if (error) { toast.error(t("Mesaj gönderilemedi")); return; }
+    if (error) {
+      toast.error(t("Mesaj gönderilemedi"));
+      return;
+    }
     setNewMessage("");
   };
 
@@ -206,15 +241,17 @@ const ActiveTask = () => {
     (m) =>
       !partnerId ||
       (m.sender_id === user?.id && m.receiver_id === partnerId) ||
-      (m.sender_id === partnerId && m.receiver_id === user?.id)
+      (m.sender_id === partnerId && m.receiver_id === user?.id),
   );
-
 
   return (
     <div className="flex min-h-screen flex-col bg-background safe-top safe-bottom">
       {/* Header */}
       <div className="flex items-center gap-3 border-b border-border px-5 pb-3 pt-4">
-        <button onClick={() => navigate("/home")} className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card">
+        <button
+          onClick={() => navigate("/home")}
+          className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-card"
+        >
           <ArrowLeft size={20} className="text-foreground" />
         </button>
         <div className="min-w-0 flex-1">
@@ -224,7 +261,9 @@ const ActiveTask = () => {
             {needed > 1 && ` · 👥 ${taskers.length}/${needed} ${t("kişi")}`}
           </p>
         </div>
-        <span className="text-lg font-black text-primary">{formatPrice(task.current_price || task.price, getTaskCurrency(task))}</span>
+        <span className="text-lg font-black text-primary">
+          {formatPrice(task.current_price || task.price, getTaskCurrency(task))}
+        </span>
       </div>
 
       {/* Task & Location Info */}
@@ -246,9 +285,7 @@ const ActiveTask = () => {
                 key={t.tasker_id}
                 onClick={() => setPartnerId(t.tasker_id)}
                 className={`whitespace-nowrap rounded-xl px-3 py-2 text-xs font-bold transition-colors ${
-                  partnerId === t.tasker_id
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground"
+                  partnerId === t.tasker_id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
                 }`}
               >
                 {t.profile?.full_name || "Tasker"}
@@ -265,7 +302,6 @@ const ActiveTask = () => {
 
         {/* Other user profile */}
         {otherProfile && (
-
           <button
             onClick={() => navigate(`/profile/${otherProfile.user_id}`)}
             className="flex w-full items-center gap-3 rounded-xl bg-muted/50 p-3 text-left active:scale-[0.98]"
@@ -294,7 +330,9 @@ const ActiveTask = () => {
               <MapPin size={14} className="text-primary" />
               <div>
                 <p className="text-[10px] text-muted-foreground">{t("Senin Konumun")}</p>
-                <p className="text-xs font-bold text-foreground">{userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}</p>
+                <p className="text-xs font-bold text-foreground">
+                  {userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}
+                </p>
               </div>
             </div>
           )}
@@ -302,7 +340,9 @@ const ActiveTask = () => {
             <MapPin size={14} className="text-destructive" />
             <div>
               <p className="text-[10px] text-muted-foreground">{t("İş Konumu")}</p>
-              <p className="text-xs font-bold text-foreground">{task.latitude.toFixed(4)}, {task.longitude.toFixed(4)}</p>
+              <p className="text-xs font-bold text-foreground">
+                {task.latitude.toFixed(4)}, {task.longitude.toFixed(4)}
+              </p>
             </div>
           </div>
         </div>
@@ -314,7 +354,9 @@ const ActiveTask = () => {
               onClick={async () => {
                 const ok = await confirmCompletion(task.id);
                 if (ok) {
-                  setTask((current) => current ? { ...current, status: "completed", completed_at: new Date().toISOString() } : current);
+                  setTask((current) =>
+                    current ? { ...current, status: "completed", completed_at: new Date().toISOString() } : current,
+                  );
                   toast.success(t("Yardım çağrısı tamamlandı."));
                 } else toast.error(t("İş tamamlanamadı, tekrar dene."));
               }}
@@ -362,7 +404,16 @@ const ActiveTask = () => {
                 onClick={async () => {
                   const res = await requestCompletion(task.id);
                   if (res.ok) {
-                    setTask((current) => current ? { ...current, status: "pending_confirm", completion_requested_at: new Date().toISOString(), completion_requested_by: user!.id } : current);
+                    setTask((current) =>
+                      current
+                        ? {
+                            ...current,
+                            status: "pending_confirm",
+                            completion_requested_at: new Date().toISOString(),
+                            completion_requested_by: user!.id,
+                          }
+                        : current,
+                    );
                     toast.success(res.message);
                   } else toast.error(res.message);
                 }}
@@ -388,7 +439,6 @@ const ActiveTask = () => {
           </p>
         )}
 
-
         {/* Route button — sadece el atan kişi için, iş kapandıysa gizli */}
         {isTasker && !chatClosed && (
           <button
@@ -399,7 +449,6 @@ const ActiveTask = () => {
             {t("Rota Oluştur")}
           </button>
         )}
-
       </div>
 
       {/* Messages */}
@@ -416,14 +465,15 @@ const ActiveTask = () => {
             <div key={msg.id} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
               <div
                 className={`max-w-[75%] rounded-2xl px-4 py-2.5 ${
-                  isMine
-                    ? "bg-primary text-primary-foreground rounded-br-md"
-                    : "bg-muted text-foreground rounded-bl-md"
+                  isMine ? "bg-primary text-primary-foreground rounded-br-md" : "bg-muted text-foreground rounded-bl-md"
                 }`}
               >
                 <p className="text-sm">{msg.content}</p>
                 <p className={`text-[10px] mt-1 ${isMine ? "text-primary-foreground/60" : "text-muted-foreground"}`}>
-                  {new Date(msg.created_at).toLocaleTimeString(getLang() === "en" ? "en-US" : "tr-TR", { hour: "2-digit", minute: "2-digit" })}
+                  {new Date(msg.created_at).toLocaleTimeString(getLang() === "en" ? "en-US" : "tr-TR", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </p>
               </div>
             </div>
@@ -443,8 +493,13 @@ const ActiveTask = () => {
             {/* Hazır mesajlar */}
             <div className="mb-2 flex gap-2 overflow-x-auto scrollbar-hide">
               {(isOwner
-                ? ["Merhaba, ne zaman gelebilirsin?", "Adres tarifine ihtiyacın var mı?", "Kapıdayım, bekliyorum.", "Teşekkürler, eline sağlık!"]
-                : ["Yoldayım 🚗", "10 dk sonra varırım", "Geldim, kapıdayım", "İşi bitirdim ✅"]
+                ? [
+                    "Merhaba, ne zaman gelebilirsin?",
+                    "Adres tarifine ihtiyacın var mı?",
+                    "Kapıdayım, bekliyorum.",
+                    "Teşekkürler, eline sağlık!",
+                  ]
+                : ["Yoldayım", "10 dk sonra varırım", "Geldim, kapıdayım", "İşi bitirdim ✅"]
               ).map((q) => (
                 <button
                   key={q}
@@ -490,8 +545,12 @@ const ActiveTask = () => {
               <h2 className="text-lg font-black text-foreground">{t("İş yapılmadı mı?")}</h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 {(task.rejection_count ?? 0) >= 1
-                  ? t("Bu ikinci itirazın. Anlaşmazlık olarak değerlendirilecek ve varış kaydına göre tarafsız sonuçlandırılacak.")
-                  : t("El atan kişiye bildirilecek ve işi tamamlayıp tekrar bildirebilecek. Haksız itirazlar sicilinize işlenir.")}
+                  ? t(
+                      "Bu ikinci itirazın. Anlaşmazlık olarak değerlendirilecek ve varış kaydına göre tarafsız sonuçlandırılacak.",
+                    )
+                  : t(
+                      "El atan kişiye bildirilecek ve işi tamamlayıp tekrar bildirebilecek. Haksız itirazlar sicilinize işlenir.",
+                    )}
               </p>
               <textarea
                 value={rejectReason}
@@ -524,7 +583,7 @@ const ActiveTask = () => {
                               completion_requested_at: null,
                               completion_requested_by: null,
                             }
-                          : current
+                          : current,
                       );
                     } else toast.error(res.message);
                   }}
@@ -538,7 +597,6 @@ const ActiveTask = () => {
         )}
       </AnimatePresence>
     </div>
-
   );
 };
 
