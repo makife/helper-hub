@@ -1,6 +1,6 @@
 import { compressImage } from "@/lib/imageCompress";
-import { useCallback, useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
