@@ -90,6 +90,7 @@ const Notifications = () => {
 
       list.sort((x, y) => new Date(y.at).getTime() - new Date(x.at).getTime());
       setItems(list);
+      setCache("notifications", list);
       setLoading(false);
 
       // Bildirimleri okundu olarak işaretle
@@ -102,9 +103,17 @@ const Notifications = () => {
     load();
 
     const channel = supabase
-      .channel("notifications-feed")
-      .on("postgres_changes", { event: "*", schema: "public", table: "messages" }, () => load())
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications" }, () => load())
+      .channel(`notifications-feed-${user.id}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "messages", filter: `receiver_id=eq.${user.id}` },
+        () => load(),
+      )
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` },
+        () => load(),
+      )
       .subscribe();
 
     return () => {
