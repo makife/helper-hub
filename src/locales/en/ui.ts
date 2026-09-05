@@ -56,7 +56,7 @@ export const UI: Record<string, string> = {
   "Sonuç yok, kendin ekleyebilirsin.": "No results. You can add your own.",
   "... becerisini ekle": "Add this skill",
   "Kredi Marketi": "Credit market",
-  "Yardım çağrısında bulubmak ve çağrılara el atmak için kredi yükle": "Top up credits to request help and answer calls",
+  "Yardım çağrısında bulunmak ve çağrılara el atmak için kredi yükle": "Top up credits to request help and answer calls",
   "Kredi": "Credits",
   "Kredi Al": "Get credits",
   "Puan": "Rating",
