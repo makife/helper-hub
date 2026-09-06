@@ -31,6 +31,7 @@ import NotFound from "./pages/NotFound";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import AdminReports from "./pages/AdminReports";
+import AdminVerifications from "./pages/AdminVerifications";
 
 const queryClient = new QueryClient();
 
