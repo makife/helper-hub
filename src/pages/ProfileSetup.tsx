@@ -1,17 +1,21 @@
 import { compressImage } from "@/lib/imageCompress";
-import { useEffect, useState } from "react";
-import { useT } from "@/lib/i18n";
+import { useEffect, useState, type ReactNode } from "react";
+import { useI18n } from "@/lib/i18n";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Camera, MapPin, Check, X, UserPlus, Search, Plus, ImagePlus } from "lucide-react";
+import { Camera, MapPin, Check, X, UserPlus, Search, Plus, ImagePlus, BadgeCheck, Trash2, ChevronDown } from "lucide-react";
 import { ALL_SKILLS, searchSkills } from "@/lib/skillCatalog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import type { Tables } from "@/integrations/supabase/types";
 import { toast } from "sonner";
+import ConfirmDialog from "@/components/ConfirmDialog";
 import {
   getPendingReferralCode,
   clearPendingReferralCode,
 } from "@/lib/nativeAuth";
+
+type Credential = Tables<"credentials">;
 
 const MAX_SKILLS = 10;
 
@@ -25,7 +29,7 @@ const LEGACY_SKILL_LABELS: Record<string, string> = {
 };
 
 const ProfileSetup = () => {
-  const t = useT();
+  const { t, lang, setLang } = useI18n();
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -43,6 +47,15 @@ const ProfileSetup = () => {
   const [manualCode, setManualCode] = useState("");
   const [manualCodeApplied, setManualCodeApplied] = useState(false);
   const [manualCodeBusy, setManualCodeBusy] = useState(false);
+  const [credentials, setCredentials] = useState<Credential[]>([]);
+  const [credOpen, setCredOpen] = useState(false);
+  const [credTitle, setCredTitle] = useState("");
+  const [credFile, setCredFile] = useState<File | null>(null);
+  const [credPreview, setCredPreview] = useState<string | null>(null);
+  const [credSaving, setCredSaving] = useState(false);
+  const [credToDelete, setCredToDelete] = useState<Credential | null>(null);
+  const [langOpen, setLangOpen] = useState(false);
+  const [pendingLang, setPendingLang] = useState<"tr" | "en" | null>(null);
   const navigate = useNavigate();
   const { user } = useAuth();
 
