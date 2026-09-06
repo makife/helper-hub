@@ -21,7 +21,9 @@ const ProfileSetup = () => {
   const [bio, setBio] = useState("");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-  const [selectedSkills, setSelectedSkills] = useState<SkillId[]>([]);
+  const [photoSheetOpen, setPhotoSheetOpen] = useState(false);
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const [skillQuery, setSkillQuery] = useState("");
   const [locationGranted, setLocationGranted] = useState(false);
   const [ageConfirmed, setAgeConfirmed] = useState(false);
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
