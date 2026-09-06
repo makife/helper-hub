@@ -31,6 +31,7 @@ const ProfileSetup = () => {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [selectedSkills, setSelectedSkills] = useState<SkillId[]>([]);
   const [locationGranted, setLocationGranted] = useState(false);
+  const [ageConfirmed, setAgeConfirmed] = useState(false);
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [loading, setLoading] = useState(false);
   const [referralDialogOpen, setReferralDialogOpen] = useState(false);
@@ -200,7 +201,7 @@ const ProfileSetup = () => {
     }
   };
 
-  const isValid = name.trim().length >= 2 && avatarPreview;
+  const isValid = name.trim().length >= 2 && avatarPreview && ageConfirmed;
 
   const handleSubmit = async () => {
     if (!isValid || !user) return;
@@ -234,6 +235,7 @@ const ProfileSetup = () => {
         skills: selectedSkills,
         latitude: coords?.lat ?? null,
         longitude: coords?.lng ?? null,
+        age_confirmed_at: new Date().toISOString(),
       })
       .eq("user_id", user.id);
 
@@ -350,6 +352,22 @@ const ProfileSetup = () => {
           <p className="mt-1.5 text-xs text-muted-foreground">
             {t("Seni davet edenin kodunu gir, ikinize de 1'er kredi hediye.")}
           </p>
+        </motion.div>
+
+        {/* 18+ onayı */}
+        <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.4 }}>
+          <button
+            onClick={() => setAgeConfirmed((v) => !v)}
+            className={`flex w-full items-center gap-3 rounded-xl border-2 px-4 py-3.5 text-left transition-all active:scale-[0.98] ${ageConfirmed ? "border-primary/40 bg-primary/5" : "border-border bg-card"}`}
+          >
+            <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 ${ageConfirmed ? "border-primary bg-primary text-primary-foreground" : "border-border"}`}>
+              {ageConfirmed && <Check size={14} />}
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-bold text-foreground">{t("18 yaşından büyük olduğumu onaylıyorum *")}</p>
+              <p className="text-xs text-muted-foreground">{t("Platformda iş açmak ve iş almak için 18 yaş şartı vardır.")}</p>
+            </div>
+          </button>
         </motion.div>
       </div>
 

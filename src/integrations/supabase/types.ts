@@ -217,6 +217,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          age_confirmed_at: string | null
           avatar_url: string | null
           bio: string | null
           cancel_count: number | null
@@ -253,6 +254,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          age_confirmed_at?: string | null
           avatar_url?: string | null
           bio?: string | null
           cancel_count?: number | null
@@ -289,6 +291,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          age_confirmed_at?: string | null
           avatar_url?: string | null
           bio?: string | null
           cancel_count?: number | null

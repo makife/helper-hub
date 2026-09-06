@@ -312,6 +312,8 @@ export const UI: Record<string, string> = {
   "Henüz yardım çağrın yok": "You have no help requests yet",
   "Hesabınla saniyeler içinde giriş yap, hemen yardımlaşmaya başla.": "Sign in in seconds and start helping right away.",
   "Kabul Et": "Accept",
+  "18 yaşından büyük olduğumu onaylıyorum *": "I confirm that I am over 18 years old *",
+  "Platformda iş açmak ve iş almak için 18 yaş şartı vardır.": "You must be 18 or older to post or take tasks on the platform.",
   "Kabul Et ({count}/{needed})": "Accept ({count}/{needed})",
   "Kabul ediliyor...": "Accepting...",
   "Kapı zilini çalma, mesaj at...": "Don't ring the doorbell, send a message...",
