@@ -7,6 +7,8 @@ export const pathForNotification = (type: string | null | undefined, taskId?: st
 
   if (t === "message") return "/messages";
   if (t === "report") return "/admin/reports";
+  if (t === "verification_request") return "/admin/verifications";
+  if (t === "verification_approved" || t === "verification_rejected") return "/profile";
   if (
     t === "sanction_warning" ||
     t === "sanction_suspended" ||
