@@ -230,6 +230,9 @@ export type Database = {
           id: string
           id_verification_note: string | null
           id_verification_status: string
+          id_verified_at: string | null
+          id_verify_attempts: number
+          id_verify_last_attempt_at: string | null
           is_available: boolean | null
           is_banned: boolean | null
           language: string
@@ -267,6 +270,9 @@ export type Database = {
           id?: string
           id_verification_note?: string | null
           id_verification_status?: string
+          id_verified_at?: string | null
+          id_verify_attempts?: number
+          id_verify_last_attempt_at?: string | null
           is_available?: boolean | null
           is_banned?: boolean | null
           language?: string
@@ -304,6 +310,9 @@ export type Database = {
           id?: string
           id_verification_note?: string | null
           id_verification_status?: string
+          id_verified_at?: string | null
+          id_verify_attempts?: number
+          id_verify_last_attempt_at?: string | null
           is_available?: boolean | null
           is_banned?: boolean | null
           language?: string
