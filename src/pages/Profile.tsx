@@ -37,7 +37,7 @@ import { ALL_SKILLS, searchSkills } from "@/lib/skillCatalog";
 import MyToolsEditor from "@/components/MyToolsEditor";
 
 import ReferralCard from "@/components/ReferralCard";
-import IdentityVerifyCard from "@/components/IdentityVerifyCard";
+import TrustVerificationCard from "@/components/TrustVerificationCard";
 import NotificationPrefs from "@/components/NotificationPrefs";
 import ProfileBadges from "@/components/ProfileBadges";
 import { timeAgoIn } from "@/lib/dateFormat";
