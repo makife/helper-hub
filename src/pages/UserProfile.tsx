@@ -7,6 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { timeAgoIn } from "@/lib/dateFormat";
 import ReportBlockSheet from "@/components/ReportBlockSheet";
+import TrustStars from "@/components/TrustStars";
+import { fetchTrustScore } from "@/lib/trust";
 
 const SKILL_LABELS: Record<string, string> = {
   ampul_takma: "💡 Ampul Takma",
