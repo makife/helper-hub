@@ -83,6 +83,13 @@ const ProfileSetup = () => {
         }
         if (data.age_confirmed_at) setAgeConfirmed(true);
       });
+
+    supabase
+      .from("credentials")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => setCredentials(data || []));
   }, [user]);
 
   useEffect(() => {
