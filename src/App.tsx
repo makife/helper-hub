@@ -31,6 +31,7 @@ import NotFound from "./pages/NotFound";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import AdminReports from "./pages/AdminReports";
+import AdminVerifications from "./pages/AdminVerifications";
 
 const queryClient = new QueryClient();
 
@@ -109,6 +110,7 @@ const App = () => (
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/admin/reports" element={<RequireAuth><AdminReports /></RequireAuth>} />
+                <Route path="/admin/verifications" element={<RequireAuth><AdminVerifications /></RequireAuth>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

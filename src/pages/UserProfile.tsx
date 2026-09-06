@@ -7,6 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { timeAgoIn } from "@/lib/dateFormat";
 import ReportBlockSheet from "@/components/ReportBlockSheet";
+import TrustStars from "@/components/TrustStars";
+import { fetchTrustScore } from "@/lib/trust";
 
 const SKILL_LABELS: Record<string, string> = {
   ampul_takma: "💡 Ampul Takma",
@@ -27,18 +29,21 @@ const UserProfile = () => {
   const [credentials, setCredentials] = useState<Tables<"credentials">[]>([]);
   const [reviews, setReviews] = useState<ReviewRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [trust, setTrust] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!userId) return;
     const load = async () => {
-      const [{ data: p }, { data: c }, { data: r }] = await Promise.all([
+      const [{ data: p }, { data: c }, { data: r }, score] = await Promise.all([
         supabase.from("profiles").select("*").eq("user_id", userId).maybeSingle(),
         supabase.from("credentials").select("*").eq("user_id", userId).order("created_at", { ascending: false }),
         supabase.from("reviews").select("*").eq("reviewee_id", userId).order("created_at", { ascending: false }).limit(10),
+        fetchTrustScore(userId),
       ]);
       setProfile(p);
       setCredentials(c || []);
+      setTrust(score);
 
       const rows = (r || []) as ReviewRow[];
       if (rows.length) {
@@ -93,6 +98,9 @@ const UserProfile = () => {
               )}
             </div>
             <h2 className="mt-3 text-lg font-black text-foreground">{profile.full_name || t("İsimsiz Kullanıcı")}</h2>
+            <div className="mt-1.5">
+              <TrustStars score={trust} />
+            </div>
             {profile.profession && <p className="mt-0.5 text-sm font-bold text-primary">{profile.profession}</p>}
             {profile.phone && (
               <div className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">

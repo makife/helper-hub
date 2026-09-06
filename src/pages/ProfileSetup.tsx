@@ -3,7 +3,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useI18n } from "@/lib/i18n";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Camera, MapPin, Check, X, UserPlus, Search, Plus, ImagePlus, BadgeCheck, Trash2, ChevronDown } from "lucide-react";
+import { Camera, MapPin, Check, X, UserPlus, Search, Plus, ImagePlus, BadgeCheck, Trash2, ChevronDown, ShieldCheck } from "lucide-react";
 import { ALL_SKILLS, searchSkills } from "@/lib/skillCatalog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -699,8 +699,19 @@ const ProfileSetup = () => {
               <p className="text-xs text-muted-foreground">{t("Platformda iş açmak ve iş almak için 18 yaş şartı vardır.")}</p>
             </div>
           </button>
+
+          <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-border bg-card p-3.5">
+            <ShieldCheck size={16} className="mt-0.5 shrink-0 text-primary" />
+            <div>
+              <p className="text-sm font-bold text-foreground">{t("Güvenini artır (isteğe bağlı)")}</p>
+              <p className="text-xs text-muted-foreground">
+                {t("Profilini oluşturduktan sonra kimlik, adli sicil ve meslek belgeni yükleyerek 5 yıldıza kadar güven rozeti kazanabilirsin.")}
+              </p>
+            </div>
+          </div>
         </motion.div>
       </div>
+
 
 
       <motion.button

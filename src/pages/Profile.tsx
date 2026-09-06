@@ -37,7 +37,7 @@ import { ALL_SKILLS, searchSkills } from "@/lib/skillCatalog";
 import MyToolsEditor from "@/components/MyToolsEditor";
 
 import ReferralCard from "@/components/ReferralCard";
-import IdentityVerifyCard from "@/components/IdentityVerifyCard";
+import TrustVerificationCard from "@/components/TrustVerificationCard";
 import NotificationPrefs from "@/components/NotificationPrefs";
 import ProfileBadges from "@/components/ProfileBadges";
 import { timeAgoIn } from "@/lib/dateFormat";
@@ -573,12 +573,8 @@ const Profile = () => {
             </>
           )}
 
-          {/* Kimlik doğrulama */}
-          <IdentityVerifyCard
-            status={profile?.id_verification_status}
-            verifiedAt={profile?.id_verified_at}
-            onVerified={loadAll}
-          />
+          {/* Güven doğrulaması */}
+          {user && <TrustVerificationCard userId={user.id} hasPhone={!!profile?.phone} />}
 
           {/* Sertifikalar */}
           <div className="mb-5 rounded-2xl bg-card p-4 shadow-card">
@@ -776,6 +772,24 @@ const Profile = () => {
                 </div>
                 <div className="text-left">
                   <p className="text-sm font-bold text-foreground">{t("Şikayetler")}</p>
+                  <p className="text-[11px] text-muted-foreground">{t("Yönetici paneli")}</p>
+                </div>
+              </div>
+              <ChevronRight size={18} className="text-muted-foreground" />
+            </button>
+          )}
+
+          {isAdmin && (
+            <button
+              onClick={() => navigate("/admin/verifications")}
+              className="mb-5 flex w-full items-center justify-between rounded-2xl border border-border bg-card p-3 shadow-card transition-all active:scale-[0.98]"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <BadgeCheck size={18} />
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-bold text-foreground">{t("Güven Doğrulamaları")}</p>
                   <p className="text-[11px] text-muted-foreground">{t("Yönetici paneli")}</p>
                 </div>
               </div>
