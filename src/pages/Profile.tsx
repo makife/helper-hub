@@ -37,6 +37,7 @@ import { ALL_SKILLS, searchSkills } from "@/lib/skillCatalog";
 import MyToolsEditor from "@/components/MyToolsEditor";
 
 import ReferralCard from "@/components/ReferralCard";
+import IdentityVerifyCard from "@/components/IdentityVerifyCard";
 import NotificationPrefs from "@/components/NotificationPrefs";
 import ProfileBadges from "@/components/ProfileBadges";
 import { timeAgoIn } from "@/lib/dateFormat";
@@ -571,6 +572,13 @@ const Profile = () => {
               )}
             </>
           )}
+
+          {/* Kimlik doğrulama */}
+          <IdentityVerifyCard
+            status={profile?.id_verification_status}
+            verifiedAt={profile?.id_verified_at}
+            onVerified={loadAll}
+          />
 
           {/* Sertifikalar */}
           <div className="mb-5 rounded-2xl bg-card p-4 shadow-card">
