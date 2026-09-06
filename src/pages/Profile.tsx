@@ -779,6 +779,24 @@ const Profile = () => {
             </button>
           )}
 
+          {isAdmin && (
+            <button
+              onClick={() => navigate("/admin/verifications")}
+              className="mb-5 flex w-full items-center justify-between rounded-2xl border border-border bg-card p-3 shadow-card transition-all active:scale-[0.98]"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <BadgeCheck size={18} />
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-bold text-foreground">{t("Güven Doğrulamaları")}</p>
+                  <p className="text-[11px] text-muted-foreground">{t("Yönetici paneli")}</p>
+                </div>
+              </div>
+              <ChevronRight size={18} className="text-muted-foreground" />
+            </button>
+          )}
+
           <div className="mb-5 space-y-2.5 rounded-2xl border border-border bg-card p-2 shadow-card">
             <button
               onClick={() => navigate("/terms")}
