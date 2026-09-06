@@ -1,90 +1,57 @@
-# Bi' El At: Lovable Cloud'dan Kendi Supabase Projesine Geçiş Planı
+# Güven Yıldızları (5 Yıldızlı Doğrulama Rozeti)
 
-## Hedef
-Mevcut Lovable Cloud backend'i (idroneyojlzeoebuzwsd) terk edip, kullanıcının kendi doğrudan Supabase projesine geçiş yapmak. Mevcut veriler (kullanıcılar, profiller, çağrılar, mesajlar, bildirimler, kredi işlemleri, yorumlar) ve uygulama kodu korunacak.
+Devletin ücretsiz TC sorgusu bulut sunuculara kapalı olduğu için otomatik kimlik doğrulama yerine
+**belge yükle → admin onaylasın** modeline geçiyoruz. Her onaylanan doğrulama 1 yıldız veriyor.
 
-## Önkoşullar
-- Hazır bir Supabase projesi (free/pro fark etmiyor).
-- Supabase Dashboard erişimi.
-- Lovable projesinde Connectors > Supabase bağlantı izni.
+## 5 yıldız nasıl kazanılıyor
 
-## Riskler ve Önlemler
-- **Veri kaybı riski:** Geçiş öncesi mevcut tüm tablolar CSV/SQL dump ile yedeklenecek.
-- **Kesinti riski:** Kullanıcılar geçiş sırasında giriş yapamayabilir. Plan, hızlı kesinti penceresiyle tamamlanacak.
-- **Auth UID uyumsuzluğu:** Yeni Supabase projesinde aynı kullanıcıların aynı UUID'lerle oluşması gerekir. Bu, dump/restore ile sağlanacak; yeni kayıtlar sonradan elle eşleştirilmeyecek.
+| Yıldız | Doğrulama | Onay şekli |
+|---|---|---|
+| 1 | Telefon (SMS kodu) | Otomatik — giriş yaparken zaten doğrulanıyor |
+| 2 | Kimlik belgesi (ön yüz fotoğrafı) | Admin onayı |
+| 3 | Selfie (kimlikle birlikte) | Admin onayı |
+| 4 | Adli sicil (sabıka) kaydı belgesi | Admin onayı |
+| 5 | Meslek/yetkinlik belgesi (mevcut "Yetkinlik Belgelerim") | Admin onayı |
 
-## Adımlar
+Profilde ve iş kartlarında yıldız sayısı görünür: "⭐⭐⭐☆☆ Güven 3/5".
 
-### Adım 1: Yeni Supabase Proje Bilgilerini Toplama
-Gerekli değerler:
-- `SUPABASE_URL`
-- `SUPABASE_ANON_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY`
-- `SUPABASE_DB_URL` (connection string / pooler)
-- `SUPABASE_JWKS`
+## Kullanıcı tarafı
 
-Bu bilgiler Supabase Dashboard > Project Settings > API ve Database bölümlerinden alınacak. Lovable tarafında Secrets olarak kaydedilecek.
+- Profil sayfasındaki mevcut "Kimlik Doğrulama" kartı **"Güven Doğrulaması"** kartına dönüşür:
+  5 satır, her satırda durum (eksik / incelemede / onaylandı / reddedildi + red sebebi) ve
+  belge yükleme butonu.
+- Belgeler **gizli (private)** bir depolama alanına yüklenir; sadece sahibi ve adminler görebilir.
+- Profil oluşturma ekranının sonunda "Güvenini artır" yönlendirmesi eklenir (zorunlu değil,
+  atlanabilir), böylece kayıt akışı uzamaz.
+- Reddedilen belge yeniden yüklenebilir; her tür için en fazla 5 deneme.
 
-### Adım 2: Mevcut Lovable Cloud Veritabanı Yedeği
-- Tüm `public` şema nesneleri (tablolar, enumlar, fonksiyonlar, triggerlar, politikalar) SQL olarak dışa aktarılacak.
-- Veri tabloları (`profiles`, `tasks`, `task_assignments`, `messages`, `notifications`, `reviews`, `credit_transactions`, `store_purchases`, `task_views`, `credentials`, `otp_codes`) CSV veya INSERT dump olarak yedeklenecek.
-- Storage bucket'larındaki dosyalar (avatarlar ve görev fotoğrafları) liste halinde alınıp daha sonra yeniden yüklenecek.
+## Admin tarafı
 
-### Adım 3: Yeni Supabase Projesinde Şema Kurulumu
-- Yedekten alınan SQL, yeni projede çalıştırılacak.
-- `auth.users` ve `public.profiles` arasındaki ilişki korunacak.
-- `handle_new_user()` trigger'ı yeni `auth.users` tablosuna bağlanacak.
-- `pg_cron` uzantısı ve `process_task_lifecycle()` fonksiyonu yeni projede aktif hale getirilecek.
+- Mevcut `/admin/reports` yanına `/admin/verifications` sayfası: bekleyen başvurular listesi,
+  belge önizleme, **Onayla / Reddet (sebep yaz)** butonları.
+- Yeni başvuru geldiğinde adminlere bildirim düşer.
 
-### Adım 4: Verilerin Aktarımı
-- Yedeklenen tablolara INSERT'ler yeni veritabanına yüklenecek.
-- `auth.users` tablosu da aktarılacak (şifre hash'leri ve metadata ile), böylece mevcut kullanıcılar şifrelerini değiştirmeden giriş yapabilecek.
-- Aktarım sonrası foreign key bütünlüğü ve sayaçlar kontrol edilecek.
+## KVKK
 
-### Adım 5: Storage ve Medya Aktarımı
-- `avatars` ve `task-photos` bucket'ları yeni projede oluşturulacak.
-- Mevcut dosyalar indirilip yeni projeye yüklenerek URL'leri güncellenecek.
+- Adli sicil ve kimlik belgeleri onaydan sonra **otomatik silinir**; geride sadece
+  "onaylandı + tarih" bilgisi kalır. Kartta bu açıkça yazar.
+- Kimlik numarası hiçbir yerde saklanmaz. Reddedilen belgeler 30 gün sonra silinir.
 
-### Adım 6: Edge Function'ların Yeni Projeye Deploy Edilmesi
-- `send-otp`, `verify-otp`, `revenuecat-webhook` edge function'ları yeni Supabase projesine deploy edilecek.
-- Gerekli secrets (Twilio, RevenueCat webhook secret) yeni projeye kaydedilecek.
-- RevenueCat dashboard'daki webhook URL'si yeni adresle güncellenecek.
+## Teknik notlar
 
-### Adım 7: Auth ve Social Login Yapılandırması
-- Yeni Supabase projesinde Google ve Apple OAuth provider'ları aktif edilecek.
-- iOS/Android redirect URI'ları yeni projeye göre güncellenecek.
-- Telefon OTP tamamen kaldırıldığı için bu adım sadece social provider'ları içerir.
+- Yeni tablo `verification_requests`: `user_id`, `kind` (phone/id_card/selfie/criminal_record/skill),
+  `status` (pending/approved/rejected), `file_path`, `reviewer_id`, `review_note`, tarihler.
+  RLS: kullanıcı kendi kaydını görür/oluşturur, admin (`has_role`) hepsini görür ve günceller.
+- `trust_score(user_id)` security-definer fonksiyonu onaylanan tür sayısını (0-5) döndürür;
+  profil ve iş kartları bunu okur.
+- Private storage bucket `verification-docs`, yol `{user_id}/{kind}-{timestamp}`; imzalı URL ile
+  görüntüleme. Onay/red sonrası dosya silinir.
+- Silme işini `pg_cron` + edge function ile günlük temizlik yapar.
+- `IdentityVerifyCard.tsx` yerine `TrustVerificationCard.tsx`; `ProfileBadges.tsx`'e yıldız satırı;
+  eski NVİ edge fonksiyonu kaldırılır.
 
-### Adım 8: Lovable Projesinin Yeni Backend'e Bağlanması
-- `.env` ve `src/integrations/supabase/client.ts` yeni Supabase URL/anon key ile güncellenecek.
-- Lovable Connectors > Supabase üzerinden yeni proje bağlanacak.
-- `supabase/config.toml` gerekirse yeni proje referanslarıyla güncellenecek.
+## OTP
 
-### Adım 9: Test ve Doğrulama
-- Giriş akışı (Google/Apple) test edilecek.
-- Çağrı oluşturma, kabul etme, mesajlaşma, kredi işlemleri ve lifecycle fonksiyonları test edilecek.
-- Eski Lovable Cloud projesi devre dışı bırakılmadan önce son kullanıcı verisi senkronizasyonu tekrarlanacak.
-
-## Teknik Detaylar
-
-### Veritabanı Nesneleri (Aktarılacak)
-- Enumlar: `app_role`, `task_category`, `task_status`, `task_urgency`, `user_role`
-- Tablolar: `profiles`, `tasks`, `task_assignments`, `messages`, `notifications`, `reviews`, `credit_transactions`, `store_purchases`, `task_views`, `credentials`, `otp_codes`, `user_roles`
-- Fonksiyonlar: `bump_completed_counts`, `charge_credit_on_assignment`, `charge_credit_on_task_create`, `enforce_single_active_assignment`, `grant_store_credits`, `handle_new_user`, `has_role`, `mark_arrival`, `notify_assignment_event`, `notify_task_completed`, `process_task_lifecycle`, `recalc_profile_rating`, `reject_task_completion`, `request_task_completion`, `resolve_dispute`, `set_task_expiry`, `sync_task_fill_status`, `update_updated_at_column`
-- Triggerlar: Yukarıdaki fonksiyonlara bağlı tüm triggerlar
-- Storage bucket'ları: `avatars` (public), `task-photos` (public)
-
-### Dikkat Edilecek Kısıtlar
-- `auth.users` tablosuna doğrudan INSERT yapmak Supabase'de service role ile mümkündür; dump restore sırasında UUID'ler ve şifre hash'leri korunmalı.
-- `storage.objects` RLS politikaları yeni projede yeniden oluşturulmalı.
-- `pg_cron` extension'ı yeni projede aktif edilmeli ve `process_task_lifecycle()` cron job olarak tanımlanmalı.
-
-### Tahmini Süre
-- Hazırlık ve yedekleme: 15-30 dk
-- Yeni proje şema ve veri aktarımı: 30-60 dk
-- Edge function, auth, storage ve frontend bağlantısı: 30-45 dk
-- Test ve doğrulama: 15-30 dk
-- Toplam: 1.5 - 2.5 saat
-
-## Sonraki Adım
-Plan onaylandıktan sonra önce yeni Supabase proje bilgilerini (URL, anon key, service role key, DB connection string) alarak Adım 1'e başlanacak.
+Telefon doğrulaması zaten Twilio ile çalışıyor ama yalnızca doğrulanmış +90 numaralara SMS gidiyor
+(Twilio deneme hesabı kısıtı). 1. yıldızın herkeste çalışması için Twilio hesabının
+yükseltilmesi gerekiyor — bu senin tarafında yapılacak bir adım, kod değişikliği gerektirmiyor.
