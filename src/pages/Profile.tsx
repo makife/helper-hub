@@ -71,12 +71,6 @@ const Profile = () => {
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarSheetOpen, setAvatarSheetOpen] = useState(false);
 
-  const [credOpen, setCredOpen] = useState(false);
-  const [credTitle, setCredTitle] = useState("");
-  const [credFile, setCredFile] = useState<File | null>(null);
-  const [credPreview, setCredPreview] = useState<string | null>(null);
-  const [credSaving, setCredSaving] = useState(false);
-  const [credToDelete, setCredToDelete] = useState<Credential | null>(null);
   const [pendingLang, setPendingLang] = useState<"tr" | "en" | null>(null);
   const [signOutOpen, setSignOutOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
@@ -238,51 +232,6 @@ const Profile = () => {
     });
   };
 
-  const saveCredential = async () => {
-    if (!user || credTitle.trim().length < 2) return;
-    if (credentials.length >= 5) {
-      toast.error(t("En fazla 5 yetkinlik belgesi yükleyebilirsin."));
-      return;
-    }
-    setCredSaving(true);
-    let imageUrl: string | null = null;
-    if (credFile) {
-      const blob = await compressImage(credFile, 1280, 0.75);
-      const path = `${user.id}/credential_${Date.now()}.jpg`;
-      const { error } = await supabase.storage.from("task-photos").upload(path, blob, { contentType: "image/jpeg" });
-      if (!error) {
-        imageUrl = supabase.storage.from("task-photos").getPublicUrl(path).data.publicUrl;
-      }
-    }
-    const { data, error } = await supabase
-      .from("credentials")
-      .insert({ user_id: user.id, title: credTitle.trim(), image_url: imageUrl })
-      .select()
-      .single();
-    setCredSaving(false);
-    if (error || !data) {
-      toast.error(t("Belge eklenemedi."));
-      return;
-    }
-    setCredentials((prev) => [data, ...prev]);
-    setCredOpen(false);
-    setCredTitle("");
-    setCredFile(null);
-    setCredPreview(null);
-    toast.success(t("Belge eklendi ✓"));
-  };
-
-  const deleteCredential = async () => {
-    if (!credToDelete) return;
-    const { error } = await supabase.from("credentials").delete().eq("id", credToDelete.id);
-    if (error) {
-      toast.error(t("Silinemedi."));
-      return;
-    }
-    setCredentials((prev) => prev.filter((c) => c.id !== credToDelete.id));
-    setCredToDelete(null);
-    toast.success(t("Belge silindi"));
-  };
 
   const requestLocation = () => {
     if (!("geolocation" in navigator) || !user) return;
@@ -576,52 +525,6 @@ const Profile = () => {
           {/* Güven doğrulaması */}
           {user && <TrustVerificationCard userId={user.id} phone={profile?.phone ?? null} />}
 
-          {/* Sertifikalar */}
-          <div className="mb-5 rounded-2xl bg-card p-4 shadow-card">
-            <div className="mb-3 flex items-center justify-between">
-              <p className="flex items-center gap-1.5 text-sm font-black text-foreground">
-                <BadgeCheck size={16} className="text-primary" />
-                {t("Yetkinlik Belgelerim")} ({credentials.length}/5)
-              </p>
-              <button
-                onClick={() => setCredOpen(true)}
-                disabled={credentials.length >= 5}
-                className="flex items-center gap-1 rounded-lg bg-primary/10 px-2.5 py-1.5 text-xs font-bold text-primary disabled:opacity-40"
-              >
-                <Plus size={13} /> {t("Ekle")}
-              </button>
-            </div>
-            {credentials.length === 0 ? (
-              <p className="text-xs text-muted-foreground">
-                {t("Henüz belge yok. En fazla 5 belge ekleyebilirsin.")}
-              </p>
-            ) : (
-              <div className="-mx-5 overflow-x-auto px-5 scrollbar-hide">
-                <div className="flex gap-3 pb-2">
-                  {credentials.map((c) => (
-                    <div key={c.id} className="relative min-w-[180px] max-w-[180px] overflow-hidden rounded-xl border border-border">
-                      {c.image_url ? (
-                        <img src={c.image_url} alt={c.title} className="h-36 w-full object-cover" />
-                      ) : (
-                        <div className="flex h-36 w-full items-center justify-center bg-muted">
-                          <BadgeCheck size={28} className="text-muted-foreground" />
-                        </div>
-                      )}
-                      <p className="px-2 py-2 text-xs font-bold text-foreground line-clamp-2">{c.title}</p>
-                      <button
-                        onClick={() => setCredToDelete(c)}
-                        className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-destructive text-destructive-foreground"
-                      >
-                        <Trash2 size={12} />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Değerlendirmeler */}
           <div className="mb-5">
             <p className="mb-3 flex items-center gap-1.5 text-sm font-black text-foreground">
               <Star size={16} className="text-accent" />
@@ -850,56 +753,6 @@ const Profile = () => {
         </div>
       )}
 
-      {/* Belge ekleme sayfası */}
-      {credOpen && (
-        <div className="fixed inset-0 z-50 flex items-end bg-foreground/40 backdrop-blur-sm">
-          <motion.div
-            initial={{ y: 300 }}
-            animate={{ y: 0 }}
-            className="w-full rounded-t-3xl bg-card p-5 safe-bottom"
-          >
-            <div className="mb-4 flex items-center justify-between">
-              <p className="text-base font-black text-foreground">{t("Yetkinlik Belgesi Ekle")}</p>
-              <button onClick={() => setCredOpen(false)} className="text-muted-foreground">
-                <X size={20} />
-              </button>
-            </div>
-            <label className="mb-1 block text-xs font-bold text-muted-foreground">{t("Başlık")}</label>
-            <input
-              value={credTitle}
-              onChange={(e) => setCredTitle(e.target.value)}
-              placeholder={t("Örn: Elektrikçi Ustalık Belgesi")}
-              className="mb-3 w-full rounded-xl border-2 border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary placeholder:text-muted-foreground/50"
-            />
-            <label className="mb-1 block text-xs font-bold text-muted-foreground">{t("Görsel")}</label>
-            <div className="mb-4 flex gap-2">
-              {credPreview && (
-                <img src={credPreview} alt="" className="h-20 w-20 rounded-xl object-cover" />
-              )}
-              <button
-                onClick={() =>
-                  pickImage((f) => {
-                    setCredFile(f);
-                    setCredPreview(URL.createObjectURL(f));
-                  })
-                }
-                className="flex h-20 w-20 flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-muted/50"
-              >
-                <Camera size={18} className="text-muted-foreground" />
-                <span className="text-[10px] text-muted-foreground">{t("Seç")}</span>
-              </button>
-            </div>
-            <button
-              onClick={saveCredential}
-              disabled={credSaving || credTitle.trim().length < 2}
-              className="gradient-warm w-full rounded-xl py-3 text-sm font-bold text-primary-foreground disabled:opacity-40"
-            >
-              {credSaving ? t("Ekleniyor...") : t("Belgeyi Ekle")}
-            </button>
-          </motion.div>
-        </div>
-      )}
-
       {/* Profil fotoğrafı seçim penceresi */}
       {avatarSheetOpen && (
         <div className="fixed inset-0 z-[1001] flex items-end justify-center bg-black/50" onClick={() => setAvatarSheetOpen(false)}>
@@ -945,15 +798,6 @@ const Profile = () => {
           </motion.div>
         </div>
       )}
-
-      <ConfirmDialog
-        open={!!credToDelete}
-        title={t("Belgeyi sil")}
-        description={t('"{title}" belgesini silmek istediğine emin misin?', { title: credToDelete?.title ?? "" })}
-        confirmLabel={t("Sil")}
-        onConfirm={deleteCredential}
-        onCancel={() => setCredToDelete(null)}
-      />
 
       <ConfirmDialog
         open={signOutOpen}
