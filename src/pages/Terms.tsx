@@ -63,8 +63,17 @@ const sections = [
     ],
   },
   {
+    icon: Shield,
+    title: "7. Yaş Sınırı (18+)",
+    content: [
+      "Bi' El At yalnızca 18 yaşından büyük kullanıcılara açıktır.",
+      "Kayıt sırasında 18 yaşından büyük olduğunu onaylayan kullanıcı, bu beyanın doğruluğundan bizzat sorumludur.",
+      "18 yaşından küçük olduğu tespit edilen hesaplar kalıcı olarak kapatılır.",
+    ],
+  },
+  {
     icon: FileText,
-    title: "7. Değişiklikler ve İletişim",
+    title: "8. Değişiklikler ve İletişim",
     content: [
       "Bu koşullar önceden bildirmeksizin güncellenebilir; güncel versiyon uygulama içinde veya web sitesinde yayımlanır.",
       "Hizmeti kullanmaya devam eden kullanıcı, güncel koşulları kabul etmiş sayılır.",
