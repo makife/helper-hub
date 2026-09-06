@@ -1,12 +1,14 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { useEffect, useState, ReactNode } from "react";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import GlobalNotifier from "@/components/GlobalNotifier";
 import SuspensionGate from "@/components/SuspensionGate";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { I18nProvider } from "@/lib/i18n";
 import Welcome from "./pages/Welcome";
 import Onboarding from "./pages/Onboarding";
@@ -34,6 +36,46 @@ const queryClient = new QueryClient();
 
 // Native OAuth deep-link geri dönüşünü yakalar (com.ergan.bielat://auth/callback)
 setupNativeAuthListener();
+
+const RouteLoader = () => (
+  <div className="flex min-h-screen items-center justify-center bg-background">
+    <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+  </div>
+);
+
+/**
+ * Korumalı sayfa kapısı:
+ * - Giriş yapmamış kullanıcıyı karşılama ekranına yollar.
+ * - requireProfile=true ise profilini (ad + 18+ onayı) tamamlamamış
+ *   kullanıcıyı profil kurulumuna yollar; harita/işler görünmez.
+ */
+const RequireAuth = ({ children, requireProfile = true }: { children: ReactNode; requireProfile?: boolean }) => {
+  const { user, loading } = useAuth();
+  const [profileOk, setProfileOk] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (!user || !requireProfile) return;
+    let cancelled = false;
+    supabase
+      .from("profiles")
+      .select("full_name, age_confirmed_at")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (cancelled) return;
+        setProfileOk(!!(data?.full_name?.trim() && data?.age_confirmed_at));
+      });
+    return () => { cancelled = true; };
+  }, [user, requireProfile]);
+
+  if (loading) return <RouteLoader />;
+  if (!user) return <Navigate to="/" replace />;
+  if (requireProfile) {
+    if (profileOk === null) return <RouteLoader />;
+    if (!profileOk) return <Navigate to="/profile-setup" replace />;
+  }
+  return <>{children}</>;
+};
 
 const App = () => (
   <ErrorBoundary>
