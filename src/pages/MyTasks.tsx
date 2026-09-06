@@ -819,7 +819,7 @@ const MyTasks = () => {
 
                   {(ownedOffers[task.id] || []).some((o) => o.status === "pending") && (
                     <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-1 text-[10px] font-black text-primary">
-                      💬 {t("{count} yeni fiyat teklifi", { count: (ownedOffers[task.id] || []).filter((o) => o.status === "pending").length })}
+                      💬 {t("{count} yeni başvuru", { count: (ownedOffers[task.id] || []).filter((o) => o.status === "pending").length })}
                     </div>
                   )}
 
@@ -1051,12 +1051,12 @@ const MyTasks = () => {
                   </div>
                 )}
 
-                {/* Gelen fiyat teklifleri (sadece iş veren) */}
+                {/* Gelen istekler / teklifler (sadece iş veren) */}
                 {selectedDetail.task.owner_id === user?.id &&
                   (ownedOffers[selectedDetail.task.id] || []).length > 0 && (
                     <div className="border-t pt-2">
                       <span className="text-muted-foreground text-xs font-semibold flex items-center gap-1 mb-2">
-                        💬 {t("Gelen Teklifler")}
+                        💬 {t("Gelen İstekler")}
                       </span>
                       <div className="space-y-2">
                         {(ownedOffers[selectedDetail.task.id] || []).map((o) => {
@@ -1064,6 +1064,7 @@ const MyTasks = () => {
                           const hasAccepted = (ownedOffers[selectedDetail.task.id] || []).some(
                             (x) => x.status === "accepted" || x.status === "confirmed"
                           );
+                          const isRequest = o.amount <= (selectedDetail.task.current_price ?? selectedDetail.task.price);
                           return (
                             <div key={o.id} className="rounded-xl bg-muted/40 p-2.5">
                               <div className="flex items-center gap-2.5">
@@ -1085,10 +1086,22 @@ const MyTasks = () => {
                                     <TrustStars score={prof?.trust ?? 0} size={10} />
                                   </span>
                                 </button>
-                                <span className="text-sm font-black text-primary">
-                                  {formatPrice(o.amount, getTaskCurrency(selectedDetail.task))}
+                                <span className="text-right">
+                                  <span className="block text-sm font-black text-primary">
+                                    {formatPrice(o.amount, getTaskCurrency(selectedDetail.task))}
+                                  </span>
+                                  {isRequest && (
+                                    <span className="block text-[9px] font-semibold text-muted-foreground">
+                                      {t("Mevcut fiyat")}
+                                    </span>
+                                  )}
                                 </span>
                               </div>
+                              <p className="mt-1 text-[11px] font-semibold text-muted-foreground">
+                                {isRequest
+                                  ? t("Bu işi almak istiyor, onayını bekliyor")
+                                  : t("Fiyat teklifi gönderdi")}
+                              </p>
 
                               {o.status === "pending" ? (
                                 <div className="mt-2 flex gap-2">
@@ -1098,7 +1111,7 @@ const MyTasks = () => {
                                       disabled={isUpdating}
                                       className="flex-1 rounded-xl bg-primary px-3 py-2 text-xs font-bold text-primary-foreground disabled:opacity-50"
                                     >
-                                      {t("Teklifi Kabul Et")}
+                                      {isRequest ? t("Onayla") : t("Teklifi Kabul Et")}
                                     </button>
                                   )}
                                   <button
