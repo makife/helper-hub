@@ -319,12 +319,72 @@ const ProfileSetup = () => {
 
         {/* Skills */}
         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.25 }}>
-          <label className="mb-2 block text-sm font-semibold text-foreground">{t("Becerilerin")}</label>
-          <div className="flex flex-wrap gap-2">
-            {skills.map((skill) => (
-              <button key={skill.id} onClick={() => toggleSkill(skill.id)} className={`rounded-xl px-3 py-2 text-sm font-semibold transition-all active:scale-95 ${selectedSkills.includes(skill.id) ? "gradient-warm text-primary-foreground shadow-soft" : "border border-border bg-card text-foreground"}`}>
-                {t(skill.label)}
+          <div className="mb-2 flex items-center justify-between">
+            <label className="block text-sm font-semibold text-foreground">
+              {t("Becerilerin ({count}/10)", { count: selectedSkills.length })}
+            </label>
+            {selectedSkills.length > 0 && (
+              <button type="button" onClick={() => setSelectedSkills([])} className="text-xs font-bold text-muted-foreground">
+                {t("Temizle")}
               </button>
+            )}
+          </div>
+          {selectedSkills.length > 0 && (
+            <div className="mb-2 flex flex-wrap gap-2">
+              {selectedSkills.map((s) => (
+                <button key={s} type="button" onClick={() => toggleSkill(s)} className="gradient-warm flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold text-primary-foreground shadow-soft">
+                  {t(s)}
+                  <X size={12} />
+                </button>
+              ))}
+            </div>
+          )}
+          <div className="relative mb-2">
+            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <input
+              value={skillQuery}
+              onChange={(e) => setSkillQuery(e.target.value)}
+              placeholder={t("Beceri ara (ör. musluk, boya, özel ders)")}
+              className="w-full rounded-xl border-2 border-border bg-card py-2.5 pl-9 pr-3 text-sm text-foreground outline-none focus:border-primary placeholder:text-muted-foreground/50"
+            />
+          </div>
+          {skillQuery.trim().length > 1 && !ALL_SKILLS.some((s) => s.toLocaleLowerCase("tr-TR") === skillQuery.trim().toLocaleLowerCase("tr-TR")) && (
+            <button
+              type="button"
+              onClick={() => {
+                toggleSkill(skillQuery.trim());
+                setSkillQuery("");
+              }}
+              className="mb-2 flex w-full items-center gap-2 rounded-xl border-2 border-dashed border-border px-3 py-2.5 text-xs font-bold text-foreground"
+            >
+              <Plus size={14} />"{skillQuery.trim()}" {t("becerisini ekle")}
+            </button>
+          )}
+          <div className="max-h-64 space-y-3 overflow-y-auto rounded-xl border-2 border-border bg-card p-3">
+            {searchSkills(skillQuery).length === 0 && (
+              <p className="py-4 text-center text-xs text-muted-foreground">{t("Sonuç yok, kendin ekleyebilirsin.")}</p>
+            )}
+            {searchSkills(skillQuery).map((g) => (
+              <div key={g.id}>
+                <p className="mb-1.5 text-[11px] font-black uppercase tracking-wide text-muted-foreground">
+                  {g.emoji} {t(g.label)}
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {g.skills.map((s) => {
+                    const active = selectedSkills.includes(s);
+                    return (
+                      <button
+                        key={s}
+                        type="button"
+                        onClick={() => toggleSkill(s)}
+                        className={`rounded-full px-3 py-1.5 text-xs font-bold transition-all active:scale-95 ${active ? "gradient-warm text-primary-foreground" : "border border-border bg-background text-foreground"}`}
+                      >
+                        {t(s)}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             ))}
           </div>
         </motion.div>
