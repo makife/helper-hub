@@ -57,6 +57,11 @@ const RequireAuth = ({ children, requireProfile = true }: { children: ReactNode;
   useEffect(() => {
     if (!user || !requireProfile) return;
     let cancelled = false;
+    const completionKey = `profile-completed:${user.id}`;
+    if (sessionStorage.getItem(completionKey) === "true") {
+      setProfileOk(true);
+      return;
+    }
     supabase
       .from("profiles")
       .select("full_name, age_confirmed_at")
@@ -64,7 +69,9 @@ const RequireAuth = ({ children, requireProfile = true }: { children: ReactNode;
       .maybeSingle()
       .then(({ data }) => {
         if (cancelled) return;
-        setProfileOk(!!(data?.full_name?.trim() && data?.age_confirmed_at));
+        const complete = !!(data?.full_name?.trim() && data?.age_confirmed_at);
+        if (complete) sessionStorage.setItem(completionKey, "true");
+        setProfileOk(complete);
       });
     return () => { cancelled = true; };
   }, [user, requireProfile]);
