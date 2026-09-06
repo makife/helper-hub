@@ -252,6 +252,7 @@ const ProfileSetup = () => {
     }
   };
 
+  const changeLanguage = async (next: "tr" | "en") => {
     setLang(next);
     if (user) {
       const { error } = await supabase.from("profiles").update({ language: next }).eq("user_id", user.id);
