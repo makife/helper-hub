@@ -95,20 +95,20 @@ const App = () => (
                 <Route path="/login" element={<Login />} />
                 <Route path="/auth/callback" element={<AuthCallback />} />
                 <Route path="/davet/:code" element={<InviteLanding />} />
-                <Route path="/profile-setup" element={<ProfileSetup />} />
-                <Route path="/home" element={<Home />} />
-                <Route path="/create-task" element={<CreateTask />} />
-                <Route path="/search" element={<Search />} />
-                <Route path="/notifications" element={<Notifications />} />
-                <Route path="/my-tasks" element={<MyTasks />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/profile/:userId" element={<UserProfile />} />
-                <Route path="/market" element={<Market />} />
-                <Route path="/messages" element={<Messages />} />
-                <Route path="/task/:taskId" element={<ActiveTask />} />
+                <Route path="/profile-setup" element={<RequireAuth requireProfile={false}><ProfileSetup /></RequireAuth>} />
+                <Route path="/home" element={<RequireAuth><Home /></RequireAuth>} />
+                <Route path="/create-task" element={<RequireAuth><CreateTask /></RequireAuth>} />
+                <Route path="/search" element={<RequireAuth><Search /></RequireAuth>} />
+                <Route path="/notifications" element={<RequireAuth><Notifications /></RequireAuth>} />
+                <Route path="/my-tasks" element={<RequireAuth><MyTasks /></RequireAuth>} />
+                <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
+                <Route path="/profile/:userId" element={<RequireAuth><UserProfile /></RequireAuth>} />
+                <Route path="/market" element={<RequireAuth><Market /></RequireAuth>} />
+                <Route path="/messages" element={<RequireAuth><Messages /></RequireAuth>} />
+                <Route path="/task/:taskId" element={<RequireAuth><ActiveTask /></RequireAuth>} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/privacy" element={<Privacy />} />
-                <Route path="/admin/reports" element={<AdminReports />} />
+                <Route path="/admin/reports" element={<RequireAuth><AdminReports /></RequireAuth>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
