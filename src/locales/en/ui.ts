@@ -492,4 +492,7 @@ export const UI: Record<string, string> = {
   "işi başlatmak için onayla": "confirm to start the job",
   "Teklifin reddedildi ": "Your offer was declined ",
   "ilan fiyatından yine de kabul edebilirsin": "you can still accept at the listed price",
+  "Mağaza fiyatları şu an alınamadı. Gösterilen fiyatlar yaklaşık tutarlardır.": "Store prices couldn't be loaded right now. The prices shown are approximate.",
+  "Tekrar dene": "Try again",
 };
+

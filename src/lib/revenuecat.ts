@@ -82,47 +82,76 @@ export type StorePack = {
 };
 
 /** Mağazadan güncel kredi paketlerini (fiyatlarıyla) getirir */
-export const fetchStorePacks = async (): Promise<StorePack[]> => {
-  if (!isNativePlatform()) return [];
-  const { current, all } = await Purchases.getOfferings();
-  const offering = current ?? Object.values(all)[0];
-  const offeringPackages = offering?.availablePackages ?? [];
+export type StoreFetchResult = {
+  packs: StorePack[];
+  /** Teknik hata/durum bilgisi (kullanıcıya gösterilmez, log/teşhis içindir) */
+  diagnostic?: string;
+};
 
-  let packs: StorePack[] = offeringPackages
-    .map((pkg) => {
-      const product = pkg.product;
-      const productId = product.identifier.split(":")[0];
-      return {
-        productId,
-        credits: PRODUCT_CREDITS[productId] ?? 0,
-        priceString: product.priceString,
-        pkg,
-        product,
-      };
-    })
-    .filter((p) => p.credits > 0);
+const mapProduct = (product: PurchasesStoreProduct, pkg?: PurchasesPackage): StorePack => {
+  const productId = product.identifier.split(":")[0];
+  return {
+    productId,
+    credits: PRODUCT_CREDITS[productId] ?? 0,
+    priceString: product.priceString,
+    pkg,
+    product,
+  };
+};
 
-  // Offering yanlış/boş dönse bile Google Play'deki tek seferlik ürünleri doğrudan sorgula.
-  if (packs.length === 0) {
-    const { products } = await Purchases.getProducts({
-      productIdentifiers: Object.keys(PRODUCT_CREDITS),
-      type: PRODUCT_CATEGORY.NON_SUBSCRIPTION,
-    });
-    packs = products
-      .map((product) => {
-        const productId = product.identifier.split(":")[0];
-        return {
-          productId,
-          credits: PRODUCT_CREDITS[productId] ?? 0,
-          priceString: product.priceString,
-          product,
-        };
-      })
-      .filter((p) => p.credits > 0);
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+export const fetchStorePacks = async (): Promise<StoreFetchResult> => {
+  if (!isNativePlatform()) return { packs: [], diagnostic: "not_native" };
+
+  const notes: string[] = [];
+
+  // Mağaza bağlantısı (Play Billing) hazır olana kadar birkaç kez dene.
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (attempt > 0) await sleep(1200 * attempt);
+
+    // 1) Offerings
+    try {
+      const { current, all } = await Purchases.getOfferings();
+      const offering = current ?? Object.values(all ?? {})[0];
+      const packs = (offering?.availablePackages ?? [])
+        .map((pkg) => mapProduct(pkg.product, pkg))
+        .filter((p) => p.credits > 0);
+      if (packs.length > 0) return { packs: packs.sort((a, b) => a.credits - b.credits) };
+      notes.push(`offerings_empty(current=${current?.identifier ?? "none"})`);
+    } catch (e) {
+      notes.push(`offerings_error:${(e as Error)?.message ?? e}`);
+    }
+
+    // 2) Doğrudan ürün sorgusu (tek seferlik ürünler)
+    try {
+      const { products } = await Purchases.getProducts({
+        productIdentifiers: Object.keys(PRODUCT_CREDITS),
+        type: PRODUCT_CATEGORY.NON_SUBSCRIPTION,
+      });
+      const packs = (products ?? []).map((p) => mapProduct(p)).filter((p) => p.credits > 0);
+      if (packs.length > 0) return { packs: packs.sort((a, b) => a.credits - b.credits) };
+      notes.push("products_empty");
+    } catch (e) {
+      notes.push(`products_error:${(e as Error)?.message ?? e}`);
+    }
+
+    // 3) Kategori belirtmeden son bir deneme (bazı sürümlerde type filtresi ürünleri gizliyor)
+    try {
+      const { products } = await Purchases.getProducts({
+        productIdentifiers: Object.keys(PRODUCT_CREDITS),
+      });
+      const packs = (products ?? []).map((p) => mapProduct(p)).filter((p) => p.credits > 0);
+      if (packs.length > 0) return { packs: packs.sort((a, b) => a.credits - b.credits) };
+      notes.push("products_untyped_empty");
+    } catch (e) {
+      notes.push(`products_untyped_error:${(e as Error)?.message ?? e}`);
+    }
   }
 
-  return packs.sort((a, b) => a.credits - b.credits);
+  return { packs: [], diagnostic: notes.join(" | ") };
 };
+
 
 export type PurchaseOutcome =
   | { ok: true; productId: string; credits: number }

@@ -51,6 +51,9 @@ const Market = () => {
   const [selected, setSelected] = useState<Pack | null>(null);
   const [buying, setBuying] = useState(false);
   const [restoring, setRestoring] = useState(false);
+  const [storeLoading, setStoreLoading] = useState(false);
+  const [storeError, setStoreError] = useState<string | null>(null);
+
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -72,40 +75,50 @@ const Market = () => {
   }, [load]);
 
   // Native: mağazadaki gerçek fiyatları çek
-  useEffect(() => {
+  const loadStore = useCallback(async () => {
     if (!native || !user) return;
-    let cancelled = false;
-    (async () => {
+    setStoreLoading(true);
+    setStoreError(null);
+    try {
       const ready = await initRevenueCat(user.id);
-      if (!ready) return;
-      try {
-        const store = await fetchStorePacks();
-        if (cancelled || store.length === 0) return;
-        setPacks(
-          store.map((sp) => {
-            const base = CREDIT_PACKS.find((c) => c.productId === sp.productId);
-            return {
-              id: sp.productId,
-              productId: sp.productId,
-              credits: base?.credits ?? sp.credits,
-              price: base?.price ?? 0,
-              eurPrice: base?.eurPrice ?? 0,
-              priceLabel: sp.priceString,
-              bonus: base?.bonus,
-              badge: base?.badge,
-              storePack: sp,
-            };
-          }),
-        );
-
-      } catch (e) {
-        console.error("Mağaza paketleri alınamadı", e);
+      if (!ready) {
+        setStoreError("init_failed");
+        return;
       }
-    })();
-    return () => {
-      cancelled = true;
-    };
+      const { packs: store, diagnostic } = await fetchStorePacks();
+      if (store.length === 0) {
+        console.warn("Mağaza paketleri alınamadı", diagnostic);
+        setStoreError(diagnostic || "empty");
+        return;
+      }
+      setPacks(
+        store.map((sp) => {
+          const base = CREDIT_PACKS.find((c) => c.productId === sp.productId);
+          return {
+            id: sp.productId,
+            productId: sp.productId,
+            credits: base?.credits ?? sp.credits,
+            price: base?.price ?? 0,
+            eurPrice: base?.eurPrice ?? 0,
+            priceLabel: sp.priceString,
+            bonus: base?.bonus,
+            badge: base?.badge,
+            storePack: sp,
+          };
+        }),
+      );
+    } catch (e) {
+      console.error("Mağaza paketleri alınamadı", e);
+      setStoreError((e as Error)?.message || "error");
+    } finally {
+      setStoreLoading(false);
+    }
   }, [native, user]);
+
+  useEffect(() => {
+    loadStore();
+  }, [loadStore]);
+
 
   /** Webhook krediyi yükleyene kadar profili birkaç kez kontrol eder */
   const waitForCredits = useCallback(
@@ -183,8 +196,10 @@ const Market = () => {
    */
   const priceText = (pack: Pack) => {
     if (pack.priceLabel) return pack.priceLabel;
-    return native ? "…" : formatPackPrice(pack.price, pack.eurPrice);
+    if (native && storeLoading) return "…";
+    return formatPackPrice(pack.price, pack.eurPrice);
   };
+
 
   const handleRestore = async () => {
 
@@ -262,11 +277,26 @@ const Market = () => {
           ))}
         </div>
 
+        {native && storeError && !storeLoading && (
+          <div className="rounded-2xl border border-border bg-card p-4 text-center shadow-card">
+            <p className="text-xs font-semibold text-muted-foreground">
+              {t("Mağaza fiyatları şu an alınamadı. Gösterilen fiyatlar yaklaşık tutarlardır.")}
+            </p>
+            <button
+              onClick={loadStore}
+              className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-black text-primary-foreground active:scale-[0.98]"
+            >
+              <RotateCcw size={13} /> {t("Tekrar dene")}
+            </button>
+          </div>
+        )}
+
         <p className="text-center text-[11px] text-muted-foreground">
           {native
             ? t("Ödemeler App Store / Google Play üzerinden alınır. Krediler onaydan hemen sonra yüklenir.")
             : t("Kredi satın alma yalnızca mobil uygulamada yapılabilir.")}
         </p>
+
 
         <div className="rounded-2xl bg-card p-4 shadow-card">
           <p className="mb-3 text-sm font-black text-foreground">{t("Kredi Hareketleri")}</p>
