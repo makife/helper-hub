@@ -26,7 +26,6 @@ const UserProfile = () => {
   const { t, lang } = useI18n();
   const { userId } = useParams<{ userId: string }>();
   const [profile, setProfile] = useState<Tables<"profiles"> | null>(null);
-  const [credentials, setCredentials] = useState<Tables<"credentials">[]>([]);
   const [reviews, setReviews] = useState<ReviewRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [trust, setTrust] = useState(0);
@@ -35,14 +34,12 @@ const UserProfile = () => {
   useEffect(() => {
     if (!userId) return;
     const load = async () => {
-      const [{ data: p }, { data: c }, { data: r }, score] = await Promise.all([
+      const [{ data: p }, { data: r }, score] = await Promise.all([
         supabase.from("profiles").select("*").eq("user_id", userId).maybeSingle(),
-        supabase.from("credentials").select("*").eq("user_id", userId).order("created_at", { ascending: false }),
         supabase.from("reviews").select("*").eq("reviewee_id", userId).order("created_at", { ascending: false }).limit(10),
         fetchTrustScore(userId),
       ]);
       setProfile(p);
-      setCredentials(c || []);
       setTrust(score);
 
       const rows = (r || []) as ReviewRow[];
@@ -123,8 +120,8 @@ const UserProfile = () => {
             </div>
             <div className="flex flex-1 flex-col items-center rounded-xl bg-card p-3 shadow-card">
               <Award size={18} className="text-success" />
-              <p className="mt-1 text-lg font-black text-foreground">{credentials.length}</p>
-              <p className="text-[10px] text-muted-foreground">{t("Belge")}</p>
+              <p className="mt-1 text-lg font-black text-foreground">{trust}/5</p>
+              <p className="text-[10px] text-muted-foreground">{t("Güven")}</p>
             </div>
           </div>
 
@@ -144,34 +141,6 @@ const UserProfile = () => {
                     {t(SKILL_LABELS[s] || s)}
                   </span>
                 ))}
-              </div>
-            </div>
-          )}
-
-          {credentials.length > 0 && (
-            <div className="mb-5 rounded-2xl bg-card p-4 shadow-card">
-              <p className="mb-1 flex items-center gap-1.5 text-sm font-black text-foreground">
-                <BadgeCheck size={16} className="text-primary" />
-                {t("Yetkinlik Belgeleri")}
-              </p>
-              <p className="mb-3 text-xs text-muted-foreground">
-                {t("Bu belgeler kullanıcı tarafından yüklenmiştir; doğruluğu Bi' El At tarafından onaylanmamıştır.")}
-              </p>
-              <div className="-mx-5 overflow-x-auto px-5 scrollbar-hide">
-                <div className="flex gap-3 pb-2">
-                  {credentials.map((c) => (
-                    <div key={c.id} className="min-w-[180px] max-w-[180px] overflow-hidden rounded-xl border border-border">
-                      {c.image_url ? (
-                        <img src={c.image_url} alt={c.title} className="h-36 w-full object-cover" />
-                      ) : (
-                        <div className="flex h-36 w-full items-center justify-center bg-muted">
-                          <BadgeCheck size={28} className="text-muted-foreground" />
-                        </div>
-                      )}
-                      <p className="px-2 py-2 text-xs font-bold text-foreground line-clamp-2">{c.title}</p>
-                    </div>
-                  ))}
-                </div>
               </div>
             </div>
           )}

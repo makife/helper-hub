@@ -26,7 +26,7 @@ export const VERIFICATION_KINDS: {
   { id: "id_card", label: "Kimlik Belgesi", description: "Kimliğinin ön yüzünün net fotoğrafı" },
   { id: "selfie", label: "Kimlikli Selfie", description: "Kimliğini elinde tutarken çektiğin fotoğraf" },
   { id: "criminal_record", label: "Adli Sicil Kaydı", description: "e-Devlet'ten aldığın adli sicil belgesi" },
-  { id: "skill", label: "Meslek Belgesi", description: "Ustalık, sertifika ya da diploma belgen" },
+  { id: "skill", label: "Yetkinlik Belgesi", description: "Ustalık, sertifika ya da diploma belgen" },
 ];
 
 export const MAX_VERIFICATION_ATTEMPTS = 5;
