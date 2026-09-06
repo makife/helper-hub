@@ -36,9 +36,15 @@ const buildOfferSteps = (
     const isMe = !!viewerId && viewerId === o.tasker_id;
     const who = names[o.tasker_id] || translate("El atan");
     const amount = formatPrice(o.amount, cur);
+    const isRequest = o.amount <= (task.current_price ?? task.price);
+    const requestWord = isRequest ? translate("isteği") : translate("teklifi");
     steps.push({
       label: isMe
-        ? translate("{amount} fiyat teklifi verdiniz", { amount })
+        ? isRequest
+          ? translate("Mevcut fiyattan kabul etmek istiyorsunuz")
+          : translate("{amount} fiyat teklifi verdiniz", { amount })
+        : isRequest
+        ? translate("{name} mevcut fiyattan kabul etmek istiyor", { name: who })
         : translate("{name} {amount} fiyat teklifi verdi", { name: who, amount }),
       at: o.created_at,
       note: o.message || undefined,
@@ -46,10 +52,10 @@ const buildOfferSteps = (
     if (o.status === "rejected") {
       steps.push({
         label: isMe
-          ? translate("İş veren teklifinizi reddetti")
+          ? translate("İş veren {requestWord} reddetti", { requestWord })
           : isOwner
-          ? translate("{name} kişisinin teklifini reddettiniz", { name: who })
-          : translate("İş veren {name} kişisinin teklifini reddetti", { name: who }),
+          ? translate("{name} kişisinin {requestWord} reddettiniz", { name: who, requestWord })
+          : translate("İş veren {name} kişisinin {requestWord} reddetti", { name: who, requestWord }),
         at: o.responded_at,
         tone: "danger",
       });
@@ -57,10 +63,10 @@ const buildOfferSteps = (
     if (o.status === "accepted" || o.status === "confirmed") {
       steps.push({
         label: isMe
-          ? translate("İş veren teklifinizi kabul etti ({amount})", { amount })
+          ? translate("İş veren {requestWord} kabul etti", { requestWord })
           : isOwner
-          ? translate("{name} kişisinin teklifini kabul ettiniz ({amount})", { name: who, amount })
-          : translate("İş veren {name} kişisinin teklifini kabul etti ({amount})", { name: who, amount }),
+          ? translate("{name} kişisinin {requestWord} kabul ettiniz", { name: who, requestWord })
+          : translate("İş veren {name} kişisinin {requestWord} kabul etti", { name: who, requestWord }),
         at: o.responded_at,
         tone: "success",
       });
@@ -68,8 +74,8 @@ const buildOfferSteps = (
     if (o.status === "confirmed") {
       steps.push({
         label: isMe
-          ? translate("Teklifi onayladınız, işe atandınız")
-          : translate("{name} teklifi onayladı, işe atandı", { name: who }),
+          ? translate("{requestWord} onayladınız, işe atandınız", { requestWord })
+          : translate("{name} {requestWord} onayladı, işe atandı", { name: who, requestWord }),
         at: o.updated_at,
         tone: "success",
       });
