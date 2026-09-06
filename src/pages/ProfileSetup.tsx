@@ -257,6 +257,103 @@ const ProfileSetup = () => {
     }
   };
 
+  const pickCredImage = (capture?: boolean) => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    if (capture) input.setAttribute("capture", "environment");
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        setCredFile(file);
+        setCredPreview(URL.createObjectURL(file));
+      }
+    };
+    input.click();
+  };
+
+  const saveCredential = async () => {
+    if (!user || credTitle.trim().length < 2) return;
+    if (credentials.length >= 5) {
+      toast.error(t("En fazla 5 yetkinlik belgesi yükleyebilirsin."));
+      return;
+    }
+    setCredSaving(true);
+    let imageUrl: string | null = null;
+    if (credFile) {
+      const blob = await compressImage(credFile, 1280, 0.75);
+      const path = `${user.id}/credential_${Date.now()}.jpg`;
+      const { error } = await supabase.storage.from("task-photos").upload(path, blob, { contentType: "image/jpeg" });
+      if (!error) {
+        imageUrl = supabase.storage.from("task-photos").getPublicUrl(path).data.publicUrl;
+      }
+    }
+    const { data, error } = await supabase
+      .from("credentials")
+      .insert({ user_id: user.id, title: credTitle.trim(), image_url: imageUrl })
+      .select()
+      .single();
+    setCredSaving(false);
+    if (error || !data) {
+      toast.error(t("Belge eklenemedi."));
+      return;
+    }
+    setCredentials((prev) => [data, ...prev]);
+    setCredOpen(false);
+    setCredTitle("");
+    setCredFile(null);
+    setCredPreview(null);
+    toast.success(t("Belge eklendi ✓"));
+  };
+
+  const deleteCredential = async () => {
+    if (!credToDelete) return;
+    const { error } = await supabase.from("credentials").delete().eq("id", credToDelete.id);
+    if (error) {
+      toast.error(t("Silinemedi."));
+      return;
+    }
+    setCredentials((prev) => prev.filter((c) => c.id !== credToDelete.id));
+    setCredToDelete(null);
+    toast.success(t("Belge silindi"));
+  };
+
+  const changeLanguage = async (next: "tr" | "en") => {
+    setLang(next);
+    if (user) {
+      const { error } = await supabase.from("profiles").update({ language: next }).eq("user_id", user.id);
+      if (error) toast.error(t("Dil tercihi kaydedilemedi."));
+    }
+  };
+
+  const flags: Record<string, ReactNode> = {
+    tr: (
+      <svg viewBox="0 0 640 480" className="h-4 w-auto rounded-sm">
+        <rect width="640" height="480" fill="#E30A17" />
+        <circle cx="220" cy="240" r="120" fill="#FFFFFF" />
+        <circle cx="256" cy="240" r="96" fill="#E30A17" />
+        <path
+          d="M520.6,240 L483.8,266.8 L497.9,310.2 L461.1,283.4 L424.3,310.2 L438.4,266.8 L401.6,240 L447.1,240 L461.1,196.6 L475.2,240 Z"
+          fill="#FFFFFF"
+        />
+      </svg>
+    ),
+    en: (
+      <svg viewBox="0 0 640 480" className="h-4 w-auto rounded-sm">
+        <rect width="640" height="480" fill="#012169" />
+        <path d="M0 0 L640 480 M640 0 L0 480" stroke="#FFFFFF" strokeWidth="60" />
+        <path d="M0 0 L640 480 M640 0 L0 480" stroke="#C8102E" strokeWidth="40" />
+        <path d="M320 0 V480 M0 240 H640" stroke="#FFFFFF" strokeWidth="100" />
+        <path d="M320 0 V480 M0 240 H640" stroke="#C8102E" strokeWidth="60" />
+      </svg>
+    ),
+  };
+
+  const langOptions = [
+    { code: "tr" as const, label: lang === "en" ? "Turkish" : "Türkçe" },
+    { code: "en" as const, label: "English" },
+  ];
+
   const isValid = name.trim().length >= 2 && avatarPreview && ageConfirmed;
 
   const handleSubmit = async () => {
