@@ -3,7 +3,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useI18n } from "@/lib/i18n";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Camera, MapPin, Check, X, UserPlus, Search, Plus, ImagePlus, BadgeCheck, Trash2, ChevronDown } from "lucide-react";
+import { Camera, MapPin, Check, X, UserPlus, Search, Plus, ImagePlus, BadgeCheck, Trash2, ChevronDown, ShieldCheck } from "lucide-react";
 import { ALL_SKILLS, searchSkills } from "@/lib/skillCatalog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
