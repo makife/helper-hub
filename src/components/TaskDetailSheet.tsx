@@ -530,8 +530,17 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
 
               {myOffer?.status === "pending" && (
                 <div className="rounded-2xl bg-muted/50 p-3 text-center text-sm font-semibold text-muted-foreground">
-                  {t("Teklifin gönderildi")}: <span className="font-black text-foreground">{formatPrice(myOffer.amount, currency)}</span>
-                  <p className="mt-1 text-xs font-normal">{t("Çağrı sahibinin yanıtı bekleniyor.")}</p>
+                  {myOfferIsRequest ? (
+                    <>
+                      {t("İsteğin gönderildi")}
+                      <p className="mt-1 text-xs font-normal">{t("Yardım çağrısını yapanın onayı bekleniyor.")}</p>
+                    </>
+                  ) : (
+                    <>
+                      {t("Teklifin gönderildi")}: <span className="font-black text-foreground">{formatPrice(myOffer.amount, currency)}</span>
+                      <p className="mt-1 text-xs font-normal">{t("Çağrı sahibinin yanıtı bekleniyor.")}</p>
+                    </>
+                  )}
                 </div>
               )}
 
@@ -541,26 +550,20 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
                   disabled={offerBusy}
                   className="w-full rounded-2xl bg-primary px-6 py-4 text-base font-bold text-primary-foreground disabled:opacity-50"
                 >
-                  {t("Teklifin kabul edildi")} ({formatPrice(myOffer.amount, currency)}) — {t("Onayla ve Başla")}
+                  {myOfferIsRequest
+                    ? `${t("İsteğin onaylandı")} — ${t("Onayla ve Başla")}`
+                    : `${t("Teklifin kabul edildi")} (${formatPrice(myOffer.amount, currency)}) — ${t("Onayla ve Başla")}`}
                 </button>
               )}
 
               {myOffer?.status === "rejected" && (
-                <div className="space-y-2">
-                  <p className="rounded-2xl bg-muted/50 p-3 text-center text-xs font-semibold text-muted-foreground">
-                    {t("Teklifin reddedildi. İlan fiyatından yine de kabul edebilirsin.")}
-                  </p>
-                  <button
-                    onClick={handleAccept}
-                    disabled={accepting}
-                    className="gradient-warm w-full rounded-2xl px-4 py-4 text-base font-bold text-primary-foreground shadow-soft transition-transform active:scale-[0.98] disabled:opacity-50"
-                  >
-                    {accepting
-                      ? t("Kabul ediliyor...")
-                      : `${t("Kabul Et")} · ${formatPrice(livePrice ? livePrice.price : task.current_price ?? task.price, currency)}`}
-                  </button>
-                </div>
+                <p className="rounded-2xl bg-muted/50 p-3 text-center text-xs font-semibold text-muted-foreground">
+                  {myOfferIsRequest
+                    ? t("Yardım çağrısını yapan isteğini onaylamadı.")
+                    : t("Teklifin reddedildi.")}
+                </p>
               )}
+
 
 
               {!myOffer && offerOpen && (
