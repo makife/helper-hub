@@ -8,7 +8,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useT } from "@/lib/i18n";
 import { toast } from "sonner";
 import { useLivePrice, formatCountdown } from "@/lib/dynamicPricing";
-import { acceptTask, leaveTask } from "@/lib/assignments";
+import { leaveTask } from "@/lib/assignments";
+import { fetchTrustScore } from "@/lib/trust";
+import TrustStars from "@/components/TrustStars";
 import { createOffer, fetchMyOffer, fetchTaskOffers, respondToOffer, confirmAcceptedOffer, type OfferRow } from "@/lib/offers";
 import { ALL_TOOLS } from "@/lib/toolsList";
 import { formatScheduled } from "@/lib/schedule";
@@ -21,6 +23,8 @@ type TaskWithUI = Tables<"tasks"> & {
   lat: number;
   lng: number;
 };
+
+type OfferProfile = { full_name: string | null; avatar_url: string | null; trust: number };
 
 type Props = {
   task: TaskWithUI;
@@ -42,6 +46,7 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
   const [offerOpen, setOfferOpen] = useState(false);
   const [offerAmount, setOfferAmount] = useState("");
   const [offerBusy, setOfferBusy] = useState(false);
+  const [offerProfiles, setOfferProfiles] = useState<Record<string, OfferProfile>>({});
   const isOwner = user?.id === task.owner_id;
   const currency = getTaskCurrency(task);
 
@@ -218,7 +223,7 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
     setOfferBusy(true);
     const res = await respondToOffer(offerId, accept);
     setOfferBusy(false);
-    if (res === "accepted") toast.success(t("Teklif kabul edildi. El atanın onayı bekleniyor."));
+    if (res === "accepted") toast.success(t("Onayladın. El atanın son onayı bekleniyor."));
     else if (res === "rejected") toast.success(t("Teklif reddedildi."));
     else if (res === "quota_full") toast.error(t("Kontenjan doldu, başka teklif kabul edemezsin."));
     else toast.error(t("İşlem yapılamadı."));
