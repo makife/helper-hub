@@ -1,17 +1,21 @@
 import { compressImage } from "@/lib/imageCompress";
-import { useEffect, useState } from "react";
-import { useT } from "@/lib/i18n";
+import { useEffect, useState, type ReactNode } from "react";
+import { useI18n } from "@/lib/i18n";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Camera, MapPin, Check, X, UserPlus, Search, Plus, ImagePlus } from "lucide-react";
+import { Camera, MapPin, Check, X, UserPlus, Search, Plus, ImagePlus, BadgeCheck, Trash2, ChevronDown } from "lucide-react";
 import { ALL_SKILLS, searchSkills } from "@/lib/skillCatalog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import type { Tables } from "@/integrations/supabase/types";
 import { toast } from "sonner";
+import ConfirmDialog from "@/components/ConfirmDialog";
 import {
   getPendingReferralCode,
   clearPendingReferralCode,
 } from "@/lib/nativeAuth";
+
+type Credential = Tables<"credentials">;
 
 const MAX_SKILLS = 10;
 
@@ -25,7 +29,7 @@ const LEGACY_SKILL_LABELS: Record<string, string> = {
 };
 
 const ProfileSetup = () => {
-  const t = useT();
+  const { t, lang, setLang } = useI18n();
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -43,6 +47,15 @@ const ProfileSetup = () => {
   const [manualCode, setManualCode] = useState("");
   const [manualCodeApplied, setManualCodeApplied] = useState(false);
   const [manualCodeBusy, setManualCodeBusy] = useState(false);
+  const [credentials, setCredentials] = useState<Credential[]>([]);
+  const [credOpen, setCredOpen] = useState(false);
+  const [credTitle, setCredTitle] = useState("");
+  const [credFile, setCredFile] = useState<File | null>(null);
+  const [credPreview, setCredPreview] = useState<string | null>(null);
+  const [credSaving, setCredSaving] = useState(false);
+  const [credToDelete, setCredToDelete] = useState<Credential | null>(null);
+  const [langOpen, setLangOpen] = useState(false);
+  const [pendingLang, setPendingLang] = useState<"tr" | "en" | null>(null);
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -70,6 +83,13 @@ const ProfileSetup = () => {
         }
         if (data.age_confirmed_at) setAgeConfirmed(true);
       });
+
+    supabase
+      .from("credentials")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => setCredentials(data || []));
   }, [user]);
 
   useEffect(() => {
@@ -237,6 +257,103 @@ const ProfileSetup = () => {
     }
   };
 
+  const pickCredImage = (capture?: boolean) => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    if (capture) input.setAttribute("capture", "environment");
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        setCredFile(file);
+        setCredPreview(URL.createObjectURL(file));
+      }
+    };
+    input.click();
+  };
+
+  const saveCredential = async () => {
+    if (!user || credTitle.trim().length < 2) return;
+    if (credentials.length >= 5) {
+      toast.error(t("En fazla 5 yetkinlik belgesi yükleyebilirsin."));
+      return;
+    }
+    setCredSaving(true);
+    let imageUrl: string | null = null;
+    if (credFile) {
+      const blob = await compressImage(credFile, 1280, 0.75);
+      const path = `${user.id}/credential_${Date.now()}.jpg`;
+      const { error } = await supabase.storage.from("task-photos").upload(path, blob, { contentType: "image/jpeg" });
+      if (!error) {
+        imageUrl = supabase.storage.from("task-photos").getPublicUrl(path).data.publicUrl;
+      }
+    }
+    const { data, error } = await supabase
+      .from("credentials")
+      .insert({ user_id: user.id, title: credTitle.trim(), image_url: imageUrl })
+      .select()
+      .single();
+    setCredSaving(false);
+    if (error || !data) {
+      toast.error(t("Belge eklenemedi."));
+      return;
+    }
+    setCredentials((prev) => [data, ...prev]);
+    setCredOpen(false);
+    setCredTitle("");
+    setCredFile(null);
+    setCredPreview(null);
+    toast.success(t("Belge eklendi ✓"));
+  };
+
+  const deleteCredential = async () => {
+    if (!credToDelete) return;
+    const { error } = await supabase.from("credentials").delete().eq("id", credToDelete.id);
+    if (error) {
+      toast.error(t("Silinemedi."));
+      return;
+    }
+    setCredentials((prev) => prev.filter((c) => c.id !== credToDelete.id));
+    setCredToDelete(null);
+    toast.success(t("Belge silindi"));
+  };
+
+  const changeLanguage = async (next: "tr" | "en") => {
+    setLang(next);
+    if (user) {
+      const { error } = await supabase.from("profiles").update({ language: next }).eq("user_id", user.id);
+      if (error) toast.error(t("Dil tercihi kaydedilemedi."));
+    }
+  };
+
+  const flags: Record<string, ReactNode> = {
+    tr: (
+      <svg viewBox="0 0 640 480" className="h-4 w-auto rounded-sm">
+        <rect width="640" height="480" fill="#E30A17" />
+        <circle cx="220" cy="240" r="120" fill="#FFFFFF" />
+        <circle cx="256" cy="240" r="96" fill="#E30A17" />
+        <path
+          d="M520.6,240 L483.8,266.8 L497.9,310.2 L461.1,283.4 L424.3,310.2 L438.4,266.8 L401.6,240 L447.1,240 L461.1,196.6 L475.2,240 Z"
+          fill="#FFFFFF"
+        />
+      </svg>
+    ),
+    en: (
+      <svg viewBox="0 0 640 480" className="h-4 w-auto rounded-sm">
+        <rect width="640" height="480" fill="#012169" />
+        <path d="M0 0 L640 480 M640 0 L0 480" stroke="#FFFFFF" strokeWidth="60" />
+        <path d="M0 0 L640 480 M640 0 L0 480" stroke="#C8102E" strokeWidth="40" />
+        <path d="M320 0 V480 M0 240 H640" stroke="#FFFFFF" strokeWidth="100" />
+        <path d="M320 0 V480 M0 240 H640" stroke="#C8102E" strokeWidth="60" />
+      </svg>
+    ),
+  };
+
+  const langOptions = [
+    { code: "tr" as const, label: lang === "en" ? "Turkish" : "Türkçe" },
+    { code: "en" as const, label: "English" },
+  ];
+
   const isValid = name.trim().length >= 2 && avatarPreview && ageConfirmed;
 
   const handleSubmit = async () => {
@@ -401,6 +518,53 @@ const ProfileSetup = () => {
           </div>
         </motion.div>
 
+        {/* Yetkinlik Belgeleri */}
+        <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.27 }} className="rounded-2xl bg-card p-4 shadow-card">
+          <div className="mb-3 flex items-center justify-between">
+            <p className="flex items-center gap-1.5 text-sm font-black text-foreground">
+              <BadgeCheck size={16} className="text-primary" />
+              {t("Yetkinlik Belgelerim")} ({credentials.length}/5)
+            </p>
+            <button
+              type="button"
+              onClick={() => setCredOpen(true)}
+              disabled={credentials.length >= 5}
+              className="flex items-center gap-1 rounded-lg bg-primary/10 px-2.5 py-1.5 text-xs font-bold text-primary disabled:opacity-40"
+            >
+              <Plus size={13} /> {t("Ekle")}
+            </button>
+          </div>
+          {credentials.length === 0 ? (
+            <p className="text-xs text-muted-foreground">
+              {t("Henüz belge yok. En fazla 5 belge ekleyebilirsin.")}
+            </p>
+          ) : (
+            <div className="-mx-4 overflow-x-auto px-4 scrollbar-hide">
+              <div className="flex gap-3 pb-2">
+                {credentials.map((c) => (
+                  <div key={c.id} className="relative min-w-[180px] max-w-[180px] overflow-hidden rounded-xl border border-border">
+                    {c.image_url ? (
+                      <img src={c.image_url} alt={c.title} className="h-36 w-full object-cover" />
+                    ) : (
+                      <div className="flex h-36 w-full items-center justify-center bg-muted">
+                        <BadgeCheck size={28} className="text-muted-foreground" />
+                      </div>
+                    )}
+                    <p className="px-2 py-2 text-xs font-bold text-foreground line-clamp-2">{c.title}</p>
+                    <button
+                      type="button"
+                      onClick={() => setCredToDelete(c)}
+                      className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-destructive text-destructive-foreground"
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </motion.div>
+
         {/* Location */}
         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }}>
           <button onClick={requestLocation} className={`flex w-full items-center gap-3 rounded-xl border-2 px-4 py-3.5 text-left transition-all active:scale-[0.98] ${locationGranted ? "border-success/30 bg-success/5" : "border-border bg-card"}`}>
@@ -447,6 +611,66 @@ const ProfileSetup = () => {
           <p className="mt-1.5 text-xs text-muted-foreground">
             {t("Seni davet edenin kodunu gir, ikinize de 1'er kredi hediye.")}
           </p>
+        </motion.div>
+
+        {/* Dil seçimi */}
+        <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.38 }} className="rounded-2xl border border-border bg-card p-4 shadow-card">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-black text-foreground">{t("Uygulama Dili")}</p>
+              <p className="text-xs text-muted-foreground">{t("Dil / Language")}</p>
+            </div>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setLangOpen((v) => !v)}
+                className="flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-black text-foreground shadow-sm"
+              >
+                <span className="flex items-center">{flags[lang]}</span>
+                <span>{lang.toUpperCase()}</span>
+                <ChevronDown size={14} className={`transition-transform ${langOpen ? "rotate-180" : ""}`} />
+              </button>
+              <AnimatePresence>
+                {langOpen && (
+                  <motion.div
+                    initial="hidden"
+                    animate="visible"
+                    exit="hidden"
+                    variants={{
+                      hidden: { opacity: 0, scaleY: 0.6, originY: 0 },
+                      visible: { opacity: 1, scaleY: 1, originY: 0 },
+                    }}
+                    transition={{ duration: 0.2, ease: "easeOut" }}
+                    className="absolute right-0 top-full z-20 mt-1 flex w-36 origin-top flex-col rounded-xl border border-border bg-card p-1 shadow-lg"
+                  >
+                    {langOptions.map((o, i) => (
+                      <motion.button
+                        key={o.code}
+                        custom={i}
+                        variants={{
+                          hidden: { opacity: 0, y: -12 },
+                          visible: { opacity: 1, y: 0 },
+                        }}
+                        transition={{ duration: 0.2, delay: i * 0.06, ease: "easeOut" }}
+                        onClick={() => {
+                          if (o.code !== lang) setPendingLang(o.code);
+                          setLangOpen(false);
+                        }}
+                        className={`flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold transition-colors ${
+                          lang === o.code
+                            ? "gradient-warm text-primary-foreground"
+                            : "text-foreground hover:bg-muted"
+                        }`}
+                      >
+                        <span className="flex items-center">{flags[o.code]}</span>
+                        <span>{o.label}</span>
+                      </motion.button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
         </motion.div>
 
         {/* 18+ onayı */}
