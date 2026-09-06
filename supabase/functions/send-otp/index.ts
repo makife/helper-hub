@@ -60,33 +60,53 @@ Deno.serve(async (req) => {
 
     // Verify the configured "From" number actually belongs to this Twilio account.
     // If not, fall back to the first SMS-capable number owned by the account.
+    // Optional: a Messaging Service handles the "From" number automatically.
+    const MESSAGING_SERVICE_SID = Deno.env.get("TWILIO_MESSAGING_SERVICE_SID");
+
     let fromNumber = TWILIO_PHONE_NUMBER;
-    const numbersRes = await fetch(`${twilioBase}/IncomingPhoneNumbers.json?PageSize=50`, {
-      headers: { Authorization: `Basic ${credentials}` },
-    });
-    const numbersData = await numbersRes.json();
-    if (numbersRes.ok) {
-      const owned = (numbersData.incoming_phone_numbers ?? []) as Array<{
-        phone_number: string;
-        capabilities?: { sms?: boolean };
-      }>;
-      const digits = (v: string) => v.replace(/\D/g, "");
-      const match = owned.find((n) => digits(n.phone_number) === digits(TWILIO_PHONE_NUMBER));
-      if (!match) {
-        const smsCapable = owned.find((n) => n.capabilities?.sms !== false);
-        if (!smsCapable) {
-          throw new Error(
-            `Twilio hesabında (${TWILIO_ACCOUNT_SID}) SMS gönderebilecek numara yok. ` +
-              `Ayarlardaki numara (${TWILIO_PHONE_NUMBER}) bu hesaba ait değil.`
-          );
-        }
-        console.warn(
-          `Configured From ${TWILIO_PHONE_NUMBER} not owned by account; using ${smsCapable.phone_number}`
+    if (!MESSAGING_SERVICE_SID) {
+      // Verify the configured "From" number actually belongs to this Twilio account.
+      const numbersRes = await fetch(`${twilioBase}/IncomingPhoneNumbers.json?PageSize=50`, {
+        headers: { Authorization: `Basic ${credentials}` },
+      });
+      const numbersData = await numbersRes.json();
+      if (numbersRes.status === 401 || numbersRes.status === 403) {
+        throw new Error(
+          "Twilio kimlik bilgileri geçersiz. TWILIO_ACCOUNT_SID ve TWILIO_AUTH_TOKEN değerlerini kontrol et."
         );
-        fromNumber = smsCapable.phone_number;
       }
+      if (numbersRes.ok) {
+        const owned = (numbersData.incoming_phone_numbers ?? []) as Array<{
+          phone_number: string;
+          capabilities?: { sms?: boolean };
+        }>;
+        const digits = (v: string) => v.replace(/\D/g, "");
+        const match = owned.find((n) => digits(n.phone_number) === digits(TWILIO_PHONE_NUMBER));
+        if (!match) {
+          const smsCapable = owned.find((n) => n.capabilities?.sms !== false);
+          if (!smsCapable) {
+            throw new Error(
+              `Bu Twilio hesabında SMS gönderebilecek bir numara tanımlı değil. ` +
+                `Twilio'da bir numara satın al ve TWILIO_PHONE_NUMBER olarak ekle, ` +
+                `ya da bir Messaging Service oluşturup TWILIO_MESSAGING_SERVICE_SID ekle.`
+            );
+          }
+          console.warn("Configured From not owned by account; using account number instead");
+          fromNumber = smsCapable.phone_number;
+        }
+      } else {
+        console.error("Could not list Twilio numbers:", numbersData);
+      }
+    }
+
+    const smsParams = new URLSearchParams({
+      To: phone,
+      Body: `Bi' El At doğrulama kodunuz: ${code}`,
+    });
+    if (MESSAGING_SERVICE_SID) {
+      smsParams.set("MessagingServiceSid", MESSAGING_SERVICE_SID);
     } else {
-      console.error("Could not list Twilio numbers:", numbersData);
+      smsParams.set("From", fromNumber);
     }
 
     const smsResponse = await fetch(`${twilioBase}/Messages.json`, {
@@ -95,12 +115,9 @@ Deno.serve(async (req) => {
         Authorization: `Basic ${credentials}`,
         "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: new URLSearchParams({
-        To: phone,
-        From: fromNumber,
-        Body: `Bi' El At doğrulama kodunuz: ${code}`,
-      }),
+      body: smsParams,
     });
+
 
 
     const smsData = await smsResponse.json();
