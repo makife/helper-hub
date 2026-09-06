@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import { useT } from "@/lib/i18n";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Camera, MapPin, Check, X, UserPlus } from "lucide-react";
+import { Camera, MapPin, Check, X, UserPlus, Search, Plus, ImagePlus } from "lucide-react";
+import { ALL_SKILLS, searchSkills } from "@/lib/skillCatalog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -12,16 +13,16 @@ import {
   clearPendingReferralCode,
 } from "@/lib/nativeAuth";
 
-const skills = [
-  { id: "ampul_takma" as const, label: "💡 Ampul Takma" },
-  { id: "perde_asma" as const, label: "🪟 Perde Asma" },
-  { id: "mobilya_monte" as const, label: "🪑 Mobilya Monte" },
-  { id: "duvar_tamir" as const, label: "🔨 Duvar Tamir" },
-  { id: "kucuk_tamir" as const, label: "🔧 Küçük Tamir" },
-  { id: "tasima_yardimi" as const, label: "📦 Taşıma Yardımı" },
-];
+const MAX_SKILLS = 10;
 
-type SkillId = typeof skills[number]["id"];
+const LEGACY_SKILL_LABELS: Record<string, string> = {
+  ampul_takma: "Ampul takma",
+  perde_asma: "Perde asma",
+  mobilya_monte: "Mobilya montajı",
+  duvar_tamir: "Duvar tamiri",
+  kucuk_tamir: "Küçük tamir",
+  tasima_yardimi: "Taşıma yardımı",
+};
 
 const ProfileSetup = () => {
   const t = useT();
@@ -29,7 +30,9 @@ const ProfileSetup = () => {
   const [bio, setBio] = useState("");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-  const [selectedSkills, setSelectedSkills] = useState<SkillId[]>([]);
+  const [photoSheetOpen, setPhotoSheetOpen] = useState(false);
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const [skillQuery, setSkillQuery] = useState("");
   const [locationGranted, setLocationGranted] = useState(false);
   const [ageConfirmed, setAgeConfirmed] = useState(false);
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
@@ -49,7 +52,7 @@ const ProfileSetup = () => {
     if (!user) return;
     supabase
       .from("profiles")
-      .select("full_name, bio, avatar_url, skills, latitude, longitude, age_confirmed_at")
+      .select("full_name, bio, avatar_url, skills, skill_tags, latitude, longitude, age_confirmed_at")
       .eq("user_id", user.id)
       .maybeSingle()
       .then(({ data }) => {
@@ -57,7 +60,10 @@ const ProfileSetup = () => {
         if (data.full_name) setName(data.full_name);
         if (data.bio) setBio(data.bio);
         if (data.avatar_url) setAvatarPreview(data.avatar_url);
-        if (Array.isArray(data.skills)) setSelectedSkills(data.skills.filter((s): s is SkillId => skills.some((k) => k.id === s)));
+        const savedTags = Array.isArray(data.skill_tags) ? data.skill_tags.filter((s): s is string => typeof s === "string") : [];
+        const legacy = Array.isArray(data.skills) ? data.skills.map((s) => LEGACY_SKILL_LABELS[s] || s) : [];
+        const merged = savedTags.length ? savedTags : legacy;
+        if (merged.length) setSelectedSkills(merged);
         if (data.latitude != null && data.longitude != null) {
           setCoords({ lat: data.latitude, lng: data.longitude });
           setLocationGranted(true);
@@ -189,10 +195,12 @@ const ProfileSetup = () => {
     setReferralDialogOpen(false);
   };
 
-  const handlePhotoUpload = () => {
+  const handlePhotoUpload = (source: "camera" | "gallery") => {
+    setPhotoSheetOpen(false);
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";
+    if (source === "camera") input.setAttribute("capture", "user");
     input.onchange = (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (file) {
@@ -203,10 +211,15 @@ const ProfileSetup = () => {
     input.click();
   };
 
-  const toggleSkill = (skillId: SkillId) => {
-    setSelectedSkills((prev) =>
-      prev.includes(skillId) ? prev.filter((s) => s !== skillId) : [...prev, skillId]
-    );
+  const toggleSkill = (skill: string) => {
+    setSelectedSkills((prev) => {
+      if (prev.includes(skill)) return prev.filter((s) => s !== skill);
+      if (prev.length >= MAX_SKILLS) {
+        toast.error(t("En fazla {count} beceri seçebilirsin.", { count: MAX_SKILLS }));
+        return prev;
+      }
+      return [...prev, skill];
+    });
   };
 
   const requestLocation = () => {
@@ -255,7 +268,7 @@ const ProfileSetup = () => {
         full_name: name.trim(),
         bio: bio.trim() || null,
         avatar_url: avatarUrl,
-        skills: selectedSkills,
+        skill_tags: selectedSkills,
         latitude: coords?.lat ?? null,
         longitude: coords?.lng ?? null,
         age_confirmed_at: new Date().toISOString(),
@@ -285,20 +298,19 @@ const ProfileSetup = () => {
       <div className="flex-1 space-y-5 overflow-y-auto">
         {/* Photo */}
         <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.1 }} className="flex justify-center">
-          <button onClick={handlePhotoUpload} className="relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-primary/40 bg-primary/5 transition-colors active:bg-primary/10">
-            {avatarPreview ? (
-              <>
-                <img src={avatarPreview} alt={t("Profil")} className="h-full w-full object-cover" />
-                <div className="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full bg-primary">
-                  <Check size={14} className="text-primary-foreground" />
-                </div>
-              </>
-            ) : (
+          <button onClick={() => setPhotoSheetOpen(true)} className="relative flex h-24 w-24 items-center justify-center rounded-full border-2 border-dashed border-primary/40 bg-primary/5 transition-colors active:bg-primary/10">
+            <div className="absolute inset-0 overflow-hidden rounded-full">
+              {avatarPreview && <img src={avatarPreview} alt={t("Profil")} className="h-full w-full object-cover" />}
+            </div>
+            {!avatarPreview && (
               <div className="flex flex-col items-center gap-1">
                 <Camera size={24} className="text-primary" />
                 <span className="text-[10px] font-bold text-primary">{t("Fotoğraf *")}</span>
               </div>
             )}
+            <div className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full bg-primary shadow-soft">
+              {avatarPreview ? <Check size={14} className="text-primary-foreground" /> : <Plus size={16} className="text-primary-foreground" />}
+            </div>
           </button>
         </motion.div>
 
@@ -319,12 +331,72 @@ const ProfileSetup = () => {
 
         {/* Skills */}
         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.25 }}>
-          <label className="mb-2 block text-sm font-semibold text-foreground">{t("Becerilerin")}</label>
-          <div className="flex flex-wrap gap-2">
-            {skills.map((skill) => (
-              <button key={skill.id} onClick={() => toggleSkill(skill.id)} className={`rounded-xl px-3 py-2 text-sm font-semibold transition-all active:scale-95 ${selectedSkills.includes(skill.id) ? "gradient-warm text-primary-foreground shadow-soft" : "border border-border bg-card text-foreground"}`}>
-                {t(skill.label)}
+          <div className="mb-2 flex items-center justify-between">
+            <label className="block text-sm font-semibold text-foreground">
+              {t("Becerilerin ({count}/10)", { count: selectedSkills.length })}
+            </label>
+            {selectedSkills.length > 0 && (
+              <button type="button" onClick={() => setSelectedSkills([])} className="text-xs font-bold text-muted-foreground">
+                {t("Temizle")}
               </button>
+            )}
+          </div>
+          {selectedSkills.length > 0 && (
+            <div className="mb-2 flex flex-wrap gap-2">
+              {selectedSkills.map((s) => (
+                <button key={s} type="button" onClick={() => toggleSkill(s)} className="gradient-warm flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold text-primary-foreground shadow-soft">
+                  {t(s)}
+                  <X size={12} />
+                </button>
+              ))}
+            </div>
+          )}
+          <div className="relative mb-2">
+            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <input
+              value={skillQuery}
+              onChange={(e) => setSkillQuery(e.target.value)}
+              placeholder={t("Beceri ara (ör. musluk, boya, özel ders)")}
+              className="w-full rounded-xl border-2 border-border bg-card py-2.5 pl-9 pr-3 text-sm text-foreground outline-none focus:border-primary placeholder:text-muted-foreground/50"
+            />
+          </div>
+          {skillQuery.trim().length > 1 && !ALL_SKILLS.some((s) => s.toLocaleLowerCase("tr-TR") === skillQuery.trim().toLocaleLowerCase("tr-TR")) && (
+            <button
+              type="button"
+              onClick={() => {
+                toggleSkill(skillQuery.trim());
+                setSkillQuery("");
+              }}
+              className="mb-2 flex w-full items-center gap-2 rounded-xl border-2 border-dashed border-border px-3 py-2.5 text-xs font-bold text-foreground"
+            >
+              <Plus size={14} />"{skillQuery.trim()}" {t("becerisini ekle")}
+            </button>
+          )}
+          <div className="max-h-64 space-y-3 overflow-y-auto rounded-xl border-2 border-border bg-card p-3">
+            {searchSkills(skillQuery).length === 0 && (
+              <p className="py-4 text-center text-xs text-muted-foreground">{t("Sonuç yok, kendin ekleyebilirsin.")}</p>
+            )}
+            {searchSkills(skillQuery).map((g) => (
+              <div key={g.id}>
+                <p className="mb-1.5 text-[11px] font-black uppercase tracking-wide text-muted-foreground">
+                  {g.emoji} {t(g.label)}
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {g.skills.map((s) => {
+                    const active = selectedSkills.includes(s);
+                    return (
+                      <button
+                        key={s}
+                        type="button"
+                        onClick={() => toggleSkill(s)}
+                        className={`rounded-full px-3 py-1.5 text-xs font-bold transition-all active:scale-95 ${active ? "gradient-warm text-primary-foreground" : "border border-border bg-background text-foreground"}`}
+                      >
+                        {t(s)}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             ))}
           </div>
         </motion.div>
@@ -403,8 +475,50 @@ const ProfileSetup = () => {
         disabled={!isValid || loading}
         className="mt-4 gradient-warm w-full rounded-2xl px-6 py-4 text-lg font-bold text-primary-foreground shadow-soft transition-all active:scale-[0.98] disabled:opacity-40"
       >
-        {loading ? t("Kaydediliyor...") : t("Profili Tamamla 🎉")}
+        {loading ? t("Kaydediliyor...") : t("Profili Tamamla")}
       </motion.button>
+
+      <AnimatePresence>
+        {photoSheetOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setPhotoSheetOpen(false)}
+            className="fixed inset-0 z-50 flex items-end justify-center bg-black/50"
+          >
+            <motion.div
+              initial={{ y: 80, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 80, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-sm rounded-t-3xl bg-card p-6 pb-8 shadow-xl safe-bottom"
+            >
+              <h3 className="mb-4 text-center text-base font-black text-foreground">{t("Profil fotoğrafı")}</h3>
+              <div className="space-y-2">
+                <button
+                  onClick={() => handlePhotoUpload("camera")}
+                  className="flex w-full items-center gap-3 rounded-2xl border-2 border-border bg-background px-4 py-3.5 text-left transition-all active:scale-[0.98]"
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <Camera size={20} />
+                  </div>
+                  <span className="text-sm font-bold text-foreground">{t("Fotoğraf Çek")}</span>
+                </button>
+                <button
+                  onClick={() => handlePhotoUpload("gallery")}
+                  className="flex w-full items-center gap-3 rounded-2xl border-2 border-border bg-background px-4 py-3.5 text-left transition-all active:scale-[0.98]"
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <ImagePlus size={20} />
+                  </div>
+                  <span className="text-sm font-bold text-foreground">{t("Galeriden Seç")}</span>
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {referralDialogOpen && (
