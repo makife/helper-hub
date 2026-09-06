@@ -1,12 +1,14 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { useEffect, useState, ReactNode } from "react";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import GlobalNotifier from "@/components/GlobalNotifier";
 import SuspensionGate from "@/components/SuspensionGate";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { I18nProvider } from "@/lib/i18n";
 import Welcome from "./pages/Welcome";
 import Onboarding from "./pages/Onboarding";
@@ -35,6 +37,46 @@ const queryClient = new QueryClient();
 // Native OAuth deep-link geri dönüşünü yakalar (com.ergan.bielat://auth/callback)
 setupNativeAuthListener();
 
+const RouteLoader = () => (
+  <div className="flex min-h-screen items-center justify-center bg-background">
+    <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+  </div>
+);
+
+/**
+ * Korumalı sayfa kapısı:
+ * - Giriş yapmamış kullanıcıyı karşılama ekranına yollar.
+ * - requireProfile=true ise profilini (ad + 18+ onayı) tamamlamamış
+ *   kullanıcıyı profil kurulumuna yollar; harita/işler görünmez.
+ */
+const RequireAuth = ({ children, requireProfile = true }: { children: ReactNode; requireProfile?: boolean }) => {
+  const { user, loading } = useAuth();
+  const [profileOk, setProfileOk] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (!user || !requireProfile) return;
+    let cancelled = false;
+    supabase
+      .from("profiles")
+      .select("full_name, age_confirmed_at")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (cancelled) return;
+        setProfileOk(!!(data?.full_name?.trim() && data?.age_confirmed_at));
+      });
+    return () => { cancelled = true; };
+  }, [user, requireProfile]);
+
+  if (loading) return <RouteLoader />;
+  if (!user) return <Navigate to="/" replace />;
+  if (requireProfile) {
+    if (profileOk === null) return <RouteLoader />;
+    if (!profileOk) return <Navigate to="/profile-setup" replace />;
+  }
+  return <>{children}</>;
+};
+
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
@@ -53,20 +95,20 @@ const App = () => (
                 <Route path="/login" element={<Login />} />
                 <Route path="/auth/callback" element={<AuthCallback />} />
                 <Route path="/davet/:code" element={<InviteLanding />} />
-                <Route path="/profile-setup" element={<ProfileSetup />} />
-                <Route path="/home" element={<Home />} />
-                <Route path="/create-task" element={<CreateTask />} />
-                <Route path="/search" element={<Search />} />
-                <Route path="/notifications" element={<Notifications />} />
-                <Route path="/my-tasks" element={<MyTasks />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/profile/:userId" element={<UserProfile />} />
-                <Route path="/market" element={<Market />} />
-                <Route path="/messages" element={<Messages />} />
-                <Route path="/task/:taskId" element={<ActiveTask />} />
+                <Route path="/profile-setup" element={<RequireAuth requireProfile={false}><ProfileSetup /></RequireAuth>} />
+                <Route path="/home" element={<RequireAuth><Home /></RequireAuth>} />
+                <Route path="/create-task" element={<RequireAuth><CreateTask /></RequireAuth>} />
+                <Route path="/search" element={<RequireAuth><Search /></RequireAuth>} />
+                <Route path="/notifications" element={<RequireAuth><Notifications /></RequireAuth>} />
+                <Route path="/my-tasks" element={<RequireAuth><MyTasks /></RequireAuth>} />
+                <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
+                <Route path="/profile/:userId" element={<RequireAuth><UserProfile /></RequireAuth>} />
+                <Route path="/market" element={<RequireAuth><Market /></RequireAuth>} />
+                <Route path="/messages" element={<RequireAuth><Messages /></RequireAuth>} />
+                <Route path="/task/:taskId" element={<RequireAuth><ActiveTask /></RequireAuth>} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/privacy" element={<Privacy />} />
-                <Route path="/admin/reports" element={<AdminReports />} />
+                <Route path="/admin/reports" element={<RequireAuth><AdminReports /></RequireAuth>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

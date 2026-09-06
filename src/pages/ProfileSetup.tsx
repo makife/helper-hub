@@ -43,6 +43,29 @@ const ProfileSetup = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
+  // Mevcut profili forma yükle (18+ onayı eksik olan eski kullanıcılar
+  // her şeyi baştan girmek zorunda kalmasın)
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("full_name, bio, avatar_url, skills, latitude, longitude, age_confirmed_at")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!data) return;
+        if (data.full_name) setName(data.full_name);
+        if (data.bio) setBio(data.bio);
+        if (data.avatar_url) setAvatarPreview(data.avatar_url);
+        if (Array.isArray(data.skills)) setSelectedSkills(data.skills.filter((s): s is SkillId => skills.some((k) => k.id === s)));
+        if (data.latitude != null && data.longitude != null) {
+          setCoords({ lat: data.latitude, lng: data.longitude });
+          setLocationGranted(true);
+        }
+        if (data.age_confirmed_at) setAgeConfirmed(true);
+      });
+  }, [user]);
+
   useEffect(() => {
     if (!user) return;
     const code = getPendingReferralCode();
