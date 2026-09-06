@@ -50,10 +50,7 @@ export const EXTRAS: Record<string, string> = {
   "İş Akışı": "Task flow",
   "İş Akışı:": "Task flow:",
   "{count} yeni başvuru": "{count} new application(s)",
-  "Gelen İstekler": "Incoming Requests",
   "Mevcut fiyat": "Current price",
-  "Bu işi almak istiyor, onayını bekliyor": "Wants to take this task and is waiting for your approval",
-  "Fiyat teklifi gönderdi": "Sent a price offer",
   "El atan bitirdiğini belirtti, sizden onay bekliyor. 24 saat içinde otomatik tamamlanır.":
     "The helper marked the task as finished and is waiting for your confirmation. It will be completed automatically in 24 hours.",
   "Bitirdiğinizi belirttiniz, iş verenden onay bekleniyor. 24 saat içinde otomatik tamamlanır.":
