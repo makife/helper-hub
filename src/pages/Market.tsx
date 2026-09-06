@@ -72,40 +72,50 @@ const Market = () => {
   }, [load]);
 
   // Native: mağazadaki gerçek fiyatları çek
-  useEffect(() => {
+  const loadStore = useCallback(async () => {
     if (!native || !user) return;
-    let cancelled = false;
-    (async () => {
+    setStoreLoading(true);
+    setStoreError(null);
+    try {
       const ready = await initRevenueCat(user.id);
-      if (!ready) return;
-      try {
-        const store = await fetchStorePacks();
-        if (cancelled || store.length === 0) return;
-        setPacks(
-          store.map((sp) => {
-            const base = CREDIT_PACKS.find((c) => c.productId === sp.productId);
-            return {
-              id: sp.productId,
-              productId: sp.productId,
-              credits: base?.credits ?? sp.credits,
-              price: base?.price ?? 0,
-              eurPrice: base?.eurPrice ?? 0,
-              priceLabel: sp.priceString,
-              bonus: base?.bonus,
-              badge: base?.badge,
-              storePack: sp,
-            };
-          }),
-        );
-
-      } catch (e) {
-        console.error("Mağaza paketleri alınamadı", e);
+      if (!ready) {
+        setStoreError("init_failed");
+        return;
       }
-    })();
-    return () => {
-      cancelled = true;
-    };
+      const { packs: store, diagnostic } = await fetchStorePacks();
+      if (store.length === 0) {
+        console.warn("Mağaza paketleri alınamadı", diagnostic);
+        setStoreError(diagnostic || "empty");
+        return;
+      }
+      setPacks(
+        store.map((sp) => {
+          const base = CREDIT_PACKS.find((c) => c.productId === sp.productId);
+          return {
+            id: sp.productId,
+            productId: sp.productId,
+            credits: base?.credits ?? sp.credits,
+            price: base?.price ?? 0,
+            eurPrice: base?.eurPrice ?? 0,
+            priceLabel: sp.priceString,
+            bonus: base?.bonus,
+            badge: base?.badge,
+            storePack: sp,
+          };
+        }),
+      );
+    } catch (e) {
+      console.error("Mağaza paketleri alınamadı", e);
+      setStoreError((e as Error)?.message || "error");
+    } finally {
+      setStoreLoading(false);
+    }
   }, [native, user]);
+
+  useEffect(() => {
+    loadStore();
+  }, [loadStore]);
+
 
   /** Webhook krediyi yükleyene kadar profili birkaç kez kontrol eder */
   const waitForCredits = useCallback(
