@@ -51,6 +51,9 @@ const Market = () => {
   const [selected, setSelected] = useState<Pack | null>(null);
   const [buying, setBuying] = useState(false);
   const [restoring, setRestoring] = useState(false);
+  const [storeLoading, setStoreLoading] = useState(false);
+  const [storeError, setStoreError] = useState<string | null>(null);
+
 
   const load = useCallback(async () => {
     if (!user) return;
