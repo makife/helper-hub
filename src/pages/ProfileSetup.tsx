@@ -1,4 +1,5 @@
 import { compressImage } from "@/lib/imageCompress";
+import { safeSession } from "@/lib/safeStorage";
 import { useEffect, useState, type ReactNode } from "react";
 import { useI18n } from "@/lib/i18n";
 import { motion, AnimatePresence } from "framer-motion";
@@ -63,7 +64,7 @@ const ProfileSetup = () => {
       .then(({ data }) => {
         if (!data) return;
         if (data.full_name?.trim() && data.age_confirmed_at) {
-          sessionStorage.setItem(`profile-completed:${user.id}`, "true");
+          safeSession.set(`profile-completed:${user.id}`, "true");
           navigate("/home", { replace: true });
           return;
         }
@@ -347,7 +348,7 @@ const ProfileSetup = () => {
     toast.success(t("Hoş geldin hediyesi: 5 kredi hesabına yüklendi! 🎁"));
     // Korumalı sayfa kontrolünü anında güncelle; aksi halde yeni kaydı
     // okumadan önce kullanıcı tekrar profil kurulumuna dönebiliyordu.
-    sessionStorage.setItem(`profile-completed:${user.id}`, "true");
+    safeSession.set(`profile-completed:${user.id}`, "true");
     navigate("/home", { replace: true });
   };
 

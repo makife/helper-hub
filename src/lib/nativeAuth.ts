@@ -3,6 +3,7 @@ import { App } from "@capacitor/app";
 import { SocialLogin } from "@capgo/capacitor-social-login";
 import { supabase } from "@/integrations/supabase/client";
 import { translate } from "@/lib/i18n";
+import { safeLocal } from "@/lib/safeStorage";
 import {
   GOOGLE_WEB_CLIENT_ID,
   APPLE_CLIENT_ID,
@@ -104,7 +105,7 @@ export const setupNativeAuthListener = () => {
 
       const code = parsed.searchParams.get("code");
       if (code && parsed.hostname === "davet") {
-        localStorage.setItem(PENDING_REFERRAL_KEY, code.trim().toUpperCase());
+        safeLocal.set(PENDING_REFERRAL_KEY, code.trim().toUpperCase());
       }
     } catch {
       // Geçersiz URL'leri görmezden gel
@@ -113,7 +114,7 @@ export const setupNativeAuthListener = () => {
 };
 
 export const getPendingReferralCode = () =>
-  localStorage.getItem(PENDING_REFERRAL_KEY);
+  safeLocal.get(PENDING_REFERRAL_KEY);
 
 export const clearPendingReferralCode = () =>
-  localStorage.removeItem(PENDING_REFERRAL_KEY);
+  safeLocal.remove(PENDING_REFERRAL_KEY);
