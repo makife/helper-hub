@@ -196,8 +196,10 @@ const Market = () => {
    */
   const priceText = (pack: Pack) => {
     if (pack.priceLabel) return pack.priceLabel;
-    return native ? "…" : formatPackPrice(pack.price, pack.eurPrice);
+    if (native && storeLoading) return "…";
+    return formatPackPrice(pack.price, pack.eurPrice);
   };
+
 
   const handleRestore = async () => {
 
