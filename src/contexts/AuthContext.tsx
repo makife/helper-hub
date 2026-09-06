@@ -32,24 +32,37 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
-        if (session?.user) {
-          void initRevenueCat(session.user.id);
-          void initializePushNotifications(session.user.id);
-        } else {
-          void unregisterPushNotifications();
-        }
+        // Supabase auth callback'i içinde başka Supabase/plugin çağrısı yapmak
+        // native WebView'de kilitlenmeye yol açıyor: bir sonraki tick'e erteliyoruz.
+        const uid = session?.user?.id ?? null;
+        setTimeout(() => {
+          if (uid) {
+            void initRevenueCat(uid).catch((e) => console.error("RevenueCat init:", e));
+            void initializePushNotifications(uid).catch((e) => console.error("Push init:", e));
+          } else {
+            void unregisterPushNotifications().catch(() => {});
+          }
+        }, 0);
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-      if (session?.user) {
-        void initRevenueCat(session.user.id);
-        void initializePushNotifications(session.user.id);
-      }
-    });
+
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
+        if (session?.user) {
+          void initRevenueCat(session.user.id).catch((e) => console.error("RevenueCat init:", e));
+          void initializePushNotifications(session.user.id).catch((e) => console.error("Push init:", e));
+        }
+      })
+      .catch((e) => {
+        // Oturum okunamazsa uygulama sonsuz yüklenmede kalmasın.
+        console.error("Oturum alınamadı:", e);
+        setLoading(false);
+      });
+
 
     return () => subscription.unsubscribe();
   }, []);
