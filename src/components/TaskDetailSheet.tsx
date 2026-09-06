@@ -122,39 +122,27 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [task.id, task.owner_id, user?.id]);
 
+  // "Kabul Et": artık işi doğrudan almaz; çağrı sahibine onay isteği gönderir.
   const handleAccept = async () => {
-
     if (!user) return;
     setAccepting(true);
     const price = livePrice ? livePrice.price : task.current_price ?? task.price;
-    const result = await acceptTask(task.id, user.id, price);
+    const res = await createOffer(task.id, user.id, price);
     setAccepting(false);
 
-    if (result.ok !== true) {
-      if (result.reason === "credits") {
-        toast.error(result.message, {
-          action: { label: t("Kredi Al"), onClick: () => { onClose(); navigate("/market"); } },
-        });
-        return;
-      }
-      toast.error(result.message);
-      if (result.reason === "already") {
-        onClose();
-        navigate(`/task/${task.id}`);
-      }
+    if (!res.ok) {
+      toast.error(
+        res.code === "23505"
+          ? t("Bu çağrı için isteğin zaten gönderildi.")
+          : t("İstek gönderilemedi. Tekrar dene."),
+      );
       return;
     }
 
-
-    toast.success(
-      needed > 1
-        ? t("İş kabul edildi! ({count}/{needed} kişi) 🎉", { count: acceptedCount + 1, needed })
-        : t("İş kabul edildi! 🎉")
-    );
-    onAccepted?.(task);
-    onClose();
-    navigate(`/task/${task.id}`);
+    toast.success(t("İsteğin gönderildi. Yardım çağrısını yapanın onayı bekleniyor."));
+    loadOffers();
   };
+
 
   const loadOffers = async () => {
     if (!user) return;
