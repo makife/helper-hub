@@ -792,6 +792,86 @@ const ProfileSetup = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Belge ekleme penceresi */}
+      {credOpen && (
+        <div className="fixed inset-0 z-50 flex items-end bg-foreground/40 backdrop-blur-sm">
+          <motion.div
+            initial={{ y: 300 }}
+            animate={{ y: 0 }}
+            className="w-full rounded-t-3xl bg-card p-5 safe-bottom"
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <p className="text-base font-black text-foreground">{t("Yetkinlik Belgesi Ekle")}</p>
+              <button onClick={() => setCredOpen(false)} className="text-muted-foreground">
+                <X size={20} />
+              </button>
+            </div>
+            <label className="mb-1 block text-xs font-bold text-muted-foreground">{t("Başlık")}</label>
+            <input
+              value={credTitle}
+              onChange={(e) => setCredTitle(e.target.value)}
+              placeholder={t("Örn: Elektrikçi Ustalık Belgesi")}
+              className="mb-3 w-full rounded-xl border-2 border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary placeholder:text-muted-foreground/50"
+            />
+            <label className="mb-1 block text-xs font-bold text-muted-foreground">{t("Görsel")}</label>
+            <div className="mb-4 flex gap-2">
+              {credPreview && (
+                <img src={credPreview} alt="" className="h-20 w-20 rounded-xl object-cover" />
+              )}
+              <button
+                type="button"
+                onClick={() => pickCredImage(true)}
+                className="flex h-20 w-20 flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-muted/50"
+              >
+                <Camera size={18} className="text-muted-foreground" />
+                <span className="text-[10px] text-muted-foreground">{t("Çek")}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => pickCredImage()}
+                className="flex h-20 w-20 flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-muted/50"
+              >
+                <ImagePlus size={18} className="text-muted-foreground" />
+                <span className="text-[10px] text-muted-foreground">{t("Galeri")}</span>
+              </button>
+            </div>
+            <button
+              onClick={saveCredential}
+              disabled={credSaving || credTitle.trim().length < 2}
+              className="gradient-warm w-full rounded-xl py-3 text-sm font-bold text-primary-foreground disabled:opacity-40"
+            >
+              {credSaving ? t("Ekleniyor...") : t("Belgeyi Ekle")}
+            </button>
+          </motion.div>
+        </div>
+      )}
+
+      <ConfirmDialog
+        open={!!credToDelete}
+        title={t("Belgeyi sil")}
+        description={t('"{title}" belgesini silmek istediğine emin misin?', { title: credToDelete?.title ?? "" })}
+        confirmLabel={t("Sil")}
+        onConfirm={deleteCredential}
+        onCancel={() => setCredToDelete(null)}
+      />
+
+      <ConfirmDialog
+        open={!!pendingLang}
+        title={t("Dil Değiştir")}
+        description={t("Uygulama dilini {lang} olarak değiştirmek istiyor musunuz?", {
+          lang: pendingLang === "tr" ? t("Türkçe") : t("İngilizce"),
+        })}
+        confirmLabel={t("Değiştir")}
+        cancelLabel={t("Vazgeç")}
+        onConfirm={() => {
+          if (pendingLang) {
+            void changeLanguage(pendingLang);
+          }
+          setPendingLang(null);
+        }}
+        onCancel={() => setPendingLang(null)}
+      />
     </div>
   );
 };
