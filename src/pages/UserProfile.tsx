@@ -93,6 +93,9 @@ const UserProfile = () => {
               )}
             </div>
             <h2 className="mt-3 text-lg font-black text-foreground">{profile.full_name || t("İsimsiz Kullanıcı")}</h2>
+            <div className="mt-1.5">
+              <TrustStars score={trust} />
+            </div>
             {profile.profession && <p className="mt-0.5 text-sm font-bold text-primary">{profile.profession}</p>}
             {profile.phone && (
               <div className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
