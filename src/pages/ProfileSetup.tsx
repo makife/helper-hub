@@ -51,7 +51,7 @@ const ProfileSetup = () => {
         if (data.full_name) setName(data.full_name);
         if (data.bio) setBio(data.bio);
         if (data.avatar_url) setAvatarPreview(data.avatar_url);
-        if (Array.isArray(data.skills)) setSelectedSkills(data.skills.filter((s): s is SkillId => skills.some((k) => k.id === s)));
+        if (Array.isArray(data.skills)) setSelectedSkills(data.skills.filter((s): s is string => typeof s === "string"));
         if (data.latitude != null && data.longitude != null) {
           setCoords({ lat: data.latitude, lng: data.longitude });
           setLocationGranted(true);
