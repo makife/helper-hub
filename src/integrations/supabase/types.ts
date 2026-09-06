@@ -823,6 +823,48 @@ export type Database = {
         }
         Relationships: []
       }
+      verification_requests: {
+        Row: {
+          attempts: number
+          created_at: string
+          file_path: string | null
+          id: string
+          kind: string
+          review_note: string | null
+          reviewed_at: string | null
+          reviewer_id: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          file_path?: string | null
+          id?: string
+          kind: string
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          file_path?: string | null
+          id?: string
+          kind?: string
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -915,6 +957,7 @@ export type Database = {
         Args: { _credits: number; _pack?: string }
         Returns: number
       }
+      trust_score: { Args: { _user_id: string }; Returns: number }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
