@@ -277,11 +277,26 @@ const Market = () => {
           ))}
         </div>
 
+        {native && storeError && !storeLoading && (
+          <div className="rounded-2xl border border-border bg-card p-4 text-center shadow-card">
+            <p className="text-xs font-semibold text-muted-foreground">
+              {t("Mağaza fiyatları şu an alınamadı. Gösterilen fiyatlar yaklaşık tutarlardır.")}
+            </p>
+            <button
+              onClick={loadStore}
+              className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-black text-primary-foreground active:scale-[0.98]"
+            >
+              <RotateCcw size={13} /> {t("Tekrar dene")}
+            </button>
+          </div>
+        )}
+
         <p className="text-center text-[11px] text-muted-foreground">
           {native
             ? t("Ödemeler App Store / Google Play üzerinden alınır. Krediler onaydan hemen sonra yüklenir.")
             : t("Kredi satın alma yalnızca mobil uygulamada yapılabilir.")}
         </p>
+
 
         <div className="rounded-2xl bg-card p-4 shadow-card">
           <p className="mb-3 text-sm font-black text-foreground">{t("Kredi Hareketleri")}</p>
