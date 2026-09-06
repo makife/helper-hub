@@ -58,7 +58,7 @@ const RequireAuth = ({ children, requireProfile = true }: { children: ReactNode;
     if (!user || !requireProfile) return;
     let cancelled = false;
     const completionKey = `profile-completed:${user.id}`;
-    if (sessionStorage.getItem(completionKey) === "true") {
+    if (safeSession.get(completionKey) === "true") {
       setProfileOk(true);
       return;
     }
@@ -70,11 +70,17 @@ const RequireAuth = ({ children, requireProfile = true }: { children: ReactNode;
       .then(({ data }) => {
         if (cancelled) return;
         const complete = !!(data?.full_name?.trim() && data?.age_confirmed_at);
-        if (complete) sessionStorage.setItem(completionKey, "true");
+        if (complete) safeSession.set(completionKey, "true");
         setProfileOk(complete);
+      })
+      .catch((err) => {
+        // Ağ/izin hatasında uygulama hata ekranına düşmesin; kurulum sayfasına yollansın.
+        console.error("Profil kontrolü yapılamadı:", err);
+        if (!cancelled) setProfileOk(false);
       });
     return () => { cancelled = true; };
   }, [user, requireProfile]);
+
 
   if (loading) return <RouteLoader />;
   if (!user) return <Navigate to="/" replace />;
