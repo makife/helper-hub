@@ -50,13 +50,11 @@ const LEGACY_SKILL_LABELS: Record<string, string> = {
   kucuk_tamir: "Küçük tamir",
   tasima_yardimi: "Taşıma yardımı",
 };
-type Credential = Tables<"credentials">;
 type ReviewRow = Tables<"reviews"> & { reviewer?: { full_name: string; avatar_url: string | null } | null };
 
 
 const Profile = () => {
   const [profile, setProfile] = useState<Tables<"profiles"> | null>(null);
-  const [credentials, setCredentials] = useState<Credential[]>([]);
   const [reviews, setReviews] = useState<ReviewRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [locationLoading, setLocationLoading] = useState(false);
@@ -92,14 +90,12 @@ const Profile = () => {
 
   const loadAll = useCallback(async () => {
     if (!user) return;
-    const [{ data: p }, { data: c }, { data: r }] = await Promise.all([
+    const [{ data: p }, { data: r }] = await Promise.all([
       supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle(),
-      supabase.from("credentials").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
       supabase.from("reviews").select("*").eq("reviewee_id", user.id).order("created_at", { ascending: false }).limit(10),
     ]);
 
     setProfile(p);
-    setCredentials(c || []);
 
     const reviewRows = (r || []) as ReviewRow[];
     if (reviewRows.length) {
