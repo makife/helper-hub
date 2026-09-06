@@ -286,20 +286,19 @@ const ProfileSetup = () => {
       <div className="flex-1 space-y-5 overflow-y-auto">
         {/* Photo */}
         <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.1 }} className="flex justify-center">
-          <button onClick={handlePhotoUpload} className="relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-primary/40 bg-primary/5 transition-colors active:bg-primary/10">
-            {avatarPreview ? (
-              <>
-                <img src={avatarPreview} alt={t("Profil")} className="h-full w-full object-cover" />
-                <div className="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full bg-primary">
-                  <Check size={14} className="text-primary-foreground" />
-                </div>
-              </>
-            ) : (
+          <button onClick={() => setPhotoSheetOpen(true)} className="relative flex h-24 w-24 items-center justify-center rounded-full border-2 border-dashed border-primary/40 bg-primary/5 transition-colors active:bg-primary/10">
+            <div className="absolute inset-0 overflow-hidden rounded-full">
+              {avatarPreview && <img src={avatarPreview} alt={t("Profil")} className="h-full w-full object-cover" />}
+            </div>
+            {!avatarPreview && (
               <div className="flex flex-col items-center gap-1">
                 <Camera size={24} className="text-primary" />
                 <span className="text-[10px] font-bold text-primary">{t("Fotoğraf *")}</span>
               </div>
             )}
+            <div className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full bg-primary shadow-soft">
+              {avatarPreview ? <Check size={14} className="text-primary-foreground" /> : <Plus size={16} className="text-primary-foreground" />}
+            </div>
           </button>
         </motion.div>
 
