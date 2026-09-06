@@ -467,6 +467,48 @@ const ProfileSetup = () => {
       </motion.button>
 
       <AnimatePresence>
+        {photoSheetOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setPhotoSheetOpen(false)}
+            className="fixed inset-0 z-50 flex items-end justify-center bg-black/50"
+          >
+            <motion.div
+              initial={{ y: 80, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 80, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-sm rounded-t-3xl bg-card p-6 pb-8 shadow-xl safe-bottom"
+            >
+              <h3 className="mb-4 text-center text-base font-black text-foreground">{t("Profil fotoğrafı")}</h3>
+              <div className="space-y-2">
+                <button
+                  onClick={() => handlePhotoUpload("camera")}
+                  className="flex w-full items-center gap-3 rounded-2xl border-2 border-border bg-background px-4 py-3.5 text-left transition-all active:scale-[0.98]"
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <Camera size={20} />
+                  </div>
+                  <span className="text-sm font-bold text-foreground">{t("Fotoğraf Çek")}</span>
+                </button>
+                <button
+                  onClick={() => handlePhotoUpload("gallery")}
+                  className="flex w-full items-center gap-3 rounded-2xl border-2 border-border bg-background px-4 py-3.5 text-left transition-all active:scale-[0.98]"
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <ImagePlus size={20} />
+                  </div>
+                  <span className="text-sm font-bold text-foreground">{t("Galeriden Seç")}</span>
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
         {referralDialogOpen && (
           <motion.div
             initial={{ opacity: 0 }}
