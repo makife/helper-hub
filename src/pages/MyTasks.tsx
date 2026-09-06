@@ -20,6 +20,8 @@ import { getTaskEmoji } from "@/lib/taskCategories";
 import { formatScheduled } from "@/lib/schedule";
 import { leaveTask } from "@/lib/assignments";
 import { respondToOffer, type OfferRow } from "@/lib/offers";
+import { fetchTrustScore } from "@/lib/trust";
+import TrustStars from "@/components/TrustStars";
 
 import { toast } from "sonner";
 import ConfirmDialog from "@/components/ConfirmDialog";
@@ -255,7 +257,7 @@ const MyTasks = () => {
   const [ownedArrivals, setOwnedArrivals] = useState<Record<string, string | null>>({});
   const [ownedTaskers, setOwnedTaskers] = useState<Record<string, { user_id: string; full_name: string; avatar_url: string | null }[]>>({});
   const [ownedOffers, setOwnedOffers] = useState<Record<string, OfferRow[]>>({});
-  const [offerProfiles, setOfferProfiles] = useState<Record<string, { full_name: string; avatar_url: string | null }>>({});
+  const [offerProfiles, setOfferProfiles] = useState<Record<string, { full_name: string; avatar_url: string | null; trust: number }>>({});
   const [ownerCancelCount, setOwnerCancelCount] = useState(0);
 
   const [, setPriceTick] = useState(0);
@@ -377,8 +379,12 @@ const MyTasks = () => {
           .from("profiles")
           .select("user_id, full_name, avatar_url")
           .in("user_id", offerTaskerIds);
-        const map: Record<string, { full_name: string; avatar_url: string | null }> = {};
-        (op || []).forEach((p) => { map[p.user_id] = { full_name: p.full_name, avatar_url: p.avatar_url }; });
+        const scores = await Promise.all(offerTaskerIds.map((id) => fetchTrustScore(id)));
+        const map: Record<string, { full_name: string; avatar_url: string | null; trust: number }> = {};
+        offerTaskerIds.forEach((id, i) => {
+          const p = (op || []).find((row) => row.user_id === id);
+          map[id] = { full_name: p?.full_name ?? "", avatar_url: p?.avatar_url ?? null, trust: scores[i] };
+        });
         setOfferProfiles(map);
       }
     }
@@ -388,7 +394,7 @@ const MyTasks = () => {
     setIsUpdating(true);
     const res = await respondToOffer(offerId, accept);
     setIsUpdating(false);
-    if (res === "accepted") toast.success(t("Teklif kabul edildi. El atanın onayı bekleniyor."));
+    if (res === "accepted") toast.success(t("Onayladın. El atanın son onayı bekleniyor."));
     else if (res === "rejected") toast.success(t("Teklif reddedildi."));
     else if (res === "quota_full") toast.error(t("Kontenjan doldu, başka teklif kabul edemezsin."));
     else toast.error(t("İşlem yapılamadı."));
@@ -1072,8 +1078,11 @@ const MyTasks = () => {
                                       <User size={14} className="text-muted-foreground" />
                                     )}
                                   </div>
-                                  <span className="flex-1 truncate text-xs font-bold text-foreground">
-                                    {prof?.full_name || t("El atan")}
+                                  <span className="min-w-0 flex-1">
+                                    <span className="block truncate text-xs font-bold text-foreground">
+                                      {prof?.full_name || t("El atan")}
+                                    </span>
+                                    <TrustStars score={prof?.trust ?? 0} size={10} />
                                   </span>
                                 </button>
                                 <span className="text-sm font-black text-primary">

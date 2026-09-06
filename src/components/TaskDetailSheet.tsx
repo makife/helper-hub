@@ -8,7 +8,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useT } from "@/lib/i18n";
 import { toast } from "sonner";
 import { useLivePrice, formatCountdown } from "@/lib/dynamicPricing";
-import { acceptTask, leaveTask } from "@/lib/assignments";
+import { leaveTask } from "@/lib/assignments";
+import { fetchTrustScore } from "@/lib/trust";
+import TrustStars from "@/components/TrustStars";
 import { createOffer, fetchMyOffer, fetchTaskOffers, respondToOffer, confirmAcceptedOffer, type OfferRow } from "@/lib/offers";
 import { ALL_TOOLS } from "@/lib/toolsList";
 import { formatScheduled } from "@/lib/schedule";
@@ -21,6 +23,8 @@ type TaskWithUI = Tables<"tasks"> & {
   lat: number;
   lng: number;
 };
+
+type OfferProfile = { full_name: string | null; avatar_url: string | null; trust: number };
 
 type Props = {
   task: TaskWithUI;
@@ -42,6 +46,7 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
   const [offerOpen, setOfferOpen] = useState(false);
   const [offerAmount, setOfferAmount] = useState("");
   const [offerBusy, setOfferBusy] = useState(false);
+  const [offerProfiles, setOfferProfiles] = useState<Record<string, OfferProfile>>({});
   const isOwner = user?.id === task.owner_id;
   const currency = getTaskCurrency(task);
 
@@ -122,39 +127,27 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [task.id, task.owner_id, user?.id]);
 
+  // "Kabul Et": artık işi doğrudan almaz; çağrı sahibine onay isteği gönderir.
   const handleAccept = async () => {
-
     if (!user) return;
     setAccepting(true);
     const price = livePrice ? livePrice.price : task.current_price ?? task.price;
-    const result = await acceptTask(task.id, user.id, price);
+    const res = await createOffer(task.id, user.id, price);
     setAccepting(false);
 
-    if (result.ok !== true) {
-      if (result.reason === "credits") {
-        toast.error(result.message, {
-          action: { label: t("Kredi Al"), onClick: () => { onClose(); navigate("/market"); } },
-        });
-        return;
-      }
-      toast.error(result.message);
-      if (result.reason === "already") {
-        onClose();
-        navigate(`/task/${task.id}`);
-      }
+    if (!res.ok) {
+      toast.error(
+        res.code === "23505"
+          ? t("Bu çağrı için isteğin zaten gönderildi.")
+          : t("İstek gönderilemedi. Tekrar dene."),
+      );
       return;
     }
 
-
-    toast.success(
-      needed > 1
-        ? t("İş kabul edildi! ({count}/{needed} kişi) 🎉", { count: acceptedCount + 1, needed })
-        : t("İş kabul edildi! 🎉")
-    );
-    onAccepted?.(task);
-    onClose();
-    navigate(`/task/${task.id}`);
+    toast.success(t("İsteğin gönderildi. Yardım çağrısını yapanın onayı bekleniyor."));
+    loadOffers();
   };
+
 
   const loadOffers = async () => {
     if (!user) return;
@@ -199,12 +192,38 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
   const reservedByOffers = offers.filter((o) => o.status === "accepted").length;
   const canAcceptOffer = acceptedCount + reservedByOffers < needed;
   const hasAcceptedOffer = offers.some((o) => o.status === "accepted" || o.status === "confirmed");
+  const myOfferIsRequest = !!myOffer && myOffer.amount <= (task.current_price ?? task.price);
+
+  // İstek/teklif gönderenlerin profili + güven yıldızı (iş veren görsün diye)
+  useEffect(() => {
+    if (!isOwner || offers.length === 0) return;
+    let cancelled = false;
+    const load = async () => {
+      const ids = [...new Set(offers.map((o) => o.tasker_id))];
+      const { data } = await supabase
+        .from("profiles")
+        .select("user_id, full_name, avatar_url")
+        .in("user_id", ids);
+      const scores = await Promise.all(ids.map((id) => fetchTrustScore(id)));
+      if (cancelled) return;
+      const map: Record<string, OfferProfile> = {};
+      ids.forEach((id, i) => {
+        const p = (data || []).find((row) => row.user_id === id);
+        map[id] = { full_name: p?.full_name ?? null, avatar_url: p?.avatar_url ?? null, trust: scores[i] };
+      });
+      setOfferProfiles(map);
+    };
+    load();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOwner, offers.map((o) => o.tasker_id).join(",")]);
+
 
   const handleRespond = async (offerId: string, accept: boolean) => {
     setOfferBusy(true);
     const res = await respondToOffer(offerId, accept);
     setOfferBusy(false);
-    if (res === "accepted") toast.success(t("Teklif kabul edildi. El atanın onayı bekleniyor."));
+    if (res === "accepted") toast.success(t("Onayladın. El atanın son onayı bekleniyor."));
     else if (res === "rejected") toast.success(t("Teklif reddedildi."));
     else if (res === "quota_full") toast.error(t("Kontenjan doldu, başka teklif kabul edemezsin."));
     else toast.error(t("İşlem yapılamadı."));
@@ -377,22 +396,42 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
           <div className="mb-4 rounded-xl bg-muted/50 p-3">
             <div className="mb-2 flex items-center gap-2 text-sm text-muted-foreground">
               <Handshake size={14} className="text-primary" />
-              <span>{t("Gelen Teklifler")}</span>
+              <span>{t("Gelen İstekler")}</span>
             </div>
             <div className="space-y-2">
-              {offers.map((o) => (
+              {offers.map((o) => {
+                const p = offerProfiles[o.tasker_id];
+                const isRequest = o.amount <= (task.current_price ?? task.price);
+                return (
                 <div key={o.id} className="rounded-xl bg-card p-3">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-2">
                     <button
                       onClick={() => navigate(`/profile/${o.tasker_id}`)}
-                      className="text-xs font-semibold text-primary"
+                      className="flex min-w-0 items-center gap-2 text-left"
                     >
-                      {t("Profili Gör →")}
+                      {p?.avatar_url ? (
+                        <img src={p.avatar_url} alt="" className="h-9 w-9 shrink-0 rounded-full object-cover" />
+                      ) : (
+                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted">
+                          <User size={16} className="text-muted-foreground" />
+                        </span>
+                      )}
+                      <span className="min-w-0">
+                        <span className="block truncate text-sm font-bold text-foreground">
+                          {p?.full_name || t("Kullanıcı")}
+                        </span>
+                        <TrustStars score={p?.trust ?? 0} size={11} />
+                        <span className="block text-[11px] font-semibold text-primary">{t("Profili Gör →")}</span>
+                      </span>
                     </button>
-                    <span className="text-lg font-black text-foreground">
+                    <span className="shrink-0 text-lg font-black text-foreground">
                       {formatPrice(o.amount, currency)}
                     </span>
                   </div>
+                  <p className="mt-1 text-[11px] font-semibold text-muted-foreground">
+                    {isRequest ? t("Bu işi almak istiyor, onayını bekliyor") : t("Fiyat teklifi gönderdi")}
+                  </p>
+
                   {o.status === "pending" ? (
                     <>
                       <div className="mt-2 flex gap-2">
@@ -402,7 +441,7 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
                             disabled={offerBusy}
                             className="gradient-warm flex-1 rounded-xl px-4 py-2 text-sm font-bold text-primary-foreground disabled:opacity-50"
                           >
-                            {t("Teklifi Kabul Et")}
+                            {isRequest ? t("Onayla") : t("Teklifi Kabul Et")}
                           </button>
                         )}
                         <button
@@ -430,7 +469,9 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
                     </p>
                   )}
                 </div>
-              ))}
+                );
+              })}
+
             </div>
           </div>
         )}
@@ -542,8 +583,17 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
 
               {myOffer?.status === "pending" && (
                 <div className="rounded-2xl bg-muted/50 p-3 text-center text-sm font-semibold text-muted-foreground">
-                  {t("Teklifin gönderildi")}: <span className="font-black text-foreground">{formatPrice(myOffer.amount, currency)}</span>
-                  <p className="mt-1 text-xs font-normal">{t("Çağrı sahibinin yanıtı bekleniyor.")}</p>
+                  {myOfferIsRequest ? (
+                    <>
+                      {t("İsteğin gönderildi")}
+                      <p className="mt-1 text-xs font-normal">{t("Yardım çağrısını yapanın onayı bekleniyor.")}</p>
+                    </>
+                  ) : (
+                    <>
+                      {t("Teklifin gönderildi")}: <span className="font-black text-foreground">{formatPrice(myOffer.amount, currency)}</span>
+                      <p className="mt-1 text-xs font-normal">{t("Çağrı sahibinin yanıtı bekleniyor.")}</p>
+                    </>
+                  )}
                 </div>
               )}
 
@@ -553,26 +603,20 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
                   disabled={offerBusy}
                   className="w-full rounded-2xl bg-primary px-6 py-4 text-base font-bold text-primary-foreground disabled:opacity-50"
                 >
-                  {t("Teklifin kabul edildi")} ({formatPrice(myOffer.amount, currency)}) — {t("Onayla ve Başla")}
+                  {myOfferIsRequest
+                    ? `${t("İsteğin onaylandı")} — ${t("Onayla ve Başla")}`
+                    : `${t("Teklifin kabul edildi")} (${formatPrice(myOffer.amount, currency)}) — ${t("Onayla ve Başla")}`}
                 </button>
               )}
 
               {myOffer?.status === "rejected" && (
-                <div className="space-y-2">
-                  <p className="rounded-2xl bg-muted/50 p-3 text-center text-xs font-semibold text-muted-foreground">
-                    {t("Teklifin reddedildi. İlan fiyatından yine de kabul edebilirsin.")}
-                  </p>
-                  <button
-                    onClick={handleAccept}
-                    disabled={accepting}
-                    className="gradient-warm w-full rounded-2xl px-4 py-4 text-base font-bold text-primary-foreground shadow-soft transition-transform active:scale-[0.98] disabled:opacity-50"
-                  >
-                    {accepting
-                      ? t("Kabul ediliyor...")
-                      : `${t("Kabul Et")} · ${formatPrice(livePrice ? livePrice.price : task.current_price ?? task.price, currency)}`}
-                  </button>
-                </div>
+                <p className="rounded-2xl bg-muted/50 p-3 text-center text-xs font-semibold text-muted-foreground">
+                  {myOfferIsRequest
+                    ? t("Yardım çağrısını yapan isteğini onaylamadı.")
+                    : t("Teklifin reddedildi.")}
+                </p>
               )}
+
 
 
               {!myOffer && offerOpen && (
