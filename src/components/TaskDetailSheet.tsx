@@ -365,22 +365,42 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
           <div className="mb-4 rounded-xl bg-muted/50 p-3">
             <div className="mb-2 flex items-center gap-2 text-sm text-muted-foreground">
               <Handshake size={14} className="text-primary" />
-              <span>{t("Gelen Teklifler")}</span>
+              <span>{t("Gelen İstekler")}</span>
             </div>
             <div className="space-y-2">
-              {offers.map((o) => (
+              {offers.map((o) => {
+                const p = offerProfiles[o.tasker_id];
+                const isRequest = o.amount <= (task.current_price ?? task.price);
+                return (
                 <div key={o.id} className="rounded-xl bg-card p-3">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-2">
                     <button
                       onClick={() => navigate(`/profile/${o.tasker_id}`)}
-                      className="text-xs font-semibold text-primary"
+                      className="flex min-w-0 items-center gap-2 text-left"
                     >
-                      {t("Profili Gör →")}
+                      {p?.avatar_url ? (
+                        <img src={p.avatar_url} alt="" className="h-9 w-9 shrink-0 rounded-full object-cover" />
+                      ) : (
+                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted">
+                          <User size={16} className="text-muted-foreground" />
+                        </span>
+                      )}
+                      <span className="min-w-0">
+                        <span className="block truncate text-sm font-bold text-foreground">
+                          {p?.full_name || t("Kullanıcı")}
+                        </span>
+                        <TrustStars score={p?.trust ?? 0} size={11} />
+                        <span className="block text-[11px] font-semibold text-primary">{t("Profili Gör →")}</span>
+                      </span>
                     </button>
-                    <span className="text-lg font-black text-foreground">
+                    <span className="shrink-0 text-lg font-black text-foreground">
                       {formatPrice(o.amount, currency)}
                     </span>
                   </div>
+                  <p className="mt-1 text-[11px] font-semibold text-muted-foreground">
+                    {isRequest ? t("Bu işi almak istiyor, onayını bekliyor") : t("Fiyat teklifi gönderdi")}
+                  </p>
+
                   {o.status === "pending" ? (
                     <>
                       <div className="mt-2 flex gap-2">
