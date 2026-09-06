@@ -73,6 +73,11 @@ const ProfileSetup = () => {
         if (data.full_name) setName(data.full_name);
         if (data.bio) setBio(data.bio);
         if (data.avatar_url) setAvatarPreview(data.avatar_url);
+        else {
+          const meta = user.user_metadata as { avatar_url?: string; picture?: string } | undefined;
+          const googlePhoto = meta?.avatar_url || meta?.picture;
+          if (googlePhoto) setAvatarPreview(googlePhoto);
+        }
         const savedTags = Array.isArray(data.skill_tags) ? data.skill_tags.filter((s): s is string => typeof s === "string") : [];
         const legacy = Array.isArray(data.skills) ? data.skills.map((s) => LEGACY_SKILL_LABELS[s] || s) : [];
         const merged = savedTags.length ? savedTags : legacy;
@@ -354,16 +359,12 @@ const ProfileSetup = () => {
     { code: "en" as const, label: "English" },
   ];
 
-  const isValid = name.trim().length >= 2 && avatarPreview && ageConfirmed;
+  const isValid = name.trim().length >= 2 && ageConfirmed;
 
   const handleSubmit = async () => {
     if (!user) return;
     if (name.trim().length < 2) {
       toast.error(t("Lütfen adını ve soyadını yaz."));
-      return;
-    }
-    if (!avatarPreview) {
-      toast.error(t("Lütfen bir profil fotoğrafı ekle."));
       return;
     }
     if (!ageConfirmed) {
@@ -372,7 +373,8 @@ const ProfileSetup = () => {
     }
     setLoading(true);
 
-    let avatarUrl: string | null = null;
+    // Yeni fotoğraf yoksa mevcut fotoğraf korunur (eskiden null'lanıyordu)
+    let avatarUrl: string | null = avatarPreview && !avatarPreview.startsWith("data:") ? avatarPreview : null;
 
     // Upload avatar
     if (avatarFile) {
@@ -434,7 +436,7 @@ const ProfileSetup = () => {
             {!avatarPreview && (
               <div className="flex flex-col items-center gap-1">
                 <Camera size={24} className="text-primary" />
-                <span className="text-[10px] font-bold text-primary">{t("Fotoğraf *")}</span>
+                <span className="text-[10px] font-bold text-primary">{t("Fotoğraf")}</span>
               </div>
             )}
             <div className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full bg-primary shadow-soft">

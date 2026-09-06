@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ShieldCheck, Lock, Loader2, Clock, Check, X, Upload, Phone } from "lucide-react";
+import { ShieldCheck, Lock, Loader2, Clock, Check, X, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useT } from "@/lib/i18n";
 import { compressImage } from "@/lib/imageCompress";
@@ -12,17 +12,21 @@ import {
   submitVerification,
 } from "@/lib/trust";
 import TrustStars from "@/components/TrustStars";
+import PhoneVerifyRow from "@/components/PhoneVerifyRow";
 import { toast } from "sonner";
 
-type Props = { userId: string; hasPhone: boolean };
+type Props = { userId: string; phone?: string | null; onPhoneVerified?: () => void };
 
-const TrustVerificationCard = ({ userId, hasPhone }: Props) => {
+const TrustVerificationCard = ({ userId, phone: initialPhone, onPhoneVerified }: Props) => {
   const t = useT();
   const [rows, setRows] = useState<VerificationRequest[]>([]);
   const [score, setScore] = useState(0);
+  const [phone, setPhone] = useState<string | null>(initialPhone ?? null);
   const [busy, setBusy] = useState<VerificationKind | null>(null);
   const pending = useRef<VerificationKind | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => setPhone(initialPhone ?? null), [initialPhone]);
 
   const load = async () => {
     const [{ data }, s] = await Promise.all([
@@ -37,6 +41,7 @@ const TrustVerificationCard = ({ userId, hasPhone }: Props) => {
     if (userId) load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
+
 
   const pick = (kind: VerificationKind) => {
     pending.current = kind;
@@ -91,24 +96,8 @@ const TrustVerificationCard = ({ userId, hasPhone }: Props) => {
 
       <div className="space-y-2">
         {/* 1. yıldız: telefon */}
-        <div className="flex items-center justify-between gap-3 rounded-xl border border-border p-3">
-          <div className="flex items-center gap-2.5">
-            <Phone size={15} className="shrink-0 text-muted-foreground" />
-            <div>
-              <p className="text-xs font-bold text-foreground">{t("Telefon Doğrulama")}</p>
-              <p className="text-[10px] text-muted-foreground">{t("SMS kodu ile giriş")}</p>
-            </div>
-          </div>
-          {hasPhone ? (
-            <span className="flex items-center gap-1 rounded-lg bg-primary/10 px-2 py-1 text-[10px] font-bold text-primary">
-              <Check size={11} /> {t("Onaylandı")}
-            </span>
-          ) : (
-            <span className="rounded-lg bg-muted px-2 py-1 text-[10px] font-bold text-muted-foreground">
-              {t("Eksik")}
-            </span>
-          )}
-        </div>
+        <PhoneVerifyRow phone={phone} onVerified={(p) => { setPhone(p); load(); onPhoneVerified?.(); }} />
+
 
         {VERIFICATION_KINDS.map((k) => {
           const row = rowFor(k.id);
