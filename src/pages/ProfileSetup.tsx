@@ -268,7 +268,7 @@ const ProfileSetup = () => {
         full_name: name.trim(),
         bio: bio.trim() || null,
         avatar_url: avatarUrl,
-        skills: selectedSkills,
+        skill_tags: selectedSkills,
         latitude: coords?.lat ?? null,
         longitude: coords?.lng ?? null,
         age_confirmed_at: new Date().toISOString(),
