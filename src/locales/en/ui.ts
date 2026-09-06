@@ -501,6 +501,7 @@ export const UI: Record<string, string> = {
   "ilan fiyatından yine de kabul edebilirsin": "you can still accept at the listed price",
   "Mağaza fiyatları şu an alınamadı. Gösterilen fiyatlar yaklaşık tutarlardır.": "Store prices couldn't be loaded right now. The prices shown are approximate.",
   "Tekrar dene": "Try again",
+  "Çıkış yap ve baştan başla": "Sign out and start over",
   "Kimlik Doğrulama": "Identity Verification",
   "Kimlik bilgilerin doğrulandı": "Your identity details are verified",
   "Kimlik bilgilerin doğrulandı.": "Your identity details are verified.",
