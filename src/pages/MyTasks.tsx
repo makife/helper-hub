@@ -819,7 +819,7 @@ const MyTasks = () => {
 
                   {(ownedOffers[task.id] || []).some((o) => o.status === "pending") && (
                     <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-1 text-[10px] font-black text-primary">
-                      💬 {t("{count} yeni fiyat teklifi", { count: (ownedOffers[task.id] || []).filter((o) => o.status === "pending").length })}
+                      💬 {t("{count} yeni başvuru", { count: (ownedOffers[task.id] || []).filter((o) => o.status === "pending").length })}
                     </div>
                   )}
 
