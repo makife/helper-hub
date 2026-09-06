@@ -9,6 +9,7 @@ import GlobalNotifier from "@/components/GlobalNotifier";
 import SuspensionGate from "@/components/SuspensionGate";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { safeSession } from "@/lib/safeStorage";
 import { I18nProvider } from "@/lib/i18n";
 import Welcome from "./pages/Welcome";
 import Onboarding from "./pages/Onboarding";
