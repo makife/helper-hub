@@ -31,6 +31,7 @@ const ProfileSetup = () => {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [selectedSkills, setSelectedSkills] = useState<SkillId[]>([]);
   const [locationGranted, setLocationGranted] = useState(false);
+  const [ageConfirmed, setAgeConfirmed] = useState(false);
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [loading, setLoading] = useState(false);
   const [referralDialogOpen, setReferralDialogOpen] = useState(false);
@@ -200,7 +201,7 @@ const ProfileSetup = () => {
     }
   };
 
-  const isValid = name.trim().length >= 2 && avatarPreview;
+  const isValid = name.trim().length >= 2 && avatarPreview && ageConfirmed;
 
   const handleSubmit = async () => {
     if (!isValid || !user) return;
@@ -234,6 +235,7 @@ const ProfileSetup = () => {
         skills: selectedSkills,
         latitude: coords?.lat ?? null,
         longitude: coords?.lng ?? null,
+        age_confirmed_at: new Date().toISOString(),
       })
       .eq("user_id", user.id);
 
