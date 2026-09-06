@@ -183,10 +183,12 @@ const ProfileSetup = () => {
     setReferralDialogOpen(false);
   };
 
-  const handlePhotoUpload = () => {
+  const handlePhotoUpload = (source: "camera" | "gallery") => {
+    setPhotoSheetOpen(false);
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";
+    if (source === "camera") input.setAttribute("capture", "user");
     input.onchange = (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (file) {
@@ -197,10 +199,15 @@ const ProfileSetup = () => {
     input.click();
   };
 
-  const toggleSkill = (skillId: SkillId) => {
-    setSelectedSkills((prev) =>
-      prev.includes(skillId) ? prev.filter((s) => s !== skillId) : [...prev, skillId]
-    );
+  const toggleSkill = (skill: string) => {
+    setSelectedSkills((prev) => {
+      if (prev.includes(skill)) return prev.filter((s) => s !== skill);
+      if (prev.length >= MAX_SKILLS) {
+        toast.error(t("En fazla {count} beceri seçebilirsin.", { count: MAX_SKILLS }));
+        return prev;
+      }
+      return [...prev, skill];
+    });
   };
 
   const requestLocation = () => {
