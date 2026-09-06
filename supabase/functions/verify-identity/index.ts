@@ -59,12 +59,21 @@ const askNvi = async (
     headers: {
       "Content-Type": "text/xml; charset=utf-8",
       SOAPAction: "http://tckimlik.nvi.gov.tr/WS/TCKimlikNoDogrula",
+      "User-Agent": "Mozilla/5.0",
+      Accept: "text/xml",
     },
     body,
   });
 
-  if (!res.ok) throw new Error(`NVI HTTP ${res.status}`);
   const text = await res.text();
+  // Teşhis: kişisel veri loglanmaz, sadece servis yanıtının biçimi
+  console.log("nvi_status", res.status, "has_result", text.includes("TCKimlikNoDogrulaResult"), "len", text.length);
+
+  if (!res.ok) throw new Error(`NVI HTTP ${res.status}`);
+  if (!text.includes("TCKimlikNoDogrulaResult")) {
+    // Servis SOAP yerine hata/yönlendirme sayfası döndü
+    throw new Error("NVI unexpected response");
+  }
   return /<TCKimlikNoDogrulaResult>\s*true\s*<\/TCKimlikNoDogrulaResult>/i.test(text);
 };
 
