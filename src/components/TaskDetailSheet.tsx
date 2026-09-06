@@ -187,6 +187,32 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
   const reservedByOffers = offers.filter((o) => o.status === "accepted").length;
   const canAcceptOffer = acceptedCount + reservedByOffers < needed;
   const hasAcceptedOffer = offers.some((o) => o.status === "accepted" || o.status === "confirmed");
+  const myOfferIsRequest = !!myOffer && myOffer.amount <= (task.current_price ?? task.price);
+
+  // İstek/teklif gönderenlerin profili + güven yıldızı (iş veren görsün diye)
+  useEffect(() => {
+    if (!isOwner || offers.length === 0) return;
+    let cancelled = false;
+    const load = async () => {
+      const ids = [...new Set(offers.map((o) => o.tasker_id))];
+      const { data } = await supabase
+        .from("profiles")
+        .select("user_id, full_name, avatar_url")
+        .in("user_id", ids);
+      const scores = await Promise.all(ids.map((id) => fetchTrustScore(id)));
+      if (cancelled) return;
+      const map: Record<string, OfferProfile> = {};
+      ids.forEach((id, i) => {
+        const p = (data || []).find((row) => row.user_id === id);
+        map[id] = { full_name: p?.full_name ?? null, avatar_url: p?.avatar_url ?? null, trust: scores[i] };
+      });
+      setOfferProfiles(map);
+    };
+    load();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOwner, offers.map((o) => o.tasker_id).join(",")]);
+
 
   const handleRespond = async (offerId: string, accept: boolean) => {
     setOfferBusy(true);
