@@ -535,7 +535,7 @@ export const UI: Record<string, string> = {
   "Kimliğini elinde tutarken çektiğin fotoğraf": "A photo of you holding your ID",
   "Adli Sicil Kaydı": "Criminal Record Certificate",
   "e-Devlet'ten aldığın adli sicil belgesi": "Your criminal record document from e-Devlet",
-  "Meslek Belgesi": "Trade Certificate",
+  "Yetkinlik Belgesi": "Competency Document",
   "Ustalık, sertifika ya da diploma belgen": "Your mastership, certificate or diploma",
   "Yükle": "Upload",
   "Tekrar Yükle": "Upload Again",
