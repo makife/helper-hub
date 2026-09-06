@@ -70,6 +70,11 @@ const ProfileSetup = () => {
       .maybeSingle()
       .then(({ data }) => {
         if (!data) return;
+        if (data.full_name?.trim() && data.age_confirmed_at) {
+          window.dispatchEvent(new Event("profile-completed"));
+          navigate("/home", { replace: true });
+          return;
+        }
         if (data.full_name) setName(data.full_name);
         if (data.bio) setBio(data.bio);
         if (data.avatar_url) setAvatarPreview(data.avatar_url);
@@ -95,7 +100,7 @@ const ProfileSetup = () => {
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .then(({ data }) => setCredentials(data || []));
-  }, [user]);
+  }, [navigate, user]);
 
   useEffect(() => {
     if (!user) return;
@@ -416,7 +421,10 @@ const ProfileSetup = () => {
 
     toast.success(t("Profil oluşturuldu! 🎉"));
     toast.success(t("Hoş geldin hediyesi: 5 kredi hesabına yüklendi! 🎁"));
-    navigate("/home");
+    // Korumalı sayfa kontrolünü anında güncelle; aksi halde yeni kaydı
+    // okumadan önce kullanıcı tekrar profil kurulumuna dönebiliyordu.
+    window.dispatchEvent(new Event("profile-completed"));
+    navigate("/home", { replace: true });
   };
 
   return (
