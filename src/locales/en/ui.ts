@@ -506,7 +506,6 @@ export const UI: Record<string, string> = {
   "Kimlik bilgilerin doğrulandı.": "Your identity details are verified.",
   "Doğrulanmış üye rozeti kazan": "Earn the verified member badge",
   "Doğrula": "Verify",
-  "Vazgeç": "Cancel",
   "TC Kimlik No": "National ID No",
   "Doğum Yılı": "Birth Year",
   "Kimliğimi Doğrula": "Verify My Identity",
