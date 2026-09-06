@@ -357,7 +357,19 @@ const ProfileSetup = () => {
   const isValid = name.trim().length >= 2 && avatarPreview && ageConfirmed;
 
   const handleSubmit = async () => {
-    if (!isValid || !user) return;
+    if (!user) return;
+    if (name.trim().length < 2) {
+      toast.error(t("Lütfen adını ve soyadını yaz."));
+      return;
+    }
+    if (!avatarPreview) {
+      toast.error(t("Lütfen bir profil fotoğrafı ekle."));
+      return;
+    }
+    if (!ageConfirmed) {
+      toast.error(t("Devam etmek için 18 yaşından büyük olduğunu onaylaman gerekiyor."));
+      return;
+    }
     setLoading(true);
 
     let avatarUrl: string | null = null;
