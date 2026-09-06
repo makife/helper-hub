@@ -15,6 +15,15 @@ import {
 
 const MAX_SKILLS = 10;
 
+const LEGACY_SKILL_LABELS: Record<string, string> = {
+  ampul_takma: "Ampul takma",
+  perde_asma: "Perde asma",
+  mobilya_monte: "Mobilya montajı",
+  duvar_tamir: "Duvar tamiri",
+  kucuk_tamir: "Küçük tamir",
+  tasima_yardimi: "Taşıma yardımı",
+};
+
 const ProfileSetup = () => {
   const t = useT();
   const [name, setName] = useState("");
@@ -43,7 +52,7 @@ const ProfileSetup = () => {
     if (!user) return;
     supabase
       .from("profiles")
-      .select("full_name, bio, avatar_url, skills, latitude, longitude, age_confirmed_at")
+      .select("full_name, bio, avatar_url, skills, skill_tags, latitude, longitude, age_confirmed_at")
       .eq("user_id", user.id)
       .maybeSingle()
       .then(({ data }) => {
