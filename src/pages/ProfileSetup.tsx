@@ -85,8 +85,7 @@ const ProfileSetup = () => {
           setLocationGranted(true);
         }
         if (data.age_confirmed_at) setAgeConfirmed(true);
-      })
-      .catch((e) => console.error("Profil yüklenemedi:", e));
+      }, (e: unknown) => console.error("Profil yüklenemedi:", e));
   }, [navigate, user]);
 
   useEffect(() => {
@@ -114,8 +113,7 @@ const ProfileSetup = () => {
         setManualCode(code);
         setPendingReferralCode(code);
         setReferralDialogOpen(true);
-      })
-      .catch((e) => console.error("Davet kodu kontrolü yapılamadı:", e));
+      }, (e: unknown) => console.error("Davet kodu kontrolü yapılamadı:", e));
   }, [user]);
 
   const handleAcceptReferral = async () => {

@@ -73,8 +73,7 @@ const RequireAuth = ({ children, requireProfile = true }: { children: ReactNode;
         const complete = !!(data?.full_name?.trim() && data?.age_confirmed_at);
         if (complete) safeSession.set(completionKey, "true");
         setProfileOk(complete);
-      })
-      .catch((err) => {
+      }, (err: unknown) => {
         // Ağ/izin hatasında uygulama hata ekranına düşmesin; kurulum sayfasına yollansın.
         console.error("Profil kontrolü yapılamadı:", err);
         if (!cancelled) setProfileOk(false);
