@@ -518,6 +518,53 @@ const ProfileSetup = () => {
           </div>
         </motion.div>
 
+        {/* Yetkinlik Belgeleri */}
+        <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.27 }} className="rounded-2xl bg-card p-4 shadow-card">
+          <div className="mb-3 flex items-center justify-between">
+            <p className="flex items-center gap-1.5 text-sm font-black text-foreground">
+              <BadgeCheck size={16} className="text-primary" />
+              {t("Yetkinlik Belgelerim")} ({credentials.length}/5)
+            </p>
+            <button
+              type="button"
+              onClick={() => setCredOpen(true)}
+              disabled={credentials.length >= 5}
+              className="flex items-center gap-1 rounded-lg bg-primary/10 px-2.5 py-1.5 text-xs font-bold text-primary disabled:opacity-40"
+            >
+              <Plus size={13} /> {t("Ekle")}
+            </button>
+          </div>
+          {credentials.length === 0 ? (
+            <p className="text-xs text-muted-foreground">
+              {t("Henüz belge yok. En fazla 5 belge ekleyebilirsin.")}
+            </p>
+          ) : (
+            <div className="-mx-4 overflow-x-auto px-4 scrollbar-hide">
+              <div className="flex gap-3 pb-2">
+                {credentials.map((c) => (
+                  <div key={c.id} className="relative min-w-[180px] max-w-[180px] overflow-hidden rounded-xl border border-border">
+                    {c.image_url ? (
+                      <img src={c.image_url} alt={c.title} className="h-36 w-full object-cover" />
+                    ) : (
+                      <div className="flex h-36 w-full items-center justify-center bg-muted">
+                        <BadgeCheck size={28} className="text-muted-foreground" />
+                      </div>
+                    )}
+                    <p className="px-2 py-2 text-xs font-bold text-foreground line-clamp-2">{c.title}</p>
+                    <button
+                      type="button"
+                      onClick={() => setCredToDelete(c)}
+                      className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-destructive text-destructive-foreground"
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </motion.div>
+
         {/* Location */}
         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }}>
           <button onClick={requestLocation} className={`flex w-full items-center gap-3 rounded-xl border-2 px-4 py-3.5 text-left transition-all active:scale-[0.98] ${locationGranted ? "border-success/30 bg-success/5" : "border-border bg-card"}`}>
@@ -564,6 +611,66 @@ const ProfileSetup = () => {
           <p className="mt-1.5 text-xs text-muted-foreground">
             {t("Seni davet edenin kodunu gir, ikinize de 1'er kredi hediye.")}
           </p>
+        </motion.div>
+
+        {/* Dil seçimi */}
+        <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.38 }} className="rounded-2xl border border-border bg-card p-4 shadow-card">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-black text-foreground">{t("Uygulama Dili")}</p>
+              <p className="text-xs text-muted-foreground">{t("Dil / Language")}</p>
+            </div>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setLangOpen((v) => !v)}
+                className="flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-black text-foreground shadow-sm"
+              >
+                <span className="flex items-center">{flags[lang]}</span>
+                <span>{lang.toUpperCase()}</span>
+                <ChevronDown size={14} className={`transition-transform ${langOpen ? "rotate-180" : ""}`} />
+              </button>
+              <AnimatePresence>
+                {langOpen && (
+                  <motion.div
+                    initial="hidden"
+                    animate="visible"
+                    exit="hidden"
+                    variants={{
+                      hidden: { opacity: 0, scaleY: 0.6, originY: 0 },
+                      visible: { opacity: 1, scaleY: 1, originY: 0 },
+                    }}
+                    transition={{ duration: 0.2, ease: "easeOut" }}
+                    className="absolute right-0 top-full z-20 mt-1 flex w-36 origin-top flex-col rounded-xl border border-border bg-card p-1 shadow-lg"
+                  >
+                    {langOptions.map((o, i) => (
+                      <motion.button
+                        key={o.code}
+                        custom={i}
+                        variants={{
+                          hidden: { opacity: 0, y: -12 },
+                          visible: { opacity: 1, y: 0 },
+                        }}
+                        transition={{ duration: 0.2, delay: i * 0.06, ease: "easeOut" }}
+                        onClick={() => {
+                          if (o.code !== lang) setPendingLang(o.code);
+                          setLangOpen(false);
+                        }}
+                        className={`flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold transition-colors ${
+                          lang === o.code
+                            ? "gradient-warm text-primary-foreground"
+                            : "text-foreground hover:bg-muted"
+                        }`}
+                      >
+                        <span className="flex items-center">{flags[o.code]}</span>
+                        <span>{o.label}</span>
+                      </motion.button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
         </motion.div>
 
         {/* 18+ onayı */}
