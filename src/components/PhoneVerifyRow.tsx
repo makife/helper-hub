@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useT } from "@/lib/i18n";
 import { toast } from "sonner";
 
-type Props = { phone: string | null; onVerified?: () => void };
+type Props = { phone: string | null; onVerified?: (phone: string) => void };
 
 /** 1. güven yıldızı: telefon numarasını SMS kodu ile doğrular. */
 const PhoneVerifyRow = ({ phone, onVerified }: Props) => {
@@ -55,7 +55,7 @@ const PhoneVerifyRow = ({ phone, onVerified }: Props) => {
     setOpen(false);
     setSent(false);
     setCode("");
-    onVerified?.();
+    onVerified?.(fullPhone);
   };
 
   return (

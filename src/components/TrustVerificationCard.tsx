@@ -96,7 +96,7 @@ const TrustVerificationCard = ({ userId, phone: initialPhone, onPhoneVerified }:
 
       <div className="space-y-2">
         {/* 1. yıldız: telefon */}
-        <PhoneVerifyRow phone={phone} onVerified={() => { setPhone("+90"); load(); onPhoneVerified?.(); }} />
+        <PhoneVerifyRow phone={phone} onVerified={(p) => { setPhone(p); load(); onPhoneVerified?.(); }} />
 
 
         {VERIFICATION_KINDS.map((k) => {
