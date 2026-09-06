@@ -110,6 +110,7 @@ const App = () => (
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/admin/reports" element={<RequireAuth><AdminReports /></RequireAuth>} />
+                <Route path="/admin/verifications" element={<RequireAuth><AdminVerifications /></RequireAuth>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
