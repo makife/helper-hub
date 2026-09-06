@@ -71,7 +71,7 @@ const ProfileSetup = () => {
       .then(({ data }) => {
         if (!data) return;
         if (data.full_name?.trim() && data.age_confirmed_at) {
-          window.dispatchEvent(new Event("profile-completed"));
+          sessionStorage.setItem(`profile-completed:${user.id}`, "true");
           navigate("/home", { replace: true });
           return;
         }
@@ -423,7 +423,7 @@ const ProfileSetup = () => {
     toast.success(t("Hoş geldin hediyesi: 5 kredi hesabına yüklendi! 🎁"));
     // Korumalı sayfa kontrolünü anında güncelle; aksi halde yeni kaydı
     // okumadan önce kullanıcı tekrar profil kurulumuna dönebiliyordu.
-    window.dispatchEvent(new Event("profile-completed"));
+    sessionStorage.setItem(`profile-completed:${user.id}`, "true");
     navigate("/home", { replace: true });
   };
 
