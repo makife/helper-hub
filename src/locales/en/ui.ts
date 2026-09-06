@@ -518,4 +518,7 @@ export const UI: Record<string, string> = {
   "Bilgiler kimlik kayıtlarıyla eşleşmedi.": "The details did not match official records.",
   "Doğrulama yapılamadı. Sonra tekrar dene.": "Verification failed. Try again later.",
   "Bilgilerin yalnızca resmi kimlik doğrulama servisine sorulur; TC kimlik numaran kaydedilmez, saklanmaz. Sadece doğrulandığı bilgisi ve tarihi tutulur.": "Your details are only sent to the official verification service; your national ID number is never saved or stored. Only the fact and date of verification are kept.",
+  "Lütfen adını ve soyadını yaz.": "Please enter your first and last name.",
+  "Lütfen bir profil fotoğrafı ekle.": "Please add a profile photo.",
+  "Devam etmek için 18 yaşından büyük olduğunu onaylaman gerekiyor.": "You must confirm that you are over 18 to continue.",
 };
