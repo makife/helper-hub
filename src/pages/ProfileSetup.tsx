@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import { useT } from "@/lib/i18n";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Camera, MapPin, Check, X, UserPlus } from "lucide-react";
+import { Camera, MapPin, Check, X, UserPlus, Search, Plus, ImagePlus } from "lucide-react";
+import { ALL_SKILLS, searchSkills } from "@/lib/skillCatalog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -12,16 +13,7 @@ import {
   clearPendingReferralCode,
 } from "@/lib/nativeAuth";
 
-const skills = [
-  { id: "ampul_takma" as const, label: "💡 Ampul Takma" },
-  { id: "perde_asma" as const, label: "🪟 Perde Asma" },
-  { id: "mobilya_monte" as const, label: "🪑 Mobilya Monte" },
-  { id: "duvar_tamir" as const, label: "🔨 Duvar Tamir" },
-  { id: "kucuk_tamir" as const, label: "🔧 Küçük Tamir" },
-  { id: "tasima_yardimi" as const, label: "📦 Taşıma Yardımı" },
-];
-
-type SkillId = typeof skills[number]["id"];
+const MAX_SKILLS = 10;
 
 const ProfileSetup = () => {
   const t = useT();
