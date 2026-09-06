@@ -60,7 +60,10 @@ const ProfileSetup = () => {
         if (data.full_name) setName(data.full_name);
         if (data.bio) setBio(data.bio);
         if (data.avatar_url) setAvatarPreview(data.avatar_url);
-        if (Array.isArray(data.skills)) setSelectedSkills(data.skills.filter((s): s is string => typeof s === "string"));
+        const savedTags = Array.isArray(data.skill_tags) ? data.skill_tags.filter((s): s is string => typeof s === "string") : [];
+        const legacy = Array.isArray(data.skills) ? data.skills.map((s) => LEGACY_SKILL_LABELS[s] || s) : [];
+        const merged = savedTags.length ? savedTags : legacy;
+        if (merged.length) setSelectedSkills(merged);
         if (data.latitude != null && data.longitude != null) {
           setCoords({ lat: data.latitude, lng: data.longitude });
           setLocationGranted(true);
