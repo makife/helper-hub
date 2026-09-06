@@ -708,8 +708,8 @@ const ProfileSetup = () => {
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.4 }}
         onClick={handleSubmit}
-        disabled={!isValid || loading}
-        className="mt-4 gradient-warm w-full rounded-2xl px-6 py-4 text-lg font-bold text-primary-foreground shadow-soft transition-all active:scale-[0.98] disabled:opacity-40"
+        disabled={loading}
+        className={`mt-4 gradient-warm w-full rounded-2xl px-6 py-4 text-lg font-bold text-primary-foreground shadow-soft transition-all active:scale-[0.98] disabled:opacity-40 ${!isValid ? "opacity-60" : ""}`}
       >
         {loading ? t("Kaydediliyor...") : t("Profili Tamamla")}
       </motion.button>
