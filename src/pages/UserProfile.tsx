@@ -29,18 +29,21 @@ const UserProfile = () => {
   const [credentials, setCredentials] = useState<Tables<"credentials">[]>([]);
   const [reviews, setReviews] = useState<ReviewRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [trust, setTrust] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!userId) return;
     const load = async () => {
-      const [{ data: p }, { data: c }, { data: r }] = await Promise.all([
+      const [{ data: p }, { data: c }, { data: r }, score] = await Promise.all([
         supabase.from("profiles").select("*").eq("user_id", userId).maybeSingle(),
         supabase.from("credentials").select("*").eq("user_id", userId).order("created_at", { ascending: false }),
         supabase.from("reviews").select("*").eq("reviewee_id", userId).order("created_at", { ascending: false }).limit(10),
+        fetchTrustScore(userId),
       ]);
       setProfile(p);
       setCredentials(c || []);
+      setTrust(score);
 
       const rows = (r || []) as ReviewRow[];
       if (rows.length) {
