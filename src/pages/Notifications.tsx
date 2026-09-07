@@ -9,6 +9,7 @@ import { formatDateTime } from "@/lib/dateFormat";
 import { localizeNotificationText } from "@/lib/notificationText";
 import { pathForNotification } from "@/lib/notificationRoute";
 import { getCache, setCache } from "@/lib/uiCache";
+import { uniqueChannel } from "@/lib/realtime";
 
 type Notif = {
   id: string;
@@ -103,7 +104,7 @@ const Notifications = () => {
     load();
 
     const channel = supabase
-      .channel(`notifications-feed-${user.id}`)
+      .channel(uniqueChannel(`notifications-feed-${user.id}`))
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "messages", filter: `receiver_id=eq.${user.id}` },

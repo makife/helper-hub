@@ -27,6 +27,7 @@ import { toast } from "sonner";
 import { getFuzzedLocation } from "@/lib/locationPrivacy";
 import { fetchBlockedIds } from "@/lib/blocks";
 import { List as ListIcon, MapIcon } from "lucide-react";
+import { uniqueChannel } from "@/lib/realtime";
 
 type TaskWithUI = Tables<"tasks"> & {
   emoji: string;
@@ -153,7 +154,7 @@ const Home = () => {
     fetchTasks();
 
     const channel = supabase
-      .channel("home-tasks")
+      .channel(uniqueChannel("home-tasks"))
       .on("postgres_changes", { event: "*", schema: "public", table: "tasks" }, (payload) => {
         if (payload.eventType === "INSERT") {
           const newTask = mapTask(payload.new as Tables<"tasks">);
@@ -197,7 +198,7 @@ const Home = () => {
       .subscribe();
 
     const assignmentChannel = supabase
-      .channel("home-assignments")
+      .channel(uniqueChannel("home-assignments"))
       .on("postgres_changes", { event: "*", schema: "public", table: "task_assignments" }, async () => {
         setTasks((prev) => {
           fetchAssignmentCounts(prev.map((t) => t.id)).then(setFillCounts);

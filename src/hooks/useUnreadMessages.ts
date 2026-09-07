@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { uniqueChannel } from "@/lib/realtime";
 
 /** Kullanıcının okunmamış mesaj sayısı (realtime). */
 export const useUnreadMessages = () => {
@@ -25,7 +26,7 @@ export const useUnreadMessages = () => {
     fetchCount();
 
     const channel = supabase
-      .channel(`unread-messages-${user.id}`)
+      .channel(uniqueChannel(`unread-messages-${user.id}`))
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "messages" },

@@ -13,6 +13,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import { getTaskEmoji } from "@/lib/taskCategories";
 import NoShowWarning from "@/components/NoShowWarning";
 import {
+import { uniqueChannel } from "@/lib/realtime";
   confirmCompletion,
   confirmDeadlineMs,
   formatRemaining,
@@ -118,7 +119,7 @@ const ActiveTask = () => {
 
     // Realtime messages
     const channel = supabase
-      .channel(`task-chat-${taskId}`)
+      .channel(uniqueChannel(`task-chat-${taskId}`))
       .on(
         "postgres_changes",
         {
@@ -142,7 +143,7 @@ const ActiveTask = () => {
       .subscribe();
 
     const assignmentChannel = supabase
-      .channel(`task-assignments-page-${taskId}`)
+      .channel(uniqueChannel(`task-assignments-page-${taskId}`))
       .on(
         "postgres_changes",
         {
@@ -157,7 +158,7 @@ const ActiveTask = () => {
 
     // RPC veya otomatik kapanma sonrası ekrandaki görev durumu anında güncellensin.
     const taskChannel = supabase
-      .channel(`task-status-page-${taskId}`)
+      .channel(uniqueChannel(`task-status-page-${taskId}`))
       .on(
         "postgres_changes",
         {
