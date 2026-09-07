@@ -1,6 +1,7 @@
 import { Capacitor } from "@capacitor/core";
 import { FirebaseMessaging } from "@capacitor-firebase/messaging";
 import type { PluginListenerHandle } from "@capacitor/core";
+import { safeLocal } from "@/lib/safeStorage";
 import { supabase } from "@/integrations/supabase/client";
 import { pathForNotification } from "@/lib/notificationRoute";
 
@@ -14,7 +15,7 @@ let initialization: Promise<void> | null = null;
 
 async function saveToken(token: string) {
   if (!currentUserId || !token) return;
-  localStorage.setItem(LAST_TOKEN_KEY, token);
+  safeLocal.set(LAST_TOKEN_KEY, token);
   const { error } = await supabase.from("device_tokens").upsert(
     {
       user_id: currentUserId,
@@ -103,10 +104,10 @@ export async function unregisterPushNotifications() {
   currentUserId = null;
   if (!isNative()) return;
 
-  const token = localStorage.getItem(LAST_TOKEN_KEY);
+  const token = safeLocal.get(LAST_TOKEN_KEY);
   if (token) {
     await supabase.from("device_tokens").delete().eq("token", token);
-    localStorage.removeItem(LAST_TOKEN_KEY);
+    safeLocal.remove(LAST_TOKEN_KEY);
   }
 
   try {

@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { setAppBadge } from "@/lib/feedback";
-
-let channelSequence = 0;
+import { uniqueChannel } from "@/lib/realtime";
 
 /** Okunmamış bildirim sayısı (kalıcı bildirimler + gelen mesajlar). */
 export const useUnreadNotifications = () => {
@@ -40,9 +39,8 @@ export const useUnreadNotifications = () => {
     // Bu hook aynı ekranda hem üst çubukta hem alt menüde kullanılabiliyor.
     // Her kullanım benzersiz kanal açmalı; aynı isimdeki abone kanala tekrar
     // callback eklemek native istemcide uygulamayı çökertiyor.
-    const channelId = ++channelSequence;
     const channel = supabase
-      .channel(`unread-notifications-${user.id}-${channelId}`)
+      .channel(uniqueChannel(`unread-notifications-${user.id}`))
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` },
