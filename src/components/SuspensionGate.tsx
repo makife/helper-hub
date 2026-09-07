@@ -3,6 +3,7 @@ import { Ban } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useT } from "@/lib/i18n";
+import { uniqueChannel } from "@/lib/realtime";
 
 /** Hesabı askıya alınmış kullanıcılara tam ekran bilgilendirme gösterir. */
 const SuspensionGate = () => {
@@ -26,7 +27,7 @@ const SuspensionGate = () => {
     };
     void load();
     const channel = supabase
-      .channel(`suspension-${user.id}`)
+      .channel(uniqueChannel(`suspension-${user.id}`))
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "profiles", filter: `user_id=eq.${user.id}` }, () => void load())
       .subscribe();
     return () => { active = false; void supabase.removeChannel(channel); };

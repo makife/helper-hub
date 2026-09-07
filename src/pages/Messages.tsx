@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatDateTime } from "@/lib/dateFormat";
 import { getCache, setCache } from "@/lib/uiCache";
+import { uniqueChannel } from "@/lib/realtime";
 
 type Conversation = {
   task_id: string;
@@ -92,7 +93,7 @@ const Messages = () => {
 
     // Realtime: sadece bu kullanıcıyı ilgilendiren mesajlarda yenile
     const channel = supabase
-      .channel(`messages-list-${user.id}`)
+      .channel(uniqueChannel(`messages-list-${user.id}`))
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "messages", filter: `receiver_id=eq.${user.id}` },

@@ -15,6 +15,7 @@ import { createOffer, fetchMyOffer, fetchTaskOffers, respondToOffer, confirmAcce
 import { ALL_TOOLS } from "@/lib/toolsList";
 import { formatScheduled } from "@/lib/schedule";
 import type { Tables } from "@/integrations/supabase/types";
+import { uniqueChannel } from "@/lib/realtime";
 
 
 
@@ -94,7 +95,7 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
   useEffect(() => {
     loadAssignments();
     const channel = supabase
-      .channel(`task-assignments-${task.id}`)
+      .channel(uniqueChannel(`task-assignments-${task.id}`))
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "task_assignments", filter: `task_id=eq.${task.id}` },
@@ -116,7 +117,7 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
     };
     loadViewerCount();
     const channel = supabase
-      .channel(`task-views-${task.id}`)
+      .channel(uniqueChannel(`task-views-${task.id}`))
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "task_views", filter: `task_id=eq.${task.id}` },
@@ -158,7 +159,7 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
   useEffect(() => {
     loadOffers();
     const channel = supabase
-      .channel(`task-offers-${task.id}`)
+      .channel(uniqueChannel(`task-offers-${task.id}`))
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "task_offers", filter: `task_id=eq.${task.id}` },

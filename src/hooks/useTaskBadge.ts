@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { uniqueChannel } from "@/lib/realtime";
 
 /**
  * İşverenin onay bekleyen yardım çağrısı sayısı (realtime).
@@ -28,7 +29,7 @@ export const useTaskBadge = () => {
     fetchCount();
 
     const channel = supabase
-      .channel(`owner-pending-tasks-${user.id}`)
+      .channel(uniqueChannel(`owner-pending-tasks-${user.id}`))
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "tasks" },

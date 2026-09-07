@@ -7,6 +7,7 @@ import { useT } from "@/lib/i18n";
 import { localizeNotificationText } from "@/lib/notificationText";
 import { pathForNotification } from "@/lib/notificationRoute";
 import { notifyFeedback } from "@/lib/feedback";
+import { uniqueChannel } from "@/lib/realtime";
 
 type NotificationRow = {
   id: string;
@@ -53,7 +54,7 @@ const GlobalNotifier = () => {
     };
 
     const channel = supabase
-      .channel(`global-notifier-${user.id}`)
+      .channel(uniqueChannel(`global-notifier-${user.id}`))
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` },
