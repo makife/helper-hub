@@ -68,4 +68,7 @@ export const NOTIFICATIONS: Record<string, string> = {
   "Kabul ettiğin bir işin randevusuna gitmediğin için hesabın {date} tarihine kadar askıda.":
     "Your account is suspended until {date} because you did not show up for a task you accepted.",
   "Hesabın yönetici tarafından askıya alındı.": "Your account was suspended by an administrator.",
+  "Onay suren doldu": "Your confirmation time ran out",
+  "El atan zamaninda onaylamadi": "The helper did not confirm in time",
+
 };

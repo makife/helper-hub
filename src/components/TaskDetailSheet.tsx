@@ -16,6 +16,8 @@ import { ALL_TOOLS } from "@/lib/toolsList";
 import { formatScheduled } from "@/lib/schedule";
 import type { Tables } from "@/integrations/supabase/types";
 import { uniqueChannel } from "@/lib/realtime";
+import OfferConfirmCountdown from "@/components/OfferConfirmCountdown";
+
 
 
 
@@ -599,15 +601,24 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
               )}
 
               {myOffer?.status === "accepted" && (
-                <button
-                  onClick={handleConfirmOffer}
-                  disabled={offerBusy}
-                  className="w-full rounded-2xl bg-primary px-6 py-4 text-base font-bold text-primary-foreground disabled:opacity-50"
-                >
-                  {myOfferIsRequest
-                    ? `${t("İsteğin onaylandı")} — ${t("Onayla ve Başla")}`
-                    : `${t("Teklifin kabul edildi")} (${formatPrice(myOffer.amount, currency)}) — ${t("Onayla ve Başla")}`}
-                </button>
+                <div>
+                  <button
+                    onClick={handleConfirmOffer}
+                    disabled={offerBusy}
+                    className="w-full rounded-2xl bg-primary px-6 py-4 text-base font-bold text-primary-foreground disabled:opacity-50"
+                  >
+                    {myOfferIsRequest
+                      ? `${t("İsteğin onaylandı")} — ${t("Onayla ve Başla")}`
+                      : `${t("Teklifin kabul edildi")} (${formatPrice(myOffer.amount, currency)}) — ${t("Onayla ve Başla")}`}
+                  </button>
+                  <OfferConfirmCountdown respondedAt={myOffer.responded_at} />
+                </div>
+              )}
+
+              {myOffer?.status === "expired" && (
+                <p className="rounded-2xl bg-muted/50 p-3 text-center text-xs font-semibold text-muted-foreground">
+                  {t("Zamanında onaylamadığın için bu iş üzerindeki hakkın düştü.")}
+                </p>
               )}
 
               {myOffer?.status === "rejected" && (
@@ -617,6 +628,7 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
                     : t("Teklifin reddedildi.")}
                 </p>
               )}
+
 
 
 

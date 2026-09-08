@@ -409,6 +409,11 @@ export const EXTRAS: Record<string, string> = {
   "İsteğin onaylandı": "Your request was approved",
   "Yardım çağrısını yapan isteğini onaylamadı.": "The requester did not approve your request.",
   "Teklifin reddedildi.": "Your offer was rejected.",
+  "Onaylaman için kalan süre: {time}": "Time left to confirm: {time}",
+  "Süre dolarsa bu iş üzerindeki hakkın düşer.": "If the time runs out you lose your place on this task.",
+  "Zamanında onaylamadığın için bu iş üzerindeki hakkın düştü.":
+    "You lost your place on this task because you did not confirm in time.",
+
   "Bu çağrı için isteğin zaten gönderildi.": "You already sent a request for this task.",
   "İstek gönderilemedi. Tekrar dene.": "Request could not be sent. Try again.",
   "işini almak istiyor": "wants to take your task",
