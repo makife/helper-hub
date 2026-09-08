@@ -431,7 +431,7 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
                       {formatPrice(o.amount, currency)}
                     </span>
                   </div>
-                  <p className="mt-1 text-[11px] font-semibold text-muted-foreground">
+                  <p className={`mt-1 text-[11px] font-semibold ${isRequest ? "text-amber-600" : "text-primary"}`}>
                     {isRequest ? t("Bu işi almak istiyor, onayını bekliyor") : t("Fiyat teklifi gönderdi")}
                   </p>
 
@@ -456,14 +456,20 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
                         </button>
                       </div>
                       {hasAcceptedOffer && (
-                        <p className="mt-1 text-xs font-semibold text-muted-foreground">
+                        <p className="mt-1 text-xs font-semibold text-amber-600">
                           {t("Başka bir teklif kabul edildi, bu teklif beklemede")}
                         </p>
                       )}
                     </>
                   ) : (
 
-                    <p className="mt-1 text-xs font-semibold text-muted-foreground">
+                    <p className={`mt-1 text-xs font-semibold ${
+                      o.status === "accepted"
+                        ? "text-green-600"
+                        : o.status === "confirmed"
+                          ? "text-green-600"
+                          : "text-red-600"
+                    }`}>
                       {o.status === "accepted"
                         ? t("Kabul edildi — el atanın onayı bekleniyor")
                         : o.status === "confirmed"
