@@ -136,6 +136,7 @@ export const buildTaskSteps = (
         ? "“İşi bitirdim” dediniz"
         : translate("{name} “işi bitirdim” dedi", { name }),
       at: task.completion_requested_at,
+      tone: "pending",
     });
   }
 
@@ -163,6 +164,7 @@ export const buildTaskSteps = (
         label: isTasker
           ? "İşe geri döndünüz, tekrar sürüyor"
           : translate("{name} işe geri döndü, tekrar sürüyor", { name }),
+        tone: "pending",
       });
     }
   }
@@ -172,6 +174,7 @@ export const buildTaskSteps = (
       label: isTasker
         ? "Bitirdiğinizi belirttiniz, iş verenden onay bekleniyor"
         : translate("{name} bitirdiğini belirtti, sizden onay bekliyor", { name }),
+      tone: "pending",
     });
   }
 
