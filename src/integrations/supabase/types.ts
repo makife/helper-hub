@@ -934,6 +934,7 @@ export type Database = {
         }[]
       }
       process_no_show_tasks: { Args: never; Returns: undefined }
+      process_offer_confirm_deadlines: { Args: never; Returns: undefined }
       process_task_lifecycle: { Args: never; Returns: undefined }
       process_wait_deadlines: { Args: never; Returns: undefined }
       profile_system_snapshot: { Args: { _user_id: string }; Returns: Json }
