@@ -8,7 +8,7 @@ import { fetchTaskOffers, type OfferRow } from "@/lib/offers";
 type Step = {
   label: string;
   at?: string | null;
-  tone?: "default" | "danger" | "success";
+  tone?: "default" | "danger" | "success" | "pending" | "info";
   note?: string;
 };
 
