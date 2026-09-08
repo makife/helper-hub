@@ -16,6 +16,8 @@ import { ALL_TOOLS } from "@/lib/toolsList";
 import { formatScheduled } from "@/lib/schedule";
 import type { Tables } from "@/integrations/supabase/types";
 import { uniqueChannel } from "@/lib/realtime";
+import OfferConfirmCountdown from "@/components/OfferConfirmCountdown";
+
 
 
 
