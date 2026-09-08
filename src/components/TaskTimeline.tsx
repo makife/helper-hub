@@ -8,7 +8,7 @@ import { fetchTaskOffers, type OfferRow } from "@/lib/offers";
 type Step = {
   label: string;
   at?: string | null;
-  tone?: "default" | "danger" | "success";
+  tone?: "default" | "danger" | "success" | "pending" | "info";
   note?: string;
 };
 
@@ -47,6 +47,7 @@ const buildOfferSteps = (
         ? translate("{name} mevcut fiyattan kabul etmek istiyor", { name: who })
         : translate("{name} {amount} fiyat teklifi verdi", { name: who, amount }),
       at: o.created_at,
+      tone: "pending",
       note: o.message || undefined,
     });
     if (o.status === "rejected") {
@@ -97,7 +98,7 @@ export const buildTaskSteps = (
   const isOwner = viewerRole === "owner";
   const name = taskerName || translate("El atan");
   const steps: Step[] = [
-    { label: "Yardım çağrısı oluşturuldu", at: task.created_at },
+    { label: "Yardım çağrısı oluşturuldu", at: task.created_at, tone: "info" },
     ...offerSteps,
   ];
 
@@ -125,6 +126,7 @@ export const buildTaskSteps = (
       label: isTasker
         ? "Yola çıktınız, varışınız bekleniyor"
         : translate("{name} yola çıktı, varış bekleniyor", { name }),
+      tone: "pending",
     });
   }
 
@@ -134,6 +136,7 @@ export const buildTaskSteps = (
         ? "“İşi bitirdim” dediniz"
         : translate("{name} “işi bitirdim” dedi", { name }),
       at: task.completion_requested_at,
+      tone: "pending",
     });
   }
 
@@ -161,6 +164,7 @@ export const buildTaskSteps = (
         label: isTasker
           ? "İşe geri döndünüz, tekrar sürüyor"
           : translate("{name} işe geri döndü, tekrar sürüyor", { name }),
+        tone: "pending",
       });
     }
   }
@@ -170,6 +174,7 @@ export const buildTaskSteps = (
       label: isTasker
         ? "Bitirdiğinizi belirttiniz, iş verenden onay bekleniyor"
         : translate("{name} bitirdiğini belirtti, sizden onay bekliyor", { name }),
+      tone: "pending",
     });
   }
 
@@ -202,7 +207,22 @@ const toneClass = (tone?: Step["tone"]) =>
     ? "bg-destructive"
     : tone === "success"
     ? "bg-green-500"
+    : tone === "pending"
+    ? "bg-amber-500"
+    : tone === "info"
+    ? "bg-primary"
     : "bg-primary";
+
+const textToneClass = (tone?: Step["tone"]) =>
+  tone === "danger"
+    ? "text-red-600"
+    : tone === "success"
+    ? "text-green-600"
+    : tone === "pending"
+    ? "text-amber-600"
+    : tone === "info"
+    ? "text-primary"
+    : "text-foreground";
 
 const TaskTimeline = ({
   task,
@@ -274,7 +294,7 @@ const TaskTimeline = ({
             {i < shown.length - 1 && <span className="w-px flex-1 bg-border" />}
           </div>
           <div className="pb-1">
-            <p className="text-[11px] font-semibold text-foreground">{t(s.label)}</p>
+            <p className={`text-[11px] font-semibold ${textToneClass(s.tone)}`}>{t(s.label)}</p>
             {s.at && (
               <p className="text-[10px] text-muted-foreground">{fmt(s.at)}</p>
             )}

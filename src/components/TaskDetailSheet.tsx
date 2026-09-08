@@ -431,7 +431,7 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
                       {formatPrice(o.amount, currency)}
                     </span>
                   </div>
-                  <p className="mt-1 text-[11px] font-semibold text-muted-foreground">
+                  <p className={`mt-1 text-[11px] font-semibold ${isRequest ? "text-amber-600" : "text-primary"}`}>
                     {isRequest ? t("Bu işi almak istiyor, onayını bekliyor") : t("Fiyat teklifi gönderdi")}
                   </p>
 
@@ -456,14 +456,20 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
                         </button>
                       </div>
                       {hasAcceptedOffer && (
-                        <p className="mt-1 text-xs font-semibold text-muted-foreground">
+                        <p className="mt-1 text-xs font-semibold text-amber-600">
                           {t("Başka bir teklif kabul edildi, bu teklif beklemede")}
                         </p>
                       )}
                     </>
                   ) : (
 
-                    <p className="mt-1 text-xs font-semibold text-muted-foreground">
+                    <p className={`mt-1 text-xs font-semibold ${
+                      o.status === "accepted"
+                        ? "text-green-600"
+                        : o.status === "confirmed"
+                          ? "text-green-600"
+                          : "text-red-600"
+                    }`}>
                       {o.status === "accepted"
                         ? t("Kabul edildi — el atanın onayı bekleniyor")
                         : o.status === "confirmed"
@@ -585,16 +591,16 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
               )}
 
               {myOffer?.status === "pending" && (
-                <div className="rounded-2xl bg-muted/50 p-3 text-center text-sm font-semibold text-muted-foreground">
+                <div className="rounded-2xl bg-muted/50 p-3 text-center text-sm font-semibold text-amber-600">
                   {myOfferIsRequest ? (
                     <>
                       {t("İsteğin gönderildi")}
-                      <p className="mt-1 text-xs font-normal">{t("Yardım çağrısını yapanın onayı bekleniyor.")}</p>
+                      <p className="mt-1 text-xs font-normal text-muted-foreground">{t("Yardım çağrısını yapanın onayı bekleniyor.")}</p>
                     </>
                   ) : (
                     <>
                       {t("Teklifin gönderildi")}: <span className="font-black text-foreground">{formatPrice(myOffer.amount, currency)}</span>
-                      <p className="mt-1 text-xs font-normal">{t("Çağrı sahibinin yanıtı bekleniyor.")}</p>
+                      <p className="mt-1 text-xs font-normal text-muted-foreground">{t("Çağrı sahibinin yanıtı bekleniyor.")}</p>
                     </>
                   )}
                 </div>
@@ -616,13 +622,13 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
               )}
 
               {myOffer?.status === "expired" && (
-                <p className="rounded-2xl bg-muted/50 p-3 text-center text-xs font-semibold text-muted-foreground">
+                <p className="rounded-2xl bg-muted/50 p-3 text-center text-xs font-semibold text-red-600">
                   {t("Zamanında onaylamadığın için bu iş üzerindeki hakkın düştü.")}
                 </p>
               )}
 
               {myOffer?.status === "rejected" && (
-                <p className="rounded-2xl bg-muted/50 p-3 text-center text-xs font-semibold text-muted-foreground">
+                <p className="rounded-2xl bg-muted/50 p-3 text-center text-xs font-semibold text-red-600">
                   {myOfferIsRequest
                     ? t("Yardım çağrısını yapan isteğini onaylamadı.")
                     : t("Teklifin reddedildi.")}
