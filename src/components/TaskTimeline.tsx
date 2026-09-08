@@ -126,6 +126,7 @@ export const buildTaskSteps = (
       label: isTasker
         ? "Yola çıktınız, varışınız bekleniyor"
         : translate("{name} yola çıktı, varış bekleniyor", { name }),
+      tone: "pending",
     });
   }
 
