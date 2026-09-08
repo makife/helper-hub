@@ -294,7 +294,7 @@ const TaskTimeline = ({
             {i < shown.length - 1 && <span className="w-px flex-1 bg-border" />}
           </div>
           <div className="pb-1">
-            <p className="text-[11px] font-semibold text-foreground">{t(s.label)}</p>
+            <p className={`text-[11px] font-semibold ${textToneClass(s.tone)}`}>{t(s.label)}</p>
             {s.at && (
               <p className="text-[10px] text-muted-foreground">{fmt(s.at)}</p>
             )}
