@@ -98,7 +98,7 @@ export const buildTaskSteps = (
   const isOwner = viewerRole === "owner";
   const name = taskerName || translate("El atan");
   const steps: Step[] = [
-    { label: "Yardım çağrısı oluşturuldu", at: task.created_at },
+    { label: "Yardım çağrısı oluşturuldu", at: task.created_at, tone: "info" },
     ...offerSteps,
   ];
 
