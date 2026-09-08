@@ -47,6 +47,7 @@ const buildOfferSteps = (
         ? translate("{name} mevcut fiyattan kabul etmek istiyor", { name: who })
         : translate("{name} {amount} fiyat teklifi verdi", { name: who, amount }),
       at: o.created_at,
+      tone: "pending",
       note: o.message || undefined,
     });
     if (o.status === "rejected") {
