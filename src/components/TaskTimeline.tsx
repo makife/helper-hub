@@ -207,7 +207,22 @@ const toneClass = (tone?: Step["tone"]) =>
     ? "bg-destructive"
     : tone === "success"
     ? "bg-green-500"
+    : tone === "pending"
+    ? "bg-amber-500"
+    : tone === "info"
+    ? "bg-primary"
     : "bg-primary";
+
+const textToneClass = (tone?: Step["tone"]) =>
+  tone === "danger"
+    ? "text-red-600"
+    : tone === "success"
+    ? "text-green-600"
+    : tone === "pending"
+    ? "text-amber-600"
+    : tone === "info"
+    ? "text-primary"
+    : "text-foreground";
 
 const TaskTimeline = ({
   task,
