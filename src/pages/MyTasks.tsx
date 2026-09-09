@@ -1097,7 +1097,7 @@ const MyTasks = () => {
                                   )}
                                 </span>
                               </div>
-                              <p className="mt-1 text-[11px] font-semibold text-muted-foreground">
+                              <p className={`mt-1 text-[11px] font-semibold ${isRequest ? "text-amber-600" : "text-primary"}`}>
                                 {isRequest
                                   ? t("Bu işi almak istiyor, onayını bekliyor")
                                   : t("Fiyat teklifi gönderdi")}
@@ -1123,7 +1123,13 @@ const MyTasks = () => {
                                   </button>
                                 </div>
                               ) : (
-                                <p className="mt-1 text-[11px] font-semibold text-muted-foreground">
+                                <p className={`mt-1 text-[11px] font-semibold ${
+                                  o.status === "accepted"
+                                    ? "text-green-600"
+                                    : o.status === "confirmed"
+                                      ? "text-green-600"
+                                      : "text-red-600"
+                                }`}>
                                   {o.status === "accepted"
                                     ? t("Kabul edildi — el atanın onayı bekleniyor")
                                     : o.status === "confirmed"
