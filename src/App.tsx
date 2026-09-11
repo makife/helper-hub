@@ -39,6 +39,7 @@ const queryClient = new QueryClient();
 
 // Native OAuth deep-link geri dönüşünü yakalar (com.ergan.bielat://auth/callback)
 setupNativeAuthListener();
+enablePrivacyScreen();
 
 const RouteLoader = () => (
   <div className="flex min-h-screen items-center justify-center bg-background">
