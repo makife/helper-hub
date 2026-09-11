@@ -12,11 +12,32 @@
         <scene sceneID="EHf-IW-A2E">
             <objects>
                 <viewController id="01J-lp-oVM" sceneMemberID="viewController">
-                    <imageView key="view" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Splash" id="snD-IY-ifK">
+                    <view key="view" contentMode="scaleToFill" id="snD-IY-ifK">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
-                        <autoresizingMask key="autoresizingMask"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Splash" translatesAutoresizingMaskIntoConstraints="NO" id="vBg-6V-eqG">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                            </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Bi' El At" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="a3g-7R-3nX">
+                                <rect key="frame" x="0.0" y="500" width="375" height="36"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="28"/>
+                                <color key="textColor" red="0.17254901960784313" green="0.24313725490196078" blue="0.31372549019607843" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                    </imageView>
+                        <constraints>
+                            <constraint firstItem="vBg-6V-eqG" firstAttribute="top" secondItem="snD-IY-ifK" secondAttribute="top" id="1aN-9c-7gQ"/>
+                            <constraint firstAttribute="trailing" secondItem="vBg-6V-eqG" secondAttribute="trailing" id="2bX-4k-8mJ"/>
+                            <constraint firstAttribute="bottom" secondItem="vBg-6V-eqG" secondAttribute="bottom" id="3cY-5l-9pK"/>
+                            <constraint firstItem="vBg-6V-eqG" firstAttribute="leading" secondItem="snD-IY-ifK" secondAttribute="leading" id="4dZ-6m-0qL"/>
+                            <constraint firstItem="a3g-7R-3nX" firstAttribute="centerX" secondItem="snD-IY-ifK" secondAttribute="centerX" id="5eA-7n-1rM"/>
+                            <constraint firstItem="a3g-7R-3nX" firstAttribute="leading" secondItem="snD-IY-ifK" secondAttribute="leading" id="6fB-8o-2sN"/>
+                            <constraint firstAttribute="trailing" secondItem="a3g-7R-3nX" secondAttribute="trailing" id="7gC-9p-3tO"/>
+                            <constraint firstItem="a3g-7R-3nX" firstAttribute="bottom" secondItem="snD-IY-ifK" secondAttribute="bottom" constant="-131" id="8hD-0q-4uP"/>
+                        </constraints>
+                    </view>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -26,7 +47,7 @@
     <resources>
         <image name="Splash" width="1366" height="1366"/>
         <systemColor name="systemBackgroundColor">
-            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GraySpace"/>
         </systemColor>
     </resources>
 </document>
