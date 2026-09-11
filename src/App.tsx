@@ -17,6 +17,7 @@ import Login from "./pages/Login";
 import AuthCallback from "./pages/AuthCallback";
 import InviteLanding from "./pages/InviteLanding";
 import { setupNativeAuthListener } from "@/lib/nativeAuth";
+import { enablePrivacyScreen } from "@/lib/privacyScreen";
 import ProfileSetup from "./pages/ProfileSetup";
 import Home from "./pages/Home";
 import CreateTask from "./pages/CreateTask";
