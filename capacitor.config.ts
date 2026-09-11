@@ -4,6 +4,14 @@ const config: CapacitorConfig = {
   appId: 'com.ergan.bielat',
   appName: "Bi' El At",
   webDir: 'dist',
+  plugins: {
+    PrivacyScreen: {
+      enable: true,
+      imageName: 'Splash',
+      contentMode: 'scaleAspectFill',
+      preventScreenshots: true,
+    },
+  },
 };
 
 export default config;
