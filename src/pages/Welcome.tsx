@@ -48,8 +48,9 @@ const Welcome = () => {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background">
         <img src={logo} alt="Bi' El At" width={80} height={80} />
+        <span className="text-2xl font-black text-foreground">Bi' El At</span>
       </div>
     );
   }
