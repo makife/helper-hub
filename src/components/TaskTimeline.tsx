@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
-import { getLang, translate, useT } from "@/lib/i18n";
+import { getLang, translate, useT, localeTag } from "@/lib/i18n";
 import { formatPrice, getTaskCurrency } from "@/lib/currency";
 import { fetchTaskOffers, type OfferRow } from "@/lib/offers";
 
@@ -15,7 +15,7 @@ type Step = {
 const fmt = (iso?: string | null) => {
   if (!iso) return "";
   const d = new Date(iso);
-  return d.toLocaleString(getLang() === "en" ? "en-US" : "tr-TR", {
+  return d.toLocaleString(localeTag(), {
     day: "2-digit",
     month: "2-digit",
     hour: "2-digit",

@@ -1,4 +1,4 @@
-import { useT, translate } from "@/lib/i18n";
+import { useT, translate, localeTag } from "@/lib/i18n";
 import { formatPrice, getTaskCurrency } from "@/lib/currency";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -1041,7 +1041,7 @@ const MyTasks = () => {
                             </span>
 
                             <span className="text-[10px] text-muted-foreground">
-                              {new Date(v.viewed_at).toLocaleTimeString(getLang() === "en" ? "en-US" : "tr-TR", { hour: "2-digit", minute: "2-digit" })}
+                              {new Date(v.viewed_at).toLocaleTimeString(localeTag(), { hour: "2-digit", minute: "2-digit" })}
                             </span>
                           </button>
                           );

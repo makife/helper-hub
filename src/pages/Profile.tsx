@@ -31,7 +31,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Tables } from "@/integrations/supabase/types";
 import { toast } from "sonner";
-import { useI18n } from "@/lib/i18n";
+import { useI18n , type Lang } from "@/lib/i18n";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { ALL_SKILLS, searchSkills } from "@/lib/skillCatalog";
 import MyToolsEditor from "@/components/MyToolsEditor";
@@ -69,7 +69,7 @@ const Profile = () => {
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarSheetOpen, setAvatarSheetOpen] = useState(false);
 
-  const [pendingLang, setPendingLang] = useState<"tr" | "en" | null>(null);
+  const [pendingLang, setPendingLang] = useState<Lang | null>(null);
   const [signOutOpen, setSignOutOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -133,7 +133,7 @@ const Profile = () => {
     loadAll();
   }, [loadAll]);
 
-  const changeLanguage = async (next: "tr" | "en") => {
+  const changeLanguage = async (next: Lang) => {
     setLang(next);
     setProfile((prev) => (prev ? { ...prev, language: next } : prev));
     if (user) {
@@ -274,11 +274,20 @@ const Profile = () => {
         <path d="M320 0 V480 M0 240 H640" stroke="#C8102E" strokeWidth="60" />
       </svg>
     ),
+    ar: (
+      <svg viewBox="0 0 640 480" className="h-4 w-auto rounded-sm">
+        <rect width="640" height="480" fill="#0F7A3D" />
+        <text x="320" y="330" textAnchor="middle" fontSize="300" fontWeight="bold" fill="#FFFFFF">
+          ع
+        </text>
+      </svg>
+    ),
   };
 
   const langOptions = [
     { code: "tr" as const, label: lang === "en" ? "Turkish" : "Türkçe" },
     { code: "en" as const, label: "English" },
+    { code: "ar" as const, label: "العربية" },
   ];
 
   return (

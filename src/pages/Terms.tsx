@@ -1,4 +1,4 @@
-import { useI18n } from "@/lib/i18n";
+import { useI18n, localeTag } from "@/lib/i18n";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, Scale, Shield, AlertCircle, Coins, MessageSquare, Star, FileText } from "lucide-react";
@@ -139,7 +139,7 @@ const Terms = () => {
 
         <div className="rounded-2xl bg-secondary/5 p-4 text-center">
           <p className="text-xs font-medium text-muted-foreground">
-            {t("Son güncelleme")}: {new Date().toLocaleDateString(lang === "en" ? "en-US" : "tr-TR")}
+            {t("Son güncelleme")}: {new Date().toLocaleDateString(localeTag(lang))}
           </p>
           <p className="text-xs text-muted-foreground">
             © {new Date().getFullYear()} Ergan Game&App — Bi' El At

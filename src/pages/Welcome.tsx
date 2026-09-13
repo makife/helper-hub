@@ -33,11 +33,27 @@ const Welcome = () => {
         <path d="M320 0 V480 M0 240 H640" stroke="#C8102E" strokeWidth="60" />
       </svg>
     ),
+    ar: (
+      <svg viewBox="0 0 640 480" className="h-4 w-auto rounded-sm">
+        <rect width="640" height="480" fill="#0F7A3D" />
+        <text
+          x="320"
+          y="330"
+          textAnchor="middle"
+          fontSize="300"
+          fontWeight="bold"
+          fill="#FFFFFF"
+        >
+          ع
+        </text>
+      </svg>
+    ),
   };
 
   const langOptions = [
     { code: "tr" as const, label: lang === "en" ? "Turkish" : "Türkçe" },
     { code: "en" as const, label: "English" },
+    { code: "ar" as const, label: "العربية" },
   ];
 
   useEffect(() => {

@@ -1,4 +1,4 @@
-import { getLang } from "@/lib/i18n";
+import { getLang, localeTag } from "@/lib/i18n";
 export type LatLng = [number, number];
 
 export type Maneuver = {
@@ -162,7 +162,7 @@ export const remainingDistanceToStepEnd = (pos: LatLng, step: RouteStep) => {
   return remaining;
 };
 
-export const speak = (text: string, lang = getLang() === "en" ? "en-US" : "tr-TR") => {
+export const speak = (text: string, lang = localeTag()) => {
   if (!("speechSynthesis" in window)) return;
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
