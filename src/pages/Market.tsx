@@ -1,4 +1,4 @@
-import { getLang, useT } from "@/lib/i18n";
+import { getLang, useT, localeTag } from "@/lib/i18n";
 import { formatPackPrice } from "@/lib/currency";
 import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
@@ -309,7 +309,7 @@ const Market = () => {
                   <div>
                     <p className="text-xs font-bold text-foreground">{h.description || (h.amount > 0 ? t("Kredi yükleme") : t("Kredi harcaması"))}</p>
                     <p className="text-[10px] text-muted-foreground">
-                      {new Date(h.created_at).toLocaleString(getLang() === "en" ? "en-US" : "tr-TR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
+                      {new Date(h.created_at).toLocaleString(localeTag(), { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
                     </p>
                   </div>
                   <p className={`text-sm font-black ${h.amount > 0 ? "text-success" : "text-destructive"}`}>

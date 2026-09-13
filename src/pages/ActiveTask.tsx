@@ -1,4 +1,4 @@
-import { getLang, useT } from "@/lib/i18n";
+import { getLang, useT, localeTag } from "@/lib/i18n";
 import { formatPrice, getTaskCurrency } from "@/lib/currency";
 import { getTaskStatusLabel } from "@/lib/taskLifecycle";
 import { useEffect, useState, useRef } from "react";
@@ -474,7 +474,7 @@ const ActiveTask = () => {
               >
                 <p className="text-sm">{msg.content}</p>
                 <p className={`text-[10px] mt-1 ${isMine ? "text-primary-foreground/60" : "text-muted-foreground"}`}>
-                  {new Date(msg.created_at).toLocaleTimeString(getLang() === "en" ? "en-US" : "tr-TR", {
+                  {new Date(msg.created_at).toLocaleTimeString(localeTag(), {
                     hour: "2-digit",
                     minute: "2-digit",
                   })}

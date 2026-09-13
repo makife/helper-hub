@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Star, CheckCircle2, Wrench, Calendar } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, localeTag } from "@/lib/i18n";
 
 type Props = { userId: string };
 
@@ -56,7 +56,7 @@ const ProfileStats = ({ userId }: Props) => {
   if (!stats) return null;
 
   const memberSinceLabel = stats.memberSince
-    ? new Date(stats.memberSince).toLocaleDateString(lang === "en" ? "en-US" : "tr-TR", { month: "long", year: "numeric" })
+    ? new Date(stats.memberSince).toLocaleDateString(localeTag(lang), { month: "long", year: "numeric" })
     : null;
 
   return (
