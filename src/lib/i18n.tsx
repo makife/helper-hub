@@ -1,10 +1,26 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, ReactNode } from "react";
 import { EN } from "@/locales/en/index";
+import { AR } from "@/locales/ar/index";
 import { supabase } from "@/integrations/supabase/client";
 
-export type Lang = "tr" | "en";
+export type Lang = "tr" | "en" | "ar";
 
 const STORAGE_KEY = "bielat_lang";
+
+const LANGS: Lang[] = ["tr", "en", "ar"];
+const isLang = (v: unknown): v is Lang => typeof v === "string" && (LANGS as string[]).includes(v);
+
+const DICTS: Record<Lang, Record<string, string> | null> = {
+  tr: null,
+  en: EN,
+  ar: AR,
+};
+
+/** BCP47 locale used for date/number formatting */
+export const localeTag = (lang: Lang = getLang()) =>
+  lang === "en" ? "en-US" : lang === "ar" ? "ar" : "tr-TR";
+
+export const isRtl = (lang: Lang) => lang === "ar";
 
 type I18nContextType = {
   lang: Lang;
@@ -20,12 +36,14 @@ const interpolate = (s: string, vars?: Record<string, string | number>) => {
 export const detectInitialLang = (): Lang => {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored === "tr" || stored === "en") return stored;
+    if (isLang(stored)) return stored;
   } catch {
     /* ignore */
   }
   const nav = typeof navigator !== "undefined" ? navigator.language?.toLowerCase() ?? "" : "";
-  return nav.startsWith("tr") ? "tr" : "en";
+  if (nav.startsWith("tr")) return "tr";
+  if (nav.startsWith("ar")) return "ar";
+  return "en";
 };
 
 /** Language outside of React (edge cases: helpers, lib modules) */
@@ -34,8 +52,9 @@ export const getLang = (): Lang => currentLang;
 
 /** Translate a Turkish source string. Usable outside React. */
 export const translate = (tr: string, vars?: Record<string, string | number>, lang: Lang = currentLang) => {
-  if (lang === "tr") return interpolate(tr, vars);
-  return interpolate(EN[tr] ?? tr, vars);
+  const dict = DICTS[lang];
+  if (!dict) return interpolate(tr, vars);
+  return interpolate(dict[tr] ?? EN[tr] ?? tr, vars);
 };
 
 const I18nContext = createContext<I18nContextType>({
@@ -59,7 +78,10 @@ export const I18nProvider = ({ children }: { children: ReactNode }) => {
     } catch {
       /* ignore */
     }
-    if (typeof document !== "undefined") document.documentElement.lang = lang;
+    if (typeof document !== "undefined") {
+      document.documentElement.lang = lang;
+      document.documentElement.dir = isRtl(lang) ? "rtl" : "ltr";
+    }
   }, [lang]);
 
   useEffect(() => {
@@ -71,8 +93,8 @@ export const I18nProvider = ({ children }: { children: ReactNode }) => {
         .select("language")
         .eq("user_id", session.user.id)
         .maybeSingle();
-      if (!cancelled && (data?.language === "tr" || data?.language === "en")) {
-        setLangState(data.language);
+      if (!cancelled && isLang(data?.language)) {
+        setLangState(data.language as Lang);
       }
     });
     return () => {
