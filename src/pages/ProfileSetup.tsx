@@ -1,7 +1,7 @@
 import { compressImage } from "@/lib/imageCompress";
 import { safeSession } from "@/lib/safeStorage";
 import { useEffect, useState, type ReactNode } from "react";
-import { useI18n } from "@/lib/i18n";
+import { useI18n , type Lang } from "@/lib/i18n";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Camera, MapPin, Check, X, UserPlus, Search, Plus, ImagePlus, BadgeCheck, Trash2, ChevronDown, ShieldCheck } from "lucide-react";
@@ -48,7 +48,7 @@ const ProfileSetup = () => {
   const [manualCodeApplied, setManualCodeApplied] = useState(false);
   const [manualCodeBusy, setManualCodeBusy] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
-  const [pendingLang, setPendingLang] = useState<"tr" | "en" | null>(null);
+  const [pendingLang, setPendingLang] = useState<Lang | null>(null);
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -253,7 +253,7 @@ const ProfileSetup = () => {
     }
   };
 
-  const changeLanguage = async (next: "tr" | "en") => {
+  const changeLanguage = async (next: Lang) => {
     setLang(next);
     if (user) {
       const { error } = await supabase.from("profiles").update({ language: next }).eq("user_id", user.id);
@@ -282,11 +282,20 @@ const ProfileSetup = () => {
         <path d="M320 0 V480 M0 240 H640" stroke="#C8102E" strokeWidth="60" />
       </svg>
     ),
+    ar: (
+      <svg viewBox="0 0 640 480" className="h-4 w-auto rounded-sm">
+        <rect width="640" height="480" fill="#0F7A3D" />
+        <text x="320" y="330" textAnchor="middle" fontSize="300" fontWeight="bold" fill="#FFFFFF">
+          ع
+        </text>
+      </svg>
+    ),
   };
 
   const langOptions = [
     { code: "tr" as const, label: lang === "en" ? "Turkish" : "Türkçe" },
     { code: "en" as const, label: "English" },
+    { code: "ar" as const, label: "العربية" },
   ];
 
   const isValid = name.trim().length >= 2 && ageConfirmed;
