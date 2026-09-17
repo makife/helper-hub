@@ -62,12 +62,9 @@ const PhoneVerifyRow = ({ phone, onVerified }: Props) => {
     <div className="rounded-xl border border-border p-3">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
-          <Phone size={15} className="shrink-0 text-muted-foreground" />
           <div>
             <p className="text-xs font-bold text-foreground">{t("Telefon Doğrulama")}</p>
-            <p className="text-[10px] text-muted-foreground">
-              {verified ? phone : t("SMS kodu ile doğrula")}
-            </p>
+            <p className="text-[10px] text-muted-foreground">{verified ? phone : t("SMS kodu ile doğrula")}</p>
           </div>
         </div>
         {verified ? (
@@ -127,7 +124,10 @@ const PhoneVerifyRow = ({ phone, onVerified }: Props) => {
                 {t("Onayla")}
               </button>
               <button
-                onClick={() => { setSent(false); setCode(""); }}
+                onClick={() => {
+                  setSent(false);
+                  setCode("");
+                }}
                 className="w-full py-1 text-[11px] font-bold text-muted-foreground"
               >
                 {t("Numarayı değiştir")}
