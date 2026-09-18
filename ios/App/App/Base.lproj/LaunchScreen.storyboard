@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17132" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
-    <device id="retina4_7" orientation="portrait" appearance="light"/>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17105"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -13,29 +14,29 @@
             <objects>
                 <viewController id="01J-lp-oVM" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="snD-IY-ifK">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Splash" translatesAutoresizingMaskIntoConstraints="NO" id="vBg-6V-eqG">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                             </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Bi' El At" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="a3g-7R-3nX">
-                                <rect key="frame" x="0.0" y="500" width="375" height="36"/>
+                                <rect key="frame" x="0.0" y="631" width="393" height="34"/>
                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="28"/>
-                                <color key="textColor" red="0.17254901960784313" green="0.24313725490196078" blue="0.31372549019607843" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="textColor" red="0.17254901960000001" green="0.24313725489999999" blue="0.31372549020000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
+                        <viewLayoutGuide key="safeArea" id="Bcu-3y-fUS"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="vBg-6V-eqG" firstAttribute="top" secondItem="snD-IY-ifK" secondAttribute="top" id="1aN-9c-7gQ"/>
+                            <constraint firstItem="vBg-6V-eqG" firstAttribute="leading" secondItem="snD-IY-ifK" secondAttribute="leading" id="4dZ-6m-0qL"/>
                             <constraint firstAttribute="trailing" secondItem="vBg-6V-eqG" secondAttribute="trailing" id="2bX-4k-8mJ"/>
                             <constraint firstAttribute="bottom" secondItem="vBg-6V-eqG" secondAttribute="bottom" id="3cY-5l-9pK"/>
-                            <constraint firstItem="vBg-6V-eqG" firstAttribute="leading" secondItem="snD-IY-ifK" secondAttribute="leading" id="4dZ-6m-0qL"/>
-                            <constraint firstItem="a3g-7R-3nX" firstAttribute="centerX" secondItem="snD-IY-ifK" secondAttribute="centerX" id="5eA-7n-1rM"/>
                             <constraint firstItem="a3g-7R-3nX" firstAttribute="leading" secondItem="snD-IY-ifK" secondAttribute="leading" id="6fB-8o-2sN"/>
                             <constraint firstAttribute="trailing" secondItem="a3g-7R-3nX" secondAttribute="trailing" id="7gC-9p-3tO"/>
-                            <constraint firstItem="a3g-7R-3nX" firstAttribute="bottom" secondItem="snD-IY-ifK" secondAttribute="bottom" constant="-131" id="8hD-0q-4uP"/>
+                            <constraint firstAttribute="bottom" secondItem="a3g-7R-3nX" secondAttribute="bottom" constant="187" id="8hD-0q-4uP"/>
                         </constraints>
                     </view>
                 </viewController>
