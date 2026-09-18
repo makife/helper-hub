@@ -116,3 +116,21 @@ export async function unregisterPushNotifications() {
     // Token zaten yoksa çıkış işlemi yine tamamlanmalı.
   }
 }
+
+/**
+ * Bildirim izin penceresini kullanıcı girişinden bağımsız gösterir.
+ * (Android 13+ POST_NOTIFICATIONS / iOS APNs)
+ */
+export async function ensureNotificationPermission(): Promise<"granted" | "denied"> {
+  if (!isNative()) return "granted";
+  try {
+    let status = await FirebaseMessaging.checkPermissions();
+    if (status.receive === "prompt" || status.receive === "prompt-with-rationale") {
+      status = await FirebaseMessaging.requestPermissions();
+    }
+    return status.receive === "granted" ? "granted" : "denied";
+  } catch (error) {
+    console.warn("Bildirim izni alınamadı:", error);
+    return "denied";
+  }
+}
