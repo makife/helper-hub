@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { isNativePlatform, signInNativeOAuth } from "@/lib/nativeAuth";
@@ -26,11 +25,14 @@ const Login = () => {
   const platform = getPlatform();
 
   const signInWeb = async (provider: "google" | "apple") => {
-    const result = await lovable.auth.signInWithOAuth(provider, {
-      redirect_uri: window.location.origin,
-      extraParams: provider === "google" ? { prompt: "select_account" } : undefined,
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: `${window.location.origin}/login`,
+        queryParams: provider === "google" ? { prompt: "select_account" } : undefined,
+      },
     });
-    if (result.error) throw result.error;
+    if (error) throw error;
     setPending(null);
   };
 
