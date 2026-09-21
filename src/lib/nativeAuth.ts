@@ -6,6 +6,7 @@ import { translate } from "@/lib/i18n";
 import { safeLocal } from "@/lib/safeStorage";
 import {
   GOOGLE_WEB_CLIENT_ID,
+  GOOGLE_IOS_CLIENT_ID,
   APPLE_CLIENT_ID,
   APPLE_REDIRECT_URL,
 } from "@/config/socialAuth";
