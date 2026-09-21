@@ -20,10 +20,17 @@ let initialized = false;
 const ensureInit = async () => {
   if (initialized) return;
   await SocialLogin.initialize({
-    google: GOOGLE_WEB_CLIENT_ID ? { webClientId: GOOGLE_WEB_CLIENT_ID } : undefined,
-    apple: APPLE_CLIENT_ID
-      ? { clientId: APPLE_CLIENT_ID, redirectUrl: APPLE_REDIRECT_URL || undefined }
+    google: GOOGLE_WEB_CLIENT_ID
+      ? {
+          webClientId: GOOGLE_WEB_CLIENT_ID,
+          // iOS'ta Google girişi kendi istemci kimliğini ister.
+          iOSClientId: GOOGLE_IOS_CLIENT_ID || undefined,
+        }
       : undefined,
+    apple: {
+      clientId: APPLE_CLIENT_ID || undefined,
+      redirectUrl: APPLE_REDIRECT_URL || undefined,
+    },
   });
   initialized = true;
 };
