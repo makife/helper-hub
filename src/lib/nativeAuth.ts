@@ -44,9 +44,7 @@ export const signInNativeOAuth = async (provider: "google" | "apple") => {
   if (provider === "google" && !GOOGLE_WEB_CLIENT_ID) {
     throw new Error("Google Web Client ID tanımlı değil (src/config/socialAuth.ts)");
   }
-  if (provider === "apple" && !APPLE_CLIENT_ID) {
-    throw new Error("Apple Client ID tanımlı değil (src/config/socialAuth.ts)");
-  }
+
 
   await ensureInit();
 
