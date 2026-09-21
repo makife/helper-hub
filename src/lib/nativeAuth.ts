@@ -81,11 +81,17 @@ export const signInNativeOAuth = async (provider: "google" | "apple") => {
 
 
   const result = res.result as unknown as Record<string, unknown> | undefined;
+  const profileToken = (result?.profile as Record<string, unknown> | undefined)?.idToken as
+    | string
+    | undefined;
   const idToken =
     (result?.idToken as string | undefined) ??
-    ((result?.authenticationToken as string | undefined) ?? undefined);
+    (result?.identityToken as string | undefined) ??
+    (result?.authenticationToken as string | undefined) ??
+    profileToken;
 
   if (!idToken) {
+    console.error("Native OAuth: idToken yok", JSON.stringify(res));
     throw new Error("Kimlik doğrulama anahtarı alınamadı");
   }
 
@@ -93,7 +99,10 @@ export const signInNativeOAuth = async (provider: "google" | "apple") => {
     provider: provider === "google" ? "google" : "apple",
     token: idToken,
   });
-  if (error) throw new Error(translate("Giriş yapılamadı, tekrar dene."));
+  if (error) {
+    console.error("Supabase signInWithIdToken hatası:", error.status, error.message);
+    throw new Error(translate("Giriş yapılamadı, tekrar dene."));
+  }
 };
 
 /**
