@@ -6,6 +6,7 @@ import { translate } from "@/lib/i18n";
 import { safeLocal } from "@/lib/safeStorage";
 import {
   GOOGLE_WEB_CLIENT_ID,
+  GOOGLE_IOS_CLIENT_ID,
   APPLE_CLIENT_ID,
   APPLE_REDIRECT_URL,
 } from "@/config/socialAuth";
@@ -19,10 +20,17 @@ let initialized = false;
 const ensureInit = async () => {
   if (initialized) return;
   await SocialLogin.initialize({
-    google: GOOGLE_WEB_CLIENT_ID ? { webClientId: GOOGLE_WEB_CLIENT_ID } : undefined,
-    apple: APPLE_CLIENT_ID
-      ? { clientId: APPLE_CLIENT_ID, redirectUrl: APPLE_REDIRECT_URL || undefined }
+    google: GOOGLE_WEB_CLIENT_ID
+      ? {
+          webClientId: GOOGLE_WEB_CLIENT_ID,
+          // iOS'ta Google girişi kendi istemci kimliğini ister.
+          iOSClientId: GOOGLE_IOS_CLIENT_ID || undefined,
+        }
       : undefined,
+    apple: {
+      clientId: APPLE_CLIENT_ID || undefined,
+      redirectUrl: APPLE_REDIRECT_URL || undefined,
+    },
   });
   initialized = true;
 };
@@ -36,9 +44,7 @@ export const signInNativeOAuth = async (provider: "google" | "apple") => {
   if (provider === "google" && !GOOGLE_WEB_CLIENT_ID) {
     throw new Error("Google Web Client ID tanımlı değil (src/config/socialAuth.ts)");
   }
-  if (provider === "apple" && !APPLE_CLIENT_ID) {
-    throw new Error("Apple Client ID tanımlı değil (src/config/socialAuth.ts)");
-  }
+
 
   await ensureInit();
 
@@ -75,11 +81,17 @@ export const signInNativeOAuth = async (provider: "google" | "apple") => {
 
 
   const result = res.result as unknown as Record<string, unknown> | undefined;
+  const profileToken = (result?.profile as Record<string, unknown> | undefined)?.idToken as
+    | string
+    | undefined;
   const idToken =
     (result?.idToken as string | undefined) ??
-    ((result?.authenticationToken as string | undefined) ?? undefined);
+    (result?.identityToken as string | undefined) ??
+    (result?.authenticationToken as string | undefined) ??
+    profileToken;
 
   if (!idToken) {
+    console.error("Native OAuth: idToken yok", JSON.stringify(res));
     throw new Error("Kimlik doğrulama anahtarı alınamadı");
   }
 
@@ -87,7 +99,10 @@ export const signInNativeOAuth = async (provider: "google" | "apple") => {
     provider: provider === "google" ? "google" : "apple",
     token: idToken,
   });
-  if (error) throw new Error(translate("Giriş yapılamadı, tekrar dene."));
+  if (error) {
+    console.error("Supabase signInWithIdToken hatası:", error.status, error.message);
+    throw new Error(translate("Giriş yapılamadı, tekrar dene."));
+  }
 };
 
 /**
