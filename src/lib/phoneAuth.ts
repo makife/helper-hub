@@ -77,15 +77,25 @@ const mapFirebaseError = (err: unknown): PhoneAuthError => {
 /** SMS kodunu gönderir. `phone` E.164 biçiminde olmalı: +905xxxxxxxxx */
 export const sendPhoneCode = async (
   phone: string,
-): Promise<{ ok: true } | { ok: false; reason: PhoneAuthError }> => {
+): Promise<{ ok: boolean; reason?: PhoneAuthError }> => {
   if (!/^\+\d{10,15}$/.test(phone)) return { ok: false, reason: "invalid_phone" };
 
   try {
     if (isNative()) {
       nativeVerificationId = null;
-      const res = await FirebaseAuthentication.signInWithPhoneNumber({ phoneNumber: phone });
-      if (!res.verificationId) return { ok: false, reason: "send_failed" };
-      nativeVerificationId = res.verificationId;
+      // Eklenti verificationId'yi olay üzerinden bildirir.
+      const handle = await FirebaseAuthentication.addListener("phoneCodeSent", (event) => {
+        nativeVerificationId = event.verificationId;
+      });
+      try {
+        await FirebaseAuthentication.signInWithPhoneNumber({ phoneNumber: phone });
+        for (let i = 0; i < 60 && !nativeVerificationId; i++) {
+          await new Promise((r) => setTimeout(r, 500));
+        }
+      } finally {
+        await handle.remove();
+      }
+      if (!nativeVerificationId) return { ok: false, reason: "send_failed" };
       return { ok: true };
     }
 
@@ -107,7 +117,7 @@ export const sendPhoneCode = async (
 /** 6 haneli kodu doğrular ve numarayı profile kaydeder. */
 export const confirmPhoneCode = async (
   code: string,
-): Promise<{ ok: true; phone: string } | { ok: false; reason: PhoneAuthError }> => {
+): Promise<{ ok: boolean; phone?: string; reason?: PhoneAuthError }> => {
   if (!/^\d{6}$/.test(code)) return { ok: false, reason: "invalid_code" };
 
   let idToken: string | null = null;
