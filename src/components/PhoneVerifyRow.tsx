@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Phone, Check, Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { Check, Loader2 } from "lucide-react";
 import { useT } from "@/lib/i18n";
+import { sendPhoneCode, confirmPhoneCode, resetPhoneFlow } from "@/lib/phoneAuth";
 import { toast } from "sonner";
+
 
 type Props = { phone: string | null; onVerified?: (phone: string) => void };
 
@@ -24,10 +25,15 @@ const PhoneVerifyRow = ({ phone, onVerified }: Props) => {
       return;
     }
     setBusy(true);
-    const { data, error } = await supabase.functions.invoke("send-otp", { body: { phone: fullPhone } });
+    const res = await sendPhoneCode(fullPhone);
     setBusy(false);
-    if (error || (data as { error?: string })?.error) {
-      toast.error(t("SMS gönderilemedi. Numaranı kontrol et."));
+    if (!res.ok) {
+      if (res.reason === "invalid_phone") toast.error(t("Numaran geçersiz görünüyor. Kontrol et."));
+      else if (res.reason === "too_many_requests")
+        toast.error(t("Çok fazla deneme yaptın. Biraz sonra tekrar dene."));
+      else if (res.reason === "not_configured")
+        toast.error(t("Telefon doğrulama şu an kullanılamıyor."));
+      else toast.error(t("SMS gönderilemedi. Numaranı kontrol et."));
       return;
     }
     setSent(true);
@@ -40,14 +46,11 @@ const PhoneVerifyRow = ({ phone, onVerified }: Props) => {
       return;
     }
     setBusy(true);
-    const { data, error } = await supabase.functions.invoke("confirm-phone", {
-      body: { phone: fullPhone, code },
-    });
+    const res = await confirmPhoneCode(code);
     setBusy(false);
-    const res = data as { ok?: boolean; reason?: string } | null;
-    if (error || !res?.ok) {
-      if (res?.reason === "phone_taken") toast.error(t("Bu numara başka bir hesapta kayıtlı."));
-      else if (res?.reason === "invalid_code") toast.error(t("Kod hatalı veya süresi dolmuş."));
+    if (!res.ok || !res.phone) {
+      if (res.reason === "phone_taken") toast.error(t("Bu numara başka bir hesapta kayıtlı."));
+      else if (res.reason === "invalid_code") toast.error(t("Kod hatalı veya süresi dolmuş."));
       else toast.error(t("Doğrulama yapılamadı. Tekrar dene."));
       return;
     }
@@ -55,7 +58,7 @@ const PhoneVerifyRow = ({ phone, onVerified }: Props) => {
     setOpen(false);
     setSent(false);
     setCode("");
-    onVerified?.(fullPhone);
+    onVerified?.(res.phone);
   };
 
   return (
@@ -125,6 +128,7 @@ const PhoneVerifyRow = ({ phone, onVerified }: Props) => {
               </button>
               <button
                 onClick={() => {
+                  resetPhoneFlow();
                   setSent(false);
                   setCode("");
                 }}
