@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Phone, Check, Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { Check, Loader2 } from "lucide-react";
 import { useT } from "@/lib/i18n";
+import { sendPhoneCode, confirmPhoneCode, resetPhoneFlow } from "@/lib/phoneAuth";
 import { toast } from "sonner";
+
 
 type Props = { phone: string | null; onVerified?: (phone: string) => void };
 
