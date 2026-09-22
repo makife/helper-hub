@@ -16,8 +16,6 @@ import {
   getAuth,
   RecaptchaVerifier,
   signInWithPhoneNumber,
-  signInWithCredential,
-  PhoneAuthProvider,
   type ConfirmationResult,
   type Auth,
 } from "firebase/auth";
@@ -175,4 +173,3 @@ export const resetPhoneFlow = () => {
   nativeVerificationId = null;
 };
 
-export { PhoneAuthProvider, signInWithCredential };
