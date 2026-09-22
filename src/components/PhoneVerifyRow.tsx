@@ -128,6 +128,7 @@ const PhoneVerifyRow = ({ phone, onVerified }: Props) => {
               </button>
               <button
                 onClick={() => {
+                  resetPhoneFlow();
                   setSent(false);
                   setCode("");
                 }}
