@@ -83,21 +83,9 @@ export const sendPhoneCode = async (
   try {
     if (isNative()) {
       nativeVerificationId = null;
-      const { verificationId } = await new Promise<{ verificationId: string }>(
-        (resolve, reject) => {
-          FirebaseAuthentication.signInWithPhoneNumber({
-            phoneNumber: phone,
-            // Android'de SMS otomatik okunursa da verificationId döner.
-            resendCode: false,
-          })
-            .then((res) => {
-              if (res.verificationId) resolve({ verificationId: res.verificationId });
-              else reject(new Error("no_verification_id"));
-            })
-            .catch(reject);
-        },
-      );
-      nativeVerificationId = verificationId;
+      const res = await FirebaseAuthentication.signInWithPhoneNumber({ phoneNumber: phone });
+      if (!res.verificationId) return { ok: false, reason: "send_failed" };
+      nativeVerificationId = res.verificationId;
       return { ok: true };
     }
 

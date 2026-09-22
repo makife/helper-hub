@@ -5,6 +5,10 @@ const config: CapacitorConfig = {
   appName: "Bi' El At",
   webDir: 'dist',
   plugins: {
+    FirebaseAuthentication: {
+      skipNativeAuth: true,
+      providers: ['phone'],
+    },
     PrivacyScreen: {
       enable: true,
       imageName: 'Splash',
