@@ -48,7 +48,7 @@ const PhoneVerifyRow = ({ phone, onVerified }: Props) => {
     setBusy(true);
     const res = await confirmPhoneCode(code);
     setBusy(false);
-    if (!res.ok) {
+    if (!res.ok || !res.phone) {
       if (res.reason === "phone_taken") toast.error(t("Bu numara başka bir hesapta kayıtlı."));
       else if (res.reason === "invalid_code") toast.error(t("Kod hatalı veya süresi dolmuş."));
       else toast.error(t("Doğrulama yapılamadı. Tekrar dene."));
