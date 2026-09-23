@@ -101,7 +101,10 @@ export const signInNativeOAuth = async (provider: "google" | "apple") => {
   });
   if (error) {
     console.error("Supabase signInWithIdToken hatası:", error.status, error.message);
-    throw new Error(translate("Giriş yapılamadı, tekrar dene."));
+    // Teşhis için gerçek sunucu mesajını gösteriyoruz (kod: durum + mesaj).
+    throw new Error(
+      `${translate("Giriş yapılamadı, tekrar dene.")} (sunucu ${error.status ?? "?"}: ${error.message})`,
+    );
   }
 };
 
