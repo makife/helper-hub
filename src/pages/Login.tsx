@@ -66,7 +66,8 @@ const Login = () => {
       await signInWeb(provider);
     } catch (err) {
       console.error("OAuth error:", err);
-      toast.error(t("Giriş yapılamadı, tekrar dene."), { duration: 6000 });
+      const detail = err instanceof Error ? err.message : String(err);
+      toast.error(detail || t("Giriş yapılamadı, tekrar dene."), { duration: 12000 });
       setPending(null);
     }
   };
