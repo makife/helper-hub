@@ -25,6 +25,17 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 
+	<!-- Google Sign-In dönüş şeması (iOS istemcisinin ters çevrilmiş kimliği) -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.170480992927-9536qsa2g1snclflt6jkfd1p5tr640et</string>
+			</array>
+		</dict>
+	</array>
+
 	<!-- Facebook SDK Crash Fix -->
 	<key>FacebookAppID</key>
 	<string>0000000000000000</string>
