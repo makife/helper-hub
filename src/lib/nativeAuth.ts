@@ -19,6 +19,18 @@ let initialized = false;
 
 const ensureInit = async () => {
   if (initialized) return;
+
+  const isIOS = Capacitor.getPlatform() === "ios";
+
+  // Apple yapılandırması yalnızca iOS'ta (native Sign in with Apple) veya
+  // Android'de geçerli bir redirectUrl varsa gönderilir. Aksi halde eklenti
+  // "apple.android.redirectUrl is null or empty" hatası veriyor.
+  const appleConfig = isIOS
+    ? { clientId: APPLE_CLIENT_ID || undefined }
+    : APPLE_CLIENT_ID && APPLE_REDIRECT_URL
+      ? { clientId: APPLE_CLIENT_ID, redirectUrl: APPLE_REDIRECT_URL }
+      : undefined;
+
   await SocialLogin.initialize({
     google: GOOGLE_WEB_CLIENT_ID
       ? {
@@ -27,10 +39,7 @@ const ensureInit = async () => {
           iOSClientId: GOOGLE_IOS_CLIENT_ID || undefined,
         }
       : undefined,
-    apple: {
-      clientId: APPLE_CLIENT_ID || undefined,
-      redirectUrl: APPLE_REDIRECT_URL || undefined,
-    },
+    ...(appleConfig ? { apple: appleConfig } : {}),
   });
   initialized = true;
 };
