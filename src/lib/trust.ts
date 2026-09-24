@@ -68,7 +68,12 @@ export const submitVerification = async (
     }
     const { error } = await supabase
       .from("verification_requests")
-      .update({ file_path: path })
+      .update({
+        file_path: path,
+        status: "pending",
+        review_note: null,
+        attempts: (existing.attempts ?? 0) + 1,
+      })
       .eq("id", existing.id);
     if (error) {
       await supabase.storage.from(VERIFICATION_BUCKET).remove([path]);
