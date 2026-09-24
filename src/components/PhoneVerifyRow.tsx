@@ -33,7 +33,11 @@ const PhoneVerifyRow = ({ phone, onVerified }: Props) => {
         toast.error(t("Çok fazla deneme yaptın. Biraz sonra tekrar dene."));
       else if (res.reason === "not_configured")
         toast.error(t("Telefon doğrulama şu an kullanılamıyor."));
-      else toast.error(t("SMS gönderilemedi. Numaranı kontrol et."));
+      else
+        toast.error(t("SMS gönderilemedi. Numaranı kontrol et."), {
+          description: res.message,
+          duration: 12000,
+        });
       return;
     }
     setSent(true);

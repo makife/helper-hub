@@ -75,25 +75,37 @@ const mapFirebaseError = (err: unknown): PhoneAuthError => {
 /** SMS kodunu gönderir. `phone` E.164 biçiminde olmalı: +905xxxxxxxxx */
 export const sendPhoneCode = async (
   phone: string,
-): Promise<{ ok: boolean; reason?: PhoneAuthError }> => {
+): Promise<{ ok: boolean; reason?: PhoneAuthError; message?: string }> => {
   if (!/^\+\d{10,15}$/.test(phone)) return { ok: false, reason: "invalid_phone" };
 
   try {
     if (isNative()) {
       nativeVerificationId = null;
-      // Eklenti verificationId'yi olay üzerinden bildirir.
-      const handle = await FirebaseAuthentication.addListener("phoneCodeSent", (event) => {
+      let failMsg: string | null = null;
+      const h1 = await FirebaseAuthentication.addListener("phoneCodeSent", (event) => {
         nativeVerificationId = event.verificationId;
       });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const h2 = await (FirebaseAuthentication as any).addListener(
+        "phoneVerificationFailed",
+        (event: { message?: string }) => {
+          failMsg = event?.message || "phoneVerificationFailed";
+        },
+      );
       try {
         await FirebaseAuthentication.signInWithPhoneNumber({ phoneNumber: phone });
-        for (let i = 0; i < 60 && !nativeVerificationId; i++) {
+        for (let i = 0; i < 60 && !nativeVerificationId && !failMsg; i++) {
           await new Promise((r) => setTimeout(r, 500));
         }
       } finally {
-        await handle.remove();
+        await h1.remove();
+        await h2?.remove?.();
       }
-      if (!nativeVerificationId) return { ok: false, reason: "send_failed" };
+      if (failMsg) {
+        console.error("phoneVerificationFailed:", failMsg);
+        return { ok: false, reason: mapFirebaseError({ message: failMsg }), message: failMsg };
+      }
+      if (!nativeVerificationId) return { ok: false, reason: "send_failed", message: "timeout: kod gönderim olayı gelmedi" };
       return { ok: true };
     }
 
@@ -103,12 +115,13 @@ export const sendPhoneCode = async (
     return { ok: true };
   } catch (err) {
     console.error("sendPhoneCode:", err);
-    // reCAPTCHA tekrar kullanılamaz, sıfırla.
     try {
       webVerifier?.clear();
     } catch { /* yoksay */ }
     webVerifier = null;
-    return { ok: false, reason: mapFirebaseError(err) };
+    const e = err as { code?: string; message?: string };
+    const message = [e?.code, e?.message ?? String(err)].filter(Boolean).join(": ");
+    return { ok: false, reason: mapFirebaseError(err), message };
   }
 };
 
