@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Check, Loader2 } from "lucide-react";
 import { useT } from "@/lib/i18n";
 import { sendPhoneCode, confirmPhoneCode, resetPhoneFlow } from "@/lib/phoneAuth";
@@ -6,6 +6,8 @@ import { toast } from "sonner";
 
 
 type Props = { phone: string | null; onVerified?: (phone: string) => void };
+
+const COOLDOWN_SECONDS = 60;
 
 /** 1. güven yıldızı: telefon numarasını SMS kodu ile doğrular. */
 const PhoneVerifyRow = ({ phone, onVerified }: Props) => {
@@ -16,6 +18,14 @@ const PhoneVerifyRow = ({ phone, onVerified }: Props) => {
   const [code, setCode] = useState("");
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+
+  // Kod gönderildikten sonra tekrar gönderim için bekleme sayacı.
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setTimeout(() => setCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [cooldown]);
 
   const fullPhone = `+90${input}`;
 
