@@ -556,6 +556,7 @@ export const UI: Record<string, string> = {
   "Doğrulama reddedildi": "Verification rejected",
   "SMS kodu ile doğrula": "Verify with an SMS code",
   "Kod Gönder": "Send Code",
+  "Tekrar gönder ({sn} sn)": "Resend in {sn}s",
   "6 haneli kod": "6-digit code",
   "Numarayı değiştir": "Change number",
   "Telefon numaranı 10 hane olarak yaz (5XX XXX XX XX).": "Enter your 10-digit phone number (5XX XXX XX XX).",
