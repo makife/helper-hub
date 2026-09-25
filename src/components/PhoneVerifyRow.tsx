@@ -51,6 +51,7 @@ const PhoneVerifyRow = ({ phone, onVerified }: Props) => {
       return;
     }
     setSent(true);
+    setCooldown(COOLDOWN_SECONDS);
     toast.success(t("Doğrulama kodu telefonuna gönderildi."));
   };
 
