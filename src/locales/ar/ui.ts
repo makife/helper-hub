@@ -567,6 +567,7 @@ export const UI: Record<string, string> = {
   "Doğrulama reddedildi": "تم رفض التوثيق",
   "SMS kodu ile doğrula": "تحقّق برمز SMS",
   "Kod Gönder": "إرسال الرمز",
+  "Tekrar gönder ({sn} sn)": "إعادة الإرسال بعد {sn} ث",
   "6 haneli kod": "رمز من 6 أرقام",
   "Numarayı değiştir": "تغيير الرقم",
   "Telefon numaranı 10 hane olarak yaz (5XX XXX XX XX).": "اكتب رقم هاتفك من 10 أرقام (5XX XXX XX XX).",
