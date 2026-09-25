@@ -117,11 +117,13 @@ const PhoneVerifyRow = ({ phone, onVerified }: Props) => {
               </div>
               <button
                 onClick={sendCode}
-                disabled={busy}
+                disabled={busy || cooldown > 0}
                 className="gradient-warm flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-bold text-primary-foreground disabled:opacity-50"
               >
                 {busy && <Loader2 size={14} className="animate-spin" />}
-                {t("Kod Gönder")}
+                {cooldown > 0
+                  ? t("Tekrar gönder ({sn} sn)", { sn: cooldown })
+                  : t("Kod Gönder")}
               </button>
             </>
           ) : (
