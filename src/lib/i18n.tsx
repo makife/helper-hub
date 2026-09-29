@@ -1,24 +1,26 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, ReactNode } from "react";
 import { EN } from "@/locales/en/index";
 import { AR } from "@/locales/ar/index";
+import { PT } from "@/locales/pt/index";
 import { supabase } from "@/integrations/supabase/client";
 
-export type Lang = "tr" | "en" | "ar";
+export type Lang = "tr" | "en" | "ar" | "pt";
 
 const STORAGE_KEY = "bielat_lang";
 
-const LANGS: Lang[] = ["tr", "en", "ar"];
+const LANGS: Lang[] = ["tr", "en", "ar", "pt"];
 const isLang = (v: unknown): v is Lang => typeof v === "string" && (LANGS as string[]).includes(v);
 
 const DICTS: Record<Lang, Record<string, string> | null> = {
   tr: null,
   en: EN,
   ar: AR,
+  pt: PT,
 };
 
 /** BCP47 locale used for date/number formatting */
 export const localeTag = (lang: Lang = getLang()) =>
-  lang === "en" ? "en-US" : lang === "ar" ? "ar" : "tr-TR";
+  lang === "en" ? "en-US" : lang === "ar" ? "ar" : lang === "pt" ? "pt-PT" : "tr-TR";
 
 export const isRtl = (lang: Lang) => lang === "ar";
 
@@ -43,6 +45,7 @@ export const detectInitialLang = (): Lang => {
   const nav = typeof navigator !== "undefined" ? navigator.language?.toLowerCase() ?? "" : "";
   if (nav.startsWith("tr")) return "tr";
   if (nav.startsWith("ar")) return "ar";
+  if (nav.startsWith("pt")) return "pt";
   return "en";
 };
 
