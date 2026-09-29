@@ -170,8 +170,9 @@ export const speak = (text: string, lang = localeTag()) => {
   u.rate = 1.05;
   u.pitch = 1;
   const voices = window.speechSynthesis.getVoices();
-  const trVoice = voices.find((v) => v.lang.startsWith("tr")) || voices[0];
-  if (trVoice) u.voice = trVoice;
+  const voiceLanguage = lang.split("-")[0].toLowerCase();
+  const matchingVoice = voices.find((v) => v.lang.toLowerCase().startsWith(voiceLanguage)) || voices[0];
+  if (matchingVoice) u.voice = matchingVoice;
   window.speechSynthesis.speak(u);
 };
 
