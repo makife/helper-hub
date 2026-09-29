@@ -1,4 +1,4 @@
-import { getLang } from "@/lib/i18n";
+import { getLang, localeTag } from "@/lib/i18n";
 
 export const CURRENCIES = ["TRY", "USD", "EUR", "GBP"] as const;
 export type CurrencyCode = (typeof CURRENCIES)[number];
@@ -29,12 +29,13 @@ export const getTaskCurrency = (task: { currency?: string | null } | null | unde
  */
 export const formatPrice = (amount: number | null | undefined, currency?: string | null) => {
   const value = Number(amount ?? 0);
-  const en = getLang() === "en";
+  const lang = getLang();
+  const symbolFirst = lang === "en";
   const sym = currencySymbol(currency);
-  const num = value.toLocaleString(en ? "en-US" : "tr-TR", {
+  const num = value.toLocaleString(localeTag(lang), {
     maximumFractionDigits: Number.isInteger(value) ? 0 : 2,
   });
-  return en ? `${sym}${num}` : `${num} ${sym}`;
+  return symbolFirst ? `${sym}${num}` : `${num} ${sym}`;
 };
 
 /** Kredi paketleri için sabit Euro fiyatları (İngilizce dilde gösterilir) */
@@ -45,7 +46,9 @@ export const TRY_TO_EUR_RATE = 0.026;
  * eurPrice verilirse doğrudan kullanılır, verilmezse kur ile hesaplanır.
  */
 export const formatPackPrice = (tryPrice: number, eurPrice?: number) => {
-  if (getLang() !== "en") return formatPrice(tryPrice, "TRY");
+  const lang = getLang();
+  if (lang !== "en" && lang !== "pt") return formatPrice(tryPrice, "TRY");
   const value = eurPrice ?? Math.round(tryPrice * TRY_TO_EUR_RATE * 100) / 100;
-  return `€${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const formatted = value.toLocaleString(localeTag(lang), { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return lang === "pt" ? `${formatted} €` : `€${formatted}`;
 };

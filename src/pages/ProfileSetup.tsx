@@ -290,12 +290,22 @@ const ProfileSetup = () => {
         </text>
       </svg>
     ),
+    pt: (
+      <svg viewBox="0 0 640 480" className="h-4 w-auto rounded-sm">
+        <rect width="256" height="480" fill="#046A38" />
+        <rect x="256" width="384" height="480" fill="#DA291C" />
+        <circle cx="256" cy="240" r="72" fill="#FFCC00" />
+        <circle cx="256" cy="240" r="50" fill="#FFFFFF" />
+        <path d="M256 205 L285 215 V243 C285 265 272 280 256 288 C240 280 227 265 227 243 V215 Z" fill="#DA291C" />
+      </svg>
+    ),
   };
 
   const langOptions = [
-    { code: "tr" as const, label: lang === "en" ? "Turkish" : "Türkçe" },
+    { code: "tr" as const, label: lang === "en" ? "Turkish" : lang === "pt" ? "Turco" : "Türkçe" },
     { code: "en" as const, label: "English" },
     { code: "ar" as const, label: "العربية" },
+    { code: "pt" as const, label: "Português" },
   ];
 
   const isValid = name.trim().length >= 2 && ageConfirmed;
@@ -717,7 +727,7 @@ const ProfileSetup = () => {
         open={!!pendingLang}
         title={t("Dil Değiştir")}
         description={t("Uygulama dilini {lang} olarak değiştirmek istiyor musunuz?", {
-          lang: pendingLang === "tr" ? t("Türkçe") : t("İngilizce"),
+          lang: pendingLang === "tr" ? t("Türkçe") : pendingLang === "ar" ? t("Arapça") : pendingLang === "pt" ? "Português" : t("İngilizce"),
         })}
         confirmLabel={t("Değiştir")}
         cancelLabel={t("Vazgeç")}
