@@ -60,10 +60,11 @@ const Welcome = () => {
   };
 
   const langOptions = [
-    { code: "tr" as const, label: lang === "en" ? "Turkish" : lang === "pt" ? "Turco" : "Türkçe" },
+    { code: "tr" as const, label: lang === "en" ? "Turkish" : lang === "pt" || lang === "es" ? "Turco" : "Türkçe" },
     { code: "en" as const, label: "English" },
     { code: "ar" as const, label: "العربية" },
     { code: "pt" as const, label: "Português" },
+    { code: "es" as const, label: "Español" },
   ];
 
   useEffect(() => {

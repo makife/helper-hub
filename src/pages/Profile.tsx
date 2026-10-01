@@ -294,10 +294,11 @@ const Profile = () => {
   };
 
   const langOptions = [
-    { code: "tr" as const, label: lang === "en" ? "Turkish" : lang === "pt" ? "Turco" : "Türkçe" },
+    { code: "tr" as const, label: lang === "en" ? "Turkish" : lang === "pt" || lang === "es" ? "Turco" : "Türkçe" },
     { code: "en" as const, label: "English" },
     { code: "ar" as const, label: "العربية" },
     { code: "pt" as const, label: "Português" },
+    { code: "es" as const, label: "Español" },
   ];
 
   return (
@@ -831,7 +832,7 @@ const Profile = () => {
         open={!!pendingLang}
         title={t("Dil Değiştir")}
         description={t("Uygulama dilini {lang} olarak değiştirmek istiyor musunuz?", {
-          lang: pendingLang === "tr" ? t("Türkçe") : pendingLang === "ar" ? t("Arapça") : pendingLang === "pt" ? "Português" : t("İngilizce"),
+          lang: pendingLang === "tr" ? t("Türkçe") : pendingLang === "ar" ? t("Arapça") : pendingLang === "pt" ? "Português" : pendingLang === "es" ? "Español" : t("İngilizce"),
         })}
         confirmLabel={t("Değiştir")}
         cancelLabel={t("Vazgeç")}
