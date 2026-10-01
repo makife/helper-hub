@@ -47,8 +47,8 @@ export const TRY_TO_EUR_RATE = 0.026;
  */
 export const formatPackPrice = (tryPrice: number, eurPrice?: number) => {
   const lang = getLang();
-  if (lang !== "en" && lang !== "pt") return formatPrice(tryPrice, "TRY");
+  if (lang !== "en" && lang !== "pt" && lang !== "es") return formatPrice(tryPrice, "TRY");
   const value = eurPrice ?? Math.round(tryPrice * TRY_TO_EUR_RATE * 100) / 100;
   const formatted = value.toLocaleString(localeTag(lang), { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  return lang === "pt" ? `${formatted} €` : `€${formatted}`;
+  return lang === "pt" || lang === "es" ? `${formatted} €` : `€${formatted}`;
 };

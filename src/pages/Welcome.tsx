@@ -57,13 +57,20 @@ const Welcome = () => {
         <path d="M256 205 L285 215 V243 C285 265 272 280 256 288 C240 280 227 265 227 243 V215 Z" fill="#DA291C" />
       </svg>
     ),
+    es: (
+      <svg viewBox="0 0 640 480" className="h-4 w-auto rounded-sm">
+        <rect width="640" height="480" fill="#AA151B" />
+        <rect y="120" width="640" height="240" fill="#F1BF00" />
+      </svg>
+    ),
   };
 
   const langOptions = [
-    { code: "tr" as const, label: lang === "en" ? "Turkish" : lang === "pt" ? "Turco" : "Türkçe" },
+    { code: "tr" as const, label: lang === "en" ? "Turkish" : lang === "pt" || lang === "es" ? "Turco" : "Türkçe" },
     { code: "en" as const, label: "English" },
     { code: "ar" as const, label: "العربية" },
     { code: "pt" as const, label: "Português" },
+    { code: "es" as const, label: "Español" },
   ];
 
   useEffect(() => {
