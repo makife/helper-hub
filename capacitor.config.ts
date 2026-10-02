@@ -11,8 +11,6 @@ const config: CapacitorConfig = {
     },
     PrivacyScreen: {
       enable: true,
-      imageName: 'Splash',
-      contentMode: 'scaleAspectFill',
       preventScreenshots: true,
     },
   },
