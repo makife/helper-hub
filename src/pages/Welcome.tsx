@@ -81,7 +81,7 @@ const Welcome = () => {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background">
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background safe-top safe-bottom">
         <img src={logo} alt="Bi' El At" width={80} height={80} />
         <span className="text-2xl font-black text-foreground">Bi' El At</span>
       </div>
@@ -90,7 +90,7 @@ const Welcome = () => {
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-background px-6 safe-top safe-bottom">
-      <div className="absolute right-4 top-4 z-20">
+      <div className="safe-top-offset absolute right-4 z-20">
         <button
           onClick={() => setLangOpen((v) => !v)}
           className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-black text-foreground shadow-sm"

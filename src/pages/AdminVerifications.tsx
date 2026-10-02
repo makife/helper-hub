@@ -140,7 +140,7 @@ const AdminVerifications = () => {
 
   if (isAdmin === false) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background px-6 text-center">
+      <div className="flex min-h-screen items-center justify-center bg-background px-6 text-center safe-top safe-bottom">
         <p className="text-sm font-bold text-muted-foreground">{t("Bu sayfaya erişimin yok.")}</p>
       </div>
     );
@@ -150,8 +150,8 @@ const AdminVerifications = () => {
   const detailProfile = openUser ? profiles[openUser] : undefined;
 
   return (
-    <div className="min-h-screen bg-background pb-10">
-      <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-border bg-card px-4 py-3">
+    <div className="min-h-screen bg-background pb-10 safe-bottom">
+      <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-border bg-card px-4 pb-3 pt-[calc(env(safe-area-inset-top,0px)+0.75rem)]">
         <button onClick={() => (openUser ? setOpenUser(null) : navigate(-1))} className="text-foreground">
           <ArrowLeft size={20} />
         </button>
