@@ -456,7 +456,7 @@ const Home = () => {
         {/* Map type toggle */}
         <button
           onClick={() => setMapType((t) => (t === "satellite" ? "standard" : "satellite"))}
-          className="fixed bottom-36 right-4 z-[600] flex h-8 w-8 items-center justify-center rounded-full bg-card text-foreground shadow-card pointer-events-auto"
+          className="safe-map-control-high fixed right-4 z-[600] flex h-8 w-8 items-center justify-center rounded-full bg-card text-foreground shadow-card pointer-events-auto"
           aria-label={mapType === "satellite" ? t("Normal harita") : t("Uydu görünümü")}
         >
           {mapType === "satellite" ? <Map size={18} /> : <Satellite size={18} />}
@@ -465,7 +465,7 @@ const Home = () => {
         {/* Locate me button */}
         <button
           onClick={handleLocateMe}
-          className="fixed bottom-24 right-4 z-[600] flex h-8 w-8 items-center justify-center rounded-full bg-sky-200 text-sky-700 shadow-md pointer-events-auto"
+          className="safe-map-control-low fixed right-4 z-[600] flex h-8 w-8 items-center justify-center rounded-full bg-sky-200 text-sky-700 shadow-md pointer-events-auto"
           aria-label={t("Konumuma git")}
         >
           <Crosshair size={22} className="text-sky-700" />

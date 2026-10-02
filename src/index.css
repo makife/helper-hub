@@ -76,6 +76,8 @@
 
   html, body {
     overscroll-behavior: none;
+    min-height: 100%;
+    overflow-x: hidden;
   }
 
   html {
@@ -86,6 +88,11 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'Inter', sans-serif;
+    min-height: 100dvh;
+  }
+
+  #root {
+    min-height: 100dvh;
   }
 
 }
@@ -107,10 +114,44 @@
     box-shadow: var(--shadow-card);
   }
   .safe-bottom {
-    padding-bottom: env(safe-area-inset-bottom, 16px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
   .safe-top {
     padding-top: env(safe-area-inset-top, 0px);
+  }
+  .safe-screen {
+    min-height: 100dvh;
+    height: 100dvh;
+    padding-top: calc(env(safe-area-inset-top, 0px) + 1rem);
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 1rem);
+    overflow: hidden;
+  }
+  .safe-top-offset {
+    top: calc(env(safe-area-inset-top, 0px) + 1rem);
+  }
+  .safe-bottom-nav {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.75rem);
+  }
+  .safe-bottom-action {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 1rem);
+  }
+  .safe-bottom-sheet {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 1.5rem);
+  }
+  .safe-toast-top {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 1rem);
+  }
+  .safe-map-control-low {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 6rem);
+  }
+  .safe-map-control-high {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 9rem);
+  }
+  .min-h-screen {
+    min-height: 100dvh;
+  }
+  .h-screen {
+    height: 100dvh;
   }
 }
 

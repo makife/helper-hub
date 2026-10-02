@@ -1029,7 +1029,7 @@ const CreateTask = () => {
       </div>
 
       {/* Submit Button */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 bg-background px-5 pb-4 pt-2 safe-bottom">
+      <div className="safe-bottom-action fixed bottom-0 left-0 right-0 z-30 bg-background px-5 pt-2">
         {!isValid && (
           <p className="mb-2 text-center text-xs text-muted-foreground">
             {!isValidCategory

@@ -47,7 +47,7 @@ const Onboarding = () => {
   const skip = () => navigate("/login");
 
   return (
-    <div className="flex min-h-screen flex-col bg-background px-6 pb-8 pt-12 safe-top safe-bottom">
+    <div className="safe-screen flex flex-col bg-background px-6">
       {/* Back / Skip controls */}
       <div className="mb-2 mt-2 grid h-10 grid-cols-2 items-center">
         {current > 0 ? (
@@ -71,7 +71,7 @@ const Onboarding = () => {
       </div>
 
       {/* Content */}
-      <div className="flex flex-1 flex-col items-center justify-center">
+      <div className="flex min-h-0 flex-1 flex-col items-center justify-center">
         <AnimatePresence mode="wait">
           <motion.div
             key={current}
@@ -79,14 +79,14 @@ const Onboarding = () => {
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: -80, opacity: 0 }}
             transition={{ duration: 0.35 }}
-            className="flex flex-col items-center text-center"
+            className="flex min-h-0 flex-col items-center text-center"
           >
             <img
               src={slides[current].image}
               alt={t(slides[current].title)}
               width={280}
               height={280}
-              className="mb-8"
+              className="mb-4 h-auto max-h-[34dvh] w-auto sm:mb-8"
             />
             <h2 className="mb-3 text-2xl font-black text-foreground">
               {t(slides[current].title)}
@@ -99,7 +99,7 @@ const Onboarding = () => {
       </div>
 
       {/* Dots */}
-      <div className="mb-6 flex justify-center gap-2">
+      <div className="mb-4 flex justify-center gap-2 sm:mb-6">
         {slides.map((_, i) => (
           <div
             key={i}

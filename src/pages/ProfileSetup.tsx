@@ -379,7 +379,7 @@ const ProfileSetup = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-background px-6 pb-8 pt-12 safe-top safe-bottom">
+    <div className="safe-screen flex flex-col bg-background px-6">
       <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
         <h1 className="mb-2 text-3xl font-black text-foreground">{t("Profilini Oluştur")}</h1>
         <p className="mb-6 text-base text-muted-foreground">{t("İnsanlar seni tanısın, güvensin.")}</p>

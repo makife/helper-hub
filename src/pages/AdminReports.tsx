@@ -103,8 +103,8 @@ const AdminReports = () => {
   const visible = filter === "open" ? rows.filter((r) => r.status === "pending") : rows;
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="sticky top-0 z-20 flex items-center gap-3 border-b border-border bg-card/95 px-4 py-3 backdrop-blur">
+    <div className="min-h-screen bg-background pb-24 safe-bottom">
+      <div className="sticky top-0 z-20 flex items-center gap-3 border-b border-border bg-card/95 px-4 pb-3 pt-[calc(env(safe-area-inset-top,0px)+0.75rem)] backdrop-blur">
         <button onClick={() => navigate(-1)} className="rounded-lg p-1.5 active:scale-95">
           <ArrowLeft size={20} className="text-foreground" />
         </button>

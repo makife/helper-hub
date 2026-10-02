@@ -286,7 +286,7 @@ const TaskDetailSheet = ({ task, onClose, onAccepted }: Props) => {
         animate={{ y: 0 }}
         exit={{ y: "100%" }}
         transition={{ type: "spring", damping: 25 }}
-        className="fixed bottom-0 left-0 right-0 z-[1001] max-h-[85vh] overflow-y-auto rounded-t-3xl bg-card p-6 shadow-lg"
+        className="safe-bottom-sheet fixed bottom-0 left-0 right-0 z-[1001] max-h-[85dvh] overflow-y-auto rounded-t-3xl bg-card p-6 shadow-lg"
       >
         <div className="mb-4 flex items-start justify-between">
           <div className="flex items-center gap-3">

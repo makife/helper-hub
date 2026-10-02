@@ -76,7 +76,7 @@ const Login = () => {
   const showApple = platform !== "android";
 
   return (
-    <div className="flex min-h-screen flex-col bg-background px-6 pb-8 pt-12 safe-top safe-bottom">
+    <div className="safe-screen flex flex-col bg-background px-6">
       <div className="mb-2 mt-2 flex h-10 items-center">
         <button
           onClick={() => navigate(-1)}
