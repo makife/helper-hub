@@ -10,6 +10,7 @@ import {
   APPLE_CLIENT_ID,
   APPLE_REDIRECT_URL,
 } from "@/config/socialAuth";
+import { withPrivacyScreenPaused } from "@/lib/privacyScreen";
 
 const PENDING_REFERRAL_KEY = "bielat_pending_referral_code";
 
@@ -60,24 +61,23 @@ export const signInNativeOAuth = async (provider: "google" | "apple") => {
   let res: Awaited<ReturnType<typeof SocialLogin.login>>;
 
   try {
-    res =
+    res = await withPrivacyScreenPaused<typeof res>(() =>
       provider === "google"
-        ? await SocialLogin.login({
+        ? SocialLogin.login({
             provider: "google",
             // Yetkili hesap filtresi kapalı olmalı; aksi halde yeni kurulumlar ve
             // Family Link hesapları Credential Manager tarafından elenebilir.
-            // Eklenti [16] hatasında kendi durum temizleme + tek yeniden deneme
-            // akışını zaten uyguluyor, burada ikinci bir tekrar başlatmıyoruz.
             options: {
               style: "standard",
               filterByAuthorizedAccounts: false,
               autoSelectEnabled: false,
             },
           })
-        : await SocialLogin.login({
+        : SocialLogin.login({
             provider: "apple",
             options: { scopes: ["email", "name"] },
-          });
+          }),
+    );
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     if (provider === "google" && /\[16\]|reauth|16:/i.test(msg)) {
