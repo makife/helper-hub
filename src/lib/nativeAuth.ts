@@ -45,6 +45,27 @@ const ensureInit = async () => {
   initialized = true;
 };
 
+const createRawNonce = () => {
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+};
+
+const sha256Hex = async (value: string) => {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
+  return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
+};
+
+const readTokenNonce = (jwt: string): string | undefined => {
+  try {
+    const part = jwt.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    const json = JSON.parse(atob(part.padEnd(part.length + ((4 - (part.length % 4)) % 4), "=")));
+    return typeof json.nonce === "string" ? json.nonce : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 /**
  * Native (Android/iOS) Google/Apple girişi.
  * Tarayıcı açılmaz: sistemin hesap seçici ekranı gelir, dönen ID token
@@ -57,6 +78,11 @@ export const signInNativeOAuth = async (provider: "google" | "apple") => {
 
 
   await ensureInit();
+
+  // iOS Google/Apple SDK'ları id_token içine nonce koyuyor; sunucu da aynı
+  // nonce'u bekliyor. Sağlayıcıya SHA-256 özetini, sunucuya ham değeri veriyoruz.
+  const rawNonce = createRawNonce();
+  const hashedNonce = await sha256Hex(rawNonce);
 
   let res: Awaited<ReturnType<typeof SocialLogin.login>>;
 
@@ -71,11 +97,12 @@ export const signInNativeOAuth = async (provider: "google" | "apple") => {
               style: "standard",
               filterByAuthorizedAccounts: false,
               autoSelectEnabled: false,
+              nonce: hashedNonce,
             },
           })
         : SocialLogin.login({
             provider: "apple",
-            options: { scopes: ["email", "name"] },
+            options: { scopes: ["email", "name"], nonce: hashedNonce },
           }),
     );
   } catch (err) {
@@ -104,9 +131,12 @@ export const signInNativeOAuth = async (provider: "google" | "apple") => {
     throw new Error("Kimlik doğrulama anahtarı alınamadı");
   }
 
+  const tokenNonce = readTokenNonce(idToken);
   const { error } = await supabase.auth.signInWithIdToken({
     provider: provider === "google" ? "google" : "apple",
     token: idToken,
+    // Token'da nonce varsa ham değeri gönder; yoksa (ör. Android) hiç gönderme.
+    ...(tokenNonce ? { nonce: rawNonce } : {}),
   });
   if (error) {
     console.error("Supabase signInWithIdToken hatası:", error.status, error.message);
