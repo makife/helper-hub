@@ -4,6 +4,10 @@ const config: CapacitorConfig = {
   appId: 'com.ergan.bielat',
   appName: "Bi' El At",
   webDir: 'dist',
+  ios: {
+    contentInset: 'never',
+    scrollEnabled: true,
+  },
   plugins: {
     FirebaseAuthentication: {
       skipNativeAuth: false,
