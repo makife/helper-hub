@@ -13,3 +13,24 @@ export const enablePrivacyScreen = () => {
     console.warn("Gizlilik ekranı etkinleştirilemedi:", err);
   });
 };
+
+/**
+ * Sistem penceresi açan işlemler (Google/Apple giriş, SMS doğrulama) sırasında
+ * gizlilik ekranını geçici olarak kapatır. iOS'ta eklenti uygulama pasifleşince
+ * en üstteki pencerenin üzerine gri bir kaplama açıyor ve geri dönüşte onu
+ * kapatırken Google hesap seçicisini de kapatıp çökmeye yol açıyordu.
+ */
+export const withPrivacyScreenPaused = async <T,>(fn: () => Promise<T>): Promise<T> => {
+  if (!Capacitor.isNativePlatform()) return fn();
+  try {
+    await PrivacyScreen.disable();
+  } catch (err) {
+    console.warn("Gizlilik ekranı durdurulamadı:", err);
+  }
+  try {
+    return await fn();
+  } finally {
+    // Sistem penceresi tamamen kapanıp uygulama aktif olduktan sonra geri aç.
+    setTimeout(() => enablePrivacyScreen(), 800);
+  }
+};
