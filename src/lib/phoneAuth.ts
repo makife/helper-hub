@@ -10,6 +10,7 @@
  * Firebase oturumu uygulamada kullanılmaz, hemen kapatılır.
  */
 import { Capacitor } from "@capacitor/core";
+import { withPrivacyScreenPaused } from "@/lib/privacyScreen";
 import { FirebaseAuthentication } from "@capacitor-firebase/authentication";
 import { getApp, getApps, initializeApp } from "firebase/app";
 import {
@@ -93,7 +94,9 @@ export const sendPhoneCode = async (
         },
       );
       try {
-        await FirebaseAuthentication.signInWithPhoneNumber({ phoneNumber: phone });
+        await withPrivacyScreenPaused(() =>
+          FirebaseAuthentication.signInWithPhoneNumber({ phoneNumber: phone }),
+        );
         for (let i = 0; i < 60 && !nativeVerificationId && !failMsg; i++) {
           await new Promise((r) => setTimeout(r, 500));
         }
