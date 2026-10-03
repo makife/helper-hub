@@ -61,7 +61,7 @@ export const signInNativeOAuth = async (provider: "google" | "apple") => {
   let res: Awaited<ReturnType<typeof SocialLogin.login>>;
 
   try {
-    res = await withPrivacyScreenPaused(() =>
+    res = await withPrivacyScreenPaused<typeof res>(() =>
       provider === "google"
         ? SocialLogin.login({
             provider: "google",
