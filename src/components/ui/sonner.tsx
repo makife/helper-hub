@@ -11,6 +11,9 @@ const Toaster = ({ ...props }: ToasterProps) => {
       theme={theme as ToasterProps["theme"]}
       className="toaster group"
       position="top-center"
+      // iOS çentik/durum çubuğunun altında kalsın.
+      offset={{ top: "calc(env(safe-area-inset-top, 0px) + 12px)" }}
+      mobileOffset={{ top: "calc(env(safe-area-inset-top, 0px) + 12px)" }}
       richColors
       closeButton
       duration={6000}
