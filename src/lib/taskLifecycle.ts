@@ -42,7 +42,17 @@ export const markArrival = async (taskId: string, taskLat: number, taskLng: numb
     _lat: position.coords.latitude,
     _lng: position.coords.longitude,
   });
-  if (error) return { ok: false, distance, message: translate("Varış kaydedilemedi, tekrar dene.") };
+  if (error) {
+    console.error("mark_arrival hatası:", error.code, error.message);
+    if (/uzerinde degilsin/i.test(error.message)) {
+      return { ok: false, distance, message: translate("Bu işin üzerinde değilsin.") };
+    }
+    return {
+      ok: false,
+      distance,
+      message: `${translate("Varış kaydedilemedi, tekrar dene.")} (${error.code ?? "?"}: ${error.message})`,
+    };
+  }
   if (data === false) return { ok: false, distance, message: translate("İş konumuna {distance} m uzaktasın. Varış kaydı için {radius} m içine girmelisin.", { distance, radius: ARRIVAL_RADIUS_M }) };
   return { ok: true, distance, message: translate("Varışın kaydedildi ({distance} m).", { distance }) };
 };
