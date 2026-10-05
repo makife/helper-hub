@@ -51,6 +51,12 @@
 	<false/>
 
 	<!-- Konum İzinleri (Açılışta kilitlenmeyi önler) -->
+	<key>NSCameraUsageDescription</key>
+	<string>Profil fotoğrafı ve doğrulama belgelerini çekebilmek için kamera erişimi gerekir.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Profil fotoğrafı ve doğrulama belgelerini seçebilmek için fotoğraf arşivine erişim gerekir.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Çekilen fotoğrafları kaydedebilmek için fotoğraf arşivine erişim gerekir.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Yakınınızdaki iş ve yardım taleplerini harita üzerinde gösterebilmek için konum iznine ihtiyaç duyulmaktadır.</string>
 

@@ -12,6 +12,42 @@ export const enablePrivacyScreen = () => {
   PrivacyScreen.enable().catch((err) => {
     console.warn("Gizlilik ekranı etkinleştirilemedi:", err);
   });
+  installFilePickerGuard();
+};
+
+let pickerGuardInstalled = false;
+/**
+ * iOS'ta dosya/kamera seçici açılınca uygulama pasifleşiyor ve gizlilik ekranı
+ * seçicinin üstüne açılıp kapanırken seçiciyi de kapatarak çökmeye yol açıyor.
+ * Dosya girişine dokunulduğunda korumayı durdurup, seçim bitince geri açıyoruz.
+ */
+const installFilePickerGuard = () => {
+  if (pickerGuardInstalled || Capacitor.getPlatform() !== "ios") return;
+  pickerGuardInstalled = true;
+  let paused = false;
+  const resume = () => {
+    if (!paused) return;
+    paused = false;
+    setTimeout(() => enablePrivacyScreen(), 800);
+  };
+  document.addEventListener(
+    "click",
+    (e) => {
+      const el = e.target as HTMLElement | null;
+      if (el instanceof HTMLInputElement && el.type === "file") {
+        paused = true;
+        void PrivacyScreen.disable().catch(() => {});
+      }
+    },
+    true,
+  );
+  document.addEventListener("change", (e) => {
+    if (e.target instanceof HTMLInputElement && e.target.type === "file") resume();
+  }, true);
+  document.addEventListener("cancel", (e) => {
+    if (e.target instanceof HTMLInputElement && e.target.type === "file") resume();
+  }, true);
+  window.addEventListener("focus", () => setTimeout(resume, 1500));
 };
 
 /**
