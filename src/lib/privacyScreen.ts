@@ -8,7 +8,9 @@ import { PrivacyScreen } from "@capacitor-community/privacy-screen";
  * Web'de hiçbir şey yapmaz.
  */
 export const enablePrivacyScreen = () => {
-  if (!Capacitor.isNativePlatform()) return;
+  // iOS'ta ekran görüntüsü engeli güvenilir değil ve arayüzü yavaşlatıyordu;
+  // yalnızca Android'de (FLAG_SECURE) açık.
+  if (Capacitor.getPlatform() !== "android") return;
   PrivacyScreen.enable().catch((err) => {
     console.warn("Gizlilik ekranı etkinleştirilemedi:", err);
   });
@@ -57,7 +59,7 @@ const installFilePickerGuard = () => {
  * kapatırken Google hesap seçicisini de kapatıp çökmeye yol açıyordu.
  */
 export const withPrivacyScreenPaused = async <T,>(fn: () => Promise<T>): Promise<T> => {
-  if (!Capacitor.isNativePlatform()) return fn();
+  if (Capacitor.getPlatform() !== "android") return fn();
   try {
     await PrivacyScreen.disable();
   } catch (err) {

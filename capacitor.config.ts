@@ -14,8 +14,9 @@ const config: CapacitorConfig = {
       providers: ['phone'],
     },
     PrivacyScreen: {
-      enable: true,
-      preventScreenshots: true,
+      // iOS'ta kapalı (performans); Android'de koddan açılıyor.
+      enable: false,
+      preventScreenshots: false,
     },
   },
 };
