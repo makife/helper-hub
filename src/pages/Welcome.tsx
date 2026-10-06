@@ -63,6 +63,12 @@ const Welcome = () => {
         <rect y="120" width="640" height="240" fill="#F1BF00" />
       </svg>
     ),
+    zh: (
+      <svg viewBox="0 0 640 480" className="h-4 w-auto rounded-sm">
+        <rect width="640" height="480" fill="#C8102E" />
+        <text x="320" y="345" textAnchor="middle" fontSize="300" fontWeight="bold" fill="#FFFFFF">中</text>
+      </svg>
+    ),
   };
 
   const langOptions = [
@@ -71,6 +77,7 @@ const Welcome = () => {
     { code: "ar" as const, label: "العربية" },
     { code: "pt" as const, label: "Português" },
     { code: "es" as const, label: "Español" },
+    { code: "zh" as const, label: "繁體中文" },
   ];
 
   useEffect(() => {
