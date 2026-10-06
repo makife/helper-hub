@@ -297,6 +297,12 @@ const Profile = () => {
         <rect y="120" width="640" height="240" fill="#F1BF00" />
       </svg>
     ),
+    zh: (
+      <svg viewBox="0 0 640 480" className="h-4 w-auto rounded-sm">
+        <rect width="640" height="480" fill="#C8102E" />
+        <text x="320" y="345" textAnchor="middle" fontSize="300" fontWeight="bold" fill="#FFFFFF">中</text>
+      </svg>
+    ),
   };
 
   const langOptions = [
@@ -305,6 +311,7 @@ const Profile = () => {
     { code: "ar" as const, label: "العربية" },
     { code: "pt" as const, label: "Português" },
     { code: "es" as const, label: "Español" },
+    { code: "zh" as const, label: "繁體中文" },
   ];
 
   return (
@@ -838,7 +845,7 @@ const Profile = () => {
         open={!!pendingLang}
         title={t("Dil Değiştir")}
         description={t("Uygulama dilini {lang} olarak değiştirmek istiyor musunuz?", {
-          lang: pendingLang === "tr" ? t("Türkçe") : pendingLang === "ar" ? t("Arapça") : pendingLang === "pt" ? "Português" : pendingLang === "es" ? "Español" : t("İngilizce"),
+          lang: pendingLang === "tr" ? t("Türkçe") : pendingLang === "ar" ? t("Arapça") : pendingLang === "pt" ? "Português" : pendingLang === "es" ? "Español" : pendingLang === "zh" ? "繁體中文" : t("İngilizce"),
         })}
         confirmLabel={t("Değiştir")}
         cancelLabel={t("Vazgeç")}

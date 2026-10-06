@@ -4,6 +4,7 @@ const MONTHS_TR = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Ey
 const MONTHS_EN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const MONTHS_PT = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
 const MONTHS_ES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sept", "oct", "nov", "dic"];
+const MONTHS_ZH = ["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"];
 const MONTHS_AR = [
   "يناير",
   "فبراير",
@@ -19,10 +20,11 @@ const MONTHS_AR = [
   "ديسمبر",
 ];
 
-const monthsFor = (lang: Lang) => (lang === "en" ? MONTHS_EN : lang === "ar" ? MONTHS_AR : lang === "pt" ? MONTHS_PT : lang === "es" ? MONTHS_ES : MONTHS_TR);
+const monthsFor = (lang: Lang) => (lang === "en" ? MONTHS_EN : lang === "ar" ? MONTHS_AR : lang === "pt" ? MONTHS_PT : lang === "es" ? MONTHS_ES : lang === "zh" ? MONTHS_ZH : MONTHS_TR);
 const months = () => monthsFor(getLang());
 
 const datePartFor = (lang: Lang, day: number, month: string, year: number, withYear: boolean) => {
+  if (lang === "zh") return withYear ? `${year}年${month}${day}日` : `${month}${day}日`;
   if (lang === "en") return withYear ? `${month} ${day}, ${year}` : `${month} ${day}`;
   return withYear ? `${day} ${month} ${year}` : `${day} ${month}`;
 };
@@ -47,7 +49,8 @@ export const formatDate = (iso: string) => {
 export const timeAgoIn = (date: string, lang: Lang) => {
   const diff = Date.now() - new Date(date).getTime();
   const mins = Math.floor(diff / 60000);
-  const unit = (en: string, tr: string, ar: string, pt: string) => (lang === "en" ? en : lang === "ar" ? ar : lang === "pt" || lang === "es" ? pt : tr);
+  const zhU: Record<string, string> = { now: "剛剛", min: "分鐘", h: "小時", d: "天" };
+  const unit = (en: string, tr: string, ar: string, pt: string) => (lang === "zh" ? zhU[en] ?? en : lang === "en" ? en : lang === "ar" ? ar : lang === "pt" || lang === "es" ? pt : tr);
   if (mins < 1) return unit("now", "şimdi", "الآن", lang === "es" ? "ahora" : "agora");
   if (mins < 60) return `${mins} ${unit("min", "dk", "د", "min")}`;
   const hours = Math.floor(mins / 60);
