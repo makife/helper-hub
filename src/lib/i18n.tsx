@@ -3,13 +3,14 @@ import { EN } from "@/locales/en/index";
 import { AR } from "@/locales/ar/index";
 import { PT } from "@/locales/pt/index";
 import { ES } from "@/locales/es/index";
+import { ZH } from "@/locales/zh/index";
 import { supabase } from "@/integrations/supabase/client";
 
-export type Lang = "tr" | "en" | "ar" | "pt" | "es";
+export type Lang = "tr" | "en" | "ar" | "pt" | "es" | "zh";
 
 const STORAGE_KEY = "bielat_lang";
 
-const LANGS: Lang[] = ["tr", "en", "ar", "pt", "es"];
+const LANGS: Lang[] = ["tr", "en", "ar", "pt", "es", "zh"];
 const isLang = (v: unknown): v is Lang => typeof v === "string" && (LANGS as string[]).includes(v);
 
 const DICTS: Record<Lang, Record<string, string> | null> = {
@@ -18,11 +19,12 @@ const DICTS: Record<Lang, Record<string, string> | null> = {
   ar: AR,
   pt: PT,
   es: ES,
+  zh: ZH,
 };
 
 /** BCP47 locale used for date/number formatting */
 export const localeTag = (lang: Lang = getLang()) =>
-  lang === "en" ? "en-US" : lang === "ar" ? "ar" : lang === "pt" ? "pt-PT" : lang === "es" ? "es-ES" : "tr-TR";
+  lang === "en" ? "en-US" : lang === "ar" ? "ar" : lang === "pt" ? "pt-PT" : lang === "es" ? "es-ES" : lang === "zh" ? "zh-TW" : "tr-TR";
 
 export const isRtl = (lang: Lang) => lang === "ar";
 
@@ -49,6 +51,7 @@ export const detectInitialLang = (): Lang => {
   if (nav.startsWith("ar")) return "ar";
   if (nav.startsWith("pt")) return "pt";
   if (nav.startsWith("es")) return "es";
+  if (nav.startsWith("zh")) return "zh";
   return "en";
 };
 
